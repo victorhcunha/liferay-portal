@@ -11,26 +11,33 @@
 
 <tbody>
 <tr>
-	<td></td>
-	<td></td>
-	<td></td>
-</tr>
-<tr>
-	<td></td>
-	<td></td>
+	<td>PAINEL_OPTIONS</td>
+	<td>//div[contains(@class, 'list-group')]//a[contains(@class, 'collapse')  and contains(text(),'${key_entryOptions}')]</td>
 	<td></td>
 </tr>
 <tr>
-	<td></td>
-	<td></td>
+	<td>CONTENT_DATA_OPTIONS</td>
+	<td>//ul[contains(@class, 'nav-stacked')]//li[contains(@class, 'nav-item')]//a[contains(text(), '${key_entryAlternatives}')]</td>
 	<td></td>
 </tr>
 <tr>
+	<td>ADD_BLOG</td>
+	<td>//a[contains(@class, 'nav-btn nav-btn-monospaced')]</td>
 	<td></td>
+</tr>
+<tr>
+	<td>SELECT_FILE</td>
+	<td>//div[contains(@class, 'drop-zone draggable-image')]//div[contains(@class, 'browse-image-controls')]//span[contains(@class, 'pr-1')]//button[contains(@class, 'btn btn-secondary')]</td>
 	<td></td>
+</tr>
+<tr>
+	<td>OPEN_MENU</td>
+	<td>//button[contains(@class, 'dropdown-toggle lfr-portal-tooltip')]</td>
 	<td></td>
 </tr>
 </tbody>
 </table>
 </body>
 </html>
+
+

@@ -1,7 +1,25 @@
 definition {
 
-    macro addEntry {
-		BlogsNavigator.gotoAddEntry();
-    }
-    
+   macro openPainel {
+     Click(
+       key_entryOptions = "${entryOptions}",
+
+       locator1 = "MyBlogsTests#PAINEL_OPTIONS");
+   }
+
+   macro contentDataOptions {
+     Click(
+        key_entryOptions = "${entryAlternatives}", 
+
+        locator1 = "MyBlogsTests#CONTENT_DATA_OPTIONS");
+   }
+
+   macro addBlog {
+     Click(locator1 = "MyBlogsTests#ADD_BLOG");
+   }
+
+   macro selectFile {
+     Click(locator1 = "MyBlogsTests#SELECT_FILE");
+   }
+
 }
