@@ -28,15 +28,14 @@ definition {
         MyBlogsTests.openPainel(key_entryOptions = "Content & Data");	
 
         MyBlogsTests.contentDataOptions(
-            key_entryAlternatives = "Blogs"
-        );
+            key_entryAlternatives = "Blogs");
 
         MyBlogsTests.addBlog();
 
-        MyBlogsTests.selectFile();
-
-
-
+       BlogsEntry.addEntryContent(
+			entryContent = "Blogs Entry Content",
+			entrySubtitle = "Blogs Entry Subtitle",
+			entryTitle = "Blogs Entry Title");
     }
  
         @description = "Can Create a Blog"

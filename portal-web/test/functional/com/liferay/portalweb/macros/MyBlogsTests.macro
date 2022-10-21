@@ -17,9 +17,3 @@ definition {
    macro addBlog {
      Click(locator1 = "MyBlogsTests#ADD_BLOG");
    }
-
-   macro selectFile {
-     Click(locator1 = "MyBlogsTests#SELECT_FILE");
-   }
-
-}

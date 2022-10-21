@@ -26,13 +26,33 @@
 	<td></td>
 </tr>
 <tr>
-	<td>SELECT_FILE</td>
-	<td>//div[contains(@class, 'drop-zone draggable-image')]//div[contains(@class, 'browse-image-controls')]//span[contains(@class, 'pr-1')]//button[contains(@class, 'btn btn-secondary')]</td>
+	<td></td>
+	<td></td>
 	<td></td>
 </tr>
 <tr>
-	<td>OPEN_MENU</td>
-	<td>//button[contains(@class, 'dropdown-toggle lfr-portal-tooltip')]</td>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
+	<td></td>
+</tr>
+<tr>
+	<td></td>
+	<td></td>
 	<td></td>
 </tr>
 </tbody>
