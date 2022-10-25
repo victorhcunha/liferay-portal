@@ -17,3 +17,5 @@ definition {
    macro addBlog {
      Click(locator1 = "MyBlogsTests#ADD_BLOG");
    }
+
+}

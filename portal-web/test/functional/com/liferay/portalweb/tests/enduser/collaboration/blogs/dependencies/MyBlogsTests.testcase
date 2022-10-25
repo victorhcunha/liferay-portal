@@ -24,6 +24,7 @@ definition {
     @priority = "5"
     test CanCreateBlog {
 
+        MyTestFile.openHome();
 
         MyBlogsTests.openPainel(key_entryOptions = "Content & Data");	
 
@@ -36,6 +37,8 @@ definition {
 			entryContent = "Blogs Entry Content",
 			entrySubtitle = "Blogs Entry Subtitle",
 			entryTitle = "Blogs Entry Title");
+
+
     }
  
         @description = "Can Create a Blog"
