@@ -1,0 +1,55 @@
+@component-name = "portal-web-forms-and-data-lists"
+definition {
+    property testray.main.component.name = "Forms";
+
+    setUp {
+        TestCase.setUpPortalInstance();
+
+        User.firstLoginPG();
+
+        Navigator.openURL();
+    }
+
+    tearDown {
+        User.logoutAndLoginPG(
+            userLoginEmailAddress = "test@liferay.com",
+            userLoginFullName = "Test Test");
+    }
+
+    @description = "Access Portal Global Menu and validate CONFIGURATION string at Control Panel"
+    @priority = "5"
+    test ValidateConfigurationStringAtControlPanel {
+
+        Click(locator1 = "//button[@data-qa-id='applicationsMenu']");
+        Click(locator1 = "//li[@id='_com_liferay_product_navigation_applications_menu_web_internal_portlet_ProductNavigationApplicationsMenuPortlet_tab_2']");
+        AssertElementPresent(locator1 = "//h2[contains(text(),'Configuration')]");
+    }
+
+    @description = "Set Screen size to custom and validate values"
+    @priority = "5"
+    test SetScreenSizeAndValidateValues {
+    
+        Click(locator1 = "//button[@data-qa-id='simulation']");
+        Click(locator1 = "//button[@data-device='custom']");
+        Type.clickAtType(
+            locator1 = "//input[@id='_com_liferay_product_navigation_simulation_web_portlet_SimulationPortlet_height']",
+            value1 = "1920"
+            );
+        Type.clickAtType(
+            locator1 = "//input[@id='_com_liferay_product_navigation_simulation_web_portlet_SimulationPortlet_width']",
+            value1 = "1080"
+            );
+
+        Click(locator1 = "//div[@id='_com_liferay_product_navigation_simulation_web_portlet_SimulationPortlet_simulationPanelId']//button[@class='btn btn-monospaced btn-unstyled close sidenav-close']");
+        Click(locator1 = "//button[@data-qa-id='simulation']");
+        Click(locator1 = "//button[@data-device='custom']");
+        AssertTextEquals(
+            locator1 = "//input[@id='_com_liferay_product_navigation_simulation_web_portlet_SimulationPortlet_height']",
+            value1 = "1920"
+        );  
+        AssertTextEquals(
+            locator1 = "//input[@id='_com_liferay_product_navigation_simulation_web_portlet_SimulationPortlet_width']",
+            value1 = "1080"
+        );
+    }
+}
