@@ -1,88 +1,129 @@
 @component-name = "portal-web-forms-and-data-lists"
 definition {
-    property testray.main.component.name = "Forms";
 
-    setUp {
-        TestCase.setUpPortalInstance();
+	property testray.main.component.name = "Forms";
 
-        User.firstLoginPG();
+	setUp {
+		TestCase.setUpPortalInstance();
 
-        Navigator.openURL();
-    }
+		User.firstLoginPG();
 
-    tearDown {
-        Navigator.openURL();   
-        ProductMenu.gotoPortlet(
+		Navigator.openURL();
+	}
+
+	tearDown {
+		Navigator.openURL();
+
+		ProductMenu.gotoPortlet(
 			category = "Content & Data",
 			portlet = "Forms");
 
+		FormsAdmin.viewForm(
+			formDescription = "English Description",
+			formName = "English Form");
 
-        FormsAdmin.viewForm(formName = "English Form", formDescription = "English Description");
-        LexiconEntry.gotoVerticalEllipsisMenuItemNoError(menuItem = "Delete");
+		LexiconEntry.gotoVerticalEllipsisMenuItemNoError(menuItem = "Delete");
 
 		AssertConfirm(value1 = "Are you sure you want to delete this? It will be deleted immediately.");
 
 		Alert.viewSuccessMessage();
-        User.logoutAndLoginPG(
-            userLoginEmailAddress = "test@liferay.com",
-            userLoginFullName = "Test Test");
-    }
 
-    @description = "Access Portal and create e validate NEW FORMS"
-    @priority = "5"
-    test ValidateFormsPortal {
-        var successPageTitlePortuguese = "Obrigado.";
-        var successPageDescriptionPortuguese = "Suas informações foram recebidas com sucesso. Obrigado por preencher o formulário.";
+		User.logoutAndLoginPG(
+			userLoginEmailAddress = "test@liferay.com",
+			userLoginFullName = "Test Test");
+	}
 
+	@description = "Access Portal and create e validate NEW FORMS"
+	@priority = "5"
+	test ValidateFormsPortal {
+		var successPageTitlePortuguese = "Obrigado.";
+		var successPageDescriptionPortuguese = "Suas informações foram recebidas com sucesso. Obrigado por preencher o formulário.";
 
-        FormsAdmin.addForm();
-        Form.editName(formTitle = "English Form");
-        Form.editDescription(formDescription = "English Description");
+		FormsAdmin.addForm();
 
-        Form.gotoAddField(fieldType = "Text");
-        FormFields.editText(fieldName = "Label", fieldValue = "Full Name");
-        Form.closeSidebar();
-        Form.gotoAddField(fieldType = "Numeric", fieldPositionNumber = "1");
-        FormFields.editText(fieldName = "Label", fieldValue = "Age");
+		Form.editName(formTitle = "English Form");
 
+		Form.editDescription(formDescription = "English Description");
 
-        Form.addTranslation(localizedLanguage = "Portuguese (Brazil)");
-        Form.editName(formTitle = "Formulário em Português");
-        Form.editDescription(formDescription = "Descrição em Português");
+		Form.gotoAddField(fieldType = "Text");
 
-        FormViewBuilder.editFieldLabel(
-            fieldLabel = "Age",
-            label = "Idade");
-        FormViewBuilder.editFieldLabel(
-            fieldLabel = "Full Name",
-            label = "Nome Completo");
+		FormFields.editText(
+			fieldName = "Label",
+			fieldValue = "Full Name");
 
-        Form.editSuccessPage(successPageTitle = "${successPageTitlePortuguese}" ,successPageDescription = "${successPageDescriptionPortuguese}");
-        Form.publishForm();
+		Form.closeSidebar();
 
-        FormsAdminNavigator.gotoPublishedForm();
-        FormFields.editText(fieldName = "Full Name", fieldValue = "Victor Cunha");
-        FormFields.editText(fieldName = "Age", fieldValue = "24");
+		Form.gotoAddField(
+			fieldPositionNumber = "1",
+			fieldType = "Numeric");
 
-    
-        FormPortlet.submitSuccessfullyAndViewSuccessPage();
-        Form.submitAgain();
-        FormPortlet.changeLocale(locale = "português-Brasil");
-        FormFields.editText(fieldName = "Nome Completo", fieldValue = "Marcos Victor");
-        FormFields.editText(fieldName = "Idade", fieldValue = "20");
-        FormPortlet.submitSuccessfullyAndViewSuccessPage(successPageTitle = "${successPageTitlePortuguese}" ,successPageDescription = "${successPageDescriptionPortuguese}");
+		FormFields.editText(
+			fieldName = "Label",
+			fieldValue = "Age");
 
-        Navigator.openURL();
-        ProductMenu.gotoPortlet(
+		Form.addTranslation(localizedLanguage = "Portuguese (Brazil)");
+
+		Form.editName(formTitle = "Formulário em Português");
+
+		Form.editDescription(formDescription = "Descrição em Português");
+
+		FormViewBuilder.editFieldLabel(
+			fieldLabel = "Age",
+			label = "Idade");
+
+		FormViewBuilder.editFieldLabel(
+			fieldLabel = "Full Name",
+			label = "Nome Completo");
+
+		Form.editSuccessPage(
+			successPageDescription = "${successPageDescriptionPortuguese}",
+			successPageTitle = "${successPageTitlePortuguese}");
+
+		Form.publishForm();
+
+		FormsAdminNavigator.gotoPublishedForm();
+
+		FormFields.editText(
+			fieldName = "Full Name",
+			fieldValue = "Victor Cunha");
+
+		FormFields.editText(
+			fieldName = "Age",
+			fieldValue = "24");
+
+		FormPortlet.submitSuccessfullyAndViewSuccessPage();
+
+		Form.submitAgain();
+
+		FormPortlet.changeLocale(locale = "português-Brasil");
+
+		FormFields.editText(
+			fieldName = "Nome Completo",
+			fieldValue = "Marcos Victor");
+
+		FormFields.editText(
+			fieldName = "Idade",
+			fieldValue = "20");
+
+		FormPortlet.submitSuccessfullyAndViewSuccessPage(
+			successPageDescription = "${successPageDescriptionPortuguese}",
+			successPageTitle = "${successPageTitlePortuguese}");
+
+		Navigator.openURL();
+
+		ProductMenu.gotoPortlet(
 			category = "Content & Data",
 			portlet = "Forms");
 
-        FormsAdminNavigator.gotoViewEntries(formName = "English Form");
-        FormsAdmin.viewFormTableEntry(fieldLabel = "Victor Cunha", fieldValue = "24");
-        FormsAdmin.viewFormTableEntry(fieldLabel = "Marcos Victor", fieldValue = "20");
+		FormsAdminNavigator.gotoViewEntries(formName = "English Form");
 
-        
+		FormsAdmin.viewFormTableEntry(
+			fieldLabel = "Victor Cunha",
+			fieldValue = "24");
 
-}
+		FormsAdmin.viewFormTableEntry(
+			fieldLabel = "Marcos Victor",
+			fieldValue = "20");
+	}
 
 }
