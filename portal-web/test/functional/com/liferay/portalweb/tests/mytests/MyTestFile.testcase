@@ -20,10 +20,6 @@ definition {
 	@description = "Set Screen size to custom and validate values"
 	@priority = "5"
 	test SetScreenSizeAndValidateValues {
-
-		
-
-
 		MyTestFile.goCustomButton();
 
 		MyTestFile.clickAtTypeHeightWidth(

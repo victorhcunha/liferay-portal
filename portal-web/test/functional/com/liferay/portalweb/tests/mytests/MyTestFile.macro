@@ -1,6 +1,5 @@
 definition {
 
-
 	macro assertConfigurationIsPresent {
 		AssertElementPresent(locator1 = "MyTestFile#CONFIGURATION_MENU");
 	}
@@ -17,13 +16,6 @@ definition {
 			locator1 = "MyTestFile#WIDTH_CONFIGURATION",
 			value1 = "${width}");
 	}
-
-
-
-
-
-
-		
 
 	macro clickAtTypeHeightWidth {
 		var newHeight = "${newHeight}";
@@ -53,7 +45,5 @@ definition {
 
 		Click(locator1 = "MyTestFile#NAVIGATION_CONTROL_PAINEL");
 	}
-
-
 
 }
