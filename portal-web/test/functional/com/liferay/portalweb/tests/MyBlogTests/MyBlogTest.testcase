@@ -1,0 +1,57 @@
+@component-name = "portal-lima"
+definition {
+    property testray.main.component.name = "Blogs";
+
+    setUp {
+
+        TestCase.setUpPortalInstance();
+
+        User.firstLoginPG();
+        JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blogs Page");
+        JSONLayout.addWidgetToPublicLayout(
+			groupName = "Guest",
+			layoutName = "Blogs Page",
+			widgetName = "Blogs");
+
+        JSONBlog.addEntry(entryTitle = "Blog Entry 1", entryContent = "");
+        JSONBlog.addEntry(entryTitle = "Blog Entry 2", entryContent = "");
+        
+        BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
+        
+    }
+
+    tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+        else {
+			BlogsEntry.tearDownCP();
+            Navigator.openURL();
+            ProductMenu.gotoPortlet(
+			category = "Site Builder",
+			portlet = "Pages");
+            PagesAdmin.deletePage(pageName = "Blogs Page");
+
+    }
+    }
+
+
+    @description = "Can Edit a Blog"
+    @priority = "5"
+    test CanEditBlog {
+		
+        BlogsNavigator.gotoEditCP(entryTitle = "Blog Entry 1");
+
+        BlogsEntry.editTitle(entryTitle = "Blog Entry 1", entryTitleEdit= "Blog Title Edited");
+        BlogsEntry.addContent(entryContent = "Edited Content");
+        Button.clickPublish();
+        Alert.viewSuccessMessageText(successMessage = "Your request completed successfully.");
+    
+
+
+    }
+}
