@@ -81,4 +81,19 @@ definition {
 		BlogsEntry.viewEntryPG(entryTitle = "Blog Title Edited");
 	}
 
+	@description = "Can Search Blogs"
+    @priority = "5"
+    test CanSearchBlogs {
+		Blogs.addEntry(
+			entryContent = "Created",
+			entryTitle = "Created");
+			Navigator.openURL();
+
+		Search.searchCP(searchTerm = "Created");	
+		Search.viewNoResultAssetTitle(searchAssetTitle="Blog Entry 1");
+		Search.viewNoResultAssetTitle(searchAssetTitle="Blog Entry 2");
+
+		Search.viewResultAssetTitle(searchAssetTitle="Created");
+
+    }
 }
