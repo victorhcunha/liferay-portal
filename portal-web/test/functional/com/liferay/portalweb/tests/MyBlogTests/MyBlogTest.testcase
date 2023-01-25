@@ -93,4 +93,16 @@ definition {
 
 
     }
+
+	@description = "Can Delete a Blog"
+    @priority = "5"
+    test CanDeleteBlog {
+	
+		Navigator.gotoPage(pageName = "Blogs Page");
+
+		BlogsEntry.moveToRecycleBinPG(entryTitle = "Blog One",entryContent="Blog One Content");
+
+	
+
+    }
 }
