@@ -18,12 +18,12 @@ definition {
 			widgetName = "Blogs");
 
 		JSONBlog.addEntry(
-			entryContent = "",
-			entryTitle = "Blog Entry 1");
+			entryContent = "Blog One Content",
+			entryTitle = "Blog One");
 
 		JSONBlog.addEntry(
-			entryContent = "",
-			entryTitle = "Blog Entry 2");
+			entryContent = "Blog Two Content",
+			entryTitle = "Blog Two");
 
 		BlogsNavigator.openBlogsAdmin(siteURLKey = "guest");
 	}
@@ -64,10 +64,10 @@ definition {
 	@description = "Can Edit a Blog"
 	@priority = "5"
 	test CanEditBlog {
-		BlogsNavigator.gotoEditCP(entryTitle = "Blog Entry 1");
+		BlogsNavigator.gotoEditCP(entryTitle = "Blog One");
 
 		BlogsEntry.editTitle(
-			entryTitle = "Blog Entry 1",
+			entryTitle = "Blog One",
 			entryTitleEdit = "Blog Title Edited");
 
 		BlogsEntry.addContent(entryContent = "Edited Content");
@@ -84,16 +84,13 @@ definition {
 	@description = "Can Search Blogs"
     @priority = "5"
     test CanSearchBlogs {
-		Blogs.addEntry(
-			entryContent = "Created",
-			entryTitle = "Created");
+		
 			Navigator.openURL();
 
-		Search.searchCP(searchTerm = "Created");	
-		Search.viewNoResultAssetTitle(searchAssetTitle="Blog Entry 1");
-		Search.viewNoResultAssetTitle(searchAssetTitle="Blog Entry 2");
+		Search.searchCP(searchTerm = "One");	
+		Search.viewResultAssetTitle(searchAssetTitle="Blog One");
+		Search.viewNoResultAssetTitle(searchAssetTitle="Blog Two");
 
-		Search.viewResultAssetTitle(searchAssetTitle="Created");
 
     }
 }
