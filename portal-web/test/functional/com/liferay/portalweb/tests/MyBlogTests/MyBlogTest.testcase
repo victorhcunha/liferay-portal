@@ -61,6 +61,13 @@ definition {
 		Button.clickPublish();
 
 		Alert.viewSuccessMessageText(successMessage = "Your request completed successfully.");
+
+
+
+
+
+			Navigator.gotoPage(pageName = "Blogs Page");
+		BlogsEntry.viewEntryPG(entryTitle = "Blog Title Edited");
 	}
 
 }
