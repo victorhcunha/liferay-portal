@@ -62,12 +62,28 @@ definition {
 
 		Alert.viewSuccessMessageText(successMessage = "Your request completed successfully.");
 
+		Navigator.gotoPage(pageName = "Blogs Page");
 
-
-
-
-			Navigator.gotoPage(pageName = "Blogs Page");
 		BlogsEntry.viewEntryPG(entryTitle = "Blog Title Edited");
+	}
+
+
+    @description = "Can Create a Blog"
+    @priority = "5"
+    test CanCreateBlog {
+
+        Blogs.addEntry(
+    		entryContent = "Content Created",
+        	entryTitle = "Blog Created");
+
+        Alert.viewSuccessMessageText(successMessage = "Your request completed successfully.");
+
+        Navigator.gotoPage(pageName = "Blogs Page");
+        BlogsEntry.viewEntryPG(entryTitle = "Blog Created");
+
+
+
+        
 	}
 
 }
