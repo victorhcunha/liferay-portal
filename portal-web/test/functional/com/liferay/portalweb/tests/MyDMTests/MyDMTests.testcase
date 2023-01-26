@@ -68,7 +68,19 @@ definition {
 
 	@description = "Can Edit a Documents and Media"
 	@priority = "5"
-	test     CanEditDM{
+	test CanEditDM{
+        DMDocument.addCP(
+			dmDocumentDescription = "DM Document with DM Document Type Description",
+			dmDocumentFile = "Liferay-Docker.png",
+			dmDocumentTitle = "Liferay-Docker.png"
+);
+
+        DMDocument.editCP(dmDocumentFile = "Liferay-Docker.png" , dmDocumentTitle= "Liferay-Docker.png",dmDocumentTitleEdit="Title Edited");
+        Navigator.gotoPage(pageName = "Documents and Media Page");
+        DMDocument.viewPG(dmDocumentTitle= "Title Edited");
+        
+
+
 	}
 
 }
