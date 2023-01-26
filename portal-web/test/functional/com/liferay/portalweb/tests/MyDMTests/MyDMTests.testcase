@@ -9,6 +9,17 @@ definition {
 		User.firstLoginPG();
 
 		Navigator.openURL();
+
+        JSONLayout.addPublicLayout(
+			groupName = "Guest",
+			layoutName = "Documents and Media Page");
+
+		JSONLayout.addWidgetToPublicLayout(
+			groupName = "Guest",
+			layoutName = "Documents and Media Page",
+			widgetName = "Documents and Media");
+
+        DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 	}
 
 	tearDown {
@@ -16,12 +27,36 @@ definition {
 
 		if ("${testPortalInstance}" == "true") {
 			PortalInstances.tearDownCP();
+		}else{ 
+            //DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+        DMDocument.tearDownCP();
+
+
+
+
+			ProductMenu.gotoPortlet(
+				category = "Site Builder",
+				portlet = "Pages");
+
+            PagesAdmin.deletePage(pageName = "Documents and Media Page");
+
+
 		}
 	}
 
 	@description = "Can Create a Documents and Media"
 	@priority = "5"
 	test CanCreateDM {
+        if (!(isSet(dmDocumentFile))){
+            var dmDocumentFile = "Rey-Alloy.png"
+        }
+        DMDocument.addCP(
+			dmDocumentDescription = "DM Document with DM Document Type Description",
+			dmDocumentFile = "Rey-Alloy.png",
+			dmDocumentTitle = "NewDoc ${dmDocumentFile}"
+);
+        Navigator.gotoPage(pageName = "Documents and Media Page");
+        DMDocument.viewPG(dmDocumentTitle= "NewDoc ${dmDocumentFile}");
 	}
 
 	@description = "Can Delete a Documents and Media"
@@ -36,7 +71,7 @@ definition {
 
 	@description = "Can Edit a Documents and Media"
 	@priority = "5"
-	test CanEditDM {
+	test     CanEditDM{
 	}
 
 }
