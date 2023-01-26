@@ -1,0 +1,46 @@
+    @component-name = "portal-document-management"
+definition {
+    property testray.main.component.name = "Document Management";
+
+    setUp {
+        TestCase.setUpPortalInstance();
+
+        User.firstLoginPG();
+
+        Navigator.openURL();
+    }
+
+    tearDown {
+		var testPortalInstance = PropsUtil.get("test.portal.instance");
+
+		if ("${testPortalInstance}" == "true") {
+			PortalInstances.tearDownCP();
+		}
+    }
+
+    @description = "Can Create a Documents and Media"
+    @priority = "5"
+    test CanCreateDM {
+
+    }
+
+    @description = "Can Edit a Documents and Media"
+    @priority = "5"
+    test CanEditDM {
+
+
+    }
+    @description = "Can Delete a Documents and Media"
+    @priority = "5"
+    test CanDeleteDM {
+
+
+    }
+    @description = "Can Download a Documents and Media"
+    @priority = "5"
+    test CanDownloadDM {
+
+
+    }
+
+}
