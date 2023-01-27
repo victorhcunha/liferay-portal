@@ -10,7 +10,7 @@ definition {
 
 		Navigator.openURL();
 
-        JSONLayout.addPublicLayout(
+		JSONLayout.addPublicLayout(
 			groupName = "Guest",
 			layoutName = "Documents and Media Page");
 
@@ -19,7 +19,7 @@ definition {
 			layoutName = "Documents and Media Page",
 			widgetName = "Documents and Media");
 
-        DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 	}
 
 	tearDown {
@@ -27,38 +27,34 @@ definition {
 
 		if ("${testPortalInstance}" == "true") {
 			PortalInstances.tearDownCP();
-		}else{ 
-        DMDocument.tearDownCP();
-
-
-
+		}
+		else {
+			DMDocument.tearDownCP();
 
 			ProductMenu.gotoPortlet(
 				category = "Site Builder",
 				portlet = "Pages");
 
-            PagesAdmin.deletePage(pageName = "Documents and Media Page");
-
-
+			PagesAdmin.deletePage(pageName = "Documents and Media Page");
 		}
 	}
 
 	@description = "Can Create a Documents and Media"
 	@priority = "5"
 	test CanCreateDM {
-        DMDocument.addCP(
+		DMDocument.addCP(
 			dmDocumentDescription = "DM Document with DM Document Type Description",
 			dmDocumentFile = "Rey-Alloy.png",
-			dmDocumentTitle = "Rey-Alloy.png"
-);
-        Navigator.gotoPage(pageName = "Documents and Media Page");
-        DMDocument.viewPG(dmDocumentTitle= "Rey-Alloy.png");
+			dmDocumentTitle = "Rey-Alloy.png");
+
+		Navigator.gotoPage(pageName = "Documents and Media Page");
+
+		DMDocument.viewPG(dmDocumentTitle = "Rey-Alloy.png");
 	}
 
 	@description = "Can Delete a Documents and Media"
 	@priority = "5"
 	test CanDeleteDM {
-
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "DM Document JPG",
@@ -69,25 +65,18 @@ definition {
 		DMDocument.addCP(
 			dmDocumentDescription = "DM Document with DM Document Type Description",
 			dmDocumentFile = "Rey-Alloy.png",
-			dmDocumentTitle = "Rey-Alloy.png"
-);
+			dmDocumentTitle = "Rey-Alloy.png");
 
-DMDocument.deleteCP(dmDocumentTitle = "DM Document JPG");
+		DMDocument.deleteCP(dmDocumentTitle = "DM Document JPG");
 
 		Navigator.gotoPage(pageName = "Documents and Media Page");
-        DMDocument.viewPG(dmDocumentTitle= "Rey-Alloy.png");
 
-
-
-
-
-		
+		DMDocument.viewPG(dmDocumentTitle = "Rey-Alloy.png");
 	}
 
 	@description = "Can Download a Documents and Media"
 	@priority = "5"
 	test CanDownloadDM {
-
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "DM Document JPG",
@@ -98,45 +87,36 @@ DMDocument.deleteCP(dmDocumentTitle = "DM Document JPG");
 		DMDocument.addCP(
 			dmDocumentDescription = "DM Document with DM Document Type Description",
 			dmDocumentFile = "Rey-Alloy.png",
-			dmDocumentTitle = "Rey-Alloy.png"
-);
+			dmDocumentTitle = "Rey-Alloy.png");
 
-
-		DMDocument.downloadCP(dmDocumentTitle = "Rey-Alloy.png", dmDocumentSize = "34 KB");
+		DMDocument.downloadCP(
+			dmDocumentSize = "34 KB",
+			dmDocumentTitle = "Rey-Alloy.png");
 	}
 
 	@description = "Can Edit a Documents and Media"
 	@priority = "5"
-	test CanEditDM{
-
-JSONDocument.addFileWithUploadedFile(
+	test CanEditDM {
+		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
 			dmDocumentTitle = "DM Document JPG",
 			groupName = "Guest",
 			mimeType = "image/jpeg",
 			sourceFileName = "Document_4.jpg");
 
+		Navigator.gotoPage(pageName = "Documents and Media Page");
 
-        Navigator.gotoPage(pageName = "Documents and Media Page");
-        DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
+		DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
 
-
-
-
-
-            DMDocument.editCP(
+		DMDocument.editCP(
 			dmDocumentFileEdit = "Commerce_Black.jpg",
 			dmDocumentFileNameEdit = "Commerce_Black.jpg",
 			dmDocumentTitle = "DM Document JPG",
 			dmDocumentTitleEdit = "Title Edited");
 
+		Navigator.gotoPage(pageName = "Documents and Media Page");
 
-
-        Navigator.gotoPage(pageName = "Documents and Media Page");
-        DMDocument.viewPG(dmDocumentTitle= "Title Edited");
-        
-
-
+		DMDocument.viewPG(dmDocumentTitle = "Title Edited");
 	}
 
 }
