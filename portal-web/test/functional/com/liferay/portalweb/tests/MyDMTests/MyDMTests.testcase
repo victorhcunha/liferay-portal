@@ -28,7 +28,6 @@ definition {
 		if ("${testPortalInstance}" == "true") {
 			PortalInstances.tearDownCP();
 		}else{ 
-            //DMNavigator.openDocumentsAndMediaAdmin(siteURLKey = "guest");
         DMDocument.tearDownCP();
 
 
