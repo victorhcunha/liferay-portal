@@ -59,6 +59,30 @@ definition {
 	@description = "Can Delete a Documents and Media"
 	@priority = "5"
 	test CanDeleteDM {
+
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "DM Document JPG",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_4.jpg");
+
+		DMDocument.addCP(
+			dmDocumentDescription = "DM Document with DM Document Type Description",
+			dmDocumentFile = "Rey-Alloy.png",
+			dmDocumentTitle = "Rey-Alloy.png"
+);
+
+DMDocument.deleteCP(dmDocumentTitle = "DM Document JPG");
+
+		Navigator.gotoPage(pageName = "Documents and Media Page");
+        DMDocument.viewPG(dmDocumentTitle= "Rey-Alloy.png");
+
+
+
+
+
+		
 	}
 
 	@description = "Can Download a Documents and Media"
