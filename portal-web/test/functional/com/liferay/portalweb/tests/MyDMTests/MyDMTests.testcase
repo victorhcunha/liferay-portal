@@ -88,6 +88,22 @@ DMDocument.deleteCP(dmDocumentTitle = "DM Document JPG");
 	@description = "Can Download a Documents and Media"
 	@priority = "5"
 	test CanDownloadDM {
+
+		JSONDocument.addFileWithUploadedFile(
+			dmDocumentDescription = "DM Document Description",
+			dmDocumentTitle = "DM Document JPG",
+			groupName = "Guest",
+			mimeType = "image/jpeg",
+			sourceFileName = "Document_4.jpg");
+
+		DMDocument.addCP(
+			dmDocumentDescription = "DM Document with DM Document Type Description",
+			dmDocumentFile = "Rey-Alloy.png",
+			dmDocumentTitle = "Rey-Alloy.png"
+);
+
+
+		DMDocument.downloadCP(dmDocumentTitle = "Rey-Alloy.png", dmDocumentSize = "34 KB");
 	}
 
 	@description = "Can Edit a Documents and Media"
