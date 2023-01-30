@@ -35,10 +35,15 @@ definition {
 
 	@description = "Access Portal and create e validate NEW FORMS"
 	@priority = "5"
-	test ValidateFormsPortal {
+	test ValidateFormsPortal { 
+		
+		
+		task ("Given the global variables"){
 		var successPageTitlePortuguese = "Obrigado.";
 		var successPageDescriptionPortuguese = "Suas informações foram recebidas com sucesso. Obrigado por preencher o formulário.";
+	}
 
+	task("When the user creates a form with a Text field and a Numeric field"){
 		FormsAdmin.addForm();
 
 		Form.editName(formTitle = "English Form");
@@ -61,6 +66,10 @@ definition {
 			fieldName = "Label",
 			fieldValue = "Age");
 
+			}
+
+		
+		task("When the user adds a translated version to Portuguese of the created form"){
 		Form.addTranslation(localizedLanguage = "Portuguese (Brazil)");
 
 		Form.editName(formTitle = "Formulário em Português");
@@ -80,7 +89,9 @@ definition {
 			successPageTitle = "${successPageTitlePortuguese}");
 
 		Form.publishForm();
+		}
 
+		task("When the user answers the english form"){
 		FormsAdminNavigator.gotoPublishedForm();
 
 		FormFields.editText(
@@ -90,10 +101,13 @@ definition {
 		FormFields.editText(
 			fieldName = "Age",
 			fieldValue = "24");
-
+		}
+		
+		task("Then the confirmation message should appear"){
 		FormPortlet.submitSuccessfullyAndViewSuccessPage();
+		}
 
-		Form.submitAgain();
+		task("When the user answers the portuguese form"){ Form.submitAgain();
 
 		FormPortlet.changeLocale(locale = "português-Brasil");
 
@@ -104,11 +118,15 @@ definition {
 		FormFields.editText(
 			fieldName = "Idade",
 			fieldValue = "20");
+		}
 
+		task("Then the confirmation message should appear"){
 		FormPortlet.submitSuccessfullyAndViewSuccessPage(
 			successPageDescription = "${successPageDescriptionPortuguese}",
 			successPageTitle = "${successPageTitlePortuguese}");
+		}
 
+		task("Then the answers to both forms should be available"){
 		Navigator.openURL();
 
 		ProductMenu.gotoPortlet(
@@ -124,6 +142,7 @@ definition {
 		FormsAdmin.viewFormTableEntry(
 			fieldLabel = "Marcos Victor",
 			fieldValue = "20");
+		}
 	}
 
 }
