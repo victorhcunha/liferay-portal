@@ -50,27 +50,36 @@ definition {
 	@description = "Can Create a Blog"
 	@priority = "5"
 	test CanCreateBlog {
+
+		task ("When the user adds a Blog Entry"){
 		Blogs.addEntry(
 			entryContent = "Content Created",
-			entryTitle = "Blog Created");
+			entryTitle = "Blog Created");}
 
+task ("Then the success message should appear on the screen"){
 		Alert.viewSuccessMessageText(successMessage = "Your request completed successfully.");
-
+}
+		task("Then the Blog Entry should display on the page"){
 		Navigator.gotoPage(pageName = "Blogs Page");
 
 		BlogsEntry.viewEntryPG(entryTitle = "Blog Created");
-	}
+	}}
 
 	@description = "Can Delete a Blog"
 	@priority = "5"
 	test CanDeleteBlog {
-		Navigator.gotoPage(pageName = "Blogs Page");
+		
+		task("When the User deletes Blog Entry 1 (Blog One)")
+{		Navigator.gotoPage(pageName = "Blogs Page");
 
 		BlogsEntry.moveToRecycleBinPG(
 			entryContent = "Blog One Content",
-			entryTitle = "Blog One");
+			entryTitle = "Blog One");}
 
-		BlogsEntry.viewEntryPG(entryTitle = "Blog Two");
+		task("Then  Blog Entry 1 (Blog One) should not exist and Blog Entry 2 (Blog Two) should exist"){
+			BlogsEntry.viewNoEntryAsGuestPG(entryContent = "Blog One Content",
+			entryTitle = "Blog One");
+		BlogsEntry.viewEntryPG(entryTitle = "Blog Two");}
 	}
 
 	@description = "Can Edit a Blog"
