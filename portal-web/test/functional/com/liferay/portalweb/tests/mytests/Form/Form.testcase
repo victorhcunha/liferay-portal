@@ -35,113 +35,110 @@ definition {
 
 	@description = "Access Portal and create e validate NEW FORMS"
 	@priority = "5"
-	test ValidateFormsPortal { 
-		
-		
-		task ("Given the global variables"){
-		var successPageTitlePortuguese = "Obrigado.";
-		var successPageDescriptionPortuguese = "Suas informações foram recebidas com sucesso. Obrigado por preencher o formulário.";
-	}
-
-	task("When the user creates a form with a Text field and a Numeric field"){
-		FormsAdmin.addForm();
-
-		Form.editName(formTitle = "English Form");
-
-		Form.editDescription(formDescription = "English Description");
-
-		Form.gotoAddField(fieldType = "Text");
-
-		FormFields.editText(
-			fieldName = "Label",
-			fieldValue = "Full Name");
-
-		Form.closeSidebar();
-
-		Form.gotoAddField(
-			fieldPositionNumber = "1",
-			fieldType = "Numeric");
-
-		FormFields.editText(
-			fieldName = "Label",
-			fieldValue = "Age");
-
-			}
-
-		
-		task("When the user adds a translated version to Portuguese of the created form"){
-		Form.addTranslation(localizedLanguage = "Portuguese (Brazil)");
-
-		Form.editName(formTitle = "Formulário em Português");
-
-		Form.editDescription(formDescription = "Descrição em Português");
-
-		FormViewBuilder.editFieldLabel(
-			fieldLabel = "Age",
-			label = "Idade");
-
-		FormViewBuilder.editFieldLabel(
-			fieldLabel = "Full Name",
-			label = "Nome Completo");
-
-		Form.editSuccessPage(
-			successPageDescription = "${successPageDescriptionPortuguese}",
-			successPageTitle = "${successPageTitlePortuguese}");
-
-		Form.publishForm();
+	test ValidateFormsPortal {
+		task ("Given the global variables") {
+			var successPageTitlePortuguese = "Obrigado.";
+			var successPageDescriptionPortuguese = "Suas informações foram recebidas com sucesso. Obrigado por preencher o formulário.";
 		}
 
-		task("When the user answers the english form"){
-		FormsAdminNavigator.gotoPublishedForm();
+		task ("When the user creates a form with a Text field and a Numeric field") {
+			FormsAdmin.addForm();
 
-		FormFields.editText(
-			fieldName = "Full Name",
-			fieldValue = "Victor Cunha");
+			Form.editName(formTitle = "English Form");
 
-		FormFields.editText(
-			fieldName = "Age",
-			fieldValue = "24");
-		}
-		
-		task("Then the confirmation message should appear"){
-		FormPortlet.submitSuccessfullyAndViewSuccessPage();
-		}
+			Form.editDescription(formDescription = "English Description");
 
-		task("When the user answers the portuguese form"){ Form.submitAgain();
+			Form.gotoAddField(fieldType = "Text");
 
-		FormPortlet.changeLocale(locale = "português-Brasil");
+			FormFields.editText(
+				fieldName = "Label",
+				fieldValue = "Full Name");
 
-		FormFields.editText(
-			fieldName = "Nome Completo",
-			fieldValue = "Marcos Victor");
+			Form.closeSidebar();
 
-		FormFields.editText(
-			fieldName = "Idade",
-			fieldValue = "20");
+			Form.gotoAddField(
+				fieldPositionNumber = "1",
+				fieldType = "Numeric");
+
+			FormFields.editText(
+				fieldName = "Label",
+				fieldValue = "Age");
 		}
 
-		task("Then the confirmation message should appear"){
-		FormPortlet.submitSuccessfullyAndViewSuccessPage(
-			successPageDescription = "${successPageDescriptionPortuguese}",
-			successPageTitle = "${successPageTitlePortuguese}");
+		task ("When the user adds a translated version to Portuguese of the created form") {
+			Form.addTranslation(localizedLanguage = "Portuguese (Brazil)");
+
+			Form.editName(formTitle = "Formulário em Português");
+
+			Form.editDescription(formDescription = "Descrição em Português");
+
+			FormViewBuilder.editFieldLabel(
+				fieldLabel = "Age",
+				label = "Idade");
+
+			FormViewBuilder.editFieldLabel(
+				fieldLabel = "Full Name",
+				label = "Nome Completo");
+
+			Form.editSuccessPage(
+				successPageDescription = "${successPageDescriptionPortuguese}",
+				successPageTitle = "${successPageTitlePortuguese}");
+
+			Form.publishForm();
 		}
 
-		task("Then the answers to both forms should be available"){
-		Navigator.openURL();
+		task ("When the user answers the english form") {
+			FormsAdminNavigator.gotoPublishedForm();
 
-		ProductMenu.gotoPortlet(
-			category = "Content & Data",
-			portlet = "Forms");
+			FormFields.editText(
+				fieldName = "Full Name",
+				fieldValue = "Victor Cunha");
 
-		FormsAdminNavigator.gotoViewEntries(formName = "English Form");
+			FormFields.editText(
+				fieldName = "Age",
+				fieldValue = "24");
+		}
 
-		FormsAdmin.viewFormTableEntry(
-			fieldLabel = "Victor Cunha",
-			fieldValue = "24");
+		task ("Then the confirmation message should appear") {
+			FormPortlet.submitSuccessfullyAndViewSuccessPage();
+		}
 
-		FormsAdmin.viewFormTableEntry(
-			fieldLabel = "Marcos Victor",
-			fieldValue = "20");
+		task ("When the user answers the portuguese form") {
+			Form.submitAgain();
+
+			FormPortlet.changeLocale(locale = "português-Brasil");
+
+			FormFields.editText(
+				fieldName = "Nome Completo",
+				fieldValue = "Marcos Victor");
+
+			FormFields.editText(
+				fieldName = "Idade",
+				fieldValue = "20");
+		}
+
+		task ("Then the confirmation message should appear") {
+			FormPortlet.submitSuccessfullyAndViewSuccessPage(
+				successPageDescription = "${successPageDescriptionPortuguese}",
+				successPageTitle = "${successPageTitlePortuguese}");
+		}
+
+		task ("Then the answers to both forms should be available") {
+			Navigator.openURL();
+
+			ProductMenu.gotoPortlet(
+				category = "Content & Data",
+				portlet = "Forms");
+
+			FormsAdminNavigator.gotoViewEntries(formName = "English Form");
+
+			FormsAdmin.viewFormTableEntry(
+				fieldLabel = "Victor Cunha",
+				fieldValue = "24");
+
+			FormsAdmin.viewFormTableEntry(
+				fieldLabel = "Marcos Victor",
+				fieldValue = "20");
 		}
 	}
 
