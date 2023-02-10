@@ -1600,7 +1600,7 @@ definition {
 
 			ObjectAdmin.assertObjectActions(
 				actionActive = "Yes",
-				actionName = "CustomDeleteAction",
+				actionLabel = "Action Label Delete",
 				status = "Success");
 		}
 	}
