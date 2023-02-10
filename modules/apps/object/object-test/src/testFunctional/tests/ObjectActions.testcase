@@ -1531,7 +1531,7 @@ definition {
 
 			ObjectAdmin.assertObjectActions(
 				actionActive = "Yes",
-				actionName = "ActionName",
+				actionLabel = "Action Label",
 				status = "Success");
 		}
 	}
