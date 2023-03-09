@@ -1373,38 +1373,16 @@ definition {
 		}
 	}
 
-	@description = "LPS-175201 -Verify if is possible create a validation using the oldValue function with the Text field using Commerce Order object"
+	@description = "LPS-175201 - Verify if is possible create a validation using the oldValue function with the Text Field using a system object"
 	@priority = 5
 	test CanCreateValidationUsingOldValueFunctionInSystemObject {
-		task ("Given: an account is created") {
+		property portal.acceptance = "true";
+
+		task ("Given: an account is created with a custom validation using the oldValue function") {
 			JSONAccountEntry.addAccountEntry(
 				accountEntryName = "Accounts Name",
 				accountEntryType = "Business");
-		}
 
-		task ("And given: a custom validation using the oldValue function is created") {
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectCustomObject(label = "Postal Address");
-
-			ObjectAdmin.goToValidationsTab();
-
-			ObjectCustomValidation.addObjectValidation(
-				validationName = "Custom Validation",
-				validationType = "Expression Builder");
-
-			ObjectCustomValidation.gotoCustomValidation(validationName = "Custom Validation");
-
-			ObjectCustomValidation.gotoTab(tabName = "Conditions");
-
-			ObjectCustomValidation.insertScriptOnValidation(scriptValidation = "oldValue('Name') == 'Test'");
-
-			ObjectCustomValidation.addErrorMessage(errorMessage = "Invalid Value");
-
-			PortletEntry.save();
-		}
-
-		task ("And given: an address is created to the account") {
 			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Accounts Name");
@@ -1419,23 +1397,31 @@ definition {
 				addressRegion = "California",
 				addressStreet1 = "1400 Montefino Ave",
 				addressType = "Billing");
-		}
 
-		task ("When: the validation is activated") {
 			ObjectAdmin.openObjectAdmin();
 
 			ObjectPortlet.selectCustomObject(label = "Postal Address");
 
 			ObjectAdmin.goToValidationsTab();
 
+			ObjectCustomValidation.addObjectValidation(
+				validationName = "Custom Validation",
+				validationType = "Expression Builder");
+
 			ObjectCustomValidation.gotoCustomValidation(validationName = "Custom Validation");
 
 			ObjectCustomValidation.activeValidation();
 
+			ObjectCustomValidation.gotoTab(tabName = "Conditions");
+
+			ObjectCustomValidation.insertScriptOnValidation(scriptValidation = "oldValue('Name') == 'Test'");
+
+			ObjectCustomValidation.addErrorMessage(errorMessage = "Invalid Value");
+
 			PortletEntry.save();
 		}
 
-		task ("And when: the address from created account is edited") {
+		task ("When: the address from created account is edited") {
 			Account.openAccountsAdmin();
 
 			LexiconEntry.gotoEntry(rowEntry = "Accounts Name");
