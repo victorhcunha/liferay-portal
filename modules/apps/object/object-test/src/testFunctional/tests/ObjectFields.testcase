@@ -1398,6 +1398,90 @@ definition {
 		}
 	}
 
+	@description = "LPS-177428 - Verify that the user is able to add the Formula Field when managing Custom View"
+	@priority = 4
+	test CanManageFormulaFieldWithView {
+		property custom.properties = "feature.flag.LPS-164948=true";
+
+		task ("Given: An object with a Formula Field is created") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object 177428",
+				objectName = "CustomObject177428",
+				pluralLabelName = "Custom Objects 177428");
+
+			Navigator.openURL();
+
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object 177428");
+
+			ObjectAdmin.goToFieldsTab();
+
+			for (var valueField : list "1,2") {
+				ObjectAdmin.addObjectFieldViaUI(
+					fieldLabel = "Custom Integer Field ${valueField}",
+					fieldType = "Integer");
+			}
+
+			ObjectAdmin.addObjectFieldViaUI(
+				fieldLabel = "Custom Formula Field",
+				fieldType = "Formula",
+				formulaFieldOption = "Integer");
+
+			ObjectAdmin.goToFieldsDetails(label = "Custom Formula Field");
+
+			ObjectField.insertScriptOnFormulaField(scriptFormulaField = "customIntegerField1 + customIntegerField2");
+
+			Button.clickSave();
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject177428");
+		}
+
+		task ("Given: a view to the object is created") {
+			ObjectCustomViews.goToViewsTab();
+
+			ObjectCustomViews.addObjectViewViaUI(viewName = "View Name");
+
+			ObjectCustomViews.goToViewsDetails(label = "View Name");
+
+			ObjectCustomViews.markViewAsDefault();
+
+			ObjectCustomViews.goToViewsBuilderTab();
+
+			ObjectCustomViews.addColumnsViaUI(addColumns = "Custom Integer Field 1,Custom Integer Field 2,Custom Formula Field");
+
+			PortletEntry.save();
+		}
+
+		task ("When: the value of the fields is added") {
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject177428");
+
+			LexiconEntry.gotoAdd();
+
+			ObjectAdmin.addEntryField(
+				entry = 1,
+				fieldLabel = "customIntegerField1");
+
+			ObjectAdmin.addEntryField(
+				entry = 2,
+				fieldLabel = "customIntegerField2");
+
+			PortletEntry.save();
+		}
+
+		task ("Then: the value of Formula Field should be automatically updated") {
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject177428");
+
+			task ("Then: the value of Formula Field should be automatically updated") {
+				AssertTextEquals(
+					key_column = 3,
+					key_line = 1,
+					locator1 = "ObjectField#VIEW_TABLE_CONTENT",
+					value1 = 3);
+			}
+		}
+	}
+
 	@description = "LPS-165995 - Verify that a message is displayed when the user tries to add more than 16 digits to a long integer field"
 	@priority = 4
 	test CanNotAddMoreThan16DigitsToLongIntField {
