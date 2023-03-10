@@ -197,6 +197,11 @@
 		<td>//input[contains(@placeholder,'Type "${" to use the autocomplete feature.') and (@class='form-control')]</td>
 		<td></td>
 	</tr>
+	<tr>
+		<td>OBJECT_FIELD_LABEL</td>
+		<td>//div[@data-field-name='${key_fieldLabel}']//input[not(contains(@value,'false'))]</td>
+		<td></td>
+	</tr>
 </tbody>
 </table>
 </body>
