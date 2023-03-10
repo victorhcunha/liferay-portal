@@ -198,6 +198,11 @@
 		<td></td>
 	</tr>
 	<tr>
+		<td>VIEW_TABLE_CONTENT</td>
+		<td>//div[@class='dnd-tr'][${key_line}]//div[contains(@class,'dnd-td')][${key_column}]</td>
+		<td></td>
+	</tr>
+	<tr>
 		<td>OBJECT_FIELD_LABEL</td>
 		<td>//div[@data-field-name='${key_fieldLabel}']//input[not(contains(@value,'false'))]</td>
 		<td></td>
