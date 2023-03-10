@@ -25,6 +25,14 @@ definition {
 		DropdownMenuItem.click(menuItem = "Add Categorization");
 	}
 
+	macro addEntryField {
+		var key_fieldLabel = ${fieldLabel};
+
+		Type.type(
+			locator1 = "ObjectField#OBJECT_FIELD_LABEL",
+			value1 = ${entry});
+	}
+
 	macro addLayoutBlockViaUI {
 		Click(locator1 = "ObjectAdmin#ADD_BLOCK_BUTTON");
 
