@@ -203,7 +203,7 @@ definition {
 		}
 
 		task ("Then the new entry is saved on the Relationship Tab Parent and the entry is present on Relationship Tab Child") {
-			AssertElementPresent(
+			WaitForElementPresent(
 				key_fieldLabel = "Entry Test B",
 				locator1 = "ObjectAdmin#VIEW_OBJECT_FIELD_LABEL");
 
@@ -215,7 +215,7 @@ definition {
 				key_tabName = "Relationship Tab Child",
 				locator1 = "ObjectAdmin#ENTRY_RELATIONSHIP_TAB");
 
-			AssertElementPresent(
+			WaitForElementPresent(
 				key_fieldLabel = "Entry Test A",
 				locator1 = "ObjectAdmin#VIEW_OBJECT_FIELD_LABEL");
 		}
