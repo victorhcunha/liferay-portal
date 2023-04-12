@@ -3366,6 +3366,65 @@ definition {
 		}
 	}
 
+	@description = "LPS-173537 - Verify creating an Account entry triggers an action to add a second Account entry"
+	@priority = 5
+	test CanAddAccountEntryAfterCreatingAccountEntry {
+		property portal.acceptance = "true";
+
+		task ("Given a Account object and given an action to add a new Account entry after creating an Account entry") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object 180195",
+				objectName = "CustomObject180195",
+				pluralLabelName = "Custom Objects 180195");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Integer",
+				fieldLabelName = "Custom Field",
+				fieldName = "customField",
+				fieldType = "Integer",
+				isRequired = "false",
+				objectName = "CustomObject180195");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject180195");
+
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object 180195");
+
+			ObjectAdmin.goToActionsTab();
+
+			ObjectAdmin.addObjectActionViaUI(
+				actionLabel = "Custom Action",
+				actionName = "CustomAction",
+				active = "true",
+				inputMethod = "true",
+				inputValue = "Object entry added,Business",
+				objectLabel = "Account",
+				thenAction = "Add an Object Entry",
+				whenAction = "On After Add");
+		}
+
+		task ("When the user creates an Account entry") {
+			ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+				fieldName = "customField",
+				objectName = "CustomObject180195",
+				value = 0);
+		}
+
+		task ("Then the action is triggered and a second Account entry is added") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object 180195");
+
+			ObjectAdmin.goToActionsTab();
+
+			ObjectAdmin.assertObjectActions(
+				actionActive = "Yes",
+				actionLabel = "Custom Action",
+				status = "Success");
+		}
+	}
+
 	@description = "LPS-169994 - Verify that a permitted user can manually trigger a standalone action"
 	@priority = 5
 	test CanTriggerStandaloneActionWithPermission {
