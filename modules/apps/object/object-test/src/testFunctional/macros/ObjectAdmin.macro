@@ -1363,6 +1363,8 @@ definition {
 	}
 
 	macro selectKebabMenuOption {
+		WaitForElementPresent(locator1 = "ObjectAdmin#KEBAB_MENU");
+
 		Click(locator1 = "ObjectAdmin#KEBAB_MENU");
 
 		MenuItem.click(menuItem = ${kebabOption});
