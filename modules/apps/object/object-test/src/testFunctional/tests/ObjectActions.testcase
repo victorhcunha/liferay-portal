@@ -3556,6 +3556,95 @@ definition {
 			actionLabel = "Update Action Label");
 	}
 
+	@description = "LPS-181944 - Verify updating a Commerce Product entry triggers an action to update the Commerce Product entry"
+	@priority = 5
+	test CanUpdateCommerceProductEntryAfterUpdatingCommerceProductEntry {
+		property portal.acceptance = "true";
+
+		task ("Given a minium site and Commerce Product") {
+			CommerceAccelerators.initializeNewSiteViaAccelerator(siteName = "Minium");
+
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			ApplicationsMenu.gotoPortlet(
+				category = "Product Management",
+				panel = "Commerce",
+				portlet = "Products");
+
+			CPCommerceCatalog.newProductsEntry(
+				productCatalog = "Minium",
+				productName = "Simple T-Shirt",
+				productType = "Simple");
+
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceAcceleratorsInitializer.viewMiniumCardName(productName = "Simple T-Shirt");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "Simple T-Shirt");
+
+			FrontStore.assertProductDetails(
+				productFullDescription = "Simple T-Shirt Full Description",
+				productName = "Simple T-Shirt",
+				productShortDescription = "Simple T-Shirt Short Description");
+		}
+
+		task ("And given an action to update a Commerce Product entry after updating a Commerce Product entry") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectSystemObject(label = "Commerce Product");
+
+			ObjectAdmin.goToActionsTab();
+
+			ObjectAdmin.addObjectActionViaUI(
+				actionLabel = "Custom Action",
+				actionName = "customAction",
+				active = "true",
+				fieldName = "Short Description",
+				inputMethod = "true",
+				inputValue = "Updated Description",
+				objectLabel = "Commerce Product",
+				thenAction = "Update an Object Entry",
+				whenAction = "On After Update");
+		}
+
+		task ("When the user updates any Commerce Product entry") {
+			CommerceNavigator.gotoPortlet(
+				category = "Product Management",
+				portlet = "Products");
+
+			CommerceProducts.searchProduct(search = "Simple T-Shirt");
+
+			CommerceNavigator.gotoEntry(entryName = "Simple T-Shirt");
+
+			CommerceEntry.addProductDescription(
+				productFullDescription = "This is a New Full Description",
+				productShortDescription = "This is a New Short Description",
+				publishProduct = "true");
+		}
+
+		task ("Then the action is triggered and the Commerce Product entry changed is updated") {
+			ApplicationsMenu.gotoSite(site = "Minium");
+
+			CommerceAcceleratorsInitializer.gotoMiniumProductDetailsPage(productName = "Simple T-Shirt");
+
+			FrontStore.assertProductDetails(
+				productFullDescription = "Simple T-Shirt Full Description",
+				productName = "Simple T-Shirt",
+				productShortDescription = "Updated Description");
+
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectSystemObject(label = "Commerce Product");
+
+			ObjectAdmin.goToActionsTab();
+
+			ObjectAdmin.assertObjectActions(
+				actionActive = "Yes",
+				actionLabel = "Custom Action",
+				status = "Success");
+		}
+	}
+
 	@description = "LPS-156346 - Verify that the expression works with Groovy Script."
 	@priority = 5
 	test CanUseExpressionWithGroovyScript {
