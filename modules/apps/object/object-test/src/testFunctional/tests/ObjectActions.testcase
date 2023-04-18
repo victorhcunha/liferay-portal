@@ -106,6 +106,128 @@ definition {
 		}
 	}
 
+	@description = "LPS-173537 - Verify creating an Account entry triggers an action to add a second Account entry"
+	@priority = 5
+	test CanAddAccountEntryAfterCreatingAccountEntry {
+		property portal.acceptance = "true";
+
+		task ("Given a Account object and given an action to add a new Account entry after creating an Account entry") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object 180195",
+				objectName = "CustomObject180195",
+				pluralLabelName = "Custom Objects 180195");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Integer",
+				fieldLabelName = "Custom Field",
+				fieldName = "customField",
+				fieldType = "Integer",
+				isRequired = "false",
+				objectName = "CustomObject180195");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject180195");
+
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object 180195");
+
+			ObjectAdmin.goToActionsTab();
+
+			ObjectAdmin.addObjectActionViaUI(
+				actionLabel = "Custom Action",
+				actionName = "CustomAction",
+				active = "true",
+				inputMethod = "true",
+				inputValue = "Object entry added,Business",
+				objectLabel = "Account",
+				thenAction = "Add an Object Entry",
+				whenAction = "On After Add");
+		}
+
+		task ("When the user creates an Account entry") {
+			ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+				fieldName = "customField",
+				objectName = "CustomObject180195",
+				value = 0);
+		}
+
+		task ("Then the action is triggered and a second Account entry is added") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object 180195");
+
+			ObjectAdmin.goToActionsTab();
+
+			ObjectAdmin.assertObjectActions(
+				actionActive = "Yes",
+				actionLabel = "Custom Action",
+				status = "Success");
+		}
+	}
+
+	@description = "LPS-173537 - Verify creating a custom object entry triggers an action to update an Account entry"
+	@priority = 5
+	test CanAddAccountEntryAfterUpdatingCustomObjectEntry {
+		property portal.acceptance = "true";
+
+		task ("Given a Custom Object and an object entry") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object 180083",
+				objectName = "CustomObject180083",
+				pluralLabelName = "Custom Objects 180083");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Custom Field",
+				fieldName = "customObjectField",
+				fieldType = "String",
+				isRequired = "true",
+				objectName = "CustomObject180083");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject180083");
+
+			ObjectAdmin.addObjectSingleFieldEntryViaAPI(
+				fieldName = "customObjectField",
+				objectName = "CustomObject180083",
+				value = "Entry Test");
+		}
+
+		task ("And given an action to add an Account entry after updating a custom object entry") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object 180083");
+
+			ObjectAdmin.goToActionsTab();
+
+			ObjectAdmin.addObjectActionViaUI(
+				actionLabel = "Custom Action",
+				active = "true",
+				inputMethod = "true",
+				inputValue = "Account Name,Guest",
+				objectLabel = "Account",
+				thenAction = "Add an Object Entry",
+				whenAction = "On After Update");
+		}
+
+		task ("When the user updates a custom object entry") {
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject180083");
+
+			ObjectAdmin.goToActionDetails(viewEntry = "Entry Test");
+
+			ObjectAdmin.editEntryName(newEntryValue = "Entry Test Edited");
+		}
+
+		task ("Then the action is triggered and an Account entry is added") {
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject180083");
+
+			ObjectPortlet.viewEntry(entry = "Entry Test Edited");
+
+			Account.openAccountsAdmin();
+
+			LexiconEntry.viewEntryName(rowEntry = "Account Name");
+		}
+	}
+
 	@description = "LPS-181943 - Verify deleting a Commerce Product entry triggers an action to add a Commerce Product Group entry"
 	@priority = 5
 	test CanAddCommerceProductGroupEntryAfterDeletingCommerceProductEntry {
@@ -3362,65 +3484,6 @@ definition {
 			ObjectAdmin.assertObjectActions(
 				actionActive = "Yes",
 				actionLabel = "Custom Update Action",
-				status = "Success");
-		}
-	}
-
-	@description = "LPS-173537 - Verify creating an Account entry triggers an action to add a second Account entry"
-	@priority = 5
-	test CanAddAccountEntryAfterCreatingAccountEntry {
-		property portal.acceptance = "true";
-
-		task ("Given a Account object and given an action to add a new Account entry after creating an Account entry") {
-			ObjectAdmin.addObjectViaAPI(
-				labelName = "Custom Object 180195",
-				objectName = "CustomObject180195",
-				pluralLabelName = "Custom Objects 180195");
-
-			ObjectAdmin.addObjectFieldViaAPI(
-				fieldBusinessType = "Integer",
-				fieldLabelName = "Custom Field",
-				fieldName = "customField",
-				fieldType = "Integer",
-				isRequired = "false",
-				objectName = "CustomObject180195");
-
-			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject180195");
-
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectCustomObject(label = "Custom Object 180195");
-
-			ObjectAdmin.goToActionsTab();
-
-			ObjectAdmin.addObjectActionViaUI(
-				actionLabel = "Custom Action",
-				actionName = "CustomAction",
-				active = "true",
-				inputMethod = "true",
-				inputValue = "Object entry added,Business",
-				objectLabel = "Account",
-				thenAction = "Add an Object Entry",
-				whenAction = "On After Add");
-		}
-
-		task ("When the user creates an Account entry") {
-			ObjectAdmin.addObjectSingleFieldEntryViaAPI(
-				fieldName = "customField",
-				objectName = "CustomObject180195",
-				value = 0);
-		}
-
-		task ("Then the action is triggered and a second Account entry is added") {
-			ObjectAdmin.openObjectAdmin();
-
-			ObjectPortlet.selectCustomObject(label = "Custom Object 180195");
-
-			ObjectAdmin.goToActionsTab();
-
-			ObjectAdmin.assertObjectActions(
-				actionActive = "Yes",
-				actionLabel = "Custom Action",
 				status = "Success");
 		}
 	}
