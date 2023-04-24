@@ -1389,6 +1389,8 @@ definition {
 	}
 
 	macro selectSpecificKebabMenuOption {
+		WaitForElementPresent(locator1 = "ObjectAdmin#KEBAB_MENU");
+
 		Click(
 			key_objectLabel = ${objectLabel},
 			locator1 = "ObjectAdmin#OBJECT_KEBAB_MENU");
