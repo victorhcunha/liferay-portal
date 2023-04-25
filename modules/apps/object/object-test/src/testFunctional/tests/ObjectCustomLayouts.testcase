@@ -591,6 +591,8 @@ definition {
 		}
 
 		task ("When delete the entry on Relationship Tab") {
+			ObjectPortlet.viewEntry(entry = "Entry Test B");
+
 			ObjectAdmin.selectSpecificKebabMenuOption(
 				kebabOption = "Delete",
 				objectLabel = "Entry Test B");
