@@ -25,6 +25,7 @@ definition {
 	@priority = 5
 	test CanValidateField {
 		property custom.properties = "feature.flag.LPS-187846=true";
+		property portal.acceptance = "default";
 
 		task ("Given an custom object definition and a precision decimal field") {
 			ObjectAdmin.addObjectViaAPI(
