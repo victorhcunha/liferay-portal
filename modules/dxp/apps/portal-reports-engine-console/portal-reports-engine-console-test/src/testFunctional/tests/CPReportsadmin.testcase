@@ -249,7 +249,6 @@ definition {
 
 	@priority = 4
 	test DeliverReportToEmail {
-		property portal.upstream = "quarantine";
 		property test.assert.javascript.errors = "false";
 		property test.smtp.server.enabled = "true";
 
@@ -292,7 +291,7 @@ definition {
 			asset = "New Report: reports_admin_template_source_sample_class_name.pdf",
 			content = "New Report: reports_admin_template_source_sample_class_name.pdf",
 			recipient = "user1@liferay.com",
-			sender = "Joe Bloggs",
+			sender = "Test Test",
 			subject = "New Report: reports_admin_template_source_sample_class_name.pdf");
 
 		Navigator.openSpecificURL(url = ${portalURL});
