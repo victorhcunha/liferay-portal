@@ -1760,6 +1760,7 @@ definition {
 	@description = "LPS-92053 - Verify that the item modal places an icon before the modal title referring to the SLA status: On Time"
 	@priority = 3
 	test ItemModalPlacesIconReferringToSlaStatusOnTime {
+		property portal.acceptance = "default";
 		property test.name.skip.portal.instance = "WorkflowMetricsAllItemsList#ItemModalPlacesIconReferringToSlaStatusOnTime";
 
 		ApplicationsMenu.gotoPortlet(
@@ -1781,7 +1782,7 @@ definition {
 			slaDefinitionDays = 0,
 			slaDefinitionDescription = "SLA Description",
 			slaDefinitionEnd = "Process Ends: Approved",
-			slaDefinitionHours = 0100,
+			slaDefinitionHours = 0010,
 			slaDefinitionName = "SLAName",
 			slaDefinitionPause = "On Task: Update",
 			slaDefinitionStart = "Process Begins");
