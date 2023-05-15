@@ -1759,8 +1759,13 @@ definition {
 
 	@description = "LPS-92053 - Verify that the item modal places an icon before the modal title referring to the SLA status: On Time"
 	@priority = 3
-	test ItemModalPlacesIconReferringToSlaStatusOnTime {
+	test ItemModalPlacesIconReferringToSlaStatusOnTime3 {
+		property portal.acceptance = "default";
 		property test.name.skip.portal.instance = "WorkflowMetricsAllItemsList#ItemModalPlacesIconReferringToSlaStatusOnTime";
+
+		WorkflowMetrics.setSLADefinitionsJobInterval(
+			definitionsJobInterval = 1,
+			slaJobInterval = 1);
 
 		ApplicationsMenu.gotoPortlet(
 			category = "Workflow",
@@ -1797,6 +1802,163 @@ definition {
 		Click(locator1 = "WorkflowMetrics#DASHBOARD_TOTAL_PENDING_ITEMS_TITLE");
 
 		while ((IsElementNotPresent(key_status = "check", locator1 = "WorkflowAllItems#DETAIL_SLA_STATUS")) && (maxIterations = "30")) {
+			Refresh();
+		}
+
+		Click(locator1 = "WorkflowAllItems#WORKFLOW_INSTANCE_ID");
+
+		AssertElementPresent(
+			key_status = "check",
+			locator1 = "WorkflowAllItems#DETAIL_SLA_STATUS");
+	}
+
+	@description = "LPS-92053 - Verify that the item modal places an icon before the modal title referring to the SLA status: On Time"
+	@priority = 3
+	test ItemModalPlacesIconReferringToSlaStatusOnTime4 {
+		property portal.acceptance = "default";
+		property test.name.skip.portal.instance = "WorkflowMetricsAllItemsList#ItemModalPlacesIconReferringToSlaStatusOnTime";
+
+		WorkflowMetrics.setSLADefinitionsJobInterval(
+			definitionsJobInterval = 1,
+			slaJobInterval = 1);
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Workflow",
+			panel = "Applications",
+			portlet = "Process Builder");
+
+		Navigator.gotoNavItem(navItem = "Configuration");
+
+		Workflow.configureWorkflow(
+			workflowDefinition = "Single Approver",
+			workflowResourceValue = "Blogs Entry");
+
+		WorkflowMetrics.goToWorkflowSLASettings(workflowProcessName = "Single Approver");
+
+		Click(locator1 = "WorkflowMetricsSLA#ADD_NEW_SLA_BUTTON");
+
+		WorkflowMetrics.fillSLAForm(
+			slaDefinitionDays = 0,
+			slaDefinitionDescription = "SLA Description",
+			slaDefinitionEnd = "Process Ends: Approved",
+			slaDefinitionHours = 0010,
+			slaDefinitionName = "SLAName",
+			slaDefinitionPause = "On Task: Update",
+			slaDefinitionStart = "Process Begins");
+
+		Button.clickSave();
+
+		JSONBlog.addEntry(
+			entryContent = "Blogs Content",
+			entryTitle = "Blogs Title 1");
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Click(locator1 = "WorkflowMetrics#DASHBOARD_TOTAL_PENDING_ITEMS_TITLE");
+
+		while ((IsElementNotPresent(key_status = "check", locator1 = "WorkflowAllItems#DETAIL_SLA_STATUS")) && (maxIterations = "100")) {
+			Refresh();
+		}
+
+		Click(locator1 = "WorkflowAllItems#WORKFLOW_INSTANCE_ID");
+
+		AssertElementPresent(
+			key_status = "check",
+			locator1 = "WorkflowAllItems#DETAIL_SLA_STATUS");
+	}
+
+	@description = "LPS-92053 - Verify that the item modal places an icon before the modal title referring to the SLA status: On Time"
+	@priority = 3
+	test ItemModalPlacesIconReferringToSlaStatusOnTime1 {
+		property portal.acceptance = "default";
+		property test.name.skip.portal.instance = "WorkflowMetricsAllItemsList#ItemModalPlacesIconReferringToSlaStatusOnTime";
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Workflow",
+			panel = "Applications",
+			portlet = "Process Builder");
+
+		Navigator.gotoNavItem(navItem = "Configuration");
+
+		Workflow.configureWorkflow(
+			workflowDefinition = "Single Approver",
+			workflowResourceValue = "Blogs Entry");
+
+		WorkflowMetrics.goToWorkflowSLASettings(workflowProcessName = "Single Approver");
+
+		Click(locator1 = "WorkflowMetricsSLA#ADD_NEW_SLA_BUTTON");
+
+		WorkflowMetrics.fillSLAForm(
+			slaDefinitionDays = 0,
+			slaDefinitionDescription = "SLA Description",
+			slaDefinitionEnd = "Process Ends: Approved",
+			slaDefinitionHours = 0010,
+			slaDefinitionName = "SLAName",
+			slaDefinitionPause = "On Task: Update",
+			slaDefinitionStart = "Process Begins");
+
+		Button.clickSave();
+
+		JSONBlog.addEntry(
+			entryContent = "Blogs Content",
+			entryTitle = "Blogs Title 1");
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Click(locator1 = "WorkflowMetrics#DASHBOARD_TOTAL_PENDING_ITEMS_TITLE");
+
+		while ((IsElementNotPresent(key_status = "check", locator1 = "WorkflowAllItems#DETAIL_SLA_STATUS")) && (maxIterations = "100")) {
+			Refresh();
+		}
+
+		Click(locator1 = "WorkflowAllItems#WORKFLOW_INSTANCE_ID");
+
+		AssertElementPresent(
+			key_status = "check",
+			locator1 = "WorkflowAllItems#DETAIL_SLA_STATUS");
+	}
+
+	@description = "LPS-92053 - Verify that the item modal places an icon before the modal title referring to the SLA status: On Time"
+	@priority = 3
+	test ItemModalPlacesIconReferringToSlaStatusOnTime2 {
+		property portal.acceptance = "default";
+		property test.name.skip.portal.instance = "WorkflowMetricsAllItemsList#ItemModalPlacesIconReferringToSlaStatusOnTime";
+
+		ApplicationsMenu.gotoPortlet(
+			category = "Workflow",
+			panel = "Applications",
+			portlet = "Process Builder");
+
+		Navigator.gotoNavItem(navItem = "Configuration");
+
+		Workflow.configureWorkflow(
+			workflowDefinition = "Single Approver",
+			workflowResourceValue = "Blogs Entry");
+
+		WorkflowMetrics.goToWorkflowSLASettings(workflowProcessName = "Single Approver");
+
+		Click(locator1 = "WorkflowMetricsSLA#ADD_NEW_SLA_BUTTON");
+
+		WorkflowMetrics.fillSLAForm(
+			slaDefinitionDays = 0,
+			slaDefinitionDescription = "SLA Description",
+			slaDefinitionEnd = "Process Ends: Approved",
+			slaDefinitionHours = 0005,
+			slaDefinitionName = "SLAName",
+			slaDefinitionPause = "On Task: Update",
+			slaDefinitionStart = "Process Begins");
+
+		Button.clickSave();
+
+		JSONBlog.addEntry(
+			entryContent = "Blogs Content",
+			entryTitle = "Blogs Title 1");
+
+		WorkflowMetrics.goToWorkflowProcessMetrics(workflowProcessName = "Single Approver");
+
+		Click(locator1 = "WorkflowMetrics#DASHBOARD_TOTAL_PENDING_ITEMS_TITLE");
+
+		while ((IsElementNotPresent(key_status = "check", locator1 = "WorkflowAllItems#DETAIL_SLA_STATUS")) && (maxIterations = "100")) {
 			Refresh();
 		}
 
