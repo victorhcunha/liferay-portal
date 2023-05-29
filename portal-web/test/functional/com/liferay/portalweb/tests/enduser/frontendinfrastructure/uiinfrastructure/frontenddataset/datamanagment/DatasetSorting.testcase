@@ -78,4 +78,13 @@ definition {
 
 	}
 
+	@description = "LPS-185327. Confirm that the search bar responds when we search for one of the options."
+	@ignore = "true"
+	@priority = 4
+	test CanSearchSortingInSearchBar {
+
+		// TODO LPS-185327 CanSearchSortingInSearchBar pending implementation
+
+	}
+
 }
