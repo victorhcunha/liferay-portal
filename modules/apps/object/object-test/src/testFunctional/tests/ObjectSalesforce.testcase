@@ -12,7 +12,8 @@ definition {
 	}
 
 	tearDown {
-		ObjectAdmin.deleteAllCustomObjectsViaAPI();
+
+		//ObjectAdmin.deleteAllCustomObjectsViaAPI();
 
 		var testLiferayVirtualInstance = PropsUtil.get("test.liferay.virtual.instance");
 
@@ -332,6 +333,99 @@ definition {
 				locator1 = "ObjectPortlet#ENTRY_VALUE");
 		}
 	}
+
+	@description = "LPS-165252 - Verify CRUD functionality with an imported custom object that is mapped to a form container"
+	@priority = 5
+	test AssertCRUDWithFormContainer {
+		property portal.acceptance = "true";
+
+		task ("Given the DXP configured with Salesforce") {
+			ApplicationsMenu.gotoPortlet(
+				category = "Configuration",
+				panel = "Control Panel",
+				portlet = "Instance Settings");
+
+			SystemSettings.gotoConfiguration(
+				configurationCategory = "Feature Flags",
+				configurationName = "Beta",
+				configurationScope = "Virtual Instance Scope");
+
+			Check.checkToggleSwitch(
+				key_featureFlag = "LPS-135430",
+				locator1 = "ToggleSwitch#ENABLE_BETA_TOGGLE_SWITCH");
+
+			ApplicationsMenu.gotoPortlet(
+				category = "Configuration",
+				panel = "Control Panel",
+				portlet = "Instance Settings");
+
+			SystemSettings.gotoConfiguration(
+				configurationCategory = "Third Party",
+				configurationName = "Salesforce Integration",
+				configurationScope = "Site Scope");
+
+			ObjectSalesforce.configureSalesforce();
+		}
+
+		task ("And given an imported standard object with storage type as Salesforce") {
+			ObjectExportImport.importObject(
+				objectFileName = "ImportedStandardObjectWithSalesforceStorageType",
+				objectName = "Contact");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "Contact");
+		}
+
+		task ("And given a page with a form container fragment mapped with the custom object") {
+			JSONLayout.addPublicLayout(
+				groupName = "Guest",
+				layoutName = "Test Page Name",
+				type = "content");
+
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Test Page Name",
+				siteName = "Guest");
+
+			PageEditor.addFragment(
+				collectionName = "Form Components",
+				fragmentName = "Form Container");
+
+			PageEditor.mapFormContainerToObject(contentType = "Contact");
+
+			PageEditor.publish();
+		}
+
+		task ("When the user navigates to the page ") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Test Page Name",
+				siteName = "Guest");
+		}
+
+		//task ("Then the user is able to read entries") {
+		//	AssertElementPresent(
+		//		key_entry = "a@liferay.com",
+		//		locator1 = "ObjectPortlet#ENTRY_VALUE");
+		//}
+
+		task ("And then the user is able to create entries") {
+			PortletEntry.inputText(
+				fieldLabel = "Last Name",
+				text = "New Entry");
+
+			Button.click(button = "Submit");
+		}
+
+		// Task("And then the user is able to update entries"){}
+
+		task ("And then the user is able to delete entries") {
+			ObjectAdmin.goToCustomObject(objectName = "Contact");
+
+			ObjectPortlet.deleteEntry(entry = "New Entry");
+
+			AssertElementNotPresent(
+				key_entry = "Entry Updated",
+				locator1 = "ObjectPortlet#ENTRY_VALUE");
+		}
+		}
 
 	@description = "LPS-185427 Verify CRUD functionality with an imported custom object using Salesforce as the storage type"
 	@priority = 5
