@@ -13,7 +13,7 @@ definition {
 
 	tearDown {
 
-		//ObjectAdmin.deleteAllCustomObjectsViaAPI();
+		ObjectAdmin.deleteAllCustomObjectsViaAPI();
 
 		var testLiferayVirtualInstance = PropsUtil.get("test.liferay.virtual.instance");
 
@@ -337,7 +337,7 @@ definition {
 	@description = "LPS-165252 - Verify CRUD functionality with an imported custom object that is mapped to a form container"
 	@priority = 5
 	test AssertCRUDWithFormContainer {
-		property portal.acceptance = "true";
+		property portal.acceptance = "default";
 
 		task ("Given the DXP configured with Salesforce") {
 			ApplicationsMenu.gotoPortlet(
