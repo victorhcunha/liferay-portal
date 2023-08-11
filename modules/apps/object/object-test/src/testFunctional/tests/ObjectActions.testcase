@@ -2806,7 +2806,9 @@ definition {
 
 		ObjectAdmin.goToActionsTab();
 
-		ObjectAdmin.addObjectActionViaUI(
+		ObjectAdmin.gotoAddObjectAction();
+
+		ObjectAdmin.fillObjectAction(
 			actionLabel = "Custom Action",
 			actionName = "CustomAction",
 			active = "true",
@@ -2815,6 +2817,8 @@ definition {
 			thenAction = "Webhook",
 			urlAction = "http://localhost:8080",
 			whenAction = "On After Add");
+
+		Button.clickSave();
 
 		AssertElementPresent(
 			locator1 = "Message#WARNING_FEEDBACK",
