@@ -12,7 +12,7 @@ definition {
 
 		User.firstLoginPG();
 
-		//AntCommands.runCommand("build-test-liferay-sample-workspace.xml", "start-liferay-sample-etc-spring-boot");
+		AntCommands.runCommand("build-test-liferay-sample-workspace.xml", "start-liferay-sample-etc-spring-boot");
 	}
 
 	tearDown {
@@ -27,33 +27,27 @@ definition {
     @description = "LPS-179367 - Verify CRUD functionality with a created custom object definition using a client extension as the storage type."
 	@priority = 5
 	    test AssertCRUDWithClientExtensionAsStorageType {
+			property portal.acceptance = "runJhosseph";
             property portal.acceptance = "true";
             property custom.properties = "feature.flag.LPS-135430=true";
             
             task ("Given a custom object stored in a CX proxy storage type published") {
-            // ObjectAdmin.addObjectViaAPI(
-			// 	labelName = "Custom Object EntryManager",
-			// 	objectName = "CustomObjectEntryManager",
-			// 	pluralLabelName = "Custom Objects EntryManager");
             
             ObjectAdmin.openObjectAdmin();
 
             ObjectAdmin.addObjectWithStorageType(
                 fieldLabelName = "Proxy Custom Object",
                 pluralLabelName = "Proxy Custom Object",
-                storageType = "Liferay Sample Etc Spring Boot Object Entry Manager 1");    
+                storageType = "Liferay Sample Etc Spring Boot Object Entry Manager 1");   
 
-            //  ObjectAdmin.openObjectAdmin();
+			ObjectPortlet.selectCustomObject(label = "Proxy Custom Object");	 
 
-		    // ObjectPortlet.selectCustomObject(label = "Proxy Custom Objec");
+			CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
 
-		    // CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");   
-
+			CreateObject.saveObject();	   
         } 
 
         task ("and Given a text field is created") {
-            ObjectPortlet.selectCustomObject(label = "Proxy Custom Object");
-
 		    ObjectAdmin.goToFieldsTab();
            
             ObjectAdmin.addObjectFieldViaUI(
@@ -65,17 +59,12 @@ definition {
 
         task ("When the user navigates to the object") {
 			ObjectAdmin.goToCustomObject(objectName = "ProxyCustomObject");
-            // ApplicationsMenu.gotoPortlet(
-			// category = "Object",
-			// panel = "Control Panel",
-			// portlet = "Proxy Custom Object");
 		}
 
         task ("And then the user is able to create entries") {
 			ObjectPortlet.addSingleFieldEntryViaUI(entry = "objectEntryManager Entry");
 
 			ObjectAdmin.goToCustomObject(objectName = "ProxyCustomObject");
-            // Navigator.gotoBack();
 
 			AssertElementPresent(
 				key_entry = "objectEntryManager Entry",
@@ -90,9 +79,6 @@ definition {
 				value1 = "objectEntryManager Entry Updated");
 
 			PortletEntry.save();
-
-			ObjectAdmin.goToCustomObject(objectName = "ProxyCustomObject");
-            // Navigator.gotoBack();
 
 			AssertElementPresent(
 				key_entry = "objectEntryManager Entry Updated",
