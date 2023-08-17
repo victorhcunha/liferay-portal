@@ -443,7 +443,7 @@ definition {
 					-H 'Content-Type: application/json' \
 					-u ${userEmailAddress}:${userPassword} \
 					-d '{
-						"type": "${fieldType}",
+						"DBType": "${fieldType}",
 						"businessType": "${fieldBusinessType}",
 						"indexed": ${indexed},
 						"indexedAsKeyword": ${indexedAsKeyword},
