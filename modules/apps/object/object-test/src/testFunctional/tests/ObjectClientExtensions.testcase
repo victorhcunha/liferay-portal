@@ -23,45 +23,42 @@ definition {
 		}
 	}
 
-
-    @description = "LPS-179367 - Verify CRUD functionality with a created custom object definition using a client extension as the storage type."
+	@description = "LPS-179367 - Verify CRUD functionality with a created custom object definition using a client extension as the storage type."
 	@priority = 5
-	    test AssertCRUDWithClientExtensionAsStorageType {
-			property portal.acceptance = "runJhosseph";
-            property portal.acceptance = "true";
-            property custom.properties = "feature.flag.LPS-135430=true";
-            
-            task ("Given a custom object stored in a CX proxy storage type published") {
-            
-            ObjectAdmin.openObjectAdmin();
+	test AssertCRUDWithClientExtensionAsStorageType {
+		property custom.properties = "feature.flag.LPS-135430=true";
+		property portal.acceptance = "runJhosseph";
 
-            ObjectAdmin.addObjectWithStorageType(
-                fieldLabelName = "Proxy Custom Object",
-                pluralLabelName = "Proxy Custom Object",
-                storageType = "Liferay Sample Etc Spring Boot Object Entry Manager 1");   
+		task ("Given a custom object stored in a CX proxy storage type published") {
+			ObjectAdmin.openObjectAdmin();
 
-			ObjectPortlet.selectCustomObject(label = "Proxy Custom Object");	 
+			ObjectAdmin.addObjectWithStorageType(
+				fieldLabelName = "Proxy Custom Object",
+				pluralLabelName = "Proxy Custom Object",
+				storageType = "Liferay Sample Etc Spring Boot Object Entry Manager 1");
+
+			ObjectPortlet.selectCustomObject(label = "Proxy Custom Object");
 
 			CreateObject.selectPanelCategoryKey(panelCategoryKey = "Control Panel > Object");
 
-			CreateObject.saveObject();	   
-        } 
+			CreateObject.saveObject();
+		}
 
-        task ("and Given a text field is created") {
-		    ObjectAdmin.goToFieldsTab();
-           
-            ObjectAdmin.addObjectFieldViaUI(
-			fieldLabel = "Custom Field",
-			fieldType = "Text");
+		task ("and Given a text field is created") {
+			ObjectAdmin.goToFieldsTab();
 
-            ObjectAdmin.publishObjectViaAPI(objectName = "ProxyCustomObject"); 
-        }
+			ObjectAdmin.addObjectFieldViaUI(
+				fieldLabel = "Custom Field",
+				fieldType = "Text");
 
-        task ("When the user navigates to the object") {
+			ObjectAdmin.publishObjectViaAPI(objectName = "ProxyCustomObject");
+		}
+
+		task ("When the user navigates to the object") {
 			ObjectAdmin.goToCustomObject(objectName = "ProxyCustomObject");
 		}
 
-        task ("And then the user is able to create entries") {
+		task ("And then the user is able to create entries") {
 			ObjectPortlet.addSingleFieldEntryViaUI(entry = "objectEntryManager Entry");
 
 			ObjectAdmin.goToCustomObject(objectName = "ProxyCustomObject");
@@ -92,5 +89,6 @@ definition {
 				key_entry = "objectEntryManager Entry Updated",
 				locator1 = "ObjectPortlet#ENTRY_VALUE");
 		}
-    }
-}   
+	}
+
+}
