@@ -26,9 +26,44 @@ definition {
 	@description = "LPS-167536 - It's possible to add an object entry with a picklist field as mandatory of a  previously picklist imported "
 	@priority = 4
 	test CanAddEntryWithMandatoryPicklistFieldImported {
+		task ("Given a picklist imported and an object created") {
+			Picklist.gotoPicklists();
 
-		// TODO pending implementation
+			Picklist.importPicklist(
+				picklistFileName = "simple_picklist",
+				picklistName = "ImportedPicklist");
 
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Custom Object 193860",
+				objectName = "CustomObject193860",
+				pluralLabelName = "Custom Objects 193860");
+		}
+
+		task ("When adding a picklist field as mandatory") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Custom Object 193860");
+
+			ObjectAdmin.goToFieldsTab();
+
+			ObjectAdmin.addObjectFieldViaUI(
+				fieldLabel = "Field Picklist",
+				fieldPicklist = "ImportedPicklist",
+				fieldType = "Picklist",
+				isMandatory = "true");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject193860");
+		}
+
+		task ("Then the user can add an object entry") {
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject193860");
+
+			ObjectAdmin.addObjectPicklistFieldEntryViaUI(picklistOption = "Picklist Item 1");
+
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject193860");
+
+			ObjectPortlet.viewEntry(entry = "Picklist Item 1");
+		}
 	}
 
 	@description = "LPS-167536 - It's possible to add an object entry with a multi select picklist field of a picklist previously imported"
