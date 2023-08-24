@@ -28,6 +28,34 @@
 			wait.for.ready="true"
 			workspace.client.extension.name="liferay-sample-etc-spring-boot"
 		/>
+
+		<beanshell>
+			<![CDATA[
+				import com.liferay.jenkins.results.parser.JenkinsResultsParserUtil;
+
+				String serverPort = project.getProperty("server.port");
+
+				String url = "http://localhost:" + serverPort + "/ready";
+
+				while (true) {
+					try {
+						String content = JenkinsResultsParserUtil.toString(url, false);
+
+						if (content.contains("READY")) {
+							System.out.println("Found 'READY' at " + url);
+
+							break;
+						}
+					}
+					catch (Exception exception) {
+					}
+
+					System.out.println("Waiting for 'READY' to be available at " + url);
+
+					Thread.sleep(1000);
+				}
+			]]>
+		</beanshell>
 	</target>
 
 	<target name="start-workspace">
