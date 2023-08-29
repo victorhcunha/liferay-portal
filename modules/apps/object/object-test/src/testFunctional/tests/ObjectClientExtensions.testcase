@@ -114,4 +114,81 @@ definition {
 		}
 	}
 
+	@description = "LPS-179367 - Verify CRUD functionality with a created custom object definition using a client extension as the storage type."
+	@priority = 5
+	test CanCreateValidation {
+		property custom.properties = "feature.flag.LPS-188898=true";
+
+		task ("Given: Liferay Sample Etc Spring Boot are deployed into the current virtual instance") {
+			var clientExtensionSamples = "liferay-sample-etc-spring-boot";
+
+			for (var clientExtension : list ${clientExtensionSamples}) {
+				AntCommands.runCommand("build-test-liferay-sample-workspace.xml", "deploy-workspace-client-extension -Dvirtual.instance.id=${companyWebId} -Dworkspace.client.extension.name=${clientExtension}");
+			}
+		}
+
+		AntCommands.runCommand("build-test-liferay-sample-workspace.xml", "start-liferay-sample-etc-spring-boot -Dvirtual.instance.id=${companyWebId}");
+
+		task ("and Given a custom object definition with a text field") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Employee",
+				objectName = "Employee",
+				pluralLabelName = "Employees");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "name",
+				fieldName = "name",
+				fieldType = "String",
+				isRequired = "true",
+				objectName = "Employee");
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "Employee");
+		}
+
+		task ("and Given a validation using the client extension") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Employee");
+
+			ObjectAdmin.goToValidationsTab();
+
+			ObjectCustomValidation.addObjectValidation(
+				validationName = "Employee Validation",
+				validationType = "Liferay Sample Etc Spring Boot Spring Boot Object Validation Rule 1");
+
+			ObjectCustomValidation.gotoCustomValidation(validationName = "Employee Validation");
+
+			ObjectCustomValidation.activeValidation();
+
+			ObjectCustomValidation.addErrorMessage(errorMessage = "This entry is not possible.");
+
+			PortletEntry.save();
+		}
+
+		task ("When the user attempts to add an invalid entry") {
+			ObjectAdmin.goToCustomObject(objectName = "Employee");
+
+			ObjectPortlet.addSingleFieldEntryViaUI(entry = "Invalid Name");
+		}
+
+		task ("Then the entry isn't created") {
+			ObjectAdmin.goToCustomObject(objectName = "Employee");
+
+			ObjectPortlet.assertEntryNotPresent(entry = "Invalid Name");
+		}
+
+		task ("and When the user adds a valid entry") {
+			ObjectAdmin.goToCustomObject(objectName = "Employee");
+
+			ObjectPortlet.addSingleFieldEntryViaUI(entry = "Valid Name");
+		}
+
+		task ("Then the entry is created") {
+			ObjectAdmin.goToCustomObject(objectName = "Employee");
+
+			ObjectPortlet.viewEntry(entry = "Valid Name");
+		}
+	}
+
 }
