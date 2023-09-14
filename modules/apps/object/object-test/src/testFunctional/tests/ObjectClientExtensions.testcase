@@ -111,7 +111,9 @@ definition {
 	@priority = 5
 	test CanCreateValidation {
 		property custom.properties = "feature.flag.LPS-188898=true";
-		property portal.acceptance = "true";
+		property portal.acceptance = "default";
+		property test.liferay.virtual.instance = "false";
+		property test.run.type = "single";
 
 		task ("Given: Liferay Sample Etc Spring Boot are deployed into the current virtual instance") {
 			var clientExtensionSamples = "liferay-sample-etc-spring-boot";
