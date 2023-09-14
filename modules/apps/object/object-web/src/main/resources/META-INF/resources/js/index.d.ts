@@ -380,6 +380,7 @@ interface ObjectRelationship {
 	readonly objectDefinitionName2: string;
 	parameterObjectFieldName?: string;
 	reverse: boolean;
+	system?: boolean;
 	type: ObjectRelationshipType;
 }
 
