@@ -355,9 +355,8 @@ public class ObjectDefinitionResourceImpl
 
 		_addObjectDefinitionResources(
 			Collections.emptySet(), objectDefinition.getObjectActions(),
-			serviceBuilderObjectDefinition.getObjectDefinitionId(),
-			objectDefinition.getObjectLayouts(),
-			objectDefinition.getObjectRelationships(),
+			serviceBuilderObjectDefinition, objectDefinition.getObjectLayouts(),
+			ListUtil.fromArray(objectDefinition.getObjectRelationships()),
 			objectDefinition.getObjectValidationRules(),
 			objectDefinition.getObjectViews());
 
@@ -657,8 +656,9 @@ public class ObjectDefinitionResourceImpl
 
 		_addObjectDefinitionResources(
 			accountEntryRestrictedObjectRelationshipsNames, objectActions,
-			objectDefinitionId, objectLayouts, objectRelationships,
-			objectValidationRules, objectViews);
+			serviceBuilderObjectDefinition, objectLayouts,
+			ListUtil.fromArray(objectRelationships), objectValidationRules,
+			objectViews);
 
 		return _toObjectDefinition(serviceBuilderObjectDefinition);
 	}
@@ -703,12 +703,31 @@ public class ObjectDefinitionResourceImpl
 
 	private void _addObjectDefinitionResources(
 			Set<String> accountEntryRestrictedObjectRelationshipsNames,
-			ObjectAction[] objectActions, long objectDefinitionId,
+			ObjectAction[] objectActions,
+			com.liferay.object.model.ObjectDefinition
+				serviceBuilderObjectDefinition,
 			ObjectLayout[] objectLayouts,
-			ObjectRelationship[] objectRelationships,
+			List<ObjectRelationship> objectRelationships,
 			ObjectValidationRule[] objectValidationRules,
 			ObjectView[] objectViews)
 		throws Exception {
+
+		if (serviceBuilderObjectDefinition.isModifiable() &&
+			serviceBuilderObjectDefinition.isSystem() &&
+			ObjectDefinitionUtil.isInvokerBundleAllowed()) {
+
+			objectRelationships.removeIf(
+				objectRelationship -> !GetterUtil.getBoolean(
+					objectRelationship.getSystem()));
+		}
+		else {
+			objectRelationships.removeIf(
+				objectRelationship -> GetterUtil.getBoolean(
+					objectRelationship.getSystem()));
+		}
+
+		long objectDefinitionId =
+			serviceBuilderObjectDefinition.getObjectDefinitionId();
 
 		if (objectActions != null) {
 			ObjectActionResource.Builder builder =
@@ -738,14 +757,14 @@ public class ObjectDefinitionResourceImpl
 			}
 		}
 
-		if (objectRelationships != null) {
+		if (!objectRelationships.isEmpty()) {
 			Set<String> deleteObjectRelationshipsNames =
 				SetUtil.asymmetricDifference(
 					transform(
 						_objectRelationshipLocalService.getObjectRelationships(
 							objectDefinitionId),
 						com.liferay.object.model.ObjectRelationship::getName),
-					transformToList(
+					transform(
 						objectRelationships, ObjectRelationship::getName));
 
 			for (String deleteObjectRelationshipsName :

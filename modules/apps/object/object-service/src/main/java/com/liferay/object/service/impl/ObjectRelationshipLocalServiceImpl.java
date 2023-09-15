@@ -909,16 +909,20 @@ public class ObjectRelationshipLocalServiceImpl
 			boolean system, String type)
 		throws PortalException {
 
-		if (system && !ObjectDefinitionUtil.isInvokerBundleAllowed()) {
+		ObjectDefinition objectDefinition1 =
+			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId1);
+
+		if (system && objectDefinition1.isModifiable() &&
+			objectDefinition1.isSystem() &&
+			!ObjectDefinitionUtil.isInvokerBundleAllowed()) {
+
 			throw new ObjectRelationshipSystemException(
-				"Only allowed bundles can create system object relationships");
+				"Only allowed bundles can add system object relationships");
 		}
 
 		_validateLabel(labelMap);
 		_validateName(objectDefinitionId1, name);
 
-		ObjectDefinition objectDefinition1 =
-			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId1);
 		ObjectDefinition objectDefinition2 =
 			_objectDefinitionPersistence.findByPrimaryKey(objectDefinitionId2);
 
