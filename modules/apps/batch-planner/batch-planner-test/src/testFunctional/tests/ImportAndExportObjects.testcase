@@ -26,6 +26,119 @@ definition {
 		}
 	}
 
+	@description = "LPS-172418 - Verify the relationship tab in a layout persists after the object definition is exported and then imported"
+	@priority = 3
+	test AssertRelationshipTabPersistsAfterExport {
+		task ("Given two object definitions, Object A and Object B, each with a text field and site scope") {
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Object A",
+				objectName = "ObjectA",
+				pluralLabelName = "Objects A",
+				scope = "site");
+
+			ObjectAdmin.addObjectViaAPI(
+				labelName = "Object B",
+				objectName = "ObjectB",
+				pluralLabelName = "Objects B",
+				scope = "site");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "Field A",
+				fieldName = "fieldA",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "ObjectA");
+
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Text",
+				fieldLabelName = "fieldB",
+				fieldName = "customFieldObjectB",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "ObjectB");
+		}
+
+		task ("and Given a one-to-many relationship between Object A and Object B") {
+			ObjectAdmin.addObjectRelationshipViaAPI(
+				objectName_1 = "ObjectA",
+				objectName_2 = "ObjectB",
+				relationshipLabel = "Relationship",
+				relationshipName = "relationship",
+				relationshipType = "oneToMany");
+		}
+
+		task ("and Given a layout for Object A that contains a field tab and relationship tab") {
+			ObjectAdmin.addObjectLayoutViaAPI(
+				layoutName = "Layout ObjectA",
+				objectName = "ObjectA");
+
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectPortlet.selectCustomObject(label = "Object A");
+
+			ObjectAdmin.goToLayoutsTab();
+
+			ObjectAdmin.selectSpecificKebabMenuOption(
+				kebabOption = "Edit",
+				objectLabel = "Layout ObjectA");
+
+			ObjectAdmin.goToLayoutTabOnLayouts();
+
+			ObjectAdmin.addTabFieldsOnLayout(
+				blockName = "Block 1",
+				columnsNumber = 1,
+				fieldList = "Custom Field",
+				tabName = "Field Tab");
+
+			ObjectAdmin.addTabRelationshipsOnLayout(
+				relationshipsLabelName = "Relationship",
+				tabName = "Relationship Tab");
+
+			PortletEntry.save();
+		}
+
+		task ("and Given both object definitions are exported") {
+			ObjectAdmin.openObjectAdmin();
+
+			ObjectExportImport.exportObject(
+				objectLabel = "Object A",
+				objectName = "ObjectA");
+
+			ObjectExportImport.exportObject(
+				objectLabel = "Object B",
+				objectName = "ObjectB");
+		}
+
+		task ("and Given the object definitions are deleted") {
+			ObjectAdmin.deleteObjectViaAPI(objectName = "ObjectA");
+
+			ObjectAdmin.deleteObjectViaAPI(objectName = "ObjectB");
+		}
+
+		task ("When the object definitions are imported") {
+			ObjectExportImport.importExportedObject(objectName = "ObjectB");
+
+			ObjectExportImport.importExportedObject(objectName = "ObjectA");
+		}
+
+		task ("Then the relationship tab in the layout for Object A persists and is a field tab") {
+			ObjectPortlet.selectCustomObject(label = "Object A");
+
+			ObjectAdmin.goToLayoutsTab();
+
+			ObjectAdmin.selectSpecificKebabMenuOption(
+				kebabOption = "Edit",
+				objectLabel = "Layout ObjectA");
+
+			ObjectAdmin.goToLayoutTabOnLayouts();
+
+			AssertElementPresent(
+				key_fieldLabelName = "Relationship",
+				locator1 = "CreateObject#FIELD_ADDED_ON_BLOCK");
+		}
+	}
+
 	@priority = 3
 	test DownloadSampleFileOfTheCustomObject {
 		task ("Given a custom object is published") {
