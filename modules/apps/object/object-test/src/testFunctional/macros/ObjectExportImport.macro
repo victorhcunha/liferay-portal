@@ -18,6 +18,28 @@ definition {
 		}
 	}
 
+	macro importExportedObject {
+		ObjectAdmin.openObjectAdmin();
+
+		Click(locator1 = "ObjectAdmin#KEBAB_MENU");
+
+		MenuItem.click(menuItem = "Import Object Definition");
+
+		var tempFileName = TestCase.getDownloadedTempFileName(fileNamePattern = "Object_${objectName}*.json");
+		var tempFileDirectory = selenium.getOutputDirName();
+
+		UploadFile(
+			locator1 = "TextInput#FILE",
+			value1 = "${tempFileDirectory}/${tempFileName}");
+
+		Type(
+			key_fieldLabel = "Name",
+			locator1 = "TextInput#GENERIC_TEXT_INPUT",
+			value1 = ${objectName});
+
+		Button.clickImport();
+	}
+
 	macro importObject {
 		ObjectAdmin.openObjectAdmin();
 
