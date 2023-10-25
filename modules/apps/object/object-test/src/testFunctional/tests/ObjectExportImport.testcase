@@ -179,13 +179,7 @@ definition {
 		}
 
 		task ("And given the object definition is imported") {
-			ObjectExportImport.importObject(
-				objectFileName = "ImportedObjectWith100Fields",
-				objectName = "CustomObject187390");
-
-			ObjectPortlet.selectCustomObject(label = "Custom Object 187390");
-
-			ObjectAdmin.publishObjectViaUI();
+			ObjectExportImport.importExportedObject(objectName = "CustomObject187390");
 		}
 
 		task ("When the user creates an object entry with each field type filled") {
