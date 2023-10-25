@@ -373,6 +373,8 @@ definition {
 	@description = "This is a test for LPS-194108. View Unique Field Value error when submitting a form."
 	@priority = 4
 	test CannotSubmitSameValueWithExistingEntryToUniqueField {
+		property portal.acceptance = "default";
+
 		task ("Given a page creator has a content page with a Text Input fragment mapped to an unique field") {
 			ObjectAdmin.addObjectViaAPI(
 				labelName = "Purchase Order",
