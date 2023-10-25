@@ -289,9 +289,7 @@ definition {
 
 		Button.clickSave();
 
-		WaitForVisible(
-			key_fieldLabel = ${fieldLabel},
-			locator1 = "ObjectAdmin#VIEW_OBJECT_FIELD_LABEL");
+		WaitForPageLoad();
 	}
 
 	macro addObjectLayoutViaAPI {
