@@ -11,7 +11,7 @@ definition {
 			Type.type(
 				locator1 = "ObjectPortlet#ADD_OBJECT_ENTRY",
 				value1 = ${newEntry});
-
+sdf
 			PortletEntry.save();
 		}
 
