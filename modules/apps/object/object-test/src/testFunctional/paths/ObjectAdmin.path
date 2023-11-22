@@ -356,6 +356,11 @@
 		<td></td>
 	</tr>
 	<tr>
+		<td>SELECT_OBJECT_LABEL_AND_SOURCE</td>
+		<td>//*[(@class='label-info label' or 'label-warning label') and contains(strong,'${key_source}')]//..//a[contains(text(),'${key_label}')]</td>
+		<td></td>
+	</tr>
+	<tr>
 		<td>SELECT_OBJECT_SCOPE</td>
 		<td>//label[contains(.,'Scope')]/following-sibling::div//input</td>
 		<td></td>
