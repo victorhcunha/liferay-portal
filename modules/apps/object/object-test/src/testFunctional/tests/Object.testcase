@@ -458,7 +458,7 @@ definition {
 
 		AssertElementPresent(
 			key_label = "New Relationship",
-			locator1 = "ObjectAdmin#SELECT_OBJECT_FIELD");
+			locator1 = "ObjectAdmin#SELECT_OBJECT_LABEL");
 	}
 
 	@description = "LPS-135406 - Verify it is possible to update the label of relationship of native object"

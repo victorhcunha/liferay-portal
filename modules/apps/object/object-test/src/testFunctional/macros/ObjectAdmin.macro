@@ -1413,7 +1413,7 @@ definition {
 	macro goToFieldsDetails(label = null) {
 		Click(
 			key_label = ${label},
-			locator1 = "ObjectAdmin#SELECT_OBJECT_FIELD");
+			locator1 = "ObjectAdmin#SELECT_OBJECT_LABEL");
 
 		SelectFrame(locator1 = "IFrame#IFRAME");
 	}
