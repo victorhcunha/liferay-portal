@@ -17,7 +17,6 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.User;
-import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 
@@ -110,15 +109,6 @@ public class ObjectFieldSettingUtil {
 
 	public static String getValue(String name, ObjectField objectField) {
 		return getValue(name, objectField.getObjectFieldSettings());
-	}
-
-	public static boolean isUnique(
-		List<ObjectFieldSetting> objectFieldSetting) {
-
-		return GetterUtil.getBoolean(
-			getValue(
-				ObjectFieldSettingConstants.NAME_UNIQUE_VALUES,
-				objectFieldSetting));
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
