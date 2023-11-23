@@ -298,7 +298,7 @@ public class ObjectFieldResourceTest extends BaseObjectFieldResourceTestCase {
 	public void testGetObjectField() throws Exception {
 		super.testGetObjectField();
 
-		// Unique
+		// Set unique value
 
 		ObjectField objectField = randomObjectField();
 
@@ -316,6 +316,8 @@ public class ObjectFieldResourceTest extends BaseObjectFieldResourceTestCase {
 			_objectDefinition.getObjectDefinitionId(), objectField);
 
 		Assert.assertTrue(objectField.getUnique());
+
+		// Filtering by unique
 
 		Page<ObjectField> page1 =
 			objectFieldResource.getObjectDefinitionObjectFieldsPage(
