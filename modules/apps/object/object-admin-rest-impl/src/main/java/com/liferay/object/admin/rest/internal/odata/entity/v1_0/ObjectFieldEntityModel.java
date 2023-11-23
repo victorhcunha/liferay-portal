@@ -22,7 +22,6 @@ public class ObjectFieldEntityModel implements EntityModel {
 	public ObjectFieldEntityModel() {
 		_entityFieldsMap = EntityModel.toEntityFieldsMap(
 			new BooleanEntityField("state", locale -> "state"),
-			new BooleanEntityField("unique", locale -> "unique"),
 			new StringEntityField(
 				"label",
 				locale -> Field.getSortableFieldName(
