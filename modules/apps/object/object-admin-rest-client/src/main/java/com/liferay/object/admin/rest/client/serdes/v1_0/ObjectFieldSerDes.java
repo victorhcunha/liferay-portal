@@ -326,16 +326,6 @@ public class ObjectFieldSerDes {
 			sb.append("\"");
 		}
 
-		if (objectField.getUnique() != null) {
-			if (sb.length() > 1) {
-				sb.append(", ");
-			}
-
-			sb.append("\"unique\": ");
-
-			sb.append(objectField.getUnique());
-		}
-
 		sb.append("}");
 
 		return sb.toString();
@@ -528,13 +518,6 @@ public class ObjectFieldSerDes {
 			map.put("type", String.valueOf(objectField.getType()));
 		}
 
-		if (objectField.getUnique() == null) {
-			map.put("unique", null);
-		}
-		else {
-			map.put("unique", String.valueOf(objectField.getUnique()));
-		}
-
 		return map;
 	}
 
@@ -708,11 +691,6 @@ public class ObjectFieldSerDes {
 				if (jsonParserFieldValue != null) {
 					objectField.setType(
 						ObjectField.Type.create((String)jsonParserFieldValue));
-				}
-			}
-			else if (Objects.equals(jsonParserFieldName, "unique")) {
-				if (jsonParserFieldValue != null) {
-					objectField.setUnique((Boolean)jsonParserFieldValue);
 				}
 			}
 		}
