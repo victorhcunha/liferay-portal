@@ -139,79 +139,81 @@ definition {
 		}
 	}
 
-	@description = "LPS-152677 - Verify that it's possible to create an object with a state added to the picklist"
+	@description = "LPS-193365 - Verify the user can create a custom state manager and an object entry with the default state"
 	@priority = 4
-	test CanCreateObjectWithState {
-		task ("Add a Custom Picklist and Item (via API)") {
-			Picklist.addPicklistViaAPI(picklistName = "Picklist Test");
+	test CanCreateObjectEntryWithState {
+		task ("Given a picklist with several items") {
+			Picklist.addPicklistViaAPI(picklistName = "South America");
 
-			Picklist.addPicklistItemViaAPI(
-				itemKey = "PicklistItemTest",
-				itemName = "Picklist Item Test",
-				picklistName = "Picklist Test");
+			for (var status : list "Brazil,Argentina,Uruguay") {
+				Picklist.addPicklistItemViaAPI(
+					itemKey = ${status},
+					itemName = ${status},
+					picklistName = "South America");
+			}
 		}
 
-		task ("Add a Custom Object and Custom Picklist (via API)") {
+		task ("and Given a custom object definition with a picklist field marked as state") {
 			ObjectAdmin.addObjectViaAPI(
-				labelName = "Custom Object 161898",
-				objectName = "CustomObject161898",
-				pluralLabelName = "Custom Objects 161898");
-		}
+				labelName = "Custom Object 199351",
+				objectName = "CustomObject199351",
+				pluralLabelName = "Custom Objects 199351");
 
-		task ("Go to Custom Object and create a Custom Picklist Field (check mask as state)") {
+			ObjectAdmin.addObjectFieldViaAPI(
+				fieldBusinessType = "Picklist",
+				fieldLabelName = "South America",
+				fieldName = "southAmerica",
+				fieldType = "String",
+				isRequired = "false",
+				objectName = "CustomObject199351",
+				picklistName = "South America");
+
 			ObjectAdmin.openObjectAdmin();
 
-			ObjectPortlet.selectCustomObject(label = "Custom Object 161898");
+			ObjectPortlet.selectCustomObject(label = "Custom Object 199351");
 
 			ObjectAdmin.goToFieldsTab();
 
-			ObjectAdmin.addObjectFieldViaUI(
-				fieldLabel = "Field Picklist",
-				fieldPicklist = "Picklist Test",
-				fieldType = "Picklist",
-				itemName = "Picklist Item Test",
-				markAsState = "true");
+			ObjectAdmin.goToFieldsDetails(label = "South America");
 
-			Refresh();
+			Check.checkToggleSwitch(locator1 = "ObjectField#MARK_AS_STATE_TOGGLE");
+
+			Click(locator1 = "ObjectAdmin#SIDEBAR_ADVANCED_TAB");
+
+			ObjectAdmin.selectDropdownItem(
+				labelName = "Input as Value",
+				optionName = "Brazil");
+
+			PortletEntry.save();
+
+			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject199351");
 		}
 
-		task ("Assert that Custom Picklist Field is present and publish") {
-			ObjectAdmin.assertObjectField(
-				fieldLabel = "Field Picklist",
-				fieldType = "Picklist");
-
-			ObjectAdmin.publishObjectViaAPI(objectName = "CustomObject161898");
-		}
-
-		task ("Go to State Manager tab and assert Picklist") {
+		task ("When the user navigates to the state manager tab") {
 			ObjectAdmin.goToStateManagerTab();
-
-			ObjectAdmin.goToFieldsDetails(label = "Field Picklist");
-
-			AssertElementPresent(
-				key_stateName = "Picklist Item Test",
-				locator1 = "ObjectAdmin#VIEW_STATE_NAME");
 		}
 
-		task ("Verify it's possible to add an entry") {
-			ObjectAdmin.goToCustomObject(objectName = "CustomObject161898");
+		task ("Then the state manager has the custom label") {
+			AssertElementPresent(
+				key_label = "South America",
+				key_source = "Custom",
+				locator1 = "ObjectAdmin#SELECT_OBJECT_LABEL_AND_SOURCE");
+		}
+
+		task ("and When the user creates an object entry") {
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject199351");
 
 			LexiconEntry.gotoAdd();
 
 			FormFields.viewRequiredAsterisk();
 
-			AssertTextEquals(
-				key_labelName = "Field Picklist",
-				locator1 = "ObjectAdmin#CLAY_GENERIC_BUTTON",
-				value1 = "Picklist Item Test");
-
 			PortletEntry.save();
 		}
 
-		task ("Assert that entry was added") {
-			ObjectAdmin.goToCustomObject(objectName = "CustomObject161898");
+		task ("Then the object entry state is the default value") {
+			ObjectAdmin.goToCustomObject(objectName = "CustomObject199351");
 
-			ObjectPortlet.viewEntry(entry = "Picklist Item Test");
+			ObjectPortlet.viewEntry(entry = "Brazil");
 		}
 	}
 
