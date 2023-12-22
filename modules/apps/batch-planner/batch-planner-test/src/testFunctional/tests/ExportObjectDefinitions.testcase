@@ -105,6 +105,8 @@ definition {
 	test CanExportCustomObjectFieldToJSONT {
 		property portal.acceptance = "true";
 
+
+
 		task ("Given I publish a Student custom object with myTest field") {
 			ObjectDefinitionAPI.createAndPublishObjectDefinition(
 				en_US_label = "Student",
