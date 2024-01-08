@@ -13,7 +13,7 @@ definition {
 
 		User.firstLoginPG();
 
-		var companyWebId = JSONCompany.getWebId();
+		var companyWebId = JSONCompany.getPortalURL();
 	}
 
 	tearDown {
