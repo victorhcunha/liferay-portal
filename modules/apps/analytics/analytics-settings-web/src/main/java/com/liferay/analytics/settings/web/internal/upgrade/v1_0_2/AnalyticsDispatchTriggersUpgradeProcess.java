@@ -81,13 +81,13 @@ public class AnalyticsDispatchTriggersUpgradeProcess extends UpgradeProcess {
 
 			long companyId = GetterUtil.getLong(properties.get("companyId"));
 
-			DispatchTrigger dispatchTrigger =
-				_dispatchTriggerLocalService.fetchDispatchTrigger(
-					companyId, "export-analytics-dxp-entities");
+			// DispatchTrigger dispatchTrigger =
+			// 	_dispatchTriggerLocalService.fetchDispatchTrigger(
+			// 		companyId, "export-analytics-dxp-entities");
 
-			if (dispatchTrigger != null) {
-				continue;
-			}
+			// if (dispatchTrigger != null) {
+			// 	continue;
+			// }
 
 			User user = _userLocalService.fetchUserByScreenName(
 				companyId,
@@ -97,19 +97,19 @@ public class AnalyticsDispatchTriggersUpgradeProcess extends UpgradeProcess {
 				continue;
 			}
 
-			dispatchTrigger = _dispatchTriggerLocalService.addDispatchTrigger(
-				null, user.getUserId(), _dispatchTaskExecutor,
-				"export-analytics-dxp-entities", null,
-				"export-analytics-dxp-entities", false);
+			// dispatchTrigger = _dispatchTriggerLocalService.addDispatchTrigger(
+			// 	null, user.getUserId(), _dispatchTaskExecutor,
+			// 	"export-analytics-dxp-entities", null,
+			// 	"export-analytics-dxp-entities", false);
 
 			LocalDateTime localDateTime = LocalDateTime.now();
 
-			_dispatchTriggerLocalService.updateDispatchTrigger(
-				dispatchTrigger.getDispatchTriggerId(), true, "0 0 * * * ?",
-				DispatchTaskClusterMode.NOT_APPLICABLE, 0, 0, 0, 0, 0, true,
-				false, localDateTime.getMonthValue() - 1,
-				localDateTime.getDayOfMonth(), localDateTime.getYear(),
-				localDateTime.getHour(), localDateTime.getMinute(), "UTC");
+			// _dispatchTriggerLocalService.updateDispatchTrigger(
+			// 	dispatchTrigger.getDispatchTriggerId(), true, "0 0 * * * ?",
+			// 	DispatchTaskClusterMode.NOT_APPLICABLE, 0, 0, 0, 0, 0, true,
+			// 	false, localDateTime.getMonthValue() - 1,
+			// 	localDateTime.getDayOfMonth(), localDateTime.getYear(),
+			// 	localDateTime.getHour(), localDateTime.getMinute(), "UTC");
 
 			Calendar calendar = Calendar.getInstance();
 
@@ -122,9 +122,9 @@ public class AnalyticsDispatchTriggersUpgradeProcess extends UpgradeProcess {
 
 			Date startDate = calendar.getTime();
 
-			_dispatchLogLocalService.addDispatchLog(
-				user.getUserId(), dispatchTrigger.getDispatchTriggerId(),
-				endDate, null, null, startDate, DispatchTaskStatus.SUCCESSFUL);
+			// _dispatchLogLocalService.addDispatchLog(
+			// 	user.getUserId(), dispatchTrigger.getDispatchTriggerId(),
+			// 	endDate, null, null, startDate, DispatchTaskStatus.SUCCESSFUL);
 		}
 	}
 
