@@ -82,11 +82,23 @@ public abstract class BaseEhcachePortalCache<K extends Serializable, V>
 	protected V doGet(K key) {
 		Ehcache ehcache = getEhcache();
 
+		V v = null;
+
 		if (_serializable) {
-			return _getValue(ehcache.get(new SerializableObjectWrapper(key)));
+			v = _getValue(ehcache.get(new SerializableObjectWrapper(key)));
+		}
+		else {
+			v = _getValue(ehcache.get(key));
 		}
 
-		return _getValue(ehcache.get(key));
+		if (_portalCacheName.equals(
+			"com.liferay.portal.kernel.dao.orm.EntityCache.com.liferay.portal.model.impl.PortalPreferenceValueImpl") &&
+			(v == null)) {
+
+			new Exception("Missing for key : " + key).printStackTrace(System.out);
+		}
+
+		return v;
 	}
 
 	@Override
