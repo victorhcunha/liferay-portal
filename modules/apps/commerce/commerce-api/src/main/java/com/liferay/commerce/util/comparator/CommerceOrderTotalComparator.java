@@ -12,7 +12,9 @@ import java.math.BigDecimal;
 
 /**
  * @author Andrea Di Giorgi
+ * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
  */
+@Deprecated
 public class CommerceOrderTotalComparator
 	extends OrderByComparator<CommerceOrder> {
 
