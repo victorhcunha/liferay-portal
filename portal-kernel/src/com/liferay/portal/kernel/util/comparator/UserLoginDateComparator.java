@@ -11,7 +11,9 @@ import com.liferay.portal.kernel.util.OrderByComparator;
 
 /**
  * @author Brian Wing Shun Chan
+ * @deprecated As of Cavanaugh (7.4.x), with no direct replacement
  */
+@Deprecated
 public class UserLoginDateComparator extends OrderByComparator<User> {
 
 	public static final String ORDER_BY_ASC =
