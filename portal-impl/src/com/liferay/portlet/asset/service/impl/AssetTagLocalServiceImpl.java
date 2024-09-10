@@ -667,7 +667,8 @@ public class AssetTagLocalServiceImpl extends AssetTagLocalServiceBaseImpl {
 		long[] groupIds, String name, int start, int end) {
 
 		return assetTagPersistence.findByG_LikeN(
-			groupIds, name, start, end, new AssetTagNameComparator());
+			groupIds, name, start, end,
+			AssetTagNameComparator.getInstance(false));
 	}
 
 	@Override
