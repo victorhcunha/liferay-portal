@@ -583,7 +583,7 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 			TransformUtil.transform(
 				_assetTagLocalService.getGroupTags(
 					groupId, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-					new AssetTagNameComparator(true)),
+					AssetTagNameComparator.getInstance(true)),
 				assetTag -> new OptionInfoFieldType(
 					new SingleValueInfoLocalizedValue<>(assetTag.getName()),
 					assetTag.getName()))

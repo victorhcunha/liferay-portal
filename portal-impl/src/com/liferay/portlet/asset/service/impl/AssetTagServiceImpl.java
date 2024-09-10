@@ -77,7 +77,7 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 		return sanitize(
 			assetTagPersistence.findByGroupId(
 				groupIds, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
-				new AssetTagNameComparator()));
+				AssetTagNameComparator.getInstance(false)));
 	}
 
 	@Override
@@ -165,7 +165,8 @@ public class AssetTagServiceImpl extends AssetTagServiceBaseImpl {
 		long[] groupIds, String name, int start, int end) {
 
 		return getTags(
-			groupIds, name, start, end, new AssetTagNameComparator());
+			groupIds, name, start, end,
+			AssetTagNameComparator.getInstance(true));
 	}
 
 	@Override

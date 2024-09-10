@@ -64,7 +64,7 @@ public class AssetTagsDisplayContext {
 		}
 
 		tagsSearchContainer.setOrderByComparator(
-			new AssetTagNameComparator(orderByAsc));
+			AssetTagNameComparator.getInstance(orderByAsc));
 		tagsSearchContainer.setOrderByType(orderByType);
 
 		tagsSearchContainer.setResultsAndTotal(

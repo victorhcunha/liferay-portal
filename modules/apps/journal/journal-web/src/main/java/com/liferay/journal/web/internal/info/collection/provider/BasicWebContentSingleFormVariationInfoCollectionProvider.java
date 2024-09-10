@@ -130,7 +130,8 @@ public class BasicWebContentSingleFormVariationInfoCollectionProvider
 			TransformUtil.transform(
 				_assetTagLocalService.getGroupTags(
 					serviceContext.getScopeGroupId(), QueryUtil.ALL_POS,
-					QueryUtil.ALL_POS, new AssetTagNameComparator(true)),
+					QueryUtil.ALL_POS,
+					AssetTagNameComparator.getInstance(true)),
 				assetTag -> new OptionInfoFieldType(
 					new SingleValueInfoLocalizedValue<>(assetTag.getName()),
 					assetTag.getName()))
