@@ -19,17 +19,12 @@ public class AssetTagNameComparator extends OrderByComparator<AssetTag> {
 
 	public static final String[] ORDER_BY_FIELDS = {"name"};
 
-	public AssetTagNameComparator() {
-		this(true, false);
-	}
+	public static AssetTagNameComparator getInstance(boolean ascending) {
+		if (ascending) {
+			return _INSTANCE_ASCENDING;
+		}
 
-	public AssetTagNameComparator(boolean ascending) {
-		this(ascending, false);
-	}
-
-	public AssetTagNameComparator(boolean ascending, boolean caseSensitive) {
-		_ascending = ascending;
-		_caseSensitive = caseSensitive;
+		return _INSTANCE_DESCENDING;
 	}
 
 	@Override
@@ -37,14 +32,7 @@ public class AssetTagNameComparator extends OrderByComparator<AssetTag> {
 		String name1 = assetTag1.getName();
 		String name2 = assetTag2.getName();
 
-		int value = 0;
-
-		if (_caseSensitive) {
-			value = name1.compareTo(name2);
-		}
-		else {
-			value = name1.compareToIgnoreCase(name2);
-		}
+		int value = name1.compareToIgnoreCase(name2);
 
 		if (_ascending) {
 			return value;
@@ -72,7 +60,16 @@ public class AssetTagNameComparator extends OrderByComparator<AssetTag> {
 		return _ascending;
 	}
 
+	private AssetTagNameComparator(boolean ascending) {
+		_ascending = ascending;
+	}
+
+	private static final AssetTagNameComparator _INSTANCE_ASCENDING =
+		new AssetTagNameComparator(true);
+
+	private static final AssetTagNameComparator _INSTANCE_DESCENDING =
+		new AssetTagNameComparator(false);
+
 	private final boolean _ascending;
-	private final boolean _caseSensitive;
 
 }
