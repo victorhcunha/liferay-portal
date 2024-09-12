@@ -14,6 +14,7 @@ import java.util.Comparator;
  */
 public class SiteInitializerNameComparator
 	implements Comparator<SiteInitializerItem> {
+
 	@Override
 	public int compare(
 		SiteInitializerItem siteInitializerItem1,
