@@ -73,8 +73,6 @@ public class TextEmbeddingProvidersHolderImpl
 			disabledProviders, "huggingFaceInferenceEndpoint",
 			new HuggingFaceInferenceEndpointTextEmbeddingProvider());
 		addTextEmbeddingProvider(
-			disabledProviders, "openai", new OpenAITextEmbeddingProvider());
-		addTextEmbeddingProvider(
 			disabledProviders, "txtai", new TXTAITextEmbeddingProvider());
 	}
 
