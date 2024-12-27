@@ -5,7 +5,7 @@
 
 package com.liferay.object.entry.util;
 
-import com.liferay.petra.lang.CentralizedThreadLocal;
+import com.liferay.portal.kernel.security.auth.CompanyCentralizedThreadLocal;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -70,28 +70,29 @@ public class ObjectEntryThreadLocal {
 	}
 
 	private static final ThreadLocal<Boolean>
-		_disassociateRelatedModelsThreadLocal = new CentralizedThreadLocal<>(
-			ObjectEntryThreadLocal.class +
-				"._disassociateRelatedModelsThreadLocal",
-			() -> false);
+		_disassociateRelatedModelsThreadLocal =
+			new CompanyCentralizedThreadLocal<>(
+				ObjectEntryThreadLocal.class +
+					"._disassociateRelatedModelsThreadLocal",
+				() -> false);
 	private static final ThreadLocal<Boolean>
 		_skipObjectEntryResourcePermissionThreadLocal =
-			new CentralizedThreadLocal<>(
+			new CompanyCentralizedThreadLocal<>(
 				ObjectEntryThreadLocal.class +
 					"._skipObjectEntryResourcePermissionThreadLocal",
 				() -> false);
 	private static final ThreadLocal<Boolean> _skipObjectValidationRules =
-		new CentralizedThreadLocal<>(
+		new CompanyCentralizedThreadLocal<>(
 			ObjectEntryThreadLocal.class + "._skipObjectValidationRules",
 			() -> false);
 	private static final ThreadLocal<Boolean>
 		_skipReadOnlyObjectFieldsValidationThreadLocal =
-			new CentralizedThreadLocal<>(
+			new CompanyCentralizedThreadLocal<>(
 				ObjectEntryThreadLocal.class +
 					"._skipReadOnlyObjectFieldsValidationThreadLocal",
 				() -> false);
 	private static final ThreadLocal<Set<Long>> _validatedObjectEntryIds =
-		new CentralizedThreadLocal<>(
+		new CompanyCentralizedThreadLocal<>(
 			ObjectEntryThreadLocal.class + "._validatedObjectEntryIds",
 			HashSet::new);
 

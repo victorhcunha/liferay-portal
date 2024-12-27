@@ -8,6 +8,7 @@ package com.liferay.object.definition.util;
 import com.liferay.object.entry.util.ObjectEntryThreadLocal;
 import com.liferay.petra.lang.CentralizedThreadLocal;
 import com.liferay.petra.lang.SafeCloseable;
+import com.liferay.portal.kernel.security.auth.CompanyCentralizedThreadLocal;
 
 /**
  * @author Shuyang Zhou
@@ -33,7 +34,7 @@ public class ObjectDefinitionThreadLocal {
 	}
 
 	private static final CentralizedThreadLocal<Long>
-		_deleteObjectDefinitionId = new CentralizedThreadLocal<>(
+		_deleteObjectDefinitionId = new CompanyCentralizedThreadLocal<>(
 			ObjectEntryThreadLocal.class + "._deleteObjectDefinitionId");
 
 }
