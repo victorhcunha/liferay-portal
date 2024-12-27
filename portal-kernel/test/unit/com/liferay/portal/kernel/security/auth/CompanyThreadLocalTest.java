@@ -52,17 +52,7 @@ public class CompanyThreadLocalTest {
 	}
 
 	@Test
-	public void testLock() {
-		_testLock(CompanyThreadLocal::setCompanyId);
-	}
-
-	@Test
-	public void testLockWithSetWithSafeCloseable() {
-		_testLock(CompanyThreadLocal::setCompanyIdWithSafeCloseable);
-	}
-
-	@Test
-	public void testSetCompanyId() {
+	public void testCentralizedCompanyThreadLocalsWithSetCompanyId() {
 		DataSample dataSample = Mockito.mock(DataSample.class);
 
 		DataSampleThreadLocal.addDataSample(dataSample);
@@ -98,7 +88,7 @@ public class CompanyThreadLocalTest {
 					centralizedCompanyThreadLocal, "initialValue",
 					new Class<?>[0]);
 
-				Object value = centralizedCompanyThreadLocal.get();
+				Object actualValue = centralizedCompanyThreadLocal.get();
 
 				String name = centralizedCompanyThreadLocal.toString();
 
@@ -106,16 +96,17 @@ public class CompanyThreadLocalTest {
 					DataSampleThreadLocal dataSampleThreadLocalInitialValue =
 						(DataSampleThreadLocal)initialValue;
 
-					DataSampleThreadLocal dataSampleThreadLocalValue =
-						(DataSampleThreadLocal)value;
+					DataSampleThreadLocal dataSampleThreadLocalActualValue =
+						(DataSampleThreadLocal)actualValue;
 
 					initialValue =
 						dataSampleThreadLocalInitialValue.getDataSamples();
 
-					value = dataSampleThreadLocalValue.getDataSamples();
+					actualValue =
+						dataSampleThreadLocalActualValue.getDataSamples();
 				}
 
-				Assert.assertEquals(initialValue, value);
+				Assert.assertEquals(initialValue, actualValue);
 			}
 		}
 		finally {
@@ -124,7 +115,7 @@ public class CompanyThreadLocalTest {
 	}
 
 	@Test
-	public void testSetCompanyIdWithSafeCloseable() {
+	public void testCentralizedCompanyThreadLocalsWithSetCompanyIdWithSafeCloseable() {
 		DataSample dataSample = Mockito.mock(DataSample.class);
 
 		DataSampleThreadLocal.addDataSample(dataSample);
@@ -170,7 +161,7 @@ public class CompanyThreadLocalTest {
 					centralizedCompanyThreadLocal, "initialValue",
 					new Class<?>[0]);
 
-				Object value = centralizedCompanyThreadLocal.get();
+				Object actualValue = centralizedCompanyThreadLocal.get();
 
 				String name = centralizedCompanyThreadLocal.toString();
 
@@ -178,16 +169,17 @@ public class CompanyThreadLocalTest {
 					DataSampleThreadLocal dataSampleThreadLocalInitialValue =
 						(DataSampleThreadLocal)initialValue;
 
-					DataSampleThreadLocal dataSampleThreadLocalValue =
-						(DataSampleThreadLocal)value;
+					DataSampleThreadLocal dataSampleThreadLocalActualValue =
+						(DataSampleThreadLocal)actualValue;
 
 					initialValue =
 						dataSampleThreadLocalInitialValue.getDataSamples();
 
-					value = dataSampleThreadLocalValue.getDataSamples();
+					actualValue =
+						dataSampleThreadLocalActualValue.getDataSamples();
 				}
 
-				Assert.assertEquals(initialValue, value);
+				Assert.assertEquals(initialValue, actualValue);
 			}
 		}
 
@@ -195,11 +187,23 @@ public class CompanyThreadLocalTest {
 				CentralizedCompanyThreadLocal.
 					getCentralizedCompanyThreadLocals()) {
 
-			Assert.assertEquals(
-				centralizedCompanyThreadLocalMap.get(
-					centralizedCompanyThreadLocal),
-				centralizedCompanyThreadLocal.get());
+			Object value = centralizedCompanyThreadLocalMap.get(
+				centralizedCompanyThreadLocal);
+
+			Object actualValue = centralizedCompanyThreadLocal.get();
+
+			Assert.assertEquals(value, actualValue);
 		}
+	}
+
+	@Test
+	public void testLock() {
+		_testLock(CompanyThreadLocal::setCompanyId);
+	}
+
+	@Test
+	public void testLockWithSetWithSafeCloseable() {
+		_testLock(CompanyThreadLocal::setCompanyIdWithSafeCloseable);
 	}
 
 	private void _testLock(Consumer<Long> consumer) {
