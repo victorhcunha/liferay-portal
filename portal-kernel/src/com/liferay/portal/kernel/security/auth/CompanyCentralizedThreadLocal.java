@@ -6,7 +6,6 @@
 package com.liferay.portal.kernel.security.auth;
 
 import com.liferay.petra.lang.CentralizedThreadLocal;
-import com.liferay.petra.lang.SafeClosable;
 import com.liferay.petra.lang.SafeCloseable;
 
 import java.util.ArrayList;
@@ -51,11 +50,6 @@ public class CompanyCentralizedThreadLocal<T>
 		super(name, supplier, copyFunction, shortLived);
 
 		_companyCentralizedThreadLocals.add(this);
-	}
-
-	@Override
-	public SafeClosable setWithSafeClosable(T value) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
