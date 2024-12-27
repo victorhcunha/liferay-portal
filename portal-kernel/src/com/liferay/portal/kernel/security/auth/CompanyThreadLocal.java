@@ -177,11 +177,11 @@ public class CompanyThreadLocal {
 			_companyId.set(CompanyConstants.SYSTEM);
 		}
 
-		for (CompanyCentralizedThreadLocal<?> companyCentralizedThreadLocal :
-				CompanyCentralizedThreadLocal.
-					getCompanyCentralizedThreadLocals()) {
+		for (CentralizedCompanyThreadLocal<?> centralizedCompanyThreadLocal :
+				CentralizedCompanyThreadLocal.
+					getCentralizedCompanyThreadLocals()) {
 
-			companyCentralizedThreadLocal.remove();
+			centralizedCompanyThreadLocal.remove();
 		}
 
 		CTCollectionThreadLocal.removeCTCollectionId();
@@ -217,13 +217,13 @@ public class CompanyThreadLocal {
 					_companyId.setWithSafeCloseable(CompanyConstants.SYSTEM));
 			}
 
-			for (CompanyCentralizedThreadLocal<?>
-					companyCentralizedThreadLocal :
-						CompanyCentralizedThreadLocal.
-							getCompanyCentralizedThreadLocals()) {
+			for (CentralizedCompanyThreadLocal<?>
+					centralizedCompanyThreadLocal :
+						CentralizedCompanyThreadLocal.
+							getCentralizedCompanyThreadLocals()) {
 
 				safeCloseables.add(
-					companyCentralizedThreadLocal.setWithSafeCloseable(null));
+					centralizedCompanyThreadLocal.setWithSafeCloseable(null));
 			}
 		}
 

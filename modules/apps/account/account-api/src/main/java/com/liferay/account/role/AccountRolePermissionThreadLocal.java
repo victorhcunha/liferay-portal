@@ -8,7 +8,7 @@ package com.liferay.account.role;
 import com.liferay.account.constants.AccountConstants;
 import com.liferay.petra.lang.CentralizedThreadLocal;
 import com.liferay.petra.lang.SafeCloseable;
-import com.liferay.portal.kernel.security.auth.CompanyCentralizedThreadLocal;
+import com.liferay.portal.kernel.security.auth.CentralizedCompanyThreadLocal;
 
 /**
  * @author Drew Brokke
@@ -30,7 +30,7 @@ public class AccountRolePermissionThreadLocal {
 	}
 
 	private static final CentralizedThreadLocal<Long> _accountEntryId =
-		new CompanyCentralizedThreadLocal<>(
+		new CentralizedCompanyThreadLocal<>(
 			AccountRolePermissionThreadLocal.class + "._accountEntryId",
 			() -> AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT);
 
