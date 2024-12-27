@@ -208,10 +208,10 @@ public class CompanyThreadLocal {
 					_companyId.setWithSafeCloseable(CompanyConstants.SYSTEM));
 			}
 
-			safeCloseables.add(
-				LocaleThreadLocal.setDefaultLocaleWithSafeCloseable(null));
-			safeCloseables.add(
-				TimeZoneThreadLocal.setDefaultTimeZoneWithSafeCloseable(null));
+			// safeCloseables.add(
+			// 	LocaleThreadLocal.setDefaultLocaleWithSafeCloseable(null));
+			// safeCloseables.add(
+			// 	TimeZoneThreadLocal.setDefaultTimeZoneWithSafeCloseable(null));
 
 			_clearUserThreadLocals();
 		}
