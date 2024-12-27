@@ -69,7 +69,13 @@ public class CentralizedCompanyThreadLocal<T>
 
 	public SafeCloseable setValueWithSafeCloseable(T value) {
 		if (value == null) {
-			value = initialValue();
+			T initialValue = initialValue();
+
+			if (initialValue instanceof Collection ||
+				initialValue instanceof Number) {
+
+				value = initialValue;
+			}
 		}
 
 		return setWithSafeCloseable(value);
