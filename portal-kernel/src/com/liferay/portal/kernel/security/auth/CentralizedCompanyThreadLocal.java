@@ -9,6 +9,7 @@ import com.liferay.petra.lang.CentralizedThreadLocal;
 import com.liferay.petra.lang.SafeCloseable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -50,6 +51,20 @@ public class CentralizedCompanyThreadLocal<T>
 		super(name, supplier, copyFunction, shortLived);
 
 		_centralizedCompanyThreadLocals.add(this);
+	}
+
+	@Override
+	public void remove() {
+		T object = get();
+
+		if (object instanceof Collection) {
+			Collection<?> collection = (Collection<?>)object;
+
+			collection.clear();
+		}
+		else {
+			super.remove();
+		}
 	}
 
 	@Override
