@@ -15,38 +15,42 @@ import java.util.LinkedList;
 public class ServiceContextThreadLocal {
 
 	public static ServiceContext getServiceContext() {
-		LinkedList<ServiceContext> serviceContexts = _serviceContexts.get();
+		LinkedList<ServiceContext> serviceContextStack =
+			_serviceContextThreadLocal.get();
 
-		return serviceContexts.peek();
+		return serviceContextStack.peek();
 	}
 
 	public static ServiceContext popServiceContext() {
-		LinkedList<ServiceContext> serviceContexts = _serviceContexts.get();
+		LinkedList<ServiceContext> serviceContextStack =
+			_serviceContextThreadLocal.get();
 
-		if (serviceContexts.isEmpty()) {
+		if (serviceContextStack.isEmpty()) {
 			return null;
 		}
 
-		return serviceContexts.pop();
+		return serviceContextStack.pop();
 	}
 
 	public static void pushServiceContext(ServiceContext serviceContext) {
-		LinkedList<ServiceContext> serviceContexts = _serviceContexts.get();
+		LinkedList<ServiceContext> serviceContextStack =
+			_serviceContextThreadLocal.get();
 
-		serviceContexts.push(serviceContext);
+		serviceContextStack.push(serviceContext);
 	}
 
 	public static void remove() {
-		LinkedList<ServiceContext> serviceContexts = _serviceContexts.get();
+		LinkedList<ServiceContext> serviceContextStack =
+			_serviceContextThreadLocal.get();
 
-		if (serviceContexts != null) {
-			serviceContexts.clear();
+		if (serviceContextStack != null) {
+			serviceContextStack.clear();
 		}
 	}
 
 	private static final ThreadLocal<LinkedList<ServiceContext>>
-		_serviceContexts = new CompanyCentralizedThreadLocal<>(
-			ServiceContextThreadLocal.class + "._serviceContexts",
+		_serviceContextThreadLocal = new CompanyCentralizedThreadLocal<>(
+			ServiceContextThreadLocal.class + "._serviceContextThreadLocal",
 			LinkedList::new,
 			serviceContexts -> {
 				LinkedList<ServiceContext> cloneServiceContexts =

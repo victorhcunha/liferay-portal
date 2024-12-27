@@ -60,7 +60,8 @@ public class TransactionCommitCallbackUtil {
 		};
 
 	public static void registerCallback(Callable<?> callable) {
-		List<List<Callable<?>>> callbackListList = _callbackListList.get();
+		List<List<Callable<?>>> callbackListList =
+			_callbackListListThreadLocal.get();
 
 		if (callbackListList.isEmpty()) {
 
@@ -90,13 +91,15 @@ public class TransactionCommitCallbackUtil {
 	}
 
 	protected static List<Callable<?>> popCallbackList() {
-		List<List<Callable<?>>> callbackListList = _callbackListList.get();
+		List<List<Callable<?>>> callbackListList =
+			_callbackListListThreadLocal.get();
 
 		return callbackListList.remove(callbackListList.size() - 1);
 	}
 
 	protected static void pushCallbackList() {
-		List<List<Callable<?>>> callbackListList = _callbackListList.get();
+		List<List<Callable<?>>> callbackListList =
+			_callbackListListThreadLocal.get();
 
 		callbackListList.add(Collections.<Callable<?>>emptyList());
 	}
@@ -105,8 +108,9 @@ public class TransactionCommitCallbackUtil {
 		TransactionCommitCallbackUtil.class);
 
 	private static final ThreadLocal<List<List<Callable<?>>>>
-		_callbackListList = new CentralizedThreadLocal<>(
-			TransactionCommitCallbackUtil.class + "._callbackListList",
+		_callbackListListThreadLocal = new CentralizedThreadLocal<>(
+			TransactionCommitCallbackUtil.class +
+				"._callbackListListThreadLocal",
 			ArrayList::new);
 
 }

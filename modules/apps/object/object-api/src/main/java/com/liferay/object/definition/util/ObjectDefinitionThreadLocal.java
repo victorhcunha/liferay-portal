@@ -16,7 +16,8 @@ import com.liferay.portal.kernel.security.auth.CompanyCentralizedThreadLocal;
 public class ObjectDefinitionThreadLocal {
 
 	public static boolean isDeleteObjectDefinitionId(long objectDefinitionId) {
-		Long deleteObjectDefinitionId = _deleteObjectDefinitionId.get();
+		Long deleteObjectDefinitionId =
+			_deleteObjectDefinitionIdThreadLocal.get();
 
 		if ((deleteObjectDefinitionId != null) &&
 			(deleteObjectDefinitionId == objectDefinitionId)) {
@@ -30,11 +31,13 @@ public class ObjectDefinitionThreadLocal {
 	public static SafeCloseable setDeleteObjectDefinitionIdWithSafeCloseable(
 		long id) {
 
-		return _deleteObjectDefinitionId.setWithSafeCloseable(id);
+		return _deleteObjectDefinitionIdThreadLocal.setWithSafeCloseable(id);
 	}
 
 	private static final CentralizedThreadLocal<Long>
-		_deleteObjectDefinitionId = new CompanyCentralizedThreadLocal<>(
-			ObjectEntryThreadLocal.class + "._deleteObjectDefinitionId");
+		_deleteObjectDefinitionIdThreadLocal =
+			new CompanyCentralizedThreadLocal<>(
+				ObjectEntryThreadLocal.class +
+					"._deleteObjectDefinitionIdThreadLocal");
 
 }

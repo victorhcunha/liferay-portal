@@ -39,7 +39,7 @@ public class DependencyManagementThreadLocal {
 				true)) {
 
 			_enabled = new CentralizedThreadLocal<>(
-				DependencyManagementThreadLocal.class + "._enabled",
+				DependencyManagementThreadLocal.class + ".enabled",
 				() -> Boolean.TRUE);
 		}
 		else {
