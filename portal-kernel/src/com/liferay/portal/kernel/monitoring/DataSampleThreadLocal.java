@@ -5,7 +5,7 @@
 
 package com.liferay.portal.kernel.monitoring;
 
-import com.liferay.portal.kernel.security.auth.CentralizedCompanyThreadLocal;
+import com.liferay.petra.lang.CentralizedThreadLocal;
 import com.liferay.portal.kernel.util.ListUtil;
 
 import java.util.List;
@@ -58,7 +58,7 @@ public class DataSampleThreadLocal {
 	}
 
 	private static final ThreadLocal<DataSampleThreadLocal>
-		_dataSampleThreadLocal = new CentralizedCompanyThreadLocal<>(
+		_dataSampleThreadLocal = new CentralizedThreadLocal<>(
 			DataSampleThreadLocal.class + "._dataSampleThreadLocal",
 			DataSampleThreadLocal::new, Function.identity(), true);
 
