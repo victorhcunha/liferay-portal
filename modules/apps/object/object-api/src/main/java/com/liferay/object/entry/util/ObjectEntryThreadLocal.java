@@ -5,6 +5,7 @@
 
 package com.liferay.object.entry.util;
 
+import com.liferay.petra.lang.CentralizedThreadLocal;
 import com.liferay.portal.kernel.security.auth.CompanyCentralizedThreadLocal;
 
 import java.util.HashSet;
@@ -70,24 +71,23 @@ public class ObjectEntryThreadLocal {
 	}
 
 	private static final ThreadLocal<Boolean>
-		_disassociateRelatedModelsThreadLocal =
-			new CompanyCentralizedThreadLocal<>(
-				ObjectEntryThreadLocal.class +
-					"._disassociateRelatedModelsThreadLocal",
-				() -> false);
+		_disassociateRelatedModelsThreadLocal = new CentralizedThreadLocal<>(
+			ObjectEntryThreadLocal.class +
+				"._disassociateRelatedModelsThreadLocal",
+			() -> false);
 	private static final ThreadLocal<Boolean>
 		_skipObjectEntryResourcePermissionThreadLocal =
-			new CompanyCentralizedThreadLocal<>(
+			new CentralizedThreadLocal<>(
 				ObjectEntryThreadLocal.class +
 					"._skipObjectEntryResourcePermissionThreadLocal",
 				() -> false);
 	private static final ThreadLocal<Boolean> _skipObjectValidationRules =
-		new CompanyCentralizedThreadLocal<>(
+		new CentralizedThreadLocal<>(
 			ObjectEntryThreadLocal.class + "._skipObjectValidationRules",
 			() -> false);
 	private static final ThreadLocal<Boolean>
 		_skipReadOnlyObjectFieldsValidationThreadLocal =
-			new CompanyCentralizedThreadLocal<>(
+			new CentralizedThreadLocal<>(
 				ObjectEntryThreadLocal.class +
 					"._skipReadOnlyObjectFieldsValidationThreadLocal",
 				() -> false);

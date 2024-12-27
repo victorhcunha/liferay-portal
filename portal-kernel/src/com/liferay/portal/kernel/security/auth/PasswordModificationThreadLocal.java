@@ -5,6 +5,8 @@
 
 package com.liferay.portal.kernel.security.auth;
 
+import com.liferay.petra.lang.CentralizedThreadLocal;
+
 /**
  * @author Michael C. Han
  */
@@ -27,7 +29,7 @@ public class PasswordModificationThreadLocal {
 	}
 
 	private static final ThreadLocal<Boolean> _passwordModified =
-		new CompanyCentralizedThreadLocal<>(
+		new CentralizedThreadLocal<>(
 			PrincipalThreadLocal.class + "._passwordModified",
 			() -> Boolean.FALSE);
 	private static final ThreadLocal<String> _passwordUnencrypted =
