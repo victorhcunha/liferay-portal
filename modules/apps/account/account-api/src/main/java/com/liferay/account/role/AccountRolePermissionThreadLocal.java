@@ -18,6 +18,10 @@ public class AccountRolePermissionThreadLocal {
 		return _accountEntryId.get();
 	}
 
+	public static void setAccountEntryId(long accountEntryId) {
+		_accountEntryId.set(accountEntryId);
+	}
+
 	public static SafeCloseable setAccountEntryIdWithSafeCloseable(
 		long accountEntryId) {
 
