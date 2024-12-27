@@ -9,6 +9,8 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.change.tracking.CTCollectionIdSupplier;
 import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
+import com.liferay.portal.kernel.monitoring.DataSample;
+import com.liferay.portal.kernel.monitoring.DataSampleThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
@@ -61,6 +63,10 @@ public class CompanyThreadLocalTest {
 
 	@Test
 	public void testSetCompanyId() {
+		DataSample dataSample = Mockito.mock(DataSample.class);
+
+		DataSampleThreadLocal.addDataSample(dataSample);
+
 		GroupThreadLocal.setGroupId(1L);
 
 		LocaleThreadLocal.setDefaultLocale(LocaleUtil.GERMAN);
@@ -92,8 +98,24 @@ public class CompanyThreadLocalTest {
 					companyCentralizedThreadLocal, "initialValue",
 					new Class<?>[0]);
 
-				Assert.assertEquals(
-					initialValue, companyCentralizedThreadLocal.get());
+				Object value = companyCentralizedThreadLocal.get();
+
+				String name = companyCentralizedThreadLocal.toString();
+
+				if (name.contains("DataSampleThreadLocal")) {
+					DataSampleThreadLocal dataSampleThreadLocalInitialValue =
+						(DataSampleThreadLocal)initialValue;
+
+					DataSampleThreadLocal dataSampleThreadLocalValue =
+						(DataSampleThreadLocal)value;
+
+					initialValue =
+						dataSampleThreadLocalInitialValue.getDataSamples();
+
+					value = dataSampleThreadLocalValue.getDataSamples();
+				}
+
+				Assert.assertEquals(initialValue, value);
 			}
 		}
 		finally {
@@ -103,6 +125,10 @@ public class CompanyThreadLocalTest {
 
 	@Test
 	public void testSetCompanyIdWithSafeCloseable() {
+		DataSample dataSample = Mockito.mock(DataSample.class);
+
+		DataSampleThreadLocal.addDataSample(dataSample);
+
 		GroupThreadLocal.setGroupId(1L);
 
 		LocaleThreadLocal.setDefaultLocale(LocaleUtil.GERMAN);
@@ -144,8 +170,24 @@ public class CompanyThreadLocalTest {
 					companyCentralizedThreadLocal, "initialValue",
 					new Class<?>[0]);
 
-				Assert.assertEquals(
-					initialValue, companyCentralizedThreadLocal.get());
+				Object value = companyCentralizedThreadLocal.get();
+
+				String name = companyCentralizedThreadLocal.toString();
+
+				if (name.contains("DataSampleThreadLocal")) {
+					DataSampleThreadLocal dataSampleThreadLocalInitialValue =
+						(DataSampleThreadLocal)initialValue;
+
+					DataSampleThreadLocal dataSampleThreadLocalValue =
+						(DataSampleThreadLocal)value;
+
+					initialValue =
+						dataSampleThreadLocalInitialValue.getDataSamples();
+
+					value = dataSampleThreadLocalValue.getDataSamples();
+				}
+
+				Assert.assertEquals(initialValue, value);
 			}
 		}
 
