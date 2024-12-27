@@ -217,7 +217,8 @@ public class CompanyThreadLocal {
 							getCentralizedCompanyThreadLocals()) {
 
 				safeCloseables.add(
-					centralizedCompanyThreadLocal.setWithSafeCloseable(null));
+					centralizedCompanyThreadLocal.setValueWithSafeCloseable(
+						null));
 			}
 		}
 

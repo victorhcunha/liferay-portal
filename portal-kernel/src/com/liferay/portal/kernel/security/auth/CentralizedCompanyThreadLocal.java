@@ -67,13 +67,12 @@ public class CentralizedCompanyThreadLocal<T>
 		}
 	}
 
-	@Override
-	public SafeCloseable setWithSafeCloseable(T value) {
+	public SafeCloseable setValueWithSafeCloseable(T value) {
 		if (value == null) {
 			value = initialValue();
 		}
 
-		return super.setWithSafeCloseable(value);
+		return setWithSafeCloseable(value);
 	}
 
 	private static final List<CentralizedCompanyThreadLocal<?>>
