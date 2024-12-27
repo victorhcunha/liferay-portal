@@ -9,7 +9,6 @@ import com.liferay.petra.lang.CentralizedThreadLocal;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -24,29 +23,8 @@ public class CentralizedCompanyThreadLocal<T>
 		return _centralizedCompanyThreadLocals;
 	}
 
-	public CentralizedCompanyThreadLocal(boolean shortLived) {
-		this(null, () -> null, shortLived);
-	}
-
-	public CentralizedCompanyThreadLocal(String name) {
-		this(name, () -> null, true);
-	}
-
 	public CentralizedCompanyThreadLocal(String name, Supplier<T> supplier) {
-		this(name, supplier, true);
-	}
-
-	public CentralizedCompanyThreadLocal(
-		String name, Supplier<T> supplier, boolean shortLived) {
-
-		this(name, supplier, null, shortLived);
-	}
-
-	public CentralizedCompanyThreadLocal(
-		String name, Supplier<T> supplier, Function<T, T> copyFunction,
-		boolean shortLived) {
-
-		super(name, supplier, copyFunction, shortLived);
+		super(name, supplier);
 
 		_centralizedCompanyThreadLocals.add(this);
 	}
