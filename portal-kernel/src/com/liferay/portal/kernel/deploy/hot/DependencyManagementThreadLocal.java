@@ -17,17 +17,11 @@ import com.liferay.portal.kernel.util.PropsUtil;
 public class DependencyManagementThreadLocal {
 
 	public static Boolean isEnabled() {
-		if (_enabled != null) {
-			return _enabled.get();
-		}
-
-		return Boolean.FALSE;
+		return _enabled.get();
 	}
 
 	public static void setEnabled(boolean enabled) {
-		if (_enabled != null) {
-			_enabled.set(enabled);
-		}
+		_enabled.set(enabled);
 	}
 
 	private static final ThreadLocal<Boolean> _enabled;
@@ -43,7 +37,14 @@ public class DependencyManagementThreadLocal {
 				() -> Boolean.TRUE);
 		}
 		else {
-			_enabled = null;
+			_enabled = new ThreadLocal<Boolean>() {
+
+				@Override
+				public Boolean get() {
+					return Boolean.FALSE;
+				}
+
+			};
 		}
 	}
 
