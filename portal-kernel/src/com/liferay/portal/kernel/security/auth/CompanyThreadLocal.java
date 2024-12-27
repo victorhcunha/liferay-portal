@@ -19,6 +19,8 @@ import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.UserConstants;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.spring.orm.LastSessionRecorderHelperUtil;
+import com.liferay.portal.kernel.util.LocaleThreadLocal;
+import com.liferay.portal.kernel.util.TimeZoneThreadLocal;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -171,12 +173,7 @@ public class CompanyThreadLocal {
 			_companyId.set(CompanyConstants.SYSTEM);
 		}
 
-		for (CentralizedCompanyThreadLocal<?> centralizedCompanyThreadLocal :
-				CentralizedCompanyThreadLocal.
-					getCentralizedCompanyThreadLocals()) {
-
-			centralizedCompanyThreadLocal.remove();
-		}
+		_clearUserThreadLocals();
 
 		CTCollectionThreadLocal.removeCTCollectionId();
 	}
@@ -211,15 +208,12 @@ public class CompanyThreadLocal {
 					_companyId.setWithSafeCloseable(CompanyConstants.SYSTEM));
 			}
 
-			for (CentralizedCompanyThreadLocal<?>
-					centralizedCompanyThreadLocal :
-						CentralizedCompanyThreadLocal.
-							getCentralizedCompanyThreadLocals()) {
+			safeCloseables.add(
+				LocaleThreadLocal.setDefaultLocaleWithSafeCloseable(null));
+			safeCloseables.add(
+				TimeZoneThreadLocal.setDefaultTimeZoneWithSafeCloseable(null));
 
-				safeCloseables.add(
-					centralizedCompanyThreadLocal.setValueWithSafeCloseable(
-						null));
-			}
+			_clearUserThreadLocals();
 		}
 
 		safeCloseables.add(
@@ -252,6 +246,11 @@ public class CompanyThreadLocal {
 
 		return _initializingPortalInstance.setWithSafeCloseable(
 			initializingPortalInstance);
+	}
+
+	private static void _clearUserThreadLocals() {
+		LocaleThreadLocal.removeDefaultLocale();
+		TimeZoneThreadLocal.removeDefaultTimeZone();
 	}
 
 	private static void _syncLastDBPartitionSessionState() {
