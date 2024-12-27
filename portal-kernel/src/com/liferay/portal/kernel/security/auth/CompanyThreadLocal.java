@@ -41,14 +41,12 @@ public class CompanyThreadLocal {
 
 		User guestUser = null;
 
-		if (!isUpgradingPortalInstance()) {
-			try {
-				guestUser = UserLocalServiceUtil.fetchGuestUser(companyId);
-			}
-			catch (Exception exception) {
-				if (_log.isDebugEnabled()) {
-					_log.debug(exception);
-				}
+		try {
+			guestUser = UserLocalServiceUtil.fetchGuestUser(companyId);
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(exception);
 			}
 		}
 
@@ -111,10 +109,6 @@ public class CompanyThreadLocal {
 
 	public static boolean isLocked() {
 		return _locked.get();
-	}
-
-	public static boolean isUpgradingPortalInstance() {
-		return _upgradingPortalInstance.get();
 	}
 
 	public static SafeCloseable lock(long companyId) {
@@ -259,13 +253,6 @@ public class CompanyThreadLocal {
 			initializingPortalInstance);
 	}
 
-	public static SafeCloseable setUpgradingPortalInstanceWithSafeCloseable(
-		boolean upgradingPortalInstance) {
-
-		return _upgradingPortalInstance.setWithSafeCloseable(
-			upgradingPortalInstance);
-	}
-
 	private static void _syncLastDBPartitionSessionState() {
 		if (DBPartition.isPartitionEnabled()) {
 			LastSessionRecorderHelperUtil.syncLastSessionState(false);
@@ -283,10 +270,6 @@ public class CompanyThreadLocal {
 	private static final ThreadLocal<Boolean> _locked =
 		new CentralizedThreadLocal<>(
 			CompanyThreadLocal.class + "._locked", () -> Boolean.FALSE);
-	private static final CentralizedThreadLocal<Boolean>
-		_upgradingPortalInstance = new CentralizedThreadLocal<>(
-			CompanyThreadLocal.class + "._upgradingPortalInstance",
-			() -> Boolean.FALSE);
 
 	static {
 		_companyId = new CentralizedThreadLocal<>(

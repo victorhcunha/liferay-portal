@@ -7,7 +7,6 @@ package com.liferay.portal.tools;
 
 import com.liferay.document.library.kernel.service.DLFileEntryTypeLocalServiceUtil;
 import com.liferay.document.library.kernel.store.Store;
-import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.dao.orm.common.SQLTransformer;
 import com.liferay.portal.db.index.IndexUpdaterUtil;
@@ -28,7 +27,6 @@ import com.liferay.portal.kernel.model.ReleaseConstants;
 import com.liferay.portal.kernel.module.framework.ModuleServiceLifecycle;
 import com.liferay.portal.kernel.module.util.ServiceLatch;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
-import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ClassNameLocalServiceUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
@@ -247,10 +245,7 @@ public class DBUpgrader {
 	}
 
 	public static void upgradePortal() throws Exception {
-		try (SafeCloseable safeCloseable =
-				CompanyThreadLocal.setUpgradingPortalInstanceWithSafeCloseable(
-					true)) {
-
+		try {
 			UpgradeLogContext.setContext(
 				ReleaseConstants.DEFAULT_SERVLET_CONTEXT_NAME);
 
