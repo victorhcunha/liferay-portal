@@ -130,6 +130,43 @@ public class DDMFormFieldTemplateContextContributorUtil {
 		return listTypeEntry.getNameMap();
 	}
 
+	public static Map<String, Object> getLocalizationParameters(
+		DDMFormField ddmFormField, Locale defaultLocale) {
+
+		JSONObject localeJSONObject = _getLocaleJSONObject(defaultLocale);
+
+		return HashMapBuilder.<String, Object>put(
+			"availableLocales",
+			JSONUtil.toJSONArray(
+				LanguageUtil.getAvailableLocales(),
+				locale -> _getLocaleJSONObject(locale), _log)
+		).put(
+			"defaultLocale", localeJSONObject
+		).put(
+			"editingLocale", localeJSONObject
+		).put(
+			"editOnlyInDefaultLanguage",
+			() -> {
+				if (!ddmFormField.hasProperty("editOnlyInDefaultLanguage")) {
+					return null;
+				}
+
+				return GetterUtil.getBoolean(
+					ddmFormField.getProperty("editOnlyInDefaultLanguage"));
+			}
+		).put(
+			"isLocalizationSupported",
+			() -> {
+				if (!ddmFormField.hasProperty("isLocalizationSupported")) {
+					return null;
+				}
+
+				return GetterUtil.getBoolean(
+					ddmFormField.getProperty("isLocalizationSupported"));
+			}
+		).build();
+	}
+
 	private static JSONObject _getLocaleJSONObject(Locale locale) {
 		String languageId = LocaleUtil.toLanguageId(locale);
 
