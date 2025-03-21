@@ -1024,6 +1024,10 @@ public class ObjectEntryDisplayContextImpl
 			objectFieldBusinessType.getDDMFormFieldTypeName(
 				objectField.isLocalized()));
 
+		readOnly = _isReadOnly(objectEntry, objectField, readOnly);
+
+		objectField.setReadOnly(String.valueOf(readOnly));
+
 		Map<String, Object> properties = objectFieldBusinessType.getProperties(
 			objectField, _createObjectFieldRenderingContext(objectEntry));
 
@@ -1049,7 +1053,12 @@ public class ObjectEntryDisplayContextImpl
 		if (objectEntry != null) {
 			ddmFormField.setProperty(
 				"defaultLocale",
-				LocaleUtil.fromLanguageId(objectEntry.getDefaultLanguageId()));
+				JSONFactoryUtil.createJSONObject(
+					DDMFormFieldTemplateContextContributorUtil.
+						getLocalizationParameters(
+							ddmFormField,
+							LocaleUtil.fromLanguageId(
+								objectEntry.getDefaultLanguageId()))));
 		}
 
 		ddmFormField.setProperty(
@@ -1093,8 +1102,7 @@ public class ObjectEntryDisplayContextImpl
 				objectEntry.getExternalReferenceCode());
 		}
 
-		ddmFormField.setReadOnly(
-			_isReadOnly(objectEntry, objectField, readOnly));
+		ddmFormField.setReadOnly(readOnly);
 
 		ddmFormField.setRequired(objectField.isRequired());
 
