@@ -3939,6 +3939,12 @@ public class DefaultObjectEntryManagerImplTest
 	@FeatureFlags("LPD-17564")
 	@Test
 	public void testGetObjectEntryByVersion() throws Exception {
+		_objectDefinition1.setEnableObjectEntryVersioning(true);
+
+		_objectDefinition1 =
+			objectDefinitionLocalService.updateObjectDefinition(
+				_objectDefinition1);
+
 		ObjectEntry objectEntry1 = new ObjectEntry() {
 			{
 				externalReferenceCode = RandomTestUtil.randomString();
@@ -4298,6 +4304,12 @@ public class DefaultObjectEntryManagerImplTest
 	@FeatureFlags("LPD-17564")
 	@Test
 	public void testGetVersionedObjectEntries() throws Exception {
+		_objectDefinition1.setEnableObjectEntryVersioning(true);
+
+		_objectDefinition1 =
+			objectDefinitionLocalService.updateObjectDefinition(
+				_objectDefinition1);
+
 		ObjectEntry objectEntry1 = new ObjectEntry() {
 			{
 				externalReferenceCode = RandomTestUtil.randomString();
@@ -4812,6 +4824,89 @@ public class DefaultObjectEntryManagerImplTest
 			"Edited", objectEntry.getPropertyValue("textObjectFieldName"));
 	}
 
+<<<<<<< HEAD
+=======
+	@FeatureFlags("LPD-17564")
+	@Test
+	public void testRestoreObjectEntryByVersion() throws Exception {
+		_objectDefinition1.setEnableObjectEntryVersioning(true);
+
+		_objectDefinition1 =
+			objectDefinitionLocalService.updateObjectDefinition(
+				_objectDefinition1);
+
+		ObjectEntry objectEntry1 = new ObjectEntry() {
+			{
+				externalReferenceCode = RandomTestUtil.randomString();
+				keywords = new String[] {RandomTestUtil.randomString()};
+				properties = HashMapBuilder.<String, Object>put(
+					"textObjectFieldName", RandomTestUtil.randomString()
+				).build();
+				version = new Version() {
+					{
+						number = 1;
+					}
+				};
+			}
+		};
+
+		_defaultObjectEntryManager.addObjectEntry(
+			dtoConverterContext, _objectDefinition1, objectEntry1,
+			ObjectDefinitionConstants.SCOPE_COMPANY);
+
+		assertEquals(
+			_defaultObjectEntryManager.getObjectEntryByVersion(
+				dtoConverterContext, objectEntry1.getExternalReferenceCode(),
+				_objectDefinition1, 1),
+			objectEntry1);
+
+		ObjectEntry objectEntry2 = new ObjectEntry() {
+			{
+				externalReferenceCode = RandomTestUtil.randomString();
+				keywords = new String[] {RandomTestUtil.randomString()};
+				properties = HashMapBuilder.<String, Object>put(
+					"textObjectFieldName", RandomTestUtil.randomString()
+				).build();
+				version = new Version() {
+					{
+						number = 2;
+					}
+				};
+			}
+		};
+
+		_defaultObjectEntryManager.updateObjectEntry(
+			TestPropsValues.getCompanyId(), dtoConverterContext,
+			objectEntry1.getExternalReferenceCode(), _objectDefinition1,
+			objectEntry2, ObjectDefinitionConstants.SCOPE_COMPANY);
+
+		assertEquals(
+			_defaultObjectEntryManager.getObjectEntryByVersion(
+				dtoConverterContext, objectEntry2.getExternalReferenceCode(),
+				_objectDefinition1, 2),
+			objectEntry2);
+
+		assertEquals(
+			_defaultObjectEntryManager.restoreObjectEntryByVersion(
+				dtoConverterContext, objectEntry2.getExternalReferenceCode(),
+				_objectDefinition1, 1),
+			new ObjectEntry() {
+				{
+					setExternalReferenceCode(
+						objectEntry1::getExternalReferenceCode);
+					setKeywords(objectEntry1::getKeywords);
+					setProperties(objectEntry1::getProperties);
+					setVersion(
+						new Version() {
+							{
+								number = 3;
+							}
+						});
+				}
+			});
+	}
+
+>>>>>>> ba50a4b (LPD-51627 Update existing test)
 	@Test
 	public void testSearchObjectEntriesWithAccountEntryRestricted()
 		throws Exception {
