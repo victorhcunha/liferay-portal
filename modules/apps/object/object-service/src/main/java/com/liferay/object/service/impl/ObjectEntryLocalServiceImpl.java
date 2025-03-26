@@ -1960,7 +1960,7 @@ public class ObjectEntryLocalServiceImpl
 			ServiceContext serviceContext, long userId)
 		throws PortalException {
 
-		List<ValidationError> validationErrorList = new ArrayList<>();
+		List<ValidationError> validationErrors = new ArrayList<>();
 
 		try {
 			_objectValidationRuleLocalService.validate(
@@ -1970,7 +1970,7 @@ public class ObjectEntryLocalServiceImpl
 		catch (ObjectValidationRuleEngineException
 					objectValidationRuleEngineException) {
 
-			validationErrorList = ListUtil.toList(
+			validationErrors = ListUtil.toList(
 				objectValidationRuleEngineException.
 					getObjectValidationRuleResults(),
 				objectValidationRuleResult -> new ValidationError(
@@ -1983,7 +1983,7 @@ public class ObjectEntryLocalServiceImpl
 			_objectDefinitionPersistence.findByPrimaryKey(
 				objectEntry.getObjectDefinitionId());
 
-		validationErrorList.addAll(
+		validationErrors.addAll(
 			ListUtil.toList(
 				_validateValues(
 					Collections.emptyMap(), Collections.emptySet(), objectEntry,
@@ -1992,7 +1992,7 @@ public class ObjectEntryLocalServiceImpl
 				objectEntryValuesException -> new ValidationError(
 					objectEntryValuesException.getMessage())));
 
-		return validationErrorList;
+		return validationErrors;
 	}
 
 	@Activate
