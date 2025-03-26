@@ -7,7 +7,7 @@ import {openModal} from 'frontend-js-components-web';
 
 import CreationModalContent from '../../components/modal/CreationModalContent';
 
-type AssetData = {
+export type AssetData = {
 	action: 'createAsset';
 	redirect: string;
 	title: string;

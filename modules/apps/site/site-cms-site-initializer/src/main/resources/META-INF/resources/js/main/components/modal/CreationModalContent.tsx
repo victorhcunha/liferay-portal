@@ -10,11 +10,14 @@ import {useFormik} from 'formik';
 import {navigate, sub} from 'frontend-js-web';
 import React, {useEffect, useState} from 'react';
 
+import {AssetData} from '../../FDSPropsTransformer/actions/createAssetAction';
+import {FolderData} from '../../FDSPropsTransformer/actions/createFolderAction';
 import {getAssetsLibrariesByCompany} from '../../../api/api';
 import {FieldPicker, FieldText} from '../forms';
 import {required, validate} from '../forms/validations';
 
 type Props = {
+	action: AssetData['action'] | FolderData['action'];
 	assetLibraryId?: string;
 	closeModal: () => void;
 	redirect?: string;
@@ -22,6 +25,7 @@ type Props = {
 };
 
 export default function CreationModalContent({
+	action,
 	assetLibraryId = '',
 	closeModal,
 	redirect,
@@ -71,7 +75,7 @@ export default function CreationModalContent({
 				validate(
 					{
 						assetLibraryId: [required],
-						name: [required],
+						name: action === 'createFolder' ? [required] : [],
 					},
 					values
 				),
@@ -82,22 +86,24 @@ export default function CreationModalContent({
 			<ClayModal.Header>{title}</ClayModal.Header>
 
 			<ClayModal.Body>
-				{loading ? (
+				{action === 'createFolder' ? (
+					{loading ? (
 					<div className="loader-container">
 						<ClayLoadingIndicator />
 					</div>
 				) : (
 					<>
 						<FieldText
-							errorMessage={
+								errorMessage={
 								touched.name ? errors.name : undefined
 							}
-							label={Liferay.Language.get('name')}
-							name="name"
-							onChange={handleChange}
-							required
-							value={values.name}
-						/>
+								label={Liferay.Language.get('name')}
+								name="name"
+								onChange={handleChange}
+								required
+								value={values.name}
+							/>
+				) : null}
 
 						{assetLibraries.length > 1 && (
 							<FieldPicker
