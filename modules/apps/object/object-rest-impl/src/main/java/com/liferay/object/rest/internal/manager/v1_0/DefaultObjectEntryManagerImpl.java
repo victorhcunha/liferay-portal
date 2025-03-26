@@ -907,9 +907,6 @@ public class DefaultObjectEntryManagerImpl
 		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 			objectEntryLocalService.createObjectEntry(0L);
 
-		ServiceContext serviceContext = _createServiceContext(
-			dtoConverterContext, objectDefinition, objectEntry);
-
 		serviceBuilderObjectEntry.setObjectDefinitionId(
 			objectDefinition.getObjectDefinitionId());
 		serviceBuilderObjectEntry.setValues(
@@ -921,7 +918,9 @@ public class DefaultObjectEntryManagerImpl
 
 		return _objectEntryService.validate(
 			getGroupId(objectDefinition, scopeKey), serviceBuilderObjectEntry,
-			objectValidationRuleExternalReferenceCodes, serviceContext);
+			objectValidationRuleExternalReferenceCodes,
+			_createServiceContext(
+				dtoConverterContext, objectDefinition, objectEntry));
 	}
 
 	private Map<String, String> _addAction(
