@@ -67,8 +67,6 @@ public class SetupAdminAutoLoginTest {
 
 	@BeforeClass
 	public static void setUpClass() throws Exception {
-		_safeCloseables = new ArrayList<>();
-
 		_safeCloseables.add(
 			PropsValuesTestUtil.swapWithSafeCloseable(
 				"DEFAULT_ADMIN_PASSWORD", ""));
@@ -194,7 +192,7 @@ public class SetupAdminAutoLoginTest {
 	private static Company _company;
 	private static String _emailAdressAdminUser;
 	private static long _originalCompanyId;
-	private static List<SafeCloseable> _safeCloseables;
+	private static List<SafeCloseable> _safeCloseables = new ArrayList<>();
 	private static User _user;
 
 	@Inject(
