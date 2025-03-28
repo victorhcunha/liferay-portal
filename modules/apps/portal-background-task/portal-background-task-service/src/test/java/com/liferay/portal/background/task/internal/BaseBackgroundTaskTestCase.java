@@ -171,15 +171,15 @@ public abstract class BaseBackgroundTaskTestCase {
 		List<SafeCloseable> safeCloseables = new ArrayList<>();
 
 		safeCloseables.add(
-			CompanyThreadLocal.setCompanyIdWithSafeCloseable(COMPANY_ID));
-		safeCloseables.add(
 			ClusterInvokeThreadLocal.setEnabledWithSafeCloseable(true));
 		safeCloseables.add(
+			CompanyThreadLocal.setCompanyIdWithSafeCloseable(COMPANY_ID));
+		safeCloseables.add(
 			GroupThreadLocal.setGroupIdWithSafeCloseable(_GROUP_ID));
+		safeCloseables.add(() -> LocaleThreadLocal.setDefaultLocale(null));
 		safeCloseables.add(
 			LocaleThreadLocal.setDefaultLocaleWithSafeCloseable(
 				_defaultLocale));
-		safeCloseables.add(() -> LocaleThreadLocal.setDefaultLocale(null));
 		safeCloseables.add(() -> LocaleThreadLocal.setThemeDisplayLocale(null));
 		safeCloseables.add(() -> PrincipalThreadLocal.setName(null));
 
