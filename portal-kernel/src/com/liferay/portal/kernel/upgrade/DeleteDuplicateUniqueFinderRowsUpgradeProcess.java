@@ -26,15 +26,15 @@ import java.util.Map;
 /**
  * @author Jorge Avalos
  */
-public class DeleteDuplicateUniqueFinderRows extends UpgradeProcess {
+public class DeleteDuplicateUniqueFinderRowsUpgradeProcess extends UpgradeProcess {
 
-	public DeleteDuplicateUniqueFinderRows(
+	public DeleteDuplicateUniqueFinderRowsUpgradeProcess(
 		String tableName, String[] columnNames) {
 
 		this(tableName, columnNames, null);
 	}
 
-	public DeleteDuplicateUniqueFinderRows(
+	public DeleteDuplicateUniqueFinderRowsUpgradeProcess(
 		String tableName, String[] columnNames, String orderByClause) {
 
 		_tableName = tableName;
@@ -229,7 +229,7 @@ public class DeleteDuplicateUniqueFinderRows extends UpgradeProcess {
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
-		DeleteDuplicateUniqueFinderRows.class);
+		DeleteDuplicateUniqueFinderRowsUpgradeProcess.class);
 
 	private final String[] _columnNames;
 	private final String _orderByClause;

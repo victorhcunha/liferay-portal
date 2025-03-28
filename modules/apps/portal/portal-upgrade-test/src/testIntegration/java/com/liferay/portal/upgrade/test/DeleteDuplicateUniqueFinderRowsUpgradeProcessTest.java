@@ -12,7 +12,7 @@ import com.liferay.portal.kernel.dao.db.DBManagerUtil;
 import com.liferay.portal.kernel.dao.jdbc.DataAccess;
 import com.liferay.portal.kernel.service.CompanyLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
-import com.liferay.portal.kernel.upgrade.DeleteDuplicateUniqueFinderRows;
+import com.liferay.portal.kernel.upgrade.DeleteDuplicateUniqueFinderRowsUpgradeProcess;
 import com.liferay.portal.test.log.LogCapture;
 import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
@@ -38,7 +38,7 @@ import org.junit.runner.RunWith;
  * @author Jorge Avalos
  */
 @RunWith(Arquillian.class)
-public class DeleteDuplicateUniqueFinderRowsTest {
+public class DeleteDuplicateUniqueFinderRowsUpgradeProcessTest {
 
 	@ClassRule
 	@Rule
@@ -91,13 +91,13 @@ public class DeleteDuplicateUniqueFinderRowsTest {
 	public void testUpgrade() throws Exception {
 		_assert(false, null);
 
-		DeleteDuplicateUniqueFinderRows upgradeProcess =
-			new DeleteDuplicateUniqueFinderRows(
+		DeleteDuplicateUniqueFinderRowsUpgradeProcess upgradeProcess =
+			new DeleteDuplicateUniqueFinderRowsUpgradeProcess(
 				"TestTable", new String[] {"column1", "column2", "column3"});
 
 		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
 				"com.liferay.portal.kernel.upgrade." +
-					"DeleteDuplicateUniqueFinderRows",
+					"DeleteDuplicateUniqueFinderRowsUpgradeProcess",
 				LoggerTestUtil.OFF)) {
 
 			upgradeProcess.upgrade();
@@ -110,14 +110,14 @@ public class DeleteDuplicateUniqueFinderRowsTest {
 	public void testUpgradeWithOrderByClause() throws Exception {
 		_assert(false, null);
 
-		DeleteDuplicateUniqueFinderRows upgradeProcess =
-			new DeleteDuplicateUniqueFinderRows(
+		DeleteDuplicateUniqueFinderRowsUpgradeProcess upgradeProcess =
+			new DeleteDuplicateUniqueFinderRowsUpgradeProcess(
 				"TestTable", new String[] {"column1", "column2", "column3"},
 				"primaryKeyColumn asc");
 
 		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
 				"com.liferay.portal.kernel.upgrade." +
-					"DeleteDuplicateUniqueFinderRows",
+					"DeleteDuplicateUniqueFinderRowsUpgradeProcess",
 				LoggerTestUtil.OFF)) {
 
 			upgradeProcess.upgrade();
