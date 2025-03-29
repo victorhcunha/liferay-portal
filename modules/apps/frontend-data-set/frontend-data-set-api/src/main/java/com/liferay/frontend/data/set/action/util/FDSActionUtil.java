@@ -21,12 +21,14 @@ public class FDSActionUtil {
 		return StringBundler.concat(fdsName, _ITEM_ACTION_SEPARATOR, id);
 	}
 
-	public static String getFDSCreationActionId(String erc) {
-		return StringUtil.extractLast(erc, _CREATION_ACTION_SEPARATOR);
+	public static String getFDSCreationActionId(String externalReferenceCode) {
+		return StringUtil.extractLast(
+			externalReferenceCode, _CREATION_ACTION_SEPARATOR);
 	}
 
-	public static String getFDSItemActionId(String erc) {
-		return StringUtil.extractLast(erc, _ITEM_ACTION_SEPARATOR);
+	public static String getFDSItemActionId(String externalReferenceCode) {
+		return StringUtil.extractLast(
+			externalReferenceCode, _ITEM_ACTION_SEPARATOR);
 	}
 
 	private static final String _CREATION_ACTION_SEPARATOR =
