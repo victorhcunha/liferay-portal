@@ -1570,7 +1570,6 @@ public class CustomFDSSerializerTest extends BaseFDSSerializerTestCase {
 
 		ReflectionTestUtil.setFieldValue(
 			_customFDSSerializer, "_jsonFactory", new JSONFactoryImpl());
-
 		ReflectionTestUtil.setFieldValue(
 			_customFDSSerializer, "_systemFDSSerializer", systemFDSSerializer);
 	}

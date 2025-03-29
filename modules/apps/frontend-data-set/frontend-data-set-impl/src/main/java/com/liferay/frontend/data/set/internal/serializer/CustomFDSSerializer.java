@@ -186,6 +186,7 @@ public class CustomFDSSerializer
 		CreationMenu systemCreationMenu =
 			_systemFDSSerializer.serializeCreationMenu(
 				fdsName, httpServletRequest);
+
 		List<DropdownItem> systemDropdownItems =
 			(List<DropdownItem>)systemCreationMenu.get("primaryItems");
 
@@ -592,8 +593,9 @@ public class CustomFDSSerializer
 						if (fdsCellRendererCET == null) {
 							if (_log.isWarnEnabled()) {
 								_log.warn(
-									"No FDS cell renderer CET found for " +
-										externalReferenceCode);
+									"No frontend data set cell renderer " +
+										"client extension type found for " +
+											externalReferenceCode);
 							}
 
 							return jsonObject.put(
