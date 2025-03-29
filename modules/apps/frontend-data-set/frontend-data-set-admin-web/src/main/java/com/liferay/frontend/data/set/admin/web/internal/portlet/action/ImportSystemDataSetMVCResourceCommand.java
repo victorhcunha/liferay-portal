@@ -210,7 +210,7 @@ public class ImportSystemDataSetMVCResourceCommand
 					"L_DATA_SET_CARDS_SECTION",
 					_portal.getCompanyId(httpServletRequest));
 
-		Map<String, String> cardsSections = HashMapBuilder.put(
+		Map<String, String> map = HashMapBuilder.put(
 			"description", baseCardsFDSView.getDescription()
 		).put(
 			"image", baseCardsFDSView.getImage()
@@ -220,7 +220,7 @@ public class ImportSystemDataSetMVCResourceCommand
 			"title", baseCardsFDSView.getTitle()
 		).build();
 
-		for (Map.Entry<String, String> entry : cardsSections.entrySet()) {
+		for (Map.Entry<String, String> entry : map.entrySet()) {
 			if (Validator.isNull(entry.getValue())) {
 				continue;
 			}
@@ -256,13 +256,13 @@ public class ImportSystemDataSetMVCResourceCommand
 			HttpServletRequest httpServletRequest, ObjectEntry objectEntry)
 		throws Exception {
 
-		ObjectDefinition dataSetListSectionObjectDefinition =
+		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.
 				fetchObjectDefinitionByExternalReferenceCode(
 					"L_DATA_SET_LIST_SECTION",
 					_portal.getCompanyId(httpServletRequest));
 
-		Map<String, String> listSections = HashMapBuilder.put(
+		Map<String, String> map = HashMapBuilder.put(
 			"description", baseListFDSView.getDescription()
 		).put(
 			"image", baseListFDSView.getImage()
@@ -278,7 +278,7 @@ public class ImportSystemDataSetMVCResourceCommand
 			}
 
 			_objectEntryService.addObjectEntry(
-				0, dataSetListSectionObjectDefinition.getObjectDefinitionId(),
+				0, objectDefinition.getObjectDefinitionId(),
 				ObjectEntryFolderConstants.
 					PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT,
 				null,
@@ -308,7 +308,7 @@ public class ImportSystemDataSetMVCResourceCommand
 			HttpServletRequest httpServletRequest, ObjectEntry objectEntry)
 		throws Exception {
 
-		ObjectDefinition dataSetTableSectionObjectDefinition =
+		ObjectDefinition objectDefinition =
 			_objectDefinitionLocalService.
 				fetchObjectDefinitionByExternalReferenceCode(
 					"L_DATA_SET_TABLE_SECTION",
@@ -317,11 +317,11 @@ public class ImportSystemDataSetMVCResourceCommand
 		FDSTableSchema fdsTableSchema = baseTableFDSView.getFDSTableSchema(
 			_portal.getLocale(httpServletRequest));
 
-		Map<String, FDSTableSchemaField> fieldsMap =
+		Map<String, FDSTableSchemaField> map =
 			fdsTableSchema.getFDSTableSchemaFieldsMap();
 
-		for (FDSTableSchemaField fdsTableSchemaField : fieldsMap.values()) {
-			HashMapBuilder.HashMapWrapper<String, Serializable> values =
+		for (FDSTableSchemaField fdsTableSchemaField : map.values()) {
+			HashMapBuilder.HashMapWrapper<String, Serializable> hashMapBuilder =
 				HashMapBuilder.<String, Serializable>put(
 					"externalReferenceCode",
 					StringBundler.concat(
