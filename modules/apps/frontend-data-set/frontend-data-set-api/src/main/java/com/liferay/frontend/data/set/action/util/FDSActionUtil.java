@@ -14,26 +14,26 @@ import com.liferay.portal.kernel.util.StringUtil;
 public class FDSActionUtil {
 
 	public static String createFDSCreationActionERC(String fdsName, String id) {
-		return StringBundler.concat(fdsName, _CREATION_ACTION_SEPARATOR, id);
+		return StringBundler.concat(fdsName, _SEPARATOR_CREATION_ACTION, id);
 	}
 
 	public static String createFDSItemActionERC(String fdsName, String id) {
-		return StringBundler.concat(fdsName, _ITEM_ACTION_SEPARATOR, id);
+		return StringBundler.concat(fdsName, _SEPARATOR_ITEM_ACTION, id);
 	}
 
 	public static String getFDSCreationActionId(String externalReferenceCode) {
 		return StringUtil.extractLast(
-			externalReferenceCode, _CREATION_ACTION_SEPARATOR);
+			externalReferenceCode, _SEPARATOR_CREATION_ACTION);
 	}
 
 	public static String getFDSItemActionId(String externalReferenceCode) {
 		return StringUtil.extractLast(
-			externalReferenceCode, _ITEM_ACTION_SEPARATOR);
+			externalReferenceCode, _SEPARATOR_ITEM_ACTION);
 	}
 
-	private static final String _CREATION_ACTION_SEPARATOR =
+	private static final String _SEPARATOR_CREATION_ACTION =
 		"_CREATION_ACTION_";
 
-	private static final String _ITEM_ACTION_SEPARATOR = "_ITEM_ACTION_";
+	private static final String _SEPARATOR_ITEM_ACTION = "_ITEM_ACTION_";
 
 }
