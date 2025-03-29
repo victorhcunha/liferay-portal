@@ -160,38 +160,32 @@ public class ImportSystemDataSetMVCResourceCommand
 
 		List<FDSView> fdsViews = _fdsViewRegistry.getFDSViews(fdsName);
 
-		if (ListUtil.isNotEmpty(fdsViews)) {
-			for (FDSView fdsView : fdsViews) {
-				if (fdsView instanceof BaseTableFDSView) {
-					_addBaseTableFDSViewObjectEntries(
-						(BaseTableFDSView)fdsView,
-						_portal.getHttpServletRequest(resourceRequest),
-						objectEntry);
-				}
+		for (FDSView fdsView : fdsViews) {
+			if (fdsView instanceof BaseTableFDSView) {
+				_addBaseTableFDSViewObjectEntries(
+					(BaseTableFDSView)fdsView,
+					_portal.getHttpServletRequest(resourceRequest),
+					objectEntry);
+			}
 
-				if (fdsView instanceof BaseCardsFDSView) {
-					_addBaseCardsFDSViewObjectEntries(
-						(BaseCardsFDSView)fdsView,
-						_portal.getHttpServletRequest(resourceRequest),
-						objectEntry);
-				}
+			if (fdsView instanceof BaseCardsFDSView) {
+				_addBaseCardsFDSViewObjectEntries(
+					(BaseCardsFDSView)fdsView,
+					_portal.getHttpServletRequest(resourceRequest),
+					objectEntry);
+			}
 
-				if (fdsView instanceof BaseListFDSView) {
-					_addBaseListFDSViewObjectEntries(
-						(BaseListFDSView)fdsView,
-						_portal.getHttpServletRequest(resourceRequest),
-						objectEntry);
-				}
+			if (fdsView instanceof BaseListFDSView) {
+				_addBaseListFDSViewObjectEntries(
+					(BaseListFDSView)fdsView,
+					_portal.getHttpServletRequest(resourceRequest),
+					objectEntry);
 			}
 		}
 
-		List<FDSFilter> fdsFilters = _fdsFilterRegistry.getFDSFilters(fdsName);
-
-		if (ListUtil.isNotEmpty(fdsFilters)) {
-			_addFDSFilterObjectEntries(
-				fdsFilters, _portal.getHttpServletRequest(resourceRequest),
-				objectEntry);
-		}
+		_addFDSFilterObjectEntries(
+			_fdsFilterRegistry.getFDSFilters(fdsName),
+			_portal.getHttpServletRequest(resourceRequest), objectEntry);
 
 		FDSSorts fdsSorts = _fdsSortsRegistry.getFDSSorts(fdsName);
 
