@@ -13,11 +13,15 @@ import com.liferay.portal.kernel.util.StringUtil;
  */
 public class FDSActionUtil {
 
-	public static String createFDSCreationActionERC(String fdsName, String id) {
+	public static String getFDSCreationActionExternalReferenceCode(
+		String fdsName, String id) {
+
 		return StringBundler.concat(fdsName, _SEPARATOR_CREATION_ACTION, id);
 	}
 
-	public static String createFDSItemActionERC(String fdsName, String id) {
+	public static String getFDSItemActionExternalReferenceCode(
+		String fdsName, String id) {
+
 		return StringBundler.concat(fdsName, _SEPARATOR_ITEM_ACTION, id);
 	}
 

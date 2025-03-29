@@ -508,7 +508,7 @@ public class ImportSystemDataSetMVCResourceCommand
 				}
 
 				_objectEntryService.addOrUpdateObjectEntry(
-					FDSActionUtil.createFDSCreationActionERC(
+					FDSActionUtil.getFDSCreationActionExternalReferenceCode(
 						objectEntry.getExternalReferenceCode(),
 						String.valueOf(id)),
 					0, objectDefinitionId,
@@ -654,7 +654,7 @@ public class ImportSystemDataSetMVCResourceCommand
 				}
 
 				_objectEntryService.addOrUpdateObjectEntry(
-					FDSActionUtil.createFDSItemActionERC(
+					FDSActionUtil.getFDSItemActionExternalReferenceCode(
 						objectEntry.getExternalReferenceCode(),
 						String.valueOf(id)),
 					0, objectDefinitionId,
@@ -737,7 +737,7 @@ public class ImportSystemDataSetMVCResourceCommand
 				}
 
 				_objectEntryService.addOrUpdateObjectEntry(
-					FDSActionUtil.createFDSItemActionERC(
+					FDSActionUtil.getFDSItemActionExternalReferenceCode(
 						objectEntry.getExternalReferenceCode(),
 						String.valueOf(id)),
 					0, objectDefinitionId,
