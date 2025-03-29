@@ -53,16 +53,6 @@ import org.osgi.framework.BundleContext;
 public abstract class BaseFDSSerializerTestCase {
 
 	public void setUp() {
-		defaultPagination = JSONUtil.put(
-			"deltas",
-			() -> JSONUtil.toJSONArray(
-				ListUtil.fromArray(
-					PropsValues.SEARCH_CONTAINER_PAGE_DELTA_VALUES),
-				itemsPerPage -> JSONUtil.put("label", itemsPerPage))
-		).put(
-			"initialDelta", PropsValues.SEARCH_CONTAINER_PAGE_DEFAULT_DELTA
-		).toString();
-
 		bundleContext = SystemBundleUtil.getBundleContext();
 
 		systemFDSSerializer.systemFDSEntryRegistry =
@@ -249,7 +239,14 @@ public abstract class BaseFDSSerializerTestCase {
 	protected static final String URL = RandomTestUtil.randomString();
 
 	protected BundleContext bundleContext;
-	protected String defaultPagination;
+	protected String defaultPagination = JSONUtil.put(
+		"deltas",
+		() -> JSONUtil.toJSONArray(
+			ListUtil.fromArray(PropsValues.SEARCH_CONTAINER_PAGE_DELTA_VALUES),
+			itemsPerPage -> JSONUtil.put("label", itemsPerPage))
+	).put(
+		"initialDelta", PropsValues.SEARCH_CONTAINER_PAGE_DEFAULT_DELTA
+	).toString();
 	protected final HttpServletRequest httpServletRequest = Mockito.mock(
 		HttpServletRequest.class);
 	protected final SystemFDSSerializer systemFDSSerializer =
