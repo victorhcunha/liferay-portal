@@ -19,7 +19,7 @@ import javax.portlet.PortletURL;
  */
 public class NavigationItem extends HashMap<String, Object> {
 
-	public boolean hasSameId(NavigationItem navigationItem) {
+	public boolean hasSameDataId(NavigationItem navigationItem) {
 		if (!containsKey("data") || !navigationItem.containsKey("data")) {
 			return false;
 		}

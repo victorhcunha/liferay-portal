@@ -234,7 +234,7 @@ public class CustomFDSSerializer
 						FDSEntryItemImportPolicy.ITEM_PROXY.toString())) {
 
 				for (DropdownItem systemDropdownItem : systemDropdownItems) {
-					if (systemDropdownItem.hasSameId(customDropdownItem)) {
+					if (systemDropdownItem.hasSameDataId(customDropdownItem)) {
 						creationMenu.addPrimaryDropdownItem(systemDropdownItem);
 
 						break;
@@ -341,7 +341,7 @@ public class CustomFDSSerializer
 				for (FDSActionDropdownItem systemFDSActionDropdownItem :
 						systemFDSActionDropdownItems) {
 
-					if (systemFDSActionDropdownItem.hasSameId(
+					if (systemFDSActionDropdownItem.hasSameDataId(
 							customFDSActionDropdownItem)) {
 
 						fdsActionDropdownItems.add(systemFDSActionDropdownItem);
