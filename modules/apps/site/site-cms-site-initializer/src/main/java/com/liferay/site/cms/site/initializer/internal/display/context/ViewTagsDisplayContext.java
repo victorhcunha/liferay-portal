@@ -38,14 +38,14 @@ public class ViewTagsDisplayContext {
 		return HashMapBuilder.<String, Object>put(
 			"assetLibraryId",
 			() -> {
-				List<DepotEntry> depotEntryList =
+				List<DepotEntry> depotEntries =
 					DepotEntryLocalServiceUtil.getDepotEntries(
 						QueryUtil.ALL_POS, QueryUtil.ALL_POS);
 
-				if (!depotEntryList.isEmpty()) {
-					return depotEntryList.get(
-						0
-					).getDepotEntryId();
+				if (!depotEntries.isEmpty()) {
+					DepotEntry depotEntry = depotEntries.get(0);
+
+					return depotEntry.getDepotEntryId();
 				}
 
 				return DepotEntryLocalServiceUtil.addDepotEntry(
