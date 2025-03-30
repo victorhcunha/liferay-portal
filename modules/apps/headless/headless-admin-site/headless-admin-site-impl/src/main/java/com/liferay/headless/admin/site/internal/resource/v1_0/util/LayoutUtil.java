@@ -111,20 +111,6 @@ public class LayoutUtil {
 				Boolean.FALSE.toString());
 		}
 
-		if (Objects.equals(
-				publishedContentPageSpecification.getStatus(),
-				PageSpecification.Status.APPROVED)) {
-
-			serviceContext.setAttribute("published", Boolean.TRUE.toString());
-
-			typeSettingsUnicodeProperties.setProperty(
-				LayoutTypeSettingsConstants.KEY_PUBLISHED,
-				Boolean.TRUE.toString());
-		}
-		else {
-			serviceContext.setAttribute("published", Boolean.FALSE.toString());
-		}
-
 		serviceContext.setAttribute(
 			"defaultSegmentsExperienceExternalReferenceCode",
 			SegmentsExperienceUtil.
@@ -138,6 +124,20 @@ public class LayoutUtil {
 		serviceContext.setAttribute(
 			"draftLayoutExternalReferenceCode",
 			draftContentPageSpecification.getExternalReferenceCode());
+
+		if (Objects.equals(
+				publishedContentPageSpecification.getStatus(),
+				PageSpecification.Status.APPROVED)) {
+
+			serviceContext.setAttribute("published", Boolean.TRUE.toString());
+
+			typeSettingsUnicodeProperties.setProperty(
+				LayoutTypeSettingsConstants.KEY_PUBLISHED,
+				Boolean.TRUE.toString());
+		}
+		else {
+			serviceContext.setAttribute("published", Boolean.FALSE.toString());
+		}
 
 		Layout layout = LayoutLocalServiceUtil.addLayout(
 			publishedContentPageSpecification.getExternalReferenceCode(),
