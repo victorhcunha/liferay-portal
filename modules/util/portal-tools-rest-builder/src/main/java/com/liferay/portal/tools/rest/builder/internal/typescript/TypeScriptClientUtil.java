@@ -111,7 +111,6 @@ public class TypeScriptClientUtil {
 			).build(),
 			configYAML, copyrightFile, files, "typescript/index",
 			baseClientDir.getPath() + "/src/index.ts");
-
 		_createFile(
 			Collections.singletonMap("schemas", schemas), configYAML,
 			copyrightFile, files, "typescript/serdes",
@@ -369,7 +368,7 @@ public class TypeScriptClientUtil {
 					return null;
 				}
 
-				Map<String, List<Map<String, Object>>> contentDatasMap =
+				Map<String, List<Map<String, Object>>> bodyParameters =
 					new HashMap<>();
 
 				for (Map.Entry<String, Content> entry :
@@ -433,10 +432,10 @@ public class TypeScriptClientUtil {
 							).build());
 					}
 
-					contentDatasMap.put(entry.getKey(), contentDatas);
+					bodyParameters.put(entry.getKey(), contentDatas);
 				}
 
-				return contentDatasMap;
+				return bodyParameters;
 			}
 		).put(
 			"description", operation.getDescription()
