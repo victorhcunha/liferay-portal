@@ -165,7 +165,7 @@ public class ImportSystemDataSetMVCResourceCommand
 		FDSSorts fdsSorts = _fdsSortsRegistry.getFDSSorts(fdsName);
 
 		if (fdsSorts != null) {
-			_addFDSSortObjectEntries(
+			_addFDSSortsObjectEntries(
 				fdsSorts, _portal.getHttpServletRequest(resourceRequest),
 				objectEntry);
 		}
@@ -762,7 +762,7 @@ public class ImportSystemDataSetMVCResourceCommand
 		}
 	}
 
-	private void _addFDSSortObjectEntries(
+	private void _addFDSSortsObjectEntries(
 			FDSSorts fdsSorts, HttpServletRequest httpServletRequest,
 			ObjectEntry objectEntry)
 		throws Exception {
