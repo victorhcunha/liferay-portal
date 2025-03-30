@@ -844,8 +844,8 @@ public class ImportSystemDataSetMVCResourceCommand
 		}
 	}
 
-	private Map<String, String> _getI18nMap(String key) {
-		Map<String, String> labels = new HashMap<>();
+	private HashMap<String, String> _getI18nMap(String key) {
+		HashMap<String, String> labels = new HashMap<>();
 
 		for (Locale locale : LanguageUtil.getAvailableLocales()) {
 			ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
