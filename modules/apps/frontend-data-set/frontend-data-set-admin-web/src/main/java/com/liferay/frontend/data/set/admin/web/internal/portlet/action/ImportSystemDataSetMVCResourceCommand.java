@@ -147,7 +147,7 @@ public class ImportSystemDataSetMVCResourceCommand
 				objectEntry);
 		}
 
-		_addFDSFilterObjectEntries(
+		_addFDSFiltersObjectEntries(
 			_fdsFilterRegistry.getFDSFilters(fdsName),
 			_portal.getHttpServletRequest(resourceRequest), objectEntry);
 
@@ -538,7 +538,7 @@ public class ImportSystemDataSetMVCResourceCommand
 		}
 	}
 
-	private void _addFDSFilterObjectEntries(
+	private void _addFDSFiltersObjectEntries(
 			List<FDSFilter> fdsFilters, HttpServletRequest httpServletRequest,
 			ObjectEntry objectEntry)
 		throws Exception {
