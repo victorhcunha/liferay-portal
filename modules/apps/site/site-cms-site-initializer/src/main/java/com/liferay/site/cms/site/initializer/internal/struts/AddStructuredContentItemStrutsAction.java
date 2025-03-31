@@ -27,19 +27,11 @@ import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.service.ObjectDefinitionService;
-import com.liferay.object.service.ObjectEntryFolderLocalService;
-import com.liferay.object.service.ObjectEntryService;
-import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
-import com.liferay.portal.kernel.portlet.FriendlyURLResolver;
-import com.liferay.portal.kernel.portlet.FriendlyURLResolverRegistryUtil;
-import com.liferay.portal.kernel.portlet.constants.FriendlyURLResolverConstants;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -54,6 +46,7 @@ import com.liferay.portal.kernel.util.UnicodeProperties;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
+import com.liferay.site.cms.site.initializer.internal.util.ActionUtil;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -137,14 +130,9 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 			Collections.emptyMap(), serviceContext);
 
 		httpServletResponse.sendRedirect(
-			_portal.escapeRedirect(
-				_portal.addPreservedParameters(
-					themeDisplay,
-					StringBundler.concat(
-						groupFriendlyURL, _getURLSeparator(),
-						layout.getFriendlyURL(themeDisplay.getLocale()),
-						StringPool.SLASH, classNameId, StringPool.SLASH,
-						objectEntry.getObjectEntryId()))));
+			ActionUtil.getEditURL(
+				String.valueOf(classNameId),
+				String.valueOf(objectEntry.getId()), layout, themeDisplay));
 
 		return null;
 	}
@@ -283,79 +271,6 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 
 		return layoutPageTemplateEntry;
 	}
-
-	private long _getGroupId(
-			HttpServletRequest httpServletRequest,
-			ServiceContext serviceContext)
-		throws Exception {
-
-		long assetLibraryId = ParamUtil.getLong(
-			httpServletRequest, "assetLibraryId");
-
-		DepotEntry depotEntry = _depotEntryLocalService.fetchDepotEntry(
-			assetLibraryId);
-
-		if (depotEntry != null) {
-			return depotEntry.getGroupId();
-		}
-
-		List<DepotEntry> depotEntries = _depotEntryLocalService.getDepotEntries(
-			QueryUtil.ALL_POS, QueryUtil.ALL_POS);
-
-		if (!depotEntries.isEmpty()) {
-			depotEntry = depotEntries.get(0);
-		}
-		else {
-			depotEntry = _depotEntryLocalService.addDepotEntry(
-				HashMapBuilder.put(
-					LocaleUtil.getDefault(), "Default"
-				).build(),
-				new HashMap<>(), serviceContext);
-		}
-
-		return depotEntry.getGroupId();
-	}
-
-	private long _getObjectEntryFolderId(
-			long companyId, long groupId, ObjectDefinition objectDefinition)
-		throws Exception {
-
-		String externalReferenceCode =
-			ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_CONTENTS;
-
-		if (Objects.equals(
-				objectDefinition.getObjectFolderExternalReferenceCode(),
-				ObjectFolderConstants.EXTERNAL_REFERENCE_CODE_FILE_TYPES)) {
-
-			externalReferenceCode =
-				ObjectEntryFolderConstants.EXTERNAL_REFERENCE_CODE_FILES;
-		}
-
-		ObjectEntryFolder objectEntryFolder =
-			_objectEntryFolderLocalService.
-				getObjectEntryFolderByExternalReferenceCode(
-					externalReferenceCode, groupId, companyId);
-
-		return objectEntryFolder.getObjectEntryFolderId();
-	}
-
-	private String _getURLSeparator() {
-		FriendlyURLResolver friendlyURLResolver =
-			FriendlyURLResolverRegistryUtil.
-				getFriendlyURLResolverByDefaultURLSeparator(
-					FriendlyURLResolverConstants.URL_SEPARATOR_CUSTOM_ASSET);
-
-		if (friendlyURLResolver != null) {
-			String urlSeparator = friendlyURLResolver.getURLSeparator();
-
-			return urlSeparator.substring(0, urlSeparator.length() - 1);
-		}
-
-		return FriendlyURLResolverConstants.URL_SEPARATOR_X_CUSTOM_ASSET;
-	}
-
-	@Reference
-	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Reference
 	private FormManager _formManager;
