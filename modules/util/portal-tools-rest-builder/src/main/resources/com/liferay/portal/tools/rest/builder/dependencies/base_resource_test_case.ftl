@@ -4077,7 +4077,7 @@ public abstract class Base${schemaName}ResourceTestCase {
 			queryParameter = freeMarkerTool.isQueryParameter(javaMethodParameter, javaMethodSignature.operation)
 		/>
 
-		<#if !pathParameter && (!queryParameter || !allowQueryParameter)>
+		<#if !pathParameter && (!allowQueryParameter || !queryParameter)>
 			<#continue>
 		</#if>
 
