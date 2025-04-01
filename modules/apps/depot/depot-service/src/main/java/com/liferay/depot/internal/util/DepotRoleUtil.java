@@ -135,22 +135,21 @@ public class DepotRoleUtil {
 	private static final Map<String, String> _roleNameTitleMap;
 
 	static {
-		Map<String, String> roleNameTitleMap = HashMapBuilder.put(
-			DepotRolesConstants.ASSET_LIBRARY_ADMINISTRATOR,
-			"space-administrator"
-		).put(
-			DepotRolesConstants.ASSET_LIBRARY_CONNECTED_SITE_MEMBER,
-			"space-connected-site-member"
-		).put(
-			DepotRolesConstants.ASSET_LIBRARY_CONTENT_REVIEWER,
-			"space-content-reviewer"
-		).put(
-			DepotRolesConstants.ASSET_LIBRARY_MEMBER, "space-member"
-		).put(
-			DepotRolesConstants.ASSET_LIBRARY_OWNER, "space-owner"
-		).build();
-
-		_roleNameTitleMap = Collections.unmodifiableMap(roleNameTitleMap);
+		_roleNameTitleMap = Collections.unmodifiableMap(
+			HashMapBuilder.put(
+				DepotRolesConstants.ASSET_LIBRARY_ADMINISTRATOR,
+				"space-administrator"
+			).put(
+				DepotRolesConstants.ASSET_LIBRARY_CONNECTED_SITE_MEMBER,
+				"space-connected-site-member"
+			).put(
+				DepotRolesConstants.ASSET_LIBRARY_CONTENT_REVIEWER,
+				"space-content-reviewer"
+			).put(
+				DepotRolesConstants.ASSET_LIBRARY_MEMBER, "space-member"
+			).put(
+				DepotRolesConstants.ASSET_LIBRARY_OWNER, "space-owner"
+			).build());
 	}
 
 }
