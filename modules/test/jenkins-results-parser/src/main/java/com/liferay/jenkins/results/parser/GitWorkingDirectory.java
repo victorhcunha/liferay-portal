@@ -2126,14 +2126,14 @@ public class GitWorkingDirectory {
 
 		if (gitRemote == null) {
 			throw new GitWorkingDirectoryIllegalArgumentException(
-				this, "Git Remote is null");
+				this, "Git remote is null");
 		}
 
 		String remoteURL = gitRemote.getRemoteURL();
 
 		if (!GitUtil.isValidRemoteURL(remoteURL)) {
 			throw new GitWorkingDirectoryIllegalArgumentException(
-				this, "Invalid remote url " + remoteURL);
+				this, "Invalid remote URL " + remoteURL);
 		}
 
 		StringBuilder sb = new StringBuilder();
