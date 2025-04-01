@@ -129,13 +129,13 @@ public class DepotRoleUtil {
 			locale, DepotRolesPortalInstanceLifecycleListener.class);
 
 		return ResourceBundleUtil.getString(
-			resourceBundle, _roleNameTitleMap.get(name));
+			resourceBundle, _titleKeys.get(name));
 	}
 
-	private static final Map<String, String> _roleNameTitleMap;
+	private static final Map<String, String> _titleKeys;
 
 	static {
-		_roleNameTitleMap = Collections.unmodifiableMap(
+		_titleKeys = Collections.unmodifiableMap(
 			HashMapBuilder.put(
 				DepotRolesConstants.ASSET_LIBRARY_ADMINISTRATOR,
 				"space-administrator"
