@@ -68,7 +68,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
 import javax.portlet.PortletRequest;
 
@@ -97,9 +96,6 @@ public class OrderActionsFragmentRenderer implements FragmentRenderer {
 	public String getConfiguration(
 		FragmentRendererContext fragmentRendererContext) {
 
-		ResourceBundle resourceBundle = ResourceBundleUtil.getBundle(
-			"content.Language", getClass());
-
 		try {
 			JSONObject jsonObject = _jsonFactory.createJSONObject(
 				StringUtil.read(
@@ -107,7 +103,8 @@ public class OrderActionsFragmentRenderer implements FragmentRenderer {
 					"order_actions/dependencies/configuration.json"));
 
 			return _fragmentEntryConfigurationParser.translateConfiguration(
-				jsonObject, resourceBundle);
+				jsonObject,
+				ResourceBundleUtil.getBundle("content.Language", getClass()));
 		}
 		catch (JSONException jsonException) {
 			if (_log.isDebugEnabled()) {
@@ -268,16 +265,16 @@ public class OrderActionsFragmentRenderer implements FragmentRenderer {
 				for (CommerceOrderImporterType commerceOrderImporterType :
 						_getCommerceImporterTypes(commerceOrder)) {
 
-					boolean importerTypeEnabled = GetterUtil.getBoolean(
-						_fragmentEntryConfigurationParser.getFieldValue(
-							getConfiguration(fragmentRendererContext),
-							editableValues, fragmentRendererContext.getLocale(),
-							StringUtil.removeSubstring(
-								commerceOrderImporterType.getKey(),
-								StringPool.DASH)),
-						true);
+					if (!GetterUtil.getBoolean(
+							_fragmentEntryConfigurationParser.getFieldValue(
+								getConfiguration(fragmentRendererContext),
+								editableValues,
+								fragmentRendererContext.getLocale(),
+								StringUtil.removeSubstring(
+									commerceOrderImporterType.getKey(),
+									StringPool.DASH)),
+							true)) {
 
-					if (!importerTypeEnabled) {
 						continue;
 					}
 
@@ -320,13 +317,12 @@ public class OrderActionsFragmentRenderer implements FragmentRenderer {
 			_log.error(portalException);
 		}
 
-		boolean printOrderEnabled = GetterUtil.getBoolean(
-			_fragmentEntryConfigurationParser.getFieldValue(
-				getConfiguration(fragmentRendererContext), editableValues,
-				fragmentRendererContext.getLocale(), "printOrder"),
-			true);
+		if (GetterUtil.getBoolean(
+				_fragmentEntryConfigurationParser.getFieldValue(
+					getConfiguration(fragmentRendererContext), editableValues,
+					fragmentRendererContext.getLocale(), "printOrder"),
+				true)) {
 
-		if (printOrderEnabled) {
 			dropdownItems.add(
 				DropdownItemBuilder.setHref(
 					ResourceURLBuilder.createResourceURL(
