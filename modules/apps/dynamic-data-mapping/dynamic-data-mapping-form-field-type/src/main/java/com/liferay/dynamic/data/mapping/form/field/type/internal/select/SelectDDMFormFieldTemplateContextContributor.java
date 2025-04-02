@@ -13,7 +13,6 @@ import com.liferay.dynamic.data.mapping.model.DDMForm;
 import com.liferay.dynamic.data.mapping.model.DDMFormField;
 import com.liferay.dynamic.data.mapping.model.DDMFormFieldOptions;
 import com.liferay.dynamic.data.mapping.model.DDMFormInstance;
-import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.render.DDMFormFieldRenderingContext;
 import com.liferay.dynamic.data.mapping.service.DDMFormInstanceLocalService;
 import com.liferay.dynamic.data.mapping.util.DDMFormFieldTemplateContextContributorUtil;
@@ -98,6 +97,20 @@ public class SelectDDMFormFieldTemplateContextContributor
 		).put(
 			"options",
 			() -> {
+				long objectFieldId = GetterUtil.getLong(
+					ddmFormField.getProperty("objectFieldId"));
+
+				if (objectFieldId > 0) {
+					return DDMFormFieldTemplateContextContributorUtil.
+						getOptions(
+							(DDMFormFieldOptions)ddmFormField.getProperty(
+								"options"),
+							GetterUtil.getLong(
+								ddmFormField.getProperty(
+									"listTypeDefinitionId")),
+							_listTypeEntryLocalService);
+				}
+
 				DDMFormFieldOptions ddmFormFieldOptions =
 					ddmFormFieldOptionsFactory.create(
 						ddmFormField, ddmFormFieldRenderingContext);
@@ -263,8 +276,10 @@ public class SelectDDMFormFieldTemplateContextContributor
 			return objectFieldOptions;
 		}
 
-		List<Map<String, Object>> options = new ArrayList<>();
+		long listTypeDefinitionId = GetterUtil.getLong(
+			ddmFormField.getProperty("listTypeDefinitionId"));
 
+<<<<<<< HEAD
 		for (String optionValue : ddmFormFieldOptions.getOptionsValues()) {
 			if (optionValue == null) {
 				continue;
@@ -292,6 +307,12 @@ public class SelectDDMFormFieldTemplateContextContributor
 					"value", optionValue
 				).build());
 		}
+=======
+		List<Map<String, Object>> options =
+			DDMFormFieldTemplateContextContributorUtil.getOptions(
+				ddmFormFieldOptions, listTypeDefinitionId,
+				_listTypeEntryLocalService);
+>>>>>>> b58ecf0 (LPD-49643 Reuse to single select)
 
 		if (alphabeticalOrder) {
 			return _getSortedOptions(locale, options);
