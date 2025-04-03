@@ -1357,6 +1357,8 @@ public class JournalFolderLocalServiceImpl
 
 		// Merge folders
 
+		User user = _userLocalService.getUser(userId);
+
 		if ((restrictionType !=
 				JournalFolderConstants.
 					RESTRICTION_TYPE_DDM_STRUCTURES_AND_WORKFLOW) &&
@@ -1394,8 +1396,6 @@ public class JournalFolderLocalServiceImpl
 		// Folder
 
 		_validateFolder(folderId, folder.getGroupId(), parentFolderId, name);
-
-		User user = _userLocalService.getUser(userId);
 
 		long oldParentFolderId = folder.getParentFolderId();
 
