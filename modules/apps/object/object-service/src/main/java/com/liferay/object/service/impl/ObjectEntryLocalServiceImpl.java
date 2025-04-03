@@ -5760,7 +5760,6 @@ public class ObjectEntryLocalServiceImpl
 		}
 
 		User user = _userLocalService.getUser(userId);
-
 		Table<?> finalTable = table;
 
 		_handle(
