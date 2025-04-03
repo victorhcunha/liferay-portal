@@ -279,11 +279,12 @@ public class MasterPageResourceImpl extends BaseMasterPageResourceImpl {
 		throws Exception {
 
 		boolean defaultTemplate = false;
-		int status = WorkflowConstants.STATUS_DRAFT;
 
 		if (GetterUtil.getBoolean(masterPage.getMarkedAsDefault())) {
 			defaultTemplate = true;
 		}
+
+		int status = WorkflowConstants.STATUS_DRAFT;
 
 		if (_isPublishedLayout(masterPage.getPageSpecifications())) {
 			status = WorkflowConstants.STATUS_APPROVED;
