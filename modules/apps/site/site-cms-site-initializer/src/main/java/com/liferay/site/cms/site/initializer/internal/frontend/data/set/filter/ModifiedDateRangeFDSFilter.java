@@ -27,7 +27,7 @@ import org.osgi.service.component.annotations.Component;
 	},
 	service = FDSFilter.class
 )
-public class ModifyDateRangeFDSFilter extends BaseDateRangeFDSFilter {
+public class ModifiedDateRangeFDSFilter extends BaseDateRangeFDSFilter {
 
 	@Override
 	public String getEntityFieldType() {
@@ -41,7 +41,7 @@ public class ModifyDateRangeFDSFilter extends BaseDateRangeFDSFilter {
 
 	@Override
 	public String getLabel() {
-		return "modify-date-range";
+		return "modified-date-range";
 	}
 
 	@Override
