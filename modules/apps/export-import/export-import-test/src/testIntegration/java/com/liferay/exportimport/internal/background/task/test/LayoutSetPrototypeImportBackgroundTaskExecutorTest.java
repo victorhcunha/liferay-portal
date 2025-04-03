@@ -65,7 +65,7 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutorTest {
 
 		UserTestUtil.setUser(TestPropsValues.getUser());
 
-		group = GroupTestUtil.addGroup();
+		_group = GroupTestUtil.addGroup();
 
 		File larFile = File.createTempFile("corrupt", ".lar");
 
@@ -86,7 +86,8 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutorTest {
 						TestPropsValues.getUserId(),
 						ExportImportConfigurationLocalServiceUtil.
 							addExportImportConfiguration(
-								TestPropsValues.getUserId(), group.getGroupId(),
+								TestPropsValues.getUserId(),
+								_group.getGroupId(),
 								RandomTestUtil.randomString(),
 								RandomTestUtil.randomString(), 0, null,
 								WorkflowConstants.STATUS_DRAFT,
@@ -105,7 +106,7 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutorTest {
 
 		List<BackgroundTask> backgroundTasks =
 			BackgroundTaskManagerUtil.getBackgroundTasks(
-				group.getGroupId(),
+				_group.getGroupId(),
 				BackgroundTaskExecutorNames.
 					LAYOUT_SET_PROTOTYPE_IMPORT_BACKGROUND_TASK_EXECUTOR);
 
@@ -115,13 +116,13 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutorTest {
 		ExportImportConfiguration exportExportImportConfiguration =
 			ExportImportConfigurationLocalServiceUtil.
 				addExportImportConfiguration(
-					TestPropsValues.getUserId(), group.getGroupId(),
+					TestPropsValues.getUserId(), _group.getGroupId(),
 					StringPool.BLANK, StringPool.BLANK,
 					ExportImportConfigurationConstants.TYPE_IMPORT_LAYOUT,
 					ExportImportConfigurationSettingsMapFactoryUtil.
 						buildExportLayoutSettingsMap(
-							TestPropsValues.getUser(), group.getGroupId(), true,
-							new long[0],
+							TestPropsValues.getUser(), _group.getGroupId(),
+							true, new long[0],
 							LinkedHashMapBuilder.put(
 								PortletDataHandlerKeys.PORTLET_CONFIGURATION,
 								new String[] {Boolean.TRUE.toString()}
@@ -135,13 +136,13 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutorTest {
 		ExportImportConfiguration importExportExportImportConfiguration =
 			ExportImportConfigurationLocalServiceUtil.
 				addExportImportConfiguration(
-					TestPropsValues.getUserId(), group.getGroupId(),
+					TestPropsValues.getUserId(), _group.getGroupId(),
 					StringPool.BLANK, StringPool.BLANK,
 					ExportImportConfigurationConstants.TYPE_IMPORT_LAYOUT,
 					ExportImportConfigurationSettingsMapFactoryUtil.
 						buildImportLayoutSettingsMap(
-							TestPropsValues.getUser(), group.getGroupId(), true,
-							new long[0],
+							TestPropsValues.getUser(), _group.getGroupId(),
+							true, new long[0],
 							LinkedHashMapBuilder.put(
 								PortletDataHandlerKeys.PORTLET_CONFIGURATION,
 								new String[] {Boolean.TRUE.toString()}
@@ -156,7 +157,7 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutorTest {
 		Thread.sleep(2000);
 
 		backgroundTasks = BackgroundTaskManagerUtil.getBackgroundTasks(
-			group.getGroupId(),
+			_group.getGroupId(),
 			BackgroundTaskExecutorNames.
 				LAYOUT_SET_PROTOTYPE_IMPORT_BACKGROUND_TASK_EXECUTOR);
 
@@ -165,6 +166,6 @@ public class LayoutSetPrototypeImportBackgroundTaskExecutorTest {
 	}
 
 	@DeleteAfterTestRun
-	protected Group group;
+	private Group _group;
 
 }
