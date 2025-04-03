@@ -4132,7 +4132,7 @@ public class ObjectEntryLocalServiceImpl
 		return values;
 	}
 
-	private void _handleError(
+	private void _handle(
 			ObjectEntryValuesException objectEntryValuesException,
 			List<ValidationError> validationErrors)
 		throws ObjectEntryValuesException {
@@ -5410,7 +5410,7 @@ public class ObjectEntryLocalServiceImpl
 				_attachmentManager.getAcceptedFileExtensions(objectFieldId),
 				fileExtension, true)) {
 
-			_handleError(
+			_handle(
 				new ObjectEntryValuesException.InvalidFileExtension(
 					fileExtension, objectFieldName),
 				validationErrors);
@@ -5426,7 +5426,7 @@ public class ObjectEntryLocalServiceImpl
 			objectFieldId, !guestUser);
 
 		if ((maximumFileSize > 0) && (fileSize > maximumFileSize)) {
-			_handleError(
+			_handle(
 				new ObjectEntryValuesException.ExceedsMaxFileSize(
 					maximumFileSize / (1024 * 1024), objectFieldName),
 				validationErrors);
@@ -5485,7 +5485,7 @@ public class ObjectEntryLocalServiceImpl
 			(Validator.isNotNull(listTypeEntryKey) ||
 			 objectField.isRequired())) {
 
-			_handleError(
+			_handle(
 				new ObjectEntryValuesException.ListTypeEntry(
 					objectField.getName()),
 				validationErrors);
@@ -5574,7 +5574,7 @@ public class ObjectEntryLocalServiceImpl
 		if (invalidObjectStateTransition) {
 			User user = _userLocalService.getUser(userId);
 
-			_handleError(
+			_handle(
 				new ObjectEntryValuesException.InvalidObjectStateTransition(
 					originalListTypeEntry.getName(user.getLocale()),
 					sourceObjectState, listTypeEntry.getName(user.getLocale()),
@@ -5677,7 +5677,7 @@ public class ObjectEntryLocalServiceImpl
 		}
 
 		if (objectEntryValue.length() > maxLength) {
-			_handleError(
+			_handle(
 				new ObjectEntryValuesException.ExceedsTextMaxLength(
 					maxLength, objectFieldName),
 				validationErrors);
@@ -5763,7 +5763,7 @@ public class ObjectEntryLocalServiceImpl
 
 		Table<?> finalTable = table;
 
-		_handleError(
+		_handle(
 			new ObjectEntryValuesException.UniqueValueConstraintViolation(
 				objectField.getDBColumnName(), (Serializable)value,
 				objectField.getLabel(user.getLocale()),
@@ -5785,7 +5785,7 @@ public class ObjectEntryLocalServiceImpl
 			(serviceContext.getWorkflowAction() !=
 				WorkflowConstants.ACTION_SAVE_DRAFT)) {
 
-			_handleError(
+			_handle(
 				new ObjectEntryValuesException.Required(objectField.getName()),
 				validationErrors);
 		}
@@ -5822,7 +5822,7 @@ public class ObjectEntryLocalServiceImpl
 			}
 
 			if (Validator.isNotNull(value)) {
-				_handleError(
+				_handle(
 					new ObjectEntryValuesException.InvalidValue(
 						objectField.getName()),
 					validationErrors);
@@ -5831,7 +5831,7 @@ public class ObjectEntryLocalServiceImpl
 					 (serviceContext.getWorkflowAction() !=
 						 WorkflowConstants.ACTION_SAVE_DRAFT)) {
 
-				_handleError(
+				_handle(
 					new ObjectEntryValuesException.Required(
 						objectField.getName()),
 					validationErrors);
@@ -5841,7 +5841,7 @@ public class ObjectEntryLocalServiceImpl
 					ObjectFieldConstants.BUSINESS_TYPE_BOOLEAN)) {
 
 			if (!GetterUtil.getBoolean(value) && objectField.isRequired()) {
-				_handleError(
+				_handle(
 					new ObjectEntryValuesException.Required(
 						objectField.getName()),
 					validationErrors);
@@ -5876,7 +5876,7 @@ public class ObjectEntryLocalServiceImpl
 				if ((relatedObjectEntry != null) &&
 					(groupId != relatedObjectEntry.getGroupId())) {
 
-					_handleError(
+					_handle(
 						new ObjectEntryValuesException.InvalidValue(
 							objectField.getName()),
 						validationErrors);
@@ -5906,7 +5906,7 @@ public class ObjectEntryLocalServiceImpl
 					!StringUtil.equals(
 						String.valueOf(entryValueInteger), entryValueString)) {
 
-					_handleError(
+					_handle(
 						new ObjectEntryValuesException.ExceedsIntegerSize(
 							9, objectField.getName()),
 						validationErrors);
@@ -5926,7 +5926,7 @@ public class ObjectEntryLocalServiceImpl
 					!StringUtil.equals(
 						String.valueOf(entryValueLong), entryValueString)) {
 
-					_handleError(
+					_handle(
 						new ObjectEntryValuesException.ExceedsLongSize(
 							16, objectField.getName()),
 						validationErrors);
@@ -5934,7 +5934,7 @@ public class ObjectEntryLocalServiceImpl
 				else if (entryValueLong > ObjectFieldValidationConstants.
 							BUSINESS_TYPE_LONG_VALUE_MAX) {
 
-					_handleError(
+					_handle(
 						new ObjectEntryValuesException.ExceedsLongMaxSize(
 							ObjectFieldValidationConstants.
 								BUSINESS_TYPE_LONG_VALUE_MAX,
@@ -5944,7 +5944,7 @@ public class ObjectEntryLocalServiceImpl
 				else if (entryValueLong < ObjectFieldValidationConstants.
 							BUSINESS_TYPE_LONG_VALUE_MIN) {
 
-					_handleError(
+					_handle(
 						new ObjectEntryValuesException.ExceedsLongMinSize(
 							ObjectFieldValidationConstants.
 								BUSINESS_TYPE_LONG_VALUE_MIN,
@@ -5983,7 +5983,7 @@ public class ObjectEntryLocalServiceImpl
 					(serviceContext.getWorkflowAction() !=
 						WorkflowConstants.ACTION_SAVE_DRAFT)) {
 
-					_handleError(
+					_handle(
 						new ObjectEntryValuesException.Required(
 							objectField.getName()),
 						validationErrors);

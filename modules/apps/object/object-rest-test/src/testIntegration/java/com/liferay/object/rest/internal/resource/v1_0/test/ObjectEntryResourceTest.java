@@ -15741,7 +15741,6 @@ public class ObjectEntryResourceTest {
 					"The file extension \"pdf\" is invalid for object field \"",
 					_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE, "\""),
 				validationResponse.getValidationErrors()[0].getErrorMessage());
-
 			Assert.assertEquals(
 				StringBundler.concat(
 					"File exceeds the maximum permitted size of 1 MB for ",
