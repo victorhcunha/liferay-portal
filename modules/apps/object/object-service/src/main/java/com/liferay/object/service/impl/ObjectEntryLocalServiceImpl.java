@@ -335,7 +335,7 @@ public class ObjectEntryLocalServiceImpl
 			tempDLFileEntries, null, user.isGuestUser(), groupId,
 			objectDefinition, serviceContext, userId, null, values);
 
-		_addFileEntries(
+		_addDLFileEntries(
 			objectDefinition, objectEntryId, serviceContext, tempDLFileEntries,
 			userId, values);
 
@@ -488,7 +488,7 @@ public class ObjectEntryLocalServiceImpl
 			tempDLFileEntries, null, user.isGuestUser(), 0, objectDefinition,
 			serviceContext, userId, null, values);
 
-		_addFileEntries(
+		_addDLFileEntries(
 			objectDefinition, primaryKey, serviceContext, tempDLFileEntries,
 			userId, values);
 
@@ -1660,7 +1660,7 @@ public class ObjectEntryLocalServiceImpl
 			objectEntry.getGroupId(), objectDefinition, serviceContext, userId,
 			null, values);
 
-		_addFileEntries(
+		_addDLFileEntries(
 			objectDefinition, objectEntryId, serviceContext, tempDLFileEntries,
 			userId, values);
 
@@ -2028,7 +2028,7 @@ public class ObjectEntryLocalServiceImpl
 			ObjectConfiguration.class, properties);
 	}
 
-	private void _addFileEntries(
+	private void _addDLFileEntries(
 			ObjectDefinition objectDefinition, long objectEntryId,
 			ServiceContext serviceContext,
 			Map<DLFileEntry, ObjectField> tempDLFileEntries, long userId,
@@ -2038,13 +2038,13 @@ public class ObjectEntryLocalServiceImpl
 		for (Map.Entry<DLFileEntry, ObjectField> dlFileEntry :
 				tempDLFileEntries.entrySet()) {
 
-			_addFileEntry(
+			_addDLFileEntry(
 				dlFileEntry.getKey(), objectDefinition, objectEntryId,
 				dlFileEntry.getValue(), serviceContext, userId, values);
 		}
 	}
 
-	private void _addFileEntry(
+	private void _addDLFileEntry(
 			DLFileEntry dlFileEntry, ObjectDefinition objectDefinition,
 			long objectEntryId, ObjectField objectField,
 			ServiceContext serviceContext, long userId,
