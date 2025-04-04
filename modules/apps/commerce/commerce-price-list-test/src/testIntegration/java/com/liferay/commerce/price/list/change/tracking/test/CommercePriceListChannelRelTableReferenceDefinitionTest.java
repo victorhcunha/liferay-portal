@@ -49,16 +49,15 @@ public class CommercePriceListChannelRelTableReferenceDefinitionTest
 	public void setUp() throws Exception {
 		super.setUp();
 
-		_commercePriceList = CommercePriceListTestUtil.addCommercePriceList(
-			group.getGroupId(), false,
-			CommercePriceListConstants.TYPE_PRICE_LIST, 1.0);
-
 		_commerceChannel = _commerceChannelLocalService.addCommerceChannel(
 			StringPool.BLANK, AccountConstants.ACCOUNT_ENTRY_ID_DEFAULT,
 			group.getGroupId(), RandomTestUtil.randomString(),
 			CommerceChannelConstants.CHANNEL_TYPE_SITE, null,
 			RandomTestUtil.randomString(),
 			ServiceContextTestUtil.getServiceContext(group.getGroupId()));
+		_commercePriceList = CommercePriceListTestUtil.addCommercePriceList(
+			group.getGroupId(), false,
+			CommercePriceListConstants.TYPE_PRICE_LIST, 1.0);
 	}
 
 	@Override
