@@ -4,7 +4,6 @@ jobs:
         uses: ./.github/workflows/ci-publish-workspace.yaml
         with:
             workspace-name: liferay-stripe-workspace
-name: CI Publish Liferay Stripe Workspace
 on:
     push:
         branches:

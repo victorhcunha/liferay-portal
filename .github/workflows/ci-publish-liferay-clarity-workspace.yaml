@@ -4,7 +4,6 @@ jobs:
         uses: ./.github/workflows/ci-publish-workspace.yaml
         with:
             workspace-name: liferay-clarity-workspace
-name: CI Publish Liferay Clarity Workspace
 on:
     push:
         branches:

@@ -6,7 +6,6 @@ env:
     GAR_REPO: "us-central1-docker.pkg.dev/liferay-artifact-registry/liferay-helm-chart"
 jobs:
     publish-cloud-helm-chart:
-        name: Publish Cloud Helm Chart
         runs-on: ubuntu-latest
         steps:
             -   name: Checkout code
@@ -34,7 +33,6 @@ jobs:
                             helm push "$f" "$OCI_URL"
                     done
                 working-directory: ${{ runner.temp }}/dist
-name: CI Publish Cloud Helm Chart
 on:
     push:
         branches:
