@@ -11,7 +11,9 @@ jobs:
             - name: Install latest version of Kind
                 run: |
                     curl -Lo ./kind https://kind.sigs.k8s.io/dl/latest/kind-linux-amd64
+
                     chmod +x ./kind
+
                     sudo mv ./kind /usr/local/bin/kind
             - name: Verify Kind installation
                 run: kind version
@@ -20,6 +22,7 @@ jobs:
             - name: Run Helm test
                 run: |
                     helm upgrade -i liferay --wait .
+
                     helm test liferay
                 working-directory: ./cloud/helm
 name: CI Test Cloud Helm Chart
