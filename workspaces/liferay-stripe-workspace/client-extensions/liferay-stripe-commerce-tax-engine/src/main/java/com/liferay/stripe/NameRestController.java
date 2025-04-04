@@ -37,7 +37,7 @@ public class NameRestController extends BaseRestController {
 		return new ResponseEntity<>(
 			new JSONObject(
 			).put(
-				"name", "Liferay Stripe Commerce Tax Engine"
+				"name", "Stripe Tax"
 			).toString(),
 			HttpStatus.OK);
 	}
