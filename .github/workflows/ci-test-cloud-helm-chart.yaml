@@ -18,7 +18,6 @@ jobs:
             - name: Create Kind cluster
                 run: kind create cluster
             - name: Run Helm test
-                id: helm-test
                 run: |
                     helm upgrade -i liferay --wait .
                     helm test liferay
