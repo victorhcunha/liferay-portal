@@ -22,3 +22,8 @@
 # Bundle Version 1.0.5
 #
 5f16c4a438dd80fee469224950d9aaf9e7cd4f6c^..8ae9e84a39cd1b851a79bcc63a1d1f09eb8f7d13=LPD-47903 LPD-48936
+
+#
+# Bundle Version 1.0.6
+#
+8ae9e84a39cd1b851a79bcc63a1d1f09eb8f7d13^..bbdb3c9a0ff82e093d7d8ad5b1041ba2e2fa0d68=LPD-41528 LPD-48182 LPD-50007 LPD-51326
