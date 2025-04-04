@@ -59,8 +59,6 @@ import org.osgi.service.component.annotations.Reference;
 )
 public class FunctionCommerceTaxEngine implements CommerceTaxEngine {
 
-	public static final String KEY = "function";
-
 	@Override
 	public CommerceTaxValue getCommerceTaxValue(
 			CommerceTaxCalculateRequest commerceTaxCalculateRequest)
@@ -313,7 +311,8 @@ public class FunctionCommerceTaxEngine implements CommerceTaxEngine {
 					denominator, _SCALE, RoundingMode.HALF_EVEN);
 			}
 
-			commerceTaxValue = new CommerceTaxValue(KEY, KEY, taxValue);
+			commerceTaxValue = new CommerceTaxValue(
+				"function", "function", taxValue);
 		}
 		catch (Exception exception) {
 			_log.error(exception);
