@@ -158,6 +158,8 @@ public class CalculateTaxRestController extends BaseRestController {
 	private static final Log _log = LogFactory.getLog(
 		CalculateTaxRestController.class);
 
+	// TODO This should NOT be cached in the client extension but by Commerce
+
 	private static final Cache<Integer, BigDecimal> _taxValues =
 		Caffeine.newBuilder(
 		).expireAfterAccess(
