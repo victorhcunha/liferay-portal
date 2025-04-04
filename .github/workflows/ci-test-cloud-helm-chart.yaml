@@ -3,7 +3,7 @@ defaults:
         shell: bash
 jobs:
     test-cloud-helm-chart:
-        name: Test Cloud Helm Chart
+        name: CI Test Cloud Helm Chart
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code

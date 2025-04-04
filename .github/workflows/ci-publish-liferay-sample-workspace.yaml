@@ -4,7 +4,7 @@ jobs:
         uses: ./.github/workflows/ci-publish-workspace.yaml
         with:
             workspace-name: liferay-sample-workspace
-name: CI Publish liferay-sample-workspace
+name: CI Publish Liferay Sample Workspace
 on:
     push:
         branches:
