@@ -472,10 +472,10 @@ public class BatchEnginePortletDataHandlerTest {
 				throw new FileNotFoundException();
 			}
 
+			JSONArray jsonArray2 = JSONFactoryUtil.createJSONArray();
+
 			JSONArray jsonArray1 = JSONFactoryUtil.createJSONArray(
 				StringUtil.read(zipFile.getInputStream(zipEntry)));
-
-			JSONArray jsonArray2 = JSONFactoryUtil.createJSONArray();
 
 			for (int i = 0; i < jsonArray1.length(); i++) {
 				JSONObject jsonObject = jsonArray1.getJSONObject(i);
