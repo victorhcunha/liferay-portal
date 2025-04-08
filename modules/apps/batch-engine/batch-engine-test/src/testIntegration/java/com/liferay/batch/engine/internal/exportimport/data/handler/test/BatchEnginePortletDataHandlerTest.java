@@ -472,18 +472,18 @@ public class BatchEnginePortletDataHandlerTest {
 				throw new FileNotFoundException();
 			}
 
-			JSONArray jsonArray2 = JSONFactoryUtil.createJSONArray();
+			JSONArray jsonArray1 = JSONFactoryUtil.createJSONArray();
 
-			JSONArray jsonArray1 = JSONFactoryUtil.createJSONArray(
+			JSONArray jsonArray2 = JSONFactoryUtil.createJSONArray(
 				StringUtil.read(zipFile.getInputStream(zipEntry)));
 
-			for (int i = 0; i < jsonArray1.length(); i++) {
-				JSONObject jsonObject = jsonArray1.getJSONObject(i);
+			for (int i = 0; i < jsonArray2.length(); i++) {
+				JSONObject jsonObject = jsonArray2.getJSONObject(i);
 
-				jsonArray2.put(jsonObject.getString("externalReferenceCode"));
+				jsonArray1.put(jsonObject.getString("externalReferenceCode"));
 			}
 
-			return jsonArray2.toString();
+			return jsonArray1.toString();
 		}
 	}
 
