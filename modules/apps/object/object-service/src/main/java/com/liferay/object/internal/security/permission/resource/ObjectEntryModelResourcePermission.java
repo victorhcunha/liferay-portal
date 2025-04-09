@@ -32,7 +32,6 @@ import com.liferay.portal.kernel.security.auth.PrincipalException;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
-import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermissionLogic;
 import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
@@ -46,7 +45,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * @author Marco Leo
@@ -63,8 +61,6 @@ public class ObjectEntryModelResourcePermission
 		ObjectActionLocalService objectActionLocalService,
 		ObjectDefinitionLocalService objectDefinitionLocalService,
 		ObjectEntryLocalService objectEntryLocalService,
-		Supplier<ModelResourcePermissionLogic<ObjectEntry>>
-			objectEntryModelResourcePermissionLogicSupplier,
 		ObjectFieldLocalService objectFieldLocalService,
 		PortletResourcePermission portletResourcePermission,
 		ResourcePermissionLocalService resourcePermissionLocalService,
@@ -78,8 +74,6 @@ public class ObjectEntryModelResourcePermission
 		_objectActionLocalService = objectActionLocalService;
 		_objectDefinitionLocalService = objectDefinitionLocalService;
 		_objectEntryLocalService = objectEntryLocalService;
-		_objectEntryModelResourcePermissionLogicSupplier =
-			objectEntryModelResourcePermissionLogicSupplier;
 		_objectFieldLocalService = objectFieldLocalService;
 		_portletResourcePermission = portletResourcePermission;
 		_resourcePermissionLocalService = resourcePermissionLocalService;
@@ -162,19 +156,6 @@ public class ObjectEntryModelResourcePermission
 			permissionChecker.hasPermission(
 				objectEntry.getGroupId(), objectDefinition.getClassName(),
 				objectEntry.getObjectEntryId(), actionId)) {
-
-			return true;
-		}
-
-		ModelResourcePermissionLogic<ObjectEntry>
-			objectEntryModelResourcePermissionLogic =
-				_objectEntryModelResourcePermissionLogicSupplier.get();
-
-		if (Objects.equals(
-				objectEntryModelResourcePermissionLogic.contains(
-					permissionChecker, objectDefinition.getClassName(),
-					objectEntry, actionId),
-				Boolean.TRUE)) {
 
 			return true;
 		}
@@ -322,8 +303,6 @@ public class ObjectEntryModelResourcePermission
 	private final ObjectActionLocalService _objectActionLocalService;
 	private final ObjectDefinitionLocalService _objectDefinitionLocalService;
 	private final ObjectEntryLocalService _objectEntryLocalService;
-	private final Supplier<ModelResourcePermissionLogic<ObjectEntry>>
-		_objectEntryModelResourcePermissionLogicSupplier;
 	private final ObjectFieldLocalService _objectFieldLocalService;
 	private final PortletResourcePermission _portletResourcePermission;
 	private final ResourcePermissionLocalService
