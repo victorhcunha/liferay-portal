@@ -11,7 +11,7 @@ import {
 } from 'dynamic-data-mapping-form-field-type';
 import React, {useEffect, useRef, useState} from 'react';
 
-interface MultiselectOption {
+interface MultiSelectOption {
 	label: string;
 	reference: string | null;
 	value: string;
@@ -19,7 +19,7 @@ interface MultiselectOption {
 
 type Values = string[] | LocalizedValue<string[]>;
 
-interface MultiselectPicklistProps {
+interface MultiSelectPicklistProps {
 	availableLocales: AvailableLocale[];
 	defaultLanguageId: Liferay.Language.Locale;
 	errorMessage: string;
@@ -30,7 +30,7 @@ interface MultiselectPicklistProps {
 	localizedValue?: Liferay.Language.FullyLocalizedValue<string> | {};
 	name: string;
 	onChange: Function;
-	options: MultiselectOption[];
+	options: MultiSelectOption[];
 	placeholder?: string;
 	readOnly: boolean;
 	required: boolean;
@@ -49,7 +49,7 @@ const normalizeValues = (value: Values | '') => {
 	return value;
 };
 
-export default function MultiselectPicklist({
+export default function MultiSelectPicklist({
 	errorMessage,
 	label,
 	localizedObjectField,
@@ -64,7 +64,7 @@ export default function MultiselectPicklist({
 	tip,
 	value,
 	...otherProps
-}: MultiselectPicklistProps) {
+}: MultiSelectPicklistProps) {
 	const normalizedValue = normalizeValues(value);
 
 	const [localValues, setLocalValues] = useState(normalizedValue);
