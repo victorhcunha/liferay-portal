@@ -74,7 +74,7 @@ public class MultiSelectPicklistDDMFormFieldTemplateContextContributorTest
 
 		_ddmFormField.setProperty("listTypeDefinitionId", listTypeDefinitionId);
 
-		_mockListTypeEntry("value 1", listTypeDefinitionId, null);
+		_mockListTypeEntry(listTypeDefinitionId, null, "value 1");
 
 		_assertGetParametersOption(
 			"Label 1",
@@ -89,7 +89,7 @@ public class MultiSelectPicklistDDMFormFieldTemplateContextContributorTest
 			LocaleUtil.US, RandomTestUtil.randomString()
 		).build();
 
-		_mockListTypeEntry("value 1", listTypeDefinitionId, labelMap);
+		_mockListTypeEntry(listTypeDefinitionId, labelMap, "value 1");
 
 		_assertGetParametersOption("Label 1", labelMap, "value 1");
 	}
@@ -114,7 +114,7 @@ public class MultiSelectPicklistDDMFormFieldTemplateContextContributorTest
 	}
 
 	private void _mockListTypeEntry(
-		String key, Long listTypeDefinitionId, Map<Locale, String> nameMap) {
+		Long listTypeDefinitionId, Map<Locale, String> nameMap, String key) {
 
 		Mockito.when(
 			_listTypeEntry.getNameMap()
