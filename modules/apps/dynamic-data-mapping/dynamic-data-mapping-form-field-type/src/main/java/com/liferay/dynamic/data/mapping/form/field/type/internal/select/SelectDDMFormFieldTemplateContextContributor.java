@@ -278,13 +278,35 @@ public class SelectDDMFormFieldTemplateContextContributor
 			return objectFieldOptions;
 		}
 
-		long listTypeDefinitionId = GetterUtil.getLong(
-			ddmFormField.getProperty("listTypeDefinitionId"));
+		List<Map<String, Object>> options = new ArrayList<>();
 
-		List<Map<String, Object>> options =
-			DDMFormFieldTemplateContextContributorUtil.getOptions(
-				ddmFormFieldOptions, listTypeDefinitionId,
-				_listTypeEntryLocalService);
+		for (String optionValue : ddmFormFieldOptions.getOptionsValues()) {
+			if (optionValue == null) {
+				continue;
+			}
+
+			options.add(
+				HashMapBuilder.<String, Object>put(
+					"label",
+					() -> {
+						LocalizedValue localizedValue =
+							ddmFormFieldOptions.getOptionLabels(optionValue);
+
+						return localizedValue.getString(locale);
+					}
+				).put(
+					"labelMap",
+					DDMFormFieldTemplateContextContributorUtil.
+						getListTypeEntryNameMap(
+							ddmFormField, optionValue,
+							_listTypeEntryLocalService)
+				).put(
+					"reference",
+					ddmFormFieldOptions.getOptionReference(optionValue)
+				).put(
+					"value", optionValue
+				).build());
+		}
 
 		if (alphabeticalOrder) {
 			return _getSortedOptions(locale, options);

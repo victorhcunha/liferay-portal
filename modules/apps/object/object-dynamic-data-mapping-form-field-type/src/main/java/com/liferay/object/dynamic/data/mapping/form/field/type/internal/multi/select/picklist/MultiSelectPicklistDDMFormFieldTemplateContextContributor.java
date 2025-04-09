@@ -17,6 +17,8 @@ import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.osgi.service.component.annotations.Component;
@@ -50,14 +52,45 @@ public class MultiSelectPicklistDDMFormFieldTemplateContextContributor
 				ddmFormField.getProperty("localizedObjectField"))
 		).put(
 			"options",
-			DDMFormFieldTemplateContextContributorUtil.getOptions(
-				ddmFormFieldOptions,
-				GetterUtil.getLong(
-					ddmFormField.getProperty("listTypeDefinitionId")),
-				_listTypeEntryLocalService)
-		).put(
-			"optionsDefaultLanguageId",
-			LocaleUtil.toLanguageId(ddmFormFieldOptions.getDefaultLocale())
+			() -> {
+				DDMFormFieldOptions ddmFormFieldOptions =
+					(DDMFormFieldOptions)ddmFormField.getProperty("options");
+				List<Map<String, Object>> options = new ArrayList<>();
+
+				for (String optionValue :
+						ddmFormFieldOptions.getOptionsValues()) {
+
+					if (optionValue == null) {
+						continue;
+					}
+
+					options.add(
+						HashMapBuilder.<String, Object>put(
+							"label",
+							() -> {
+								LocalizedValue localizedValue =
+									ddmFormFieldOptions.getOptionLabels(
+										optionValue);
+
+								return localizedValue.getString(
+									localizedValue.getDefaultLocale());
+							}
+						).put(
+							"labelMap",
+							DDMFormFieldTemplateContextContributorUtil.
+								getListTypeEntryNameMap(
+									ddmFormField, optionValue,
+									_listTypeEntryLocalService)
+						).put(
+							"reference",
+							ddmFormFieldOptions.getOptionReference(optionValue)
+						).put(
+							"value", optionValue
+						).build());
+				}
+
+				return options;
+			}
 		).putAll(
 			DDMFormFieldTemplateContextContributorUtil.
 				getLocalizationParameters(
