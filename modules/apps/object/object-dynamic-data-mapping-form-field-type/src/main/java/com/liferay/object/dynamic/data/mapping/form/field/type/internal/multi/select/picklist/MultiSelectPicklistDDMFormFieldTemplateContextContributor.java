@@ -45,6 +45,9 @@ public class MultiSelectPicklistDDMFormFieldTemplateContextContributor
 			"localizedObjectField",
 			GetterUtil.getBoolean(
 				ddmFormField.getProperty("localizedObjectField"))
+			"localizedObjectField",
+			GetterUtil.getBoolean(
+				ddmFormField.getProperty("localizedObjectField"))
 		).put(
 			"options",
 			DDMFormFieldTemplateContextContributorUtil.getOptions(
