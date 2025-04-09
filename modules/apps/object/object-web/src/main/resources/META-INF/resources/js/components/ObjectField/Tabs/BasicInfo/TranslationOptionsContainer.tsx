@@ -76,8 +76,7 @@ export function TranslationOptionsContainer({
 					disabled={
 						published ||
 						!translatableField ||
-						!objectDefinition?.enableLocalization ||
-						(!Liferay.FeatureFlags['LPD-32050'] && values.required)
+						!objectDefinition?.enableLocalization
 					}
 					label={Liferay.Language.get('enable-entry-translations')}
 					onBlur={(event) => {
@@ -90,6 +89,7 @@ export function TranslationOptionsContainer({
 					onToggle={(localized) =>
 						setValues({
 							localized,
+							required: !localized && values.required,
 						})
 					}
 					toggled={values.localized}

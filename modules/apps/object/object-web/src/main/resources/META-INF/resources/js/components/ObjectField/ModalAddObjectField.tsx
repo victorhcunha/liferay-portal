@@ -201,11 +201,7 @@ export function ModalAddObjectField({
 									<div className="lfr-objects__modal-add-object-field-enable-translations-toggle">
 										<Toggle
 											disabled={
-												!objectDefinition?.enableLocalization ||
-												(!Liferay.FeatureFlags[
-													'LPD-32050'
-												] &&
-													values.required)
+												!objectDefinition?.enableLocalization
 											}
 											label={Liferay.Language.get(
 												'enable-entry-translations'
@@ -214,6 +210,9 @@ export function ModalAddObjectField({
 											onToggle={(localized) =>
 												setValues({
 													localized,
+													required:
+														!localized &&
+														values.required,
 												})
 											}
 											toggled={values.localized}
