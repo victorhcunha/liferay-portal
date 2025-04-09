@@ -106,11 +106,13 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 				fetchDefaultLayoutPageTemplateEntry(
 					group.getGroupId(), classNameId, 0);
 
+		ServiceContext serviceContext = ServiceContextFactory.getInstance(
+			httpServletRequest);
+
 		if (layoutPageTemplateEntry == null) {
 			layoutPageTemplateEntry = _addDefaultLayoutPageTemplateEntry(
 				classNameId, group.getGroupId(), objectDefinition.getName(),
-				ParamUtil.getLong(httpServletRequest, "plid"),
-				ServiceContextFactory.getInstance(httpServletRequest));
+				ParamUtil.getLong(httpServletRequest, "plid"), serviceContext);
 		}
 
 		String groupFriendlyURL = _portal.getGroupFriendlyURL(
@@ -120,6 +122,8 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 			layoutPageTemplateEntry.getPlid());
 
 		long groupId = _getGroupId(httpServletRequest);
+
+		serviceContext.setWorkflowAction(WorkflowConstants.ACTION_SAVE_DRAFT);
 
 		ObjectEntryManager objectEntryManager =
 			_objectEntryManagerRegistry.getObjectEntryManager(
