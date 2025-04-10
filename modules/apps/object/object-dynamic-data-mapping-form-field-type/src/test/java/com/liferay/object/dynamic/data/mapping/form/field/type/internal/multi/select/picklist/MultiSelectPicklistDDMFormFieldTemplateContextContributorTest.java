@@ -33,7 +33,7 @@ import org.mockito.Mockito;
 /**
  * @author Pedro Leite
  */
-public class MultiselectPicklistDDMFormFieldTemplateContextContributorTest
+public class MultiSelectPicklistDDMFormFieldTemplateContextContributorTest
 	extends BaseDDMFormFieldTemplateContextContributorTestCase {
 
 	@ClassRule
@@ -49,7 +49,7 @@ public class MultiselectPicklistDDMFormFieldTemplateContextContributorTest
 		_ddmFormField.setDDMForm(getDDMForm());
 
 		ReflectionTestUtil.setFieldValue(
-			_multiselectPicklistDDMFormFieldTemplateContextContributor,
+			_multiSelectPicklistDDMFormFieldTemplateContextContributor,
 			"_listTypeEntryLocalService", _listTypeEntryLocalService);
 	}
 
@@ -59,7 +59,7 @@ public class MultiselectPicklistDDMFormFieldTemplateContextContributorTest
 
 		Assert.assertTrue(
 			MapUtil.getBoolean(
-				_multiselectPicklistDDMFormFieldTemplateContextContributor.
+				_multiSelectPicklistDDMFormFieldTemplateContextContributor.
 					getParameters(
 						_ddmFormField, createDDMFormFieldRenderingContext()),
 				"localizedObjectField"));
@@ -99,7 +99,7 @@ public class MultiselectPicklistDDMFormFieldTemplateContextContributorTest
 		String expectedValue) {
 
 		Map<String, Object> parameters =
-			_multiselectPicklistDDMFormFieldTemplateContextContributor.
+			_multiSelectPicklistDDMFormFieldTemplateContextContributor.
 				getParameters(
 					_ddmFormField, createDDMFormFieldRenderingContext());
 
@@ -136,8 +136,8 @@ public class MultiselectPicklistDDMFormFieldTemplateContextContributorTest
 		ListTypeEntry.class);
 	private final ListTypeEntryLocalService _listTypeEntryLocalService =
 		Mockito.mock(ListTypeEntryLocalService.class);
-	private final MultiselectPicklistDDMFormFieldTemplateContextContributor
-		_multiselectPicklistDDMFormFieldTemplateContextContributor =
-			new MultiselectPicklistDDMFormFieldTemplateContextContributor();
+	private final MultiSelectPicklistDDMFormFieldTemplateContextContributor
+		_multiSelectPicklistDDMFormFieldTemplateContextContributor =
+			new MultiSelectPicklistDDMFormFieldTemplateContextContributor();
 
 }
