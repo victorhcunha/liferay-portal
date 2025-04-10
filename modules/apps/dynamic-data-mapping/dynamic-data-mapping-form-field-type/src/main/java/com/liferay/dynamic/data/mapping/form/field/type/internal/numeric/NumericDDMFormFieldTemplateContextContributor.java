@@ -122,9 +122,8 @@ public class NumericDDMFormFieldTemplateContextContributor
 					_getValue(ddmFormFieldRenderingContext.getValue()));
 			}
 		).putAll(
-			DDMFormFieldTemplateContextContributorUtil.
-				getLocalizationParameters(
-					ddmFormField, ddmForm.getDefaultLocale())
+			DDMFormFieldTemplateContextContributorUtil.getLocaleMap(
+				ddmForm.getDefaultLocale())
 		).putAll(
 			NumericDDMFormFieldTypeUtil.getParameters(
 				dataType, ddmFormField, ddmFormFieldRenderingContext)

@@ -133,9 +133,8 @@ public class AttachmentDDMFormFieldTemplateContextContributor
 			DDMForm ddmForm = ddmFormField.getDDMForm();
 
 			parameters.putAll(
-				DDMFormFieldTemplateContextContributorUtil.
-					getLocalizationParameters(
-						ddmFormField, ddmForm.getDefaultLocale()));
+				DDMFormFieldTemplateContextContributorUtil.getLocaleMap(
+					ddmForm.getDefaultLocale()));
 		}
 		else {
 			parameters.putAll(

@@ -79,9 +79,8 @@ public class RichTextDDMFormFieldTemplateContextContributor
 					ddmFormFieldRenderingContext, "value");
 			}
 		).putAll(
-			DDMFormFieldTemplateContextContributorUtil.
-				getLocalizationParameters(
-					ddmFormField, ddmForm.getDefaultLocale())
+			DDMFormFieldTemplateContextContributorUtil.getLocaleMap(
+				ddmForm.getDefaultLocale())
 		).putAll(
 			getData(
 				ddmFormField, ddmFormFieldRenderingContext,

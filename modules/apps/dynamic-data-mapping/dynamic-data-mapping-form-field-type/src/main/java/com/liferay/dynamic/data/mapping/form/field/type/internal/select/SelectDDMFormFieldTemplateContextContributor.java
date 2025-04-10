@@ -151,9 +151,8 @@ public class SelectDDMFormFieldTemplateContextContributor
 						ddmFormFieldRenderingContext.getValue(), "[]"));
 			}
 		).putAll(
-			DDMFormFieldTemplateContextContributorUtil.
-				getLocalizationParameters(
-					ddmFormField, ddmForm.getDefaultLocale())
+			DDMFormFieldTemplateContextContributorUtil.getLocaleMap(
+				ddmForm.getDefaultLocale())
 		).build();
 	}
 

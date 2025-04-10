@@ -68,9 +68,8 @@ public class LocalizableTextDDMFormFieldTemplateContextContributor
 			DDMForm ddmForm = ddmFormField.getDDMForm();
 
 			parameters.putAll(
-				DDMFormFieldTemplateContextContributorUtil.
-					getLocalizationParameters(
-						ddmFormField, ddmForm.getDefaultLocale()));
+				DDMFormFieldTemplateContextContributorUtil.getLocaleMap(
+					ddmForm.getDefaultLocale()));
 		}
 
 		parameters.put(
