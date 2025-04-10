@@ -76,8 +76,6 @@ public class SelectDDMFormFieldTemplateContextContributor
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
 
 		DDMForm ddmForm = ddmFormField.getDDMForm();
-		DDMFormFieldOptions ddmFormFieldOptions =
-			(DDMFormFieldOptions)ddmFormField.getProperty("options");
 		boolean localizedObjectField = GetterUtil.getBoolean(
 			ddmFormField.getProperty("localizedObjectField"));
 		ObjectField objectField = _getObjectField(
@@ -105,22 +103,22 @@ public class SelectDDMFormFieldTemplateContextContributor
 				if (objectFieldId > 0) {
 					return DDMFormFieldTemplateContextContributorUtil.
 						getOptions(
-							ddmFormFieldOptions,
+							(DDMFormFieldOptions)ddmFormField.getProperty(
+								"options"),
 							GetterUtil.getLong(
 								ddmFormField.getProperty(
 									"listTypeDefinitionId")),
 							_listTypeEntryLocalService);
 				}
 
-				return getOptions(
-					ddmFormField,
+				DDMFormFieldOptions ddmFormFieldOptions =
 					ddmFormFieldOptionsFactory.create(
-						ddmFormField, ddmFormFieldRenderingContext),
+						ddmFormField, ddmFormFieldRenderingContext);
+
+				return getOptions(
+					ddmFormField, ddmFormFieldOptions,
 					ddmFormFieldRenderingContext.getLocale(), objectField);
 			}
-		).put(
-			"optionsDefaultLanguageId",
-			LocaleUtil.toLanguageId(ddmFormFieldOptions.getDefaultLocale())
 		).put(
 			"predefinedValue",
 			getValue(

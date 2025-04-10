@@ -102,7 +102,6 @@ public class DDMFormTemplateContextProcessor {
 		_setDDMFormFieldNumericInputMask(
 			jsonObject.getString("numericInputMask"), ddmFormField);
 		_setDDMFormFieldOptions(
-			jsonObject.getString("optionsDefaultLanguageId"),
 			jsonObject.getJSONArray("options"), ddmFormField);
 		_setDDMFormFieldPlaceholder(
 			jsonObject.getString("placeholder"), ddmFormField);
@@ -145,11 +144,8 @@ public class DDMFormTemplateContextProcessor {
 		return ddmFormField;
 	}
 
-	protected DDMFormFieldOptions getDDMFormFieldOptions(
-		String optionsDefaultLanguageId, JSONArray jsonArray) {
-
-		DDMFormFieldOptions ddmFormFieldOptions = new DDMFormFieldOptions(
-			LocaleUtil.fromLanguageId(optionsDefaultLanguageId));
+	protected DDMFormFieldOptions getDDMFormFieldOptions(JSONArray jsonArray) {
+		DDMFormFieldOptions ddmFormFieldOptions = new DDMFormFieldOptions();
 
 		for (int i = 0; i < jsonArray.length(); i++) {
 			JSONObject jsonObject = jsonArray.getJSONObject(i);
@@ -389,15 +385,13 @@ public class DDMFormTemplateContextProcessor {
 	}
 
 	private void _setDDMFormFieldOptions(
-		String optionsDefaultLanguageId, JSONArray jsonArray,
-		DDMFormField ddmFormField) {
+		JSONArray jsonArray, DDMFormField ddmFormField) {
 
 		if (jsonArray == null) {
 			return;
 		}
 
-		ddmFormField.setDDMFormFieldOptions(
-			getDDMFormFieldOptions(optionsDefaultLanguageId, jsonArray));
+		ddmFormField.setDDMFormFieldOptions(getDDMFormFieldOptions(jsonArray));
 	}
 
 	private void _setDDMFormFieldPlaceholder(
@@ -480,8 +474,7 @@ public class DDMFormTemplateContextProcessor {
 			return;
 		}
 
-		ddmFormField.setProperty(
-			property, getDDMFormFieldOptions(null, jsonArray));
+		ddmFormField.setProperty(property, getDDMFormFieldOptions(jsonArray));
 	}
 
 	private void _setDDMFormFieldPropertyRows(

@@ -15,7 +15,6 @@ import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.dynamic.data.mapping.form.field.type.constants.ObjectDDMFormFieldTypeConstants;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
-import com.liferay.portal.kernel.util.LocaleUtil;
 
 import java.util.Map;
 
@@ -38,8 +37,6 @@ public class MultiselectPicklistDDMFormFieldTemplateContextContributor
 		DDMFormFieldRenderingContext ddmFormFieldRenderingContext) {
 
 		DDMForm ddmForm = ddmFormField.getDDMForm();
-		DDMFormFieldOptions ddmFormFieldOptions =
-			(DDMFormFieldOptions)ddmFormField.getProperty("options");
 
 		return HashMapBuilder.<String, Object>put(
 			"localizedObjectField",
@@ -48,13 +45,10 @@ public class MultiselectPicklistDDMFormFieldTemplateContextContributor
 		).put(
 			"options",
 			DDMFormFieldTemplateContextContributorUtil.getOptions(
-				ddmFormFieldOptions,
+				(DDMFormFieldOptions)ddmFormField.getProperty("options"),
 				GetterUtil.getLong(
 					ddmFormField.getProperty("listTypeDefinitionId")),
 				_listTypeEntryLocalService)
-		).put(
-			"optionsDefaultLanguageId",
-			LocaleUtil.toLanguageId(ddmFormFieldOptions.getDefaultLocale())
 		).putAll(
 			DDMFormFieldTemplateContextContributorUtil.
 				getLocalizationParameters(
