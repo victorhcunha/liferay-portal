@@ -93,6 +93,11 @@ public class IntegerObjectFieldBusinessType
 	}
 
 	@Override
+	public boolean isLocalizable() {
+		return true;
+	}
+
+	@Override
 	public void validateObjectFieldSettings(
 			ObjectField objectField,
 			List<ObjectFieldSetting> objectFieldSettings)

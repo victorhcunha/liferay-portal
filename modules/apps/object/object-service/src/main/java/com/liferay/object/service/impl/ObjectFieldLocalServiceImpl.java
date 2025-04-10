@@ -856,8 +856,7 @@ public class ObjectFieldLocalServiceImpl
 				objectField.getBusinessType());
 
 		_validateLocalized(
-			localized, objectDefinition, objectField, objectFieldBusinessType,
-			required);
+			localized, objectDefinition, objectFieldBusinessType, required);
 
 		User user = _userLocalService.getUser(userId);
 
@@ -1405,7 +1404,7 @@ public class ObjectFieldLocalServiceImpl
 				businessType);
 
 		_validateLocalized(
-			localized, oldObjectField.getObjectDefinition(), newObjectField,
+			localized, oldObjectField.getObjectDefinition(),
 			objectFieldBusinessType, required);
 
 		ObjectDefinition objectDefinition =
@@ -1649,7 +1648,6 @@ public class ObjectFieldLocalServiceImpl
 
 	private void _validateLocalized(
 			boolean localized, ObjectDefinition objectDefinition,
-			ObjectField objectField,
 			ObjectFieldBusinessType objectFieldBusinessType, boolean required)
 		throws PortalException {
 
@@ -1669,7 +1667,7 @@ public class ObjectFieldLocalServiceImpl
 				 ObjectFieldConstants.BUSINESS_TYPE_TEXT)) ||
 			(FeatureFlagManagerUtil.isEnabled(
 				objectDefinition.getCompanyId(), "LPD-32050") &&
-			 !objectFieldBusinessType.isLocalizationSupported(objectField))) {
+			 !objectFieldBusinessType.isLocalizable())) {
 
 			if (FeatureFlagManagerUtil.isEnabled(
 					objectDefinition.getCompanyId(), "LPD-32050")) {

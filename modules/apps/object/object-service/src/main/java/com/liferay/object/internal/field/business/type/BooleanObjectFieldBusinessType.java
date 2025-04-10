@@ -71,6 +71,11 @@ public class BooleanObjectFieldBusinessType implements ObjectFieldBusinessType {
 	}
 
 	@Override
+	public boolean isLocalizable() {
+		return true;
+	}
+
+	@Override
 	public void validateObjectFieldSettingsDefaultValue(
 			ObjectField objectField,
 			Map<String, String> objectFieldSettingsValuesMap)

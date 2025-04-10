@@ -8,7 +8,6 @@ package com.liferay.object.internal.field.business.type;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.field.business.type.ObjectFieldBusinessType;
 import com.liferay.object.model.ObjectDefinition;
-import com.liferay.object.model.ObjectField;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.vulcan.extension.PropertyDefinition;
 
@@ -50,11 +49,6 @@ public class LargeFileObjectFieldBusinessType
 	@Override
 	public PropertyDefinition.PropertyType getPropertyType() {
 		return PropertyDefinition.PropertyType.TEXT;
-	}
-
-	@Override
-	public boolean isLocalizationSupported(ObjectField objectField) {
-		return false;
 	}
 
 	@Override

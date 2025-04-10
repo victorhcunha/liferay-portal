@@ -76,6 +76,11 @@ public class DecimalObjectFieldBusinessType implements ObjectFieldBusinessType {
 		return PropertyDefinition.PropertyType.DOUBLE;
 	}
 
+	@Override
+	public boolean isLocalizable() {
+		return true;
+	}
+
 	@Reference
 	private Language _language;
 

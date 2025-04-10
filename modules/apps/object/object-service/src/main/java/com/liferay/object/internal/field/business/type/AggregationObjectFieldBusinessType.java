@@ -115,11 +115,6 @@ public class AggregationObjectFieldBusinessType
 	}
 
 	@Override
-	public boolean isLocalizationSupported(ObjectField objectField) {
-		return false;
-	}
-
-	@Override
 	public boolean isVisible(ObjectDefinition objectDefinition) {
 		return objectDefinition.isDefaultStorageType();
 	}

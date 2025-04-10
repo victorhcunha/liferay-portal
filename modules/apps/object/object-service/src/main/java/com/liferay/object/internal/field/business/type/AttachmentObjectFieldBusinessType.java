@@ -175,6 +175,11 @@ public class AttachmentObjectFieldBusinessType
 	}
 
 	@Override
+	public boolean isLocalizable() {
+		return true;
+	}
+
+	@Override
 	public boolean isVisible(ObjectDefinition objectDefinition) {
 		return objectDefinition.isDefaultStorageType();
 	}

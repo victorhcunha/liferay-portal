@@ -77,6 +77,11 @@ public class PrecisionDecimalObjectFieldBusinessType
 		return PropertyDefinition.PropertyType.BIG_DECIMAL;
 	}
 
+	@Override
+	public boolean isLocalizable() {
+		return true;
+	}
+
 	@Reference
 	private Language _language;
 

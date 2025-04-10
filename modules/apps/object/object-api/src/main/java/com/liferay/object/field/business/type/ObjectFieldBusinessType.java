@@ -15,7 +15,6 @@ import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectFieldSetting;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.security.auth.GuestOrUserUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -152,14 +151,8 @@ public interface ObjectFieldBusinessType {
 		return StringPool.BLANK;
 	}
 
-	public default boolean isLocalizationSupported(ObjectField objectField) {
-		if (!FeatureFlagManagerUtil.isEnabled("LPD-32050") ||
-			objectField.isMetadata()) {
-
-			return false;
-		}
-
-		return true;
+	public default boolean isLocalizable() {
+		return false;
 	}
 
 	public default boolean isVisible(ObjectDefinition objectDefinition) {
