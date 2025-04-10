@@ -256,7 +256,6 @@ const usePublicAPI = ({apiRef, containerRef, unstable_onEventRef}) => {
 			dispatch(
 				formValidate({
 					activePage,
-					containerId,
 					defaultLanguageId,
 					editingLanguageId,
 					formId: containerRef.current
@@ -270,7 +269,6 @@ const usePublicAPI = ({apiRef, containerRef, unstable_onEventRef}) => {
 				})
 			),
 		[
-			containerId,
 			dispatch,
 			activePage,
 			containerRef,

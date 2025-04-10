@@ -9,7 +9,6 @@ import {EVENT_TYPES} from '../actions/eventTypes.es';
 
 export default function formValidate({
 	activePage,
-	containerId,
 	defaultLanguageId,
 	editingLanguageId,
 	formId,
@@ -27,7 +26,6 @@ export default function formValidate({
 		}
 
 		return evaluate(null, {
-			containerId,
 			defaultLanguageId,
 			editingLanguageId,
 			formId,
