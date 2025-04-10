@@ -204,7 +204,7 @@ public abstract class BaseSectionDisplayContext {
 			if (group != null) {
 				jsonArray.put(
 					JSONUtil.put(
-						"groupId", group.getGroupId()
+						"id", depotEntry.getDepotEntryId()
 					).put(
 						"name", group.getName(themeDisplay.getLocale())
 					));

@@ -15,7 +15,7 @@ import {FieldPicker, FieldText} from '../forms';
 import {required, validate} from '../forms/validations';
 
 export type AssetLibray = {
-	groupId: string;
+	id: string;
 	name: string;
 };
 
@@ -37,20 +37,18 @@ export default function CreationModalContent({
 	const {errors, handleChange, handleSubmit, setFieldValue, touched, values} =
 		useFormik({
 			initialValues: {
-				groupId:
-					assetLibraries.length === 1
-						? assetLibraries[0].groupId
-						: '',
+				assetLibraryId:
+					assetLibraries.length === 1 ? assetLibraries[0].id : '',
 				name: '',
 			},
 			onSubmit: (values) => {
 				if (redirect) {
-					const {groupId, name} = values;
+					const {assetLibraryId, name} = values;
 
 					const url = new URL(redirect);
 
 					url.searchParams.set('name', name);
-					url.searchParams.set('groupId', groupId);
+					url.searchParams.set('assetLibraryId', assetLibraryId);
 
 					navigate(url.pathname + url.search);
 				}
@@ -61,7 +59,7 @@ export default function CreationModalContent({
 			validate: (values) =>
 				validate(
 					{
-						groupId: [required],
+						assetLibraryId: [required],
 						name: action === 'createFolder' ? [required] : [],
 					},
 					values
@@ -87,24 +85,26 @@ export default function CreationModalContent({
 				{assetLibraries.length > 1 && (
 					<FieldPicker
 						errorMessage={
-							touched.groupId ? errors.groupId : undefined
+							touched.assetLibraryId
+								? errors.assetLibraryId
+								: undefined
 						}
 						helpMessage={sub(
 							Liferay.Language.get('choose-the-space-for-the-x'),
 							title
 						)}
-						items={assetLibraries.map(({groupId, name}) => ({
+						items={assetLibraries.map(({id, name}) => ({
 							label: name,
-							value: groupId,
+							value: id,
 						}))}
 						label={Liferay.Language.get('space')}
-						name="groupId"
+						name="assetLibraryId"
 						onSelectionChange={(value: string) => {
-							setFieldValue('groupId', value);
+							setFieldValue('assetLibraryId', value);
 						}}
 						placeholder={Liferay.Language.get('select-a-space')}
 						required
-						selectedKey={values.groupId}
+						selectedKey={values.assetLibraryId}
 					/>
 				)}
 			</ClayModal.Body>
