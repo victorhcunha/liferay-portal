@@ -44,11 +44,6 @@ public class ObjectEntryVersionLocalServiceImpl
 	}
 
 	@Override
-	public void deleteObjectEntryVersions(long objectEntryId) {
-		objectEntryVersionPersistence.removeByObjectEntryId(objectEntryId);
-	}
-
-	@Override
 	public ObjectEntryVersion getObjectEntryVersion(
 			long objectEntryId, int version)
 		throws PortalException {

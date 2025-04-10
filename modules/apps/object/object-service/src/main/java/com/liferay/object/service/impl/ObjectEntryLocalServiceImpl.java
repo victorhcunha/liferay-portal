@@ -653,9 +653,6 @@ public class ObjectEntryLocalServiceImpl
 			objectEntry.getGroupId(), objectDefinition.getObjectDefinitionId(),
 			objectEntry.getPrimaryKey());
 
-		_objectEntryVersionLocalService.deleteObjectEntryVersion(
-			objectEntry.getObjectEntryId());
-
 		_sharingEntryLocalService.deleteSharingEntries(
 			_classNameLocalService.getClassNameId(
 				objectDefinition.getClassName()),
