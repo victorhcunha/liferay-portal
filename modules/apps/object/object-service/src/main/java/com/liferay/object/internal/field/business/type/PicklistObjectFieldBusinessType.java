@@ -296,8 +296,7 @@ public class PicklistObjectFieldBusinessType
 			ObjectFieldRenderingContext objectFieldRenderingContext)
 		throws PortalException {
 
-		DDMFormFieldOptions ddmFormFieldOptions = new DDMFormFieldOptions(
-			objectFieldRenderingContext.getLocale());
+		DDMFormFieldOptions ddmFormFieldOptions = new DDMFormFieldOptions();
 
 		for (ListTypeEntry listTypeEntry :
 				_getListTypeEntries(objectField, objectFieldRenderingContext)) {
