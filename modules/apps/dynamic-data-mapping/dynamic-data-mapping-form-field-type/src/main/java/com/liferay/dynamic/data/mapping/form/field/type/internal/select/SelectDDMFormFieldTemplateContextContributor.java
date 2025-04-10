@@ -269,27 +269,21 @@ public class SelectDDMFormFieldTemplateContextContributor
 				continue;
 			}
 
-			LocalizedValue localizedValue = ddmFormFieldOptions.getOptionLabels(
-				optionValue);
-
 			options.add(
 				HashMapBuilder.<String, Object>put(
-					"label", localizedValue.getString(locale)
+					"label",
+					() -> {
+						LocalizedValue localizedValue =
+							ddmFormFieldOptions.getOptionLabels(optionValue);
+
+						return localizedValue.getString(locale);
+					}
 				).put(
 					"labelMap",
-					() -> {
-						Map<Locale, String> labeMap =
-							DDMFormFieldTemplateContextContributorUtil.
-								getListTypeEntryNameMap(
-									ddmFormField, optionValue,
-									_listTypeEntryLocalService);
-
-						if (labeMap != null) {
-							return labeMap;
-						}
-
-						return localizedValue.getValues();
-					}
+					DDMFormFieldTemplateContextContributorUtil.
+						getListTypeEntryNameMap(
+							ddmFormField, optionValue,
+							_listTypeEntryLocalService)
 				).put(
 					"reference",
 					ddmFormFieldOptions.getOptionReference(optionValue)
