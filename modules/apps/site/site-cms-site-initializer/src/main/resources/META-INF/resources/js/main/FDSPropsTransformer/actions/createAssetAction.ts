@@ -6,13 +6,10 @@
 import {openModal} from 'frontend-js-components-web';
 import {navigate} from 'frontend-js-web';
 
-import CreationModalContent, {
-	AssetLibray,
-} from '../../components/modal/CreationModalContent';
+import CreationModalContent from '../../components/modal/CreationModalContent';
 
 export type AssetData = {
 	action: 'createAsset';
-	assetLibraries: AssetLibray[];
 	redirect: string;
 	title: string;
 };
