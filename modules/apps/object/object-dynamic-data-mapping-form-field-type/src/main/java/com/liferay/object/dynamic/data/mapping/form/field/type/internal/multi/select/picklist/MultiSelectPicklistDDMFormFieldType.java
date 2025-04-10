@@ -21,11 +21,11 @@ import org.osgi.service.component.annotations.Component;
 	},
 	service = DDMFormFieldType.class
 )
-public class MultiselectPicklistDDMFormFieldType extends BaseDDMFormFieldType {
+public class MultiSelectPicklistDDMFormFieldType extends BaseDDMFormFieldType {
 
 	@Override
 	public String getESModule() {
-		return "{MultiselectPicklist} from " +
+		return "{MultiSelectPicklist} from " +
 			"object-dynamic-data-mapping-form-field-type";
 	}
 

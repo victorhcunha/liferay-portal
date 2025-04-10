@@ -29,7 +29,7 @@ import org.osgi.service.component.annotations.Reference;
 	property = "ddm.form.field.type.name=" + ObjectDDMFormFieldTypeConstants.MULTISELECT_PICKLIST,
 	service = DDMFormFieldTemplateContextContributor.class
 )
-public class MultiselectPicklistDDMFormFieldTemplateContextContributor
+public class MultiSelectPicklistDDMFormFieldTemplateContextContributor
 	implements DDMFormFieldTemplateContextContributor {
 
 	@Override
