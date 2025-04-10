@@ -443,6 +443,20 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 					_resourcePermissionLocalService,
 					_userGroupRoleLocalService);
 
+			_sharingModelResourcePermissionConfigurator.configure(
+				modelResourcePermission, consumerSupplier);
+
+			serviceRegistrations.add(
+				_bundleContext.registerService(
+					SharingPermissionChecker.class,
+					new ObjectEntrySharingPermissionChecker(
+						modelResourcePermission),
+					HashMapDictionaryBuilder.<String, Object>put(
+						"com.liferay.object", "true"
+					).put(
+						"model.class.name", objectDefinition.getClassName()
+					).build()));
+
 			serviceRegistrations.add(
 				_bundleContext.registerService(
 					ModelResourcePermission.class, modelResourcePermission,
@@ -459,20 +473,6 @@ public class ObjectDefinitionDeployerImpl implements ObjectDefinitionDeployer {
 						"com.liferay.object", "true"
 					).put(
 						"resource.name", objectDefinition.getResourceName()
-					).build()));
-
-			_sharingModelResourcePermissionConfigurator.configure(
-				modelResourcePermission, consumerSupplier);
-
-			serviceRegistrations.add(
-				_bundleContext.registerService(
-					SharingPermissionChecker.class,
-					new ObjectEntrySharingPermissionChecker(
-						modelResourcePermission),
-					HashMapDictionaryBuilder.<String, Object>put(
-						"com.liferay.object", "true"
-					).put(
-						"model.class.name", objectDefinition.getClassName()
 					).build()));
 		}
 
