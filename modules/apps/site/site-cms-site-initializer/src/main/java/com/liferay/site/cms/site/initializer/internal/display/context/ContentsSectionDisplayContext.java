@@ -5,14 +5,10 @@
 
 package com.liferay.site.cms.site.initializer.internal.display.context;
 
-import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.object.constants.ObjectFolderConstants;
 import com.liferay.object.service.ObjectDefinitionService;
-import com.liferay.object.service.ObjectDefinitionSettingLocalService;
-import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.language.Language;
-import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 
 import java.util.Map;
@@ -25,19 +21,10 @@ import javax.servlet.http.HttpServletRequest;
 public class ContentsSectionDisplayContext extends BaseSectionDisplayContext {
 
 	public ContentsSectionDisplayContext(
-		DepotEntryLocalService depotEntryLocalService,
-		GroupLocalService groupLocalService,
 		HttpServletRequest httpServletRequest, Language language,
-		ObjectDefinitionService objectDefinitionService,
-		ObjectDefinitionSettingLocalService
-			objectDefinitionSettingLocalService) {
+		ObjectDefinitionService objectDefinitionService) {
 
-		super(
-			depotEntryLocalService, groupLocalService, httpServletRequest,
-			language, objectDefinitionService,
-			objectDefinitionSettingLocalService);
-
-		_depotEntryLocalService = depotEntryLocalService;
+		super(httpServletRequest, language, objectDefinitionService);
 	}
 
 	@Override
@@ -47,11 +34,6 @@ public class ContentsSectionDisplayContext extends BaseSectionDisplayContext {
 				addPrimaryDropdownItem(
 					dropdownItem -> {
 						dropdownItem.putData("action", "createFolder");
-						dropdownItem.putData(
-							"assetLibraries",
-							getDepotEntriesJSONArray(
-								_depotEntryLocalService.getDepotEntries(
-									QueryUtil.ALL_POS, QueryUtil.ALL_POS)));
 						dropdownItem.setIcon("folder");
 						dropdownItem.setLabel(
 							language.get(httpServletRequest, "folder"));
@@ -87,7 +69,5 @@ public class ContentsSectionDisplayContext extends BaseSectionDisplayContext {
 	protected String getCMSSectionFilterString() {
 		return "cmsSection eq 'contents'";
 	}
-
-	private final DepotEntryLocalService _depotEntryLocalService;
 
 }
