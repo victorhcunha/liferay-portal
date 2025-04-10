@@ -173,7 +173,6 @@ interface DataDefinitionCustomProperties {
 }
 
 export interface Field<T = unknown> {
-	editOnlyInDefaultLanguage?: boolean;
 	fieldName: string;
 	localizable?: boolean;
 	localizedObjectField?: boolean;

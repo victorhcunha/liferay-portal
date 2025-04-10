@@ -7,20 +7,12 @@ import {evaluate, mergePages} from '../../utils/evaluation.es';
 import {PagesVisitor} from '../../utils/visitors.es';
 import {EVENT_TYPES} from '../actions/eventTypes.es';
 import {disableSubmitButton} from '../utils/submitButtonController.es';
+
 let REVALIDATE_UPDATES = [];
 
 const skipPageEvaluationFieldNames = ['name', 'requiredErrorMessage'];
 
-const needsPageEvaluation = (
-	containerId,
-	defaultLanguageId,
-	editingLanguageId,
-	fieldName
-) => {
-	if (containerId === 'editObjectEntry') {
-		return editingLanguageId === defaultLanguageId;
-	}
-
+const needsPageEvaluation = (fieldName) => {
 	return !skipPageEvaluationFieldNames.includes(fieldName);
 };
 
@@ -67,7 +59,6 @@ const getEditedPages = ({
 let lastEditedPages = [];
 
 export default function fieldChange({
-	containerId,
 	defaultLanguageId,
 	editingLanguageId,
 	focusedField,
@@ -116,16 +107,7 @@ export default function fieldChange({
 			}
 		}
 
-		if (
-			evaluable &&
-			(viewMode ||
-				needsPageEvaluation(
-					containerId,
-					defaultLanguageId,
-					editingLanguageId,
-					fieldName
-				))
-		) {
+		if (evaluable && (viewMode || needsPageEvaluation(fieldName))) {
 			try {
 				disableSubmitButton(submitButtonId);
 

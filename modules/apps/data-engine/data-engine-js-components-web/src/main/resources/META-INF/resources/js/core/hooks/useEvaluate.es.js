@@ -14,7 +14,7 @@ import {useFormState} from './useForm.es';
  * the `evaluate` function.
  */
 export function useEvaluate(thunk) {
-	const {containerId, groupId, portletNamespace} = useConfig();
+	const {groupId, portletNamespace} = useConfig();
 	const {
 		defaultLanguageId,
 		editingLanguageId,
@@ -27,7 +27,6 @@ export function useEvaluate(thunk) {
 	return useCallback(
 		(args) =>
 			thunk({
-				containerId,
 				defaultLanguageId,
 				editingLanguageId,
 				groupId,
@@ -39,7 +38,6 @@ export function useEvaluate(thunk) {
 				...args,
 			}),
 		[
-			containerId,
 			defaultLanguageId,
 			editingLanguageId,
 			groupId,
