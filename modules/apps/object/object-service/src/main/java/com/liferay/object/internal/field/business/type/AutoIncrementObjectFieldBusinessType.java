@@ -80,7 +80,7 @@ public class AutoIncrementObjectFieldBusinessType
 	public Map<String, Object> getProperties(
 				ObjectField objectField,
 				ObjectFieldRenderingContext objectFieldRenderingContext)
-		throws PortalException
+
 		throws PortalException {
 
 		Map<String, Object> properties = super.getProperties(
