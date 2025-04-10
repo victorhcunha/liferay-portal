@@ -5,6 +5,8 @@
 
 package com.liferay.site.cms.site.initializer.internal.struts;
 
+import com.liferay.depot.model.DepotEntry;
+import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.fragment.listener.FragmentEntryLinkListener;
 import com.liferay.fragment.listener.FragmentEntryLinkListenerRegistry;
 import com.liferay.fragment.model.FragmentEntryLink;
@@ -158,7 +160,7 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 				themeDisplay.getSiteDefaultLocale(), null,
 				themeDisplay.getUser()),
 			objectDefinition, objectEntry,
-			String.valueOf(ParamUtil.getLong(httpServletRequest, "groupId")));
+			String.valueOf(_getGroupId(httpServletRequest)));
 
 		httpServletResponse.sendRedirect(
 			ActionUtil.getEditURL(
@@ -302,6 +304,36 @@ public class AddStructuredContentItemStrutsAction implements StrutsAction {
 
 		return layoutPageTemplateEntry;
 	}
+
+	private long _getGroupId(HttpServletRequest httpServletRequest)
+		throws Exception {
+
+		long assetLibraryId = ParamUtil.getLong(
+			httpServletRequest, "assetLibraryId");
+
+		DepotEntry depotEntry = _depotEntryLocalService.getDepotEntry(
+			assetLibraryId);
+
+		return depotEntry.getGroupId();
+	}
+
+	private String _getURLSeparator() {
+		FriendlyURLResolver friendlyURLResolver =
+			FriendlyURLResolverRegistryUtil.
+				getFriendlyURLResolverByDefaultURLSeparator(
+					FriendlyURLResolverConstants.URL_SEPARATOR_CUSTOM_ASSET);
+
+		if (friendlyURLResolver != null) {
+			String urlSeparator = friendlyURLResolver.getURLSeparator();
+
+			return urlSeparator.substring(0, urlSeparator.length() - 1);
+		}
+
+		return FriendlyURLResolverConstants.URL_SEPARATOR_X_CUSTOM_ASSET;
+	}
+
+	@Reference
+	private DepotEntryLocalService _depotEntryLocalService;
 
 	@Reference
 	private FormManager _formManager;
