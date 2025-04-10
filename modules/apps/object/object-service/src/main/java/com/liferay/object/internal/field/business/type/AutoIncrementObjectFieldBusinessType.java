@@ -82,12 +82,7 @@ public class AutoIncrementObjectFieldBusinessType
 			ObjectFieldRenderingContext objectFieldRenderingContext)
 		throws PortalException {
 
-		Map<String, Object> properties = super.getProperties(
-			objectField, objectFieldRenderingContext);
-
-		properties.remove(ObjectFieldSettingConstants.NAME_INITIAL_VALUE);
-
-		return properties;
+		return super.getProperties(objectField, objectFieldRenderingContext);
 	}
 
 	@Override
