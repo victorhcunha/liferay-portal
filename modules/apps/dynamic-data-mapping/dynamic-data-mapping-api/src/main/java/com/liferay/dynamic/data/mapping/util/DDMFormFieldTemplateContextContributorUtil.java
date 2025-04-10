@@ -30,42 +30,42 @@ import java.util.Map;
  */
 public class DDMFormFieldTemplateContextContributorUtil {
 
-	public static Map<String, Object> getLocalizationParameters(
-		DDMFormField ddmFormField, Locale defaultLocale) {
+	// public static Map<String, Object> getLocalizationParameters(
+	// 	DDMFormField ddmFormField, Locale defaultLocale) {
 
-		JSONObject localeJSONObject = _getLocaleJSONObject(defaultLocale);
+	// 	JSONObject localeJSONObject = _getLocaleJSONObject(defaultLocale);
 
-		return HashMapBuilder.<String, Object>put(
-			"availableLocales",
-			JSONUtil.toJSONArray(
-				LanguageUtil.getAvailableLocales(),
-				locale -> _getLocaleJSONObject(locale), _log)
-		).put(
-			"defaultLocale", localeJSONObject
-		).put(
-			"editingLocale", localeJSONObject
-		).put(
-			"editOnlyInDefaultLanguage",
-			() -> {
-				if (!ddmFormField.hasProperty("editOnlyInDefaultLanguage")) {
-					return null;
-				}
+	// 	return HashMapBuilder.<String, Object>put(
+	// 		"availableLocales",
+	// 		JSONUtil.toJSONArray(
+	// 			LanguageUtil.getAvailableLocales(),
+	// 			locale -> _getLocaleJSONObject(locale), _log)
+	// 	).put(
+	// 		"defaultLocale", localeJSONObject
+	// 	).put(
+	// 		"editingLocale", localeJSONObject
+	// 	).put(
+	// 		"editOnlyInDefaultLanguage",
+	// 		() -> {
+	// 			if (!ddmFormField.hasProperty("editOnlyInDefaultLanguage")) {
+	// 				return null;
+	// 			}
 
-				return GetterUtil.getBoolean(
-					ddmFormField.getProperty("editOnlyInDefaultLanguage"));
-			}
-		).put(
-			"isLocalizationSupported",
-			() -> {
-				if (!ddmFormField.hasProperty("isLocalizationSupported")) {
-					return null;
-				}
+	// 			return GetterUtil.getBoolean(
+	// 				ddmFormField.getProperty("editOnlyInDefaultLanguage"));
+	// 		}
+	// 	).put(
+	// 		"isLocalizationSupported",
+	// 		() -> {
+	// 			if (!ddmFormField.hasProperty("isLocalizationSupported")) {
+	// 				return null;
+	// 			}
 
-				return GetterUtil.getBoolean(
-					ddmFormField.getProperty("isLocalizationSupported"));
-			}
-		).build();
-	}
+	// 			return GetterUtil.getBoolean(
+	// 				ddmFormField.getProperty("isLocalizationSupported"));
+	// 		}
+	// 	).build();
+	// }
 
 	public static List<Map<String, Object>> getOptions(
 		DDMFormFieldOptions ddmFormFieldOptions, Long listTypeDefinitionId,
