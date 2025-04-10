@@ -474,25 +474,6 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 	}
 
 	@Override
-	public ObjectEntry putByExternalReferenceCodeByVersionRestore(
-			String externalReferenceCode, Integer version)
-		throws Exception {
-
-		if (!_objectDefinition.isEnableObjectEntryVersioning()) {
-			throw new UnsupportedOperationException();
-		}
-
-		DefaultObjectEntryManager defaultObjectEntryManager =
-			DefaultObjectEntryManagerProvider.provide(
-				_objectEntryManagerRegistry.getObjectEntryManager(
-					_objectDefinition.getStorageType()));
-
-		return defaultObjectEntryManager.restoreObjectEntryByVersion(
-			_getDTOConverterContext(null), externalReferenceCode,
-			_objectDefinition, version);
-	}
-
-	@Override
 	public ObjectEntry
 			putByExternalReferenceCodeCurrentExternalReferenceCodeObjectRelationshipNameRelatedExternalReferenceCode(
 				String currentExternalReferenceCode,
@@ -564,25 +545,6 @@ public class ObjectEntryResourceImpl extends BaseObjectEntryResourceImpl {
 			_objectDefinition.getName());
 
 		return super.putObjectEntryBatch(callbackURL, object);
-	}
-
-	@Override
-	public ObjectEntry putObjectEntryByVersionRestore(
-			Long objectEntryId, Integer version)
-		throws Exception {
-
-		if (!_objectDefinition.isEnableObjectEntryVersioning()) {
-			throw new UnsupportedOperationException();
-		}
-
-		DefaultObjectEntryManager defaultObjectEntryManager =
-			DefaultObjectEntryManagerProvider.provide(
-				_objectEntryManagerRegistry.getObjectEntryManager(
-					_objectDefinition.getStorageType()));
-
-		return defaultObjectEntryManager.restoreObjectEntryByVersion(
-			_getDTOConverterContext(objectEntryId), _objectDefinition,
-			objectEntryId, version);
 	}
 
 	@Override
