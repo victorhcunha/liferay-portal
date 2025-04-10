@@ -25,14 +25,12 @@ import com.liferay.object.service.ObjectStateFlowLocalService;
 import com.liferay.object.service.ObjectStateLocalService;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.extension.PropertyDefinition;
 
 import java.util.Collections;
@@ -141,25 +139,11 @@ public class PicklistObjectFieldBusinessType
 				LocalizedValue localizedValue = new LocalizedValue(
 					objectFieldRenderingContext.getLocale());
 
-				Locale defaultLocale = objectFieldRenderingContext.getLocale();
-				String defaultValue = String.valueOf(
-					ObjectFieldSettingUtil.getDefaultValue(
-						null, objectField, null));
-
-				if (objectField.isLocalized() &&
-					Validator.isNotNull(defaultValue)) {
-
-					localizedValue.addString(
-						defaultLocale,
-						_jsonFactory.createJSONObject(
-							HashMapBuilder.put(
-								defaultLocale, defaultValue
-							).build()
-						).toJSONString());
-				}
-				else {
-					localizedValue.addString(defaultLocale, defaultValue);
-				}
+				localizedValue.addString(
+					objectFieldRenderingContext.getLocale(),
+					String.valueOf(
+						ObjectFieldSettingUtil.getDefaultValue(
+							null, objectField, null)));
 
 				return localizedValue;
 			}
@@ -332,7 +316,7 @@ public class PicklistObjectFieldBusinessType
 				(ListEntry)objectFieldRenderingContext.getProperty(
 					objectField.getName());
 
-			if ((listEntry == null) || Validator.isNull(listEntry.getKey())) {
+			if (listEntry == null) {
 				return _listTypeEntryLocalService.getListTypeEntries(
 					objectField.getListTypeDefinitionId());
 			}
@@ -390,9 +374,6 @@ public class PicklistObjectFieldBusinessType
 
 		return value;
 	}
-
-	@Reference
-	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;
