@@ -578,9 +578,7 @@ public class DDMFormEvaluatorHelper {
 			String valueString = value.getString(
 				_ddmFormEvaluatorEvaluateRequest.getLocale());
 
-			if (Objects.equals(valueString, "[]") ||
-				Validator.isNull(valueString)) {
-
+			if (Validator.isNull(valueString)) {
 				return true;
 			}
 
