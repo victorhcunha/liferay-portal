@@ -1059,8 +1059,7 @@ public class ObjectEntryDisplayContextImpl
 			ddmFormField.setProperty(
 				"defaultLocale",
 				JSONFactoryUtil.createJSONObject(
-					DDMFormFieldTemplateContextContributorUtil.
-						getLocalizationParameters(
+					DDMFormFieldTemplateContextContributorUtil.getLocalizationParameters(
 							ddmFormField,
 							LocaleUtil.fromLanguageId(
 								objectEntry.getDefaultLanguageId()))));
