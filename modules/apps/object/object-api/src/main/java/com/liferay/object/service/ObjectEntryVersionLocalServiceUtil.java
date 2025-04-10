@@ -115,10 +115,6 @@ public class ObjectEntryVersionLocalServiceUtil {
 		return getService().deleteObjectEntryVersion(objectEntryVersion);
 	}
 
-	public static void deleteObjectEntryVersions(long objectEntryId) {
-		getService().deleteObjectEntryVersions(objectEntryId);
-	}
-
 	/**
 	 * @throws PortalException
 	 */
