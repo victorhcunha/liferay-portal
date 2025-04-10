@@ -126,13 +126,14 @@ public class MultiselectPicklistObjectFieldBusinessType
 						_listTypeEntryLocalService.getListTypeEntries(
 							objectField.getListTypeDefinitionId())) {
 
-					Map<Locale, String> nameMap = listTypeEntry.getNameMap();
-
-					for (Map.Entry<Locale, String> entry : nameMap.entrySet()) {
-						ddmFormFieldOptions.addOptionLabel(
-							listTypeEntry.getKey(), entry.getKey(),
-							GetterUtil.getString(entry.getValue()));
-					}
+					ddmFormFieldOptions.addOptionLabel(
+						listTypeEntry.getKey(),
+						objectFieldRenderingContext.getLocale(),
+						GetterUtil.getString(
+							listTypeEntry.getName(
+								objectFieldRenderingContext.getLocale()),
+							listTypeEntry.getName(
+								listTypeEntry.getDefaultLanguageId())));
 				}
 
 				return ddmFormFieldOptions;
