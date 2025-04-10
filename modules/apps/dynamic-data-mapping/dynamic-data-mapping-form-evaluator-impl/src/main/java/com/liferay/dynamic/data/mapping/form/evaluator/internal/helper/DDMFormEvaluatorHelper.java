@@ -40,7 +40,6 @@ import com.liferay.dynamic.data.mapping.model.LocalizedValue;
 import com.liferay.dynamic.data.mapping.model.UnlocalizedValue;
 import com.liferay.dynamic.data.mapping.model.Value;
 import com.liferay.dynamic.data.mapping.storage.DDMFormFieldValue;
-import com.liferay.dynamic.data.mapping.storage.DDMFormValues;
 import com.liferay.dynamic.data.mapping.util.NumericDDMFormFieldUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
@@ -596,8 +595,6 @@ public class DDMFormEvaluatorHelper {
 			DDMFormFieldValue localizedObjectFieldDDMFormFieldValue =
 				new DDMFormFieldValue();
 
-			localizedObjectFieldDDMFormFieldValue.setDDMFormValues(
-				new DDMFormValues(ddmFormField.getDDMForm()));
 			localizedObjectFieldDDMFormFieldValue.setName(
 				ddmFormFieldValue.getName());
 
