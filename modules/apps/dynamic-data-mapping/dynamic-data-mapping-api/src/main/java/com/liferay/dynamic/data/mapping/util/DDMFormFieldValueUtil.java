@@ -17,10 +17,8 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
-import com.liferay.portal.kernel.util.GetterUtil;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -121,13 +119,7 @@ public class DDMFormFieldValueUtil {
 			return createJSONArray("[]");
 		}
 
-		String valueString = GetterUtil.getString(value.getString(locale));
-
-		if (!JSONUtil.isJSONArray(valueString)) {
-			return createJSONArray("[" + valueString + "]");
-		}
-
-		return createJSONArray(valueString);
+		return createJSONArray(value.getString(locale));
 	}
 
 	public static String getOptionValue(
