@@ -94,17 +94,17 @@ export default function CreationModalContent({
 				) : (
 					<>
 						{action === 'createFolder' ? (
-					<FieldText
+							<FieldText
 								errorMessage={
-								touched.name ? errors.name : undefined
-							}
+									touched.name ? errors.name : undefined
+								}
 								label={Liferay.Language.get('name')}
 								name="name"
 								onChange={handleChange}
 								required
 								value={values.name}
 							/>
-				) : null}
+						) : null}
 
 						{assetLibraries.length > 1 && (
 							<FieldPicker
