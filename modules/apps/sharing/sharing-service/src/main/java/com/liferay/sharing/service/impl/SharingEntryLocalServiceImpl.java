@@ -618,10 +618,10 @@ public class SharingEntryLocalServiceImpl
 		long toUserId, long classNameId, long classPK,
 		SharingEntryAction sharingEntryAction) {
 
-		int sharingEntriesCount = _getSharingEntriesCount(
+		int sharingEntryCount = _getSharingEntryCount(
 			classNameId, classPK, true, sharingEntryAction, toUserId);
 
-		if (sharingEntriesCount > 0) {
+		if (sharingEntryCount > 0) {
 			return true;
 		}
 
@@ -645,10 +645,10 @@ public class SharingEntryLocalServiceImpl
 		long toUserId, long classNameId, long classPK,
 		SharingEntryAction sharingEntryAction) {
 
-		int sharingEntriesCount = _getSharingEntriesCount(
+		int sharingEntryCount = _getSharingEntryCount(
 			classNameId, classPK, null, sharingEntryAction, toUserId);
 
-		if (sharingEntriesCount > 0) {
+		if (sharingEntryCount > 0) {
 			return true;
 		}
 
@@ -741,7 +741,7 @@ public class SharingEntryLocalServiceImpl
 		return actionIds;
 	}
 
-	private int _getSharingEntriesCount(
+	private int _getSharingEntryCount(
 		long classNameId, long classPK, Boolean shareable,
 		SharingEntryAction sharingEntryAction, long toUserId) {
 
