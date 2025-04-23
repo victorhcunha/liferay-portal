@@ -39,8 +39,8 @@ public class SharingEntryModelDocumentContributor
 		document.addKeyword(Field.USER_ID, sharingEntry.getUserId());
 		document.addKeyword(
 			"sharingEntryId", String.valueOf(sharingEntry.getSharingEntryId()));
-		document.addKeyword(
-			"toUserGroupId", String.valueOf(sharingEntry.getToUserGroupId()));
+		// document.addKeyword(
+		// 	"toUserGroupId", String.valueOf(sharingEntry.getToUserGroupId()));
 		document.addKeyword(
 			"toUserId", String.valueOf(sharingEntry.getToUserId()));
 	}
