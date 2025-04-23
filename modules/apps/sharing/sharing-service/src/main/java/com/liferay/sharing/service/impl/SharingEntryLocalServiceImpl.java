@@ -5,8 +5,7 @@
 
 package com.liferay.sharing.service.impl;
 
-import com.liferay.petra.sql.dsl.DSLFunctionFactoryUtil;
-import com.liferay.petra.sql.dsl.DSLQueryFactoryUtil;
+import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -19,6 +18,7 @@ import com.liferay.portal.kernel.model.UserGroupTable;
 import com.liferay.portal.kernel.model.Users_UserGroupsTable;
 import com.liferay.portal.kernel.search.Indexable;
 import com.liferay.portal.kernel.search.IndexableType;
+import com.liferay.portal.kernel.model.UserGroup;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistry;
 import com.liferay.portal.kernel.search.SearchException;
@@ -35,7 +35,6 @@ import com.liferay.sharing.exception.InvalidSharingEntryExpirationDateException;
 import com.liferay.sharing.exception.InvalidSharingEntryUserAndUserGroupException;
 import com.liferay.sharing.exception.InvalidSharingEntryUserException;
 import com.liferay.sharing.model.SharingEntry;
-import com.liferay.sharing.model.SharingEntryTable;
 import com.liferay.sharing.security.permission.SharingEntryAction;
 import com.liferay.sharing.service.base.SharingEntryLocalServiceBaseImpl;
 
@@ -618,11 +617,33 @@ public class SharingEntryLocalServiceImpl
 		long toUserId, long classNameId, long classPK,
 		SharingEntryAction sharingEntryAction) {
 
-		int sharingEntryCount = _getSharingEntryCount(
-			classNameId, classPK, true, sharingEntryAction, toUserId);
+		SharingEntry sharingEntry = sharingEntryPersistence.fetchByTUG_TU_C_C(
+			0, toUserId, classNameId, classPK);
 
-		if (sharingEntryCount > 0) {
+		if ((sharingEntry != null) && sharingEntry.isShareable() &&
+			sharingEntry.hasSharingPermission(sharingEntryAction)) {
+
 			return true;
+		}
+
+		List<UserGroup> userGroups = _userGroupLocalService.getUserUserGroups(
+			toUserId);
+
+		if (userGroups.isEmpty()) {
+			return false;
+		}
+
+		for (SharingEntry curSharingEntry :
+				sharingEntryPersistence.findByTUG_C_C(
+					TransformUtil.transformToLongArray(
+						userGroups, UserGroup::getUserGroupId),
+					classNameId, classPK)) {
+
+			if (curSharingEntry.isShareable() &&
+				curSharingEntry.hasSharingPermission(sharingEntryAction)) {
+
+				return true;
+			}
 		}
 
 		return false;
@@ -645,11 +666,31 @@ public class SharingEntryLocalServiceImpl
 		long toUserId, long classNameId, long classPK,
 		SharingEntryAction sharingEntryAction) {
 
-		int sharingEntryCount = _getSharingEntryCount(
-			classNameId, classPK, null, sharingEntryAction, toUserId);
+		SharingEntry sharingEntry = sharingEntryPersistence.fetchByTUG_TU_C_C(
+			0, toUserId, classNameId, classPK);
 
-		if (sharingEntryCount > 0) {
+		if ((sharingEntry != null) &&
+			sharingEntry.hasSharingPermission(sharingEntryAction)) {
+
 			return true;
+		}
+
+		List<UserGroup> userGroups = _userGroupLocalService.getUserUserGroups(
+			toUserId);
+
+		if (userGroups.isEmpty()) {
+			return false;
+		}
+
+		for (SharingEntry curSharingEntry :
+				sharingEntryPersistence.findByTUG_C_C(
+					TransformUtil.transformToLongArray(
+						userGroups, UserGroup::getUserGroupId),
+					classNameId, classPK)) {
+
+			if (curSharingEntry.hasSharingPermission(sharingEntryAction)) {
+				return true;
+			}
 		}
 
 		return false;
@@ -739,55 +780,6 @@ public class SharingEntryLocalServiceImpl
 		}
 
 		return actionIds;
-	}
-
-	private int _getSharingEntryCount(
-		long classNameId, long classPK, Boolean shareable,
-		SharingEntryAction sharingEntryAction, long toUserId) {
-
-		return sharingEntryLocalService.dslQueryCount(
-			DSLQueryFactoryUtil.count(
-			).from(
-				SharingEntryTable.INSTANCE
-			).where(
-				DSLFunctionFactoryUtil.bitAnd(
-					SharingEntryTable.INSTANCE.actionIds,
-					sharingEntryAction.getBitwiseValue()
-				).eq(
-					sharingEntryAction.getBitwiseValue()
-				).and(
-					SharingEntryTable.INSTANCE.classNameId.eq(classNameId)
-				).and(
-					SharingEntryTable.INSTANCE.classPK.eq(classPK)
-				).and(
-					() -> {
-						if (shareable == null) {
-							return null;
-						}
-
-						return SharingEntryTable.INSTANCE.shareable.eq(
-							shareable);
-					}
-				).and(
-					SharingEntryTable.INSTANCE.toUserId.eq(
-						toUserId
-					).or(
-						SharingEntryTable.INSTANCE.toUserGroupId.in(
-							DSLQueryFactoryUtil.select(
-								UserGroupTable.INSTANCE.userGroupId
-							).from(
-								UserGroupTable.INSTANCE
-							).innerJoinON(
-								Users_UserGroupsTable.INSTANCE,
-								UserGroupTable.INSTANCE.userGroupId.eq(
-									Users_UserGroupsTable.INSTANCE.userGroupId)
-							).where(
-								Users_UserGroupsTable.INSTANCE.userId.eq(
-									toUserId)
-							))
-					).withParentheses()
-				)
-			));
 	}
 
 	private void _validateExpirationDate(Date expirationDate)
