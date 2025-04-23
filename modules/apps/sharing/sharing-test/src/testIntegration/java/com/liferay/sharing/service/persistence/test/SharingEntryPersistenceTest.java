@@ -132,8 +132,6 @@ public class SharingEntryPersistenceTest {
 
 		newSharingEntry.setModifiedDate(RandomTestUtil.nextDate());
 
-		newSharingEntry.setToUserGroupId(RandomTestUtil.nextLong());
-
 		newSharingEntry.setToUserId(RandomTestUtil.nextLong());
 
 		newSharingEntry.setClassNameId(RandomTestUtil.nextLong());
@@ -174,9 +172,6 @@ public class SharingEntryPersistenceTest {
 		Assert.assertEquals(
 			Time.getShortTimestamp(existingSharingEntry.getModifiedDate()),
 			Time.getShortTimestamp(newSharingEntry.getModifiedDate()));
-		Assert.assertEquals(
-			existingSharingEntry.getToUserGroupId(),
-			newSharingEntry.getToUserGroupId());
 		Assert.assertEquals(
 			existingSharingEntry.getToUserId(), newSharingEntry.getToUserId());
 		Assert.assertEquals(
@@ -347,9 +342,9 @@ public class SharingEntryPersistenceTest {
 			"SharingEntry", "uuid", true, "externalReferenceCode", true,
 			"sharingEntryId", true, "groupId", true, "companyId", true,
 			"userId", true, "userName", true, "createDate", true,
-			"modifiedDate", true, "toUserGroupId", true, "toUserId", true,
-			"classNameId", true, "classPK", true, "shareable", true,
-			"actionIds", true, "expirationDate", true);
+			"modifiedDate", true, "toUserId", true, "classNameId", true,
+			"classPK", true, "shareable", true, "actionIds", true,
+			"expirationDate", true);
 	}
 
 	@Test
@@ -675,8 +670,6 @@ public class SharingEntryPersistenceTest {
 		sharingEntry.setCreateDate(RandomTestUtil.nextDate());
 
 		sharingEntry.setModifiedDate(RandomTestUtil.nextDate());
-
-		sharingEntry.setToUserGroupId(RandomTestUtil.nextLong());
 
 		sharingEntry.setToUserId(RandomTestUtil.nextLong());
 
