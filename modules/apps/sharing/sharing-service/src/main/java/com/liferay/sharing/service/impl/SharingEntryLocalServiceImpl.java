@@ -5,7 +5,6 @@
 
 package com.liferay.sharing.service.impl;
 
-import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
@@ -626,26 +625,6 @@ public class SharingEntryLocalServiceImpl
 			return true;
 		}
 
-		List<UserGroup> userGroups = _userGroupLocalService.getUserUserGroups(
-			toUserId);
-
-		if (userGroups.isEmpty()) {
-			return false;
-		}
-
-		for (SharingEntry curSharingEntry :
-				sharingEntryPersistence.findByTUG_C_C(
-					TransformUtil.transformToLongArray(
-						userGroups, UserGroup::getUserGroupId),
-					classNameId, classPK)) {
-
-			if (curSharingEntry.isShareable() &&
-				curSharingEntry.hasSharingPermission(sharingEntryAction)) {
-
-				return true;
-			}
-		}
-
 		return false;
 	}
 
@@ -669,33 +648,17 @@ public class SharingEntryLocalServiceImpl
 		List<SharingEntry> sharingEntries = sharingEntryPersistence.findByTU_C(
 			toUserId, classNameId);
 
-		if (!sharingEntries.isEmpty()) {
-			for (SharingEntry sharingEntry : sharingEntries) {
-				if (classPK == sharingEntry.getClassPK()) {
-					if (sharingEntry.hasSharingPermission(sharingEntryAction)) {
-						return true;
-					}
-
-					break;
-				}
-			}
-		}
-
-		List<UserGroup> userGroups = _userGroupLocalService.getUserUserGroups(
-			toUserId);
-
-		if (userGroups.isEmpty()) {
+		if (sharingEntries.isEmpty()) {
 			return false;
 		}
 
-		for (SharingEntry sharingEntry :
-				sharingEntryPersistence.findByTUG_C_C(
-					TransformUtil.transformToLongArray(
-						userGroups, UserGroup::getUserGroupId),
-					classNameId, classPK)) {
+		for (SharingEntry sharingEntry : sharingEntries) {
+			if (classPK == sharingEntry.getClassPK()) {
+				if (sharingEntry.hasSharingPermission(sharingEntryAction)) {
+					return true;
+				}
 
-			if (sharingEntry.hasSharingPermission(sharingEntryAction)) {
-				return true;
+				return false;
 			}
 		}
 
