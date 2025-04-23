@@ -97,8 +97,8 @@ public class SharingEntryLocalServiceImpl
 			Date expirationDate, ServiceContext serviceContext)
 		throws PortalException {
 
-		SharingEntry sharingEntry = sharingEntryPersistence.fetchByTUG_TU_C_C(
-			toUserGroupId, toUserId, classNameId, classPK);
+		SharingEntry sharingEntry = sharingEntryPersistence.fetchByTU_C_C(
+			toUserId, classNameId, classPK);
 
 		if (sharingEntry == null) {
 			return sharingEntryLocalService.addSharingEntry(
@@ -150,8 +150,8 @@ public class SharingEntryLocalServiceImpl
 		_validateExpirationDate(expirationDate);
 
 		SharingEntry existingSharingEntry =
-			sharingEntryPersistence.fetchByTUG_TU_C_C(
-				toUserGroupId, toUserId, classNameId, classPK);
+			sharingEntryPersistence.fetchByTU_C_C(
+				toUserId, classNameId, classPK);
 
 		if (existingSharingEntry != null) {
 			throw new DuplicateSharingEntryException(
@@ -284,8 +284,8 @@ public class SharingEntryLocalServiceImpl
 			long toUserId, long classNameId, long classPK)
 		throws PortalException {
 
-		SharingEntry sharingEntry = sharingEntryPersistence.findByTUG_TU_C_C(
-			0, toUserId, classNameId, classPK);
+		SharingEntry sharingEntry = sharingEntryPersistence.findByTU_C_C(
+			toUserId, classNameId, classPK);
 
 		return sharingEntryLocalService.deleteSharingEntry(sharingEntry);
 	}
@@ -365,8 +365,8 @@ public class SharingEntryLocalServiceImpl
 	public SharingEntry fetchSharingEntry(
 		long toUserId, long classNameId, long classPK) {
 
-		return sharingEntryPersistence.fetchByTUG_TU_C_C(
-			0, toUserId, classNameId, classPK);
+		return sharingEntryPersistence.fetchByTU_C_C(
+			toUserId, classNameId, classPK);
 	}
 
 	@Override
@@ -497,8 +497,8 @@ public class SharingEntryLocalServiceImpl
 			long toUserId, long classNameId, long classPK)
 		throws PortalException {
 
-		return sharingEntryPersistence.findByTUG_TU_C_C(
-			0, toUserId, classNameId, classPK);
+		return sharingEntryPersistence.findByTU_C_C(
+			toUserId, classNameId, classPK);
 	}
 
 	/**
@@ -616,8 +616,8 @@ public class SharingEntryLocalServiceImpl
 		long toUserId, long classNameId, long classPK,
 		SharingEntryAction sharingEntryAction) {
 
-		SharingEntry sharingEntry = sharingEntryPersistence.fetchByTUG_TU_C_C(
-			0, toUserId, classNameId, classPK);
+		SharingEntry sharingEntry = sharingEntryPersistence.fetchByTU_C_C(
+			toUserId, classNameId, classPK);
 
 		if ((sharingEntry != null) && sharingEntry.isShareable() &&
 			sharingEntry.hasSharingPermission(sharingEntryAction)) {
