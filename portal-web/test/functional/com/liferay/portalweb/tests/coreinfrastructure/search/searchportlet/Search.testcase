@@ -800,6 +800,7 @@ definition {
 	@description = "This is a use case for LPS-140643."
 	@priority = 4
 	test FederatedSearchPopulatesWidgetsWithRespectiveKey {
+		property portal.acceptance = "default";
 		JSONLayout.addPublicLayout(
 			groupName = "Guest",
 			layoutName = "Federated Search Page");
