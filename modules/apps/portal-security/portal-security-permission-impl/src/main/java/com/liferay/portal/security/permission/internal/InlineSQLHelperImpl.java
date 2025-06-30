@@ -26,9 +26,11 @@ import com.liferay.portal.dao.orm.custom.sql.CustomSQL;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.ResourceConstants;
+import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.ResourcePermissionTable;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelper;
@@ -36,7 +38,9 @@ import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
+import com.liferay.portal.kernel.service.persistence.ResourcePermissionPersistence;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.security.permission.contributor.PermissionSQLContributor;
@@ -71,6 +75,63 @@ public class InlineSQLHelperImpl implements InlineSQLHelper {
 
 	public static final String FIND_BY_RESOURCE_PERMISSION =
 		InlineSQLHelper.class.getName() + ".findByResourcePermission";
+
+	@Override
+	public <T extends BaseModel<T>> List<T> filter(
+		List<T> list, long... groupIds) {
+
+		if (list.isEmpty()) {
+			return list;
+		}
+
+		T baseModel = list.get(0);
+
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		Set<Long> primKeyIds = new HashSet<>();
+
+		long[] roleIds = _getRoleIds(groupIds);
+
+		ResourcePermissionPersistence resourcePermissionPersistence =
+			(ResourcePermissionPersistence)
+				_resourcePermissionLocalService.getBasePersistence();
+
+		if (roleIds.length > 0) {
+			for (ResourcePermission resourcePermission :
+					resourcePermissionPersistence.findByC_N_S_R_V(
+						permissionChecker.getCompanyId(),
+						baseModel.getModelClassName(),
+						ResourceConstants.SCOPE_INDIVIDUAL, roleIds, true)) {
+
+				if (permissionChecker.isSignedIn() &&
+					(resourcePermission.getOwnerId() ==
+						permissionChecker.getUserId())) {
+
+					primKeyIds.add(resourcePermission.getPrimKeyId());
+				}
+			}
+		}
+		else {
+			for (ResourcePermission resourcePermission :
+					resourcePermissionPersistence.findByC_N_S(
+						permissionChecker.getCompanyId(),
+						baseModel.getModelClassName(),
+						ResourceConstants.SCOPE_INDIVIDUAL)) {
+
+				if (resourcePermission.isViewActionId() &&
+					permissionChecker.isSignedIn() &&
+					(resourcePermission.getOwnerId() ==
+						permissionChecker.getUserId())) {
+
+					primKeyIds.add(resourcePermission.getPrimKeyId());
+				}
+			}
+		}
+
+		return ListUtil.filter(
+			list, t -> primKeyIds.contains((Long)t.getPrimaryKeyObj()));
+	}
 
 	@Override
 	public <T extends Table<T>> Predicate getPermissionWherePredicate(
