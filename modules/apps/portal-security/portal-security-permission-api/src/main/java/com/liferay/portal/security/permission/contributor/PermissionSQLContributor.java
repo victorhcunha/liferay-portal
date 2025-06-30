@@ -9,10 +9,16 @@ import com.liferay.petra.sql.dsl.Column;
 import com.liferay.petra.sql.dsl.expression.Predicate;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 
+import java.util.Set;
+
 /**
  * @author Sergio González
  */
 public interface PermissionSQLContributor {
+
+	public void collectPermittedClassPKs(
+		String className, long userId, long[] groupIds,
+		Set<Long> permittedClassPKs);
 
 	public Predicate getPermissionPredicate(
 		PermissionChecker permissionChecker, String className,
