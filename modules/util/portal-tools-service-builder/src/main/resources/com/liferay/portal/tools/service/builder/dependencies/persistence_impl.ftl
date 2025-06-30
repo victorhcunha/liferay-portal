@@ -77,6 +77,10 @@ import com.liferay.portal.kernel.configuration.Configuration;
 	import com.liferay.portal.kernel.dao.db.DBType;
 </#if>
 
+<#if entity.isPermissionCheckEnabled() && serviceBuilder.isVersionGTE_7_4_0()>
+	import com.liferay.portal.kernel.configuration.Filter;
+</#if>
+
 import com.liferay.portal.kernel.dao.orm.ArgumentsResolver;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
@@ -3145,6 +3149,13 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 			private static final String _FILTER_ENTITY_ALIAS = "${entity.alias}";
 
 			private static final String _FILTER_ENTITY_TABLE = "${entity.table}";
+		</#if>
+
+		<#if serviceBuilder.isVersionGTE_7_4_0()>
+			private static boolean _inMemoryFilterPermissionEnabled = GetterUtil.getBoolean(
+				PropsUtil.get(
+					"in.memory.filter.permission.enabled",
+					new Filter("${apiPackagePath}.model.${entity.name}")), true);
 		</#if>
 	</#if>
 
