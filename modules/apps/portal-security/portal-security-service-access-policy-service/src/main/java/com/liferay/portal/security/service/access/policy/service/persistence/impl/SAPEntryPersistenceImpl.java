@@ -7,6 +7,7 @@ package com.liferay.portal.security.service.access.policy.service.persistence.im
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -588,6 +589,11 @@ public class SAPEntryPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -970,6 +976,14 @@ public class SAPEntryPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SAPEntry> sapEntries = findByUuid(uuid);
+
+			sapEntries = InlineSQLHelperUtil.filter(sapEntries);
+
+			return sapEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1573,6 +1587,11 @@ public class SAPEntryPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1974,6 +1993,14 @@ public class SAPEntryPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SAPEntry> sapEntries = findByUuid_C(uuid, companyId);
+
+			sapEntries = InlineSQLHelperUtil.filter(sapEntries);
+
+			return sapEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2522,6 +2549,11 @@ public class SAPEntryPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2867,6 +2899,14 @@ public class SAPEntryPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SAPEntry> sapEntries = findByCompanyId(companyId);
+
+			sapEntries = InlineSQLHelperUtil.filter(sapEntries);
+
+			return sapEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3430,6 +3470,12 @@ public class SAPEntryPersistenceImpl
 				companyId, defaultSAPEntry, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_D(
+					companyId, defaultSAPEntry, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3795,6 +3841,14 @@ public class SAPEntryPersistenceImpl
 	public int filterCountByC_D(long companyId, boolean defaultSAPEntry) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_D(companyId, defaultSAPEntry);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SAPEntry> sapEntries = findByC_D(companyId, defaultSAPEntry);
+
+			sapEntries = InlineSQLHelperUtil.filter(sapEntries);
+
+			return sapEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4780,6 +4834,14 @@ public class SAPEntryPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "sapEntry";
 
 	private static final String _FILTER_ENTITY_TABLE = "SAPEntry";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.portal.security.service.access.policy.model.SAPEntry")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "sapEntry.";
 

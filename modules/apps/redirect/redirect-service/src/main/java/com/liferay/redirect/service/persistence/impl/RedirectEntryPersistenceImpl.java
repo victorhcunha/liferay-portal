@@ -7,6 +7,7 @@ package com.liferay.redirect.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1886,6 +1887,11 @@ public class RedirectEntryPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2238,6 +2244,15 @@ public class RedirectEntryPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<RedirectEntry> redirectEntries = findByGroupId(groupId);
+
+			redirectEntries = InlineSQLHelperUtil.filter(
+				redirectEntries, groupId);
+
+			return redirectEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2830,6 +2845,13 @@ public class RedirectEntryPersistenceImpl
 				groupId, destinationURL, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_D(
+					groupId, destinationURL, start, end, orderByComparator),
+				groupId);
+		}
+
 		destinationURL = Objects.toString(destinationURL, "");
 
 		StringBundler sb = null;
@@ -3241,6 +3263,16 @@ public class RedirectEntryPersistenceImpl
 	public int filterCountByG_D(long groupId, String destinationURL) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_D(groupId, destinationURL);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<RedirectEntry> redirectEntries = findByG_D(
+				groupId, destinationURL);
+
+			redirectEntries = InlineSQLHelperUtil.filter(
+				redirectEntries, groupId);
+
+			return redirectEntries.size();
 		}
 
 		destinationURL = Objects.toString(destinationURL, "");
@@ -4291,6 +4323,13 @@ public class RedirectEntryPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "redirectEntry";
 
 	private static final String _FILTER_ENTITY_TABLE = "RedirectEntry";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.redirect.model.RedirectEntry")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "redirectEntry.";
 

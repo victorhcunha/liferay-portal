@@ -6,6 +6,7 @@
 package com.liferay.portal.tools.service.builder.test.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -566,6 +567,11 @@ public class PermissionCheckFinderEntryPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -930,6 +936,16 @@ public class PermissionCheckFinderEntryPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PermissionCheckFinderEntry> permissionCheckFinderEntries =
+				findByGroupId(groupId);
+
+			permissionCheckFinderEntries = InlineSQLHelperUtil.filter(
+				permissionCheckFinderEntries, groupId);
+
+			return permissionCheckFinderEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1611,6 +1627,14 @@ public class PermissionCheckFinderEntryPersistenceImpl
 
 	private static final String _FILTER_ENTITY_TABLE =
 		"PermissionCheckFinderEntry";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.portal.tools.service.builder.test.model.PermissionCheckFinderEntry")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"permissionCheckFinderEntry.";

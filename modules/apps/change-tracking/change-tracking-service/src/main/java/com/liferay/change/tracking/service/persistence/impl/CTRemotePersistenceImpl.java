@@ -15,6 +15,7 @@ import com.liferay.change.tracking.service.persistence.CTRemoteUtil;
 import com.liferay.change.tracking.service.persistence.impl.constants.CTPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -562,6 +563,11 @@ public class CTRemotePersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -907,6 +913,14 @@ public class CTRemotePersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CTRemote> ctRemotes = findByCompanyId(companyId);
+
+			ctRemotes = InlineSQLHelperUtil.filter(ctRemotes);
+
+			return ctRemotes.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1573,6 +1587,13 @@ public class CTRemotePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "ctRemote";
 
 	private static final String _FILTER_ENTITY_TABLE = "CTRemote";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.change.tracking.model.CTRemote")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "ctRemote.";
 

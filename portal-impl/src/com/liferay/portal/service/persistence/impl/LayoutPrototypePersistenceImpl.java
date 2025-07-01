@@ -9,6 +9,7 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -599,6 +600,11 @@ public class LayoutPrototypePersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -998,6 +1004,14 @@ public class LayoutPrototypePersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutPrototype> layoutPrototypes = findByUuid(uuid);
+
+			layoutPrototypes = InlineSQLHelperUtil.filter(layoutPrototypes);
+
+			return layoutPrototypes.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1613,6 +1627,11 @@ public class LayoutPrototypePersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2032,6 +2051,15 @@ public class LayoutPrototypePersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutPrototype> layoutPrototypes = findByUuid_C(
+				uuid, companyId);
+
+			layoutPrototypes = InlineSQLHelperUtil.filter(layoutPrototypes);
+
+			return layoutPrototypes.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2593,6 +2621,11 @@ public class LayoutPrototypePersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2954,6 +2987,14 @@ public class LayoutPrototypePersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutPrototype> layoutPrototypes = findByCompanyId(companyId);
+
+			layoutPrototypes = InlineSQLHelperUtil.filter(layoutPrototypes);
+
+			return layoutPrototypes.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3521,6 +3562,11 @@ public class LayoutPrototypePersistenceImpl
 			return findByC_A(companyId, active, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A(companyId, active, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3901,6 +3947,15 @@ public class LayoutPrototypePersistenceImpl
 	public int filterCountByC_A(long companyId, boolean active) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A(companyId, active);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutPrototype> layoutPrototypes = findByC_A(
+				companyId, active);
+
+			layoutPrototypes = InlineSQLHelperUtil.filter(layoutPrototypes);
+
+			return layoutPrototypes.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4903,6 +4958,13 @@ public class LayoutPrototypePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "layoutPrototype";
 
 	private static final String _FILTER_ENTITY_TABLE = "LayoutPrototype";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.portal.kernel.model.LayoutPrototype")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "layoutPrototype.";
 

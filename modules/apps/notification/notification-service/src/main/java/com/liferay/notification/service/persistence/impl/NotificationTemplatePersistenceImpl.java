@@ -16,6 +16,7 @@ import com.liferay.notification.service.persistence.NotificationTemplateUtil;
 import com.liferay.notification.service.persistence.impl.constants.NotificationPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -609,6 +610,11 @@ public class NotificationTemplatePersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1005,6 +1011,15 @@ public class NotificationTemplatePersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<NotificationTemplate> notificationTemplates = findByUuid(uuid);
+
+			notificationTemplates = InlineSQLHelperUtil.filter(
+				notificationTemplates);
+
+			return notificationTemplates.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1619,6 +1634,11 @@ public class NotificationTemplatePersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2036,6 +2056,16 @@ public class NotificationTemplatePersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<NotificationTemplate> notificationTemplates = findByUuid_C(
+				uuid, companyId);
+
+			notificationTemplates = InlineSQLHelperUtil.filter(
+				notificationTemplates);
+
+			return notificationTemplates.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2598,6 +2628,11 @@ public class NotificationTemplatePersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2959,6 +2994,16 @@ public class NotificationTemplatePersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<NotificationTemplate> notificationTemplates = findByCompanyId(
+				companyId);
+
+			notificationTemplates = InlineSQLHelperUtil.filter(
+				notificationTemplates);
+
+			return notificationTemplates.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -4015,6 +4060,14 @@ public class NotificationTemplatePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "notificationTemplate";
 
 	private static final String _FILTER_ENTITY_TABLE = "NotificationTemplate";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.notification.model.NotificationTemplate")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"notificationTemplate.";

@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1922,6 +1923,11 @@ public class MBCategoryPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2273,6 +2279,14 @@ public class MBCategoryPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<MBCategory> mbCategories = findByGroupId(groupId);
+
+			mbCategories = InlineSQLHelperUtil.filter(mbCategories, groupId);
+
+			return mbCategories.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3351,6 +3365,13 @@ public class MBCategoryPersistenceImpl
 				groupId, parentCategoryId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P(
+					groupId, parentCategoryId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3692,6 +3713,13 @@ public class MBCategoryPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_P(
 				groupId, parentCategoryIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P(
+					groupId, parentCategoryIds, start, end, orderByComparator),
+				groupId);
 		}
 
 		if (parentCategoryIds == null) {
@@ -4157,6 +4185,15 @@ public class MBCategoryPersistenceImpl
 			return countByG_P(groupId, parentCategoryId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<MBCategory> mbCategories = findByG_P(
+				groupId, parentCategoryId);
+
+			mbCategories = InlineSQLHelperUtil.filter(mbCategories, groupId);
+
+			return mbCategories.size();
+		}
+
 		StringBundler sb = new StringBundler(3);
 
 		sb.append(_FILTER_SQL_COUNT_MBCATEGORY_WHERE);
@@ -4208,6 +4245,13 @@ public class MBCategoryPersistenceImpl
 	public int filterCountByG_P(long groupId, long[] parentCategoryIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P(groupId, parentCategoryIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<MBCategory> mbCategories = InlineSQLHelperUtil.filter(
+				findByG_P(groupId, parentCategoryIds), groupId);
+
+			return mbCategories.size();
 		}
 
 		if (parentCategoryIds == null) {
@@ -4999,6 +5043,12 @@ public class MBCategoryPersistenceImpl
 			return findByG_S(groupId, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_S(groupId, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5367,6 +5417,14 @@ public class MBCategoryPersistenceImpl
 	public int filterCountByG_S(long groupId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_S(groupId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<MBCategory> mbCategories = findByG_S(groupId, status);
+
+			mbCategories = InlineSQLHelperUtil.filter(mbCategories, groupId);
+
+			return mbCategories.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -6356,6 +6414,14 @@ public class MBCategoryPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByNotC_G_P(
+					categoryId, groupId, parentCategoryId, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6503,6 +6569,14 @@ public class MBCategoryPersistenceImpl
 			return findByNotC_G_P(
 				categoryIds, groupId, parentCategoryIds, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByNotC_G_P(
+					categoryIds, groupId, parentCategoryIds, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (categoryIds == null) {
@@ -7065,6 +7139,15 @@ public class MBCategoryPersistenceImpl
 			return countByNotC_G_P(categoryId, groupId, parentCategoryId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<MBCategory> mbCategories = findByNotC_G_P(
+				categoryId, groupId, parentCategoryId);
+
+			mbCategories = InlineSQLHelperUtil.filter(mbCategories, groupId);
+
+			return mbCategories.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_MBCATEGORY_WHERE);
@@ -7123,6 +7206,14 @@ public class MBCategoryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByNotC_G_P(categoryIds, groupId, parentCategoryIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<MBCategory> mbCategories = InlineSQLHelperUtil.filter(
+				findByNotC_G_P(categoryIds, groupId, parentCategoryIds),
+				groupId);
+
+			return mbCategories.size();
 		}
 
 		if (categoryIds == null) {
@@ -7785,6 +7876,14 @@ public class MBCategoryPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_S(
+					groupId, parentCategoryId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -8142,6 +8241,14 @@ public class MBCategoryPersistenceImpl
 			return findByG_P_S(
 				groupId, parentCategoryIds, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_S(
+					groupId, parentCategoryIds, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (parentCategoryIds == null) {
@@ -8651,6 +8758,15 @@ public class MBCategoryPersistenceImpl
 			return countByG_P_S(groupId, parentCategoryId, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<MBCategory> mbCategories = findByG_P_S(
+				groupId, parentCategoryId, status);
+
+			mbCategories = InlineSQLHelperUtil.filter(mbCategories, groupId);
+
+			return mbCategories.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_MBCATEGORY_WHERE);
@@ -8709,6 +8825,13 @@ public class MBCategoryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_S(groupId, parentCategoryIds, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<MBCategory> mbCategories = InlineSQLHelperUtil.filter(
+				findByG_P_S(groupId, parentCategoryIds, status), groupId);
+
+			return mbCategories.size();
 		}
 
 		if (parentCategoryIds == null) {
@@ -9339,6 +9462,14 @@ public class MBCategoryPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_NotS(
+					groupId, parentCategoryId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -9696,6 +9827,14 @@ public class MBCategoryPersistenceImpl
 			return findByG_P_NotS(
 				groupId, parentCategoryIds, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_NotS(
+					groupId, parentCategoryIds, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (parentCategoryIds == null) {
@@ -10209,6 +10348,15 @@ public class MBCategoryPersistenceImpl
 			return countByG_P_NotS(groupId, parentCategoryId, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<MBCategory> mbCategories = findByG_P_NotS(
+				groupId, parentCategoryId, status);
+
+			mbCategories = InlineSQLHelperUtil.filter(mbCategories, groupId);
+
+			return mbCategories.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_MBCATEGORY_WHERE);
@@ -10267,6 +10415,13 @@ public class MBCategoryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_NotS(groupId, parentCategoryIds, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<MBCategory> mbCategories = InlineSQLHelperUtil.filter(
+				findByG_P_NotS(groupId, parentCategoryIds, status), groupId);
+
+			return mbCategories.size();
 		}
 
 		if (parentCategoryIds == null) {
@@ -10761,6 +10916,14 @@ public class MBCategoryPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByNotC_G_P_S(
+					categoryId, groupId, parentCategoryId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -10916,6 +11079,14 @@ public class MBCategoryPersistenceImpl
 			return findByNotC_G_P_S(
 				categoryIds, groupId, parentCategoryIds, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByNotC_G_P_S(
+					categoryIds, groupId, parentCategoryIds, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (categoryIds == null) {
@@ -11513,6 +11684,15 @@ public class MBCategoryPersistenceImpl
 				categoryId, groupId, parentCategoryId, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<MBCategory> mbCategories = findByNotC_G_P_S(
+				categoryId, groupId, parentCategoryId, status);
+
+			mbCategories = InlineSQLHelperUtil.filter(mbCategories, groupId);
+
+			return mbCategories.size();
+		}
+
 		StringBundler sb = new StringBundler(5);
 
 		sb.append(_FILTER_SQL_COUNT_MBCATEGORY_WHERE);
@@ -11578,6 +11758,15 @@ public class MBCategoryPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByNotC_G_P_S(
 				categoryIds, groupId, parentCategoryIds, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<MBCategory> mbCategories = InlineSQLHelperUtil.filter(
+				findByNotC_G_P_S(
+					categoryIds, groupId, parentCategoryIds, status),
+				groupId);
+
+			return mbCategories.size();
 		}
 
 		if (categoryIds == null) {
@@ -13151,6 +13340,13 @@ public class MBCategoryPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "mbCategory";
 
 	private static final String _FILTER_ENTITY_TABLE = "MBCategory";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.message.boards.model.MBCategory")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "mbCategory.";
 

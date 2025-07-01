@@ -15,6 +15,7 @@ import com.liferay.osb.patcher.service.persistence.PatcherProjectVersionUtil;
 import com.liferay.osb.patcher.service.persistence.impl.constants.OSBPatcherPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -597,6 +598,12 @@ public class PatcherProjectVersionPersistenceImpl
 				patcherProductVersionId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByPatcherProductVersionId(
+					patcherProductVersionId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -969,6 +976,16 @@ public class PatcherProjectVersionPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByPatcherProductVersionId(patcherProductVersionId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherProjectVersion> patcherProjectVersions =
+				findByPatcherProductVersionId(patcherProductVersionId);
+
+			patcherProjectVersions = InlineSQLHelperUtil.filter(
+				patcherProjectVersions);
+
+			return patcherProjectVersions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1528,6 +1545,13 @@ public class PatcherProjectVersionPersistenceImpl
 				rootPatcherProjectVersionId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByRootPatcherProjectVersionId(
+					rootPatcherProjectVersionId, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1905,6 +1929,16 @@ public class PatcherProjectVersionPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByRootPatcherProjectVersionId(
 				rootPatcherProjectVersionId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherProjectVersion> patcherProjectVersions =
+				findByRootPatcherProjectVersionId(rootPatcherProjectVersionId);
+
+			patcherProjectVersions = InlineSQLHelperUtil.filter(
+				patcherProjectVersions);
+
+			return patcherProjectVersions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2869,6 +2903,13 @@ public class PatcherProjectVersionPersistenceImpl
 				end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByP_R(
+					patcherProductVersionId, rootPatcherProjectVersionId, start,
+					end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3260,6 +3301,16 @@ public class PatcherProjectVersionPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByP_R(
 				patcherProductVersionId, rootPatcherProjectVersionId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherProjectVersion> patcherProjectVersions = findByP_R(
+				patcherProductVersionId, rootPatcherProjectVersionId);
+
+			patcherProjectVersions = InlineSQLHelperUtil.filter(
+				patcherProjectVersions);
+
+			return patcherProjectVersions.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -3877,6 +3928,13 @@ public class PatcherProjectVersionPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByP_RN(
+					patcherProductVersionId, repositoryName, start, end,
+					orderByComparator));
+		}
+
 		repositoryName = Objects.toString(repositoryName, "");
 
 		StringBundler sb = null;
@@ -4306,6 +4364,16 @@ public class PatcherProjectVersionPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByP_RN(patcherProductVersionId, repositoryName);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherProjectVersion> patcherProjectVersions = findByP_RN(
+				patcherProductVersionId, repositoryName);
+
+			patcherProjectVersions = InlineSQLHelperUtil.filter(
+				patcherProjectVersions);
+
+			return patcherProjectVersions.size();
 		}
 
 		repositoryName = Objects.toString(repositoryName, "");
@@ -5142,6 +5210,14 @@ public class PatcherProjectVersionPersistenceImpl
 
 	private static final String _FILTER_ENTITY_TABLE =
 		"OSBPatcher_PProjectVersion";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.osb.patcher.model.PatcherProjectVersion")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"patcherProjectVersion.";

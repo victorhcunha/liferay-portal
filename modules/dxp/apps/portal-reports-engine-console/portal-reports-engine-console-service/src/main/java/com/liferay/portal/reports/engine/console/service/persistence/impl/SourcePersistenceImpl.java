@@ -7,6 +7,7 @@ package com.liferay.portal.reports.engine.console.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1861,6 +1862,11 @@ public class SourcePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2206,6 +2212,14 @@ public class SourcePersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Source> sources = findByGroupId(groupId);
+
+			sources = InlineSQLHelperUtil.filter(sources, groupId);
+
+			return sources.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3450,6 +3464,14 @@ public class SourcePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "source";
 
 	private static final String _FILTER_ENTITY_TABLE = "Reports_Source";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.portal.reports.engine.console.model.Source")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "source.";
 

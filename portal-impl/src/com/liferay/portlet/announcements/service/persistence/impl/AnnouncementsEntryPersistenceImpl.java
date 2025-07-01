@@ -14,6 +14,7 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -610,6 +611,11 @@ public class AnnouncementsEntryPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1010,6 +1016,15 @@ public class AnnouncementsEntryPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AnnouncementsEntry> announcementsEntries = findByUuid(uuid);
+
+			announcementsEntries = InlineSQLHelperUtil.filter(
+				announcementsEntries);
+
+			return announcementsEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1625,6 +1640,11 @@ public class AnnouncementsEntryPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2046,6 +2066,16 @@ public class AnnouncementsEntryPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AnnouncementsEntry> announcementsEntries = findByUuid_C(
+				uuid, companyId);
+
+			announcementsEntries = InlineSQLHelperUtil.filter(
+				announcementsEntries);
+
+			return announcementsEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2611,6 +2641,11 @@ public class AnnouncementsEntryPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2976,6 +3011,16 @@ public class AnnouncementsEntryPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AnnouncementsEntry> announcementsEntries = findByCompanyId(
+				companyId);
+
+			announcementsEntries = InlineSQLHelperUtil.filter(
+				announcementsEntries);
+
+			return announcementsEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3507,6 +3552,11 @@ public class AnnouncementsEntryPersistenceImpl
 			return findByUserId(userId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUserId(userId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3869,6 +3919,16 @@ public class AnnouncementsEntryPersistenceImpl
 	public int filterCountByUserId(long userId) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUserId(userId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AnnouncementsEntry> announcementsEntries = findByUserId(
+				userId);
+
+			announcementsEntries = InlineSQLHelperUtil.filter(
+				announcementsEntries);
+
+			return announcementsEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -4439,6 +4499,11 @@ public class AnnouncementsEntryPersistenceImpl
 				classNameId, classPK, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_C(classNameId, classPK, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4822,6 +4887,16 @@ public class AnnouncementsEntryPersistenceImpl
 	public int filterCountByC_C(long classNameId, long classPK) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByC_C(classNameId, classPK);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AnnouncementsEntry> announcementsEntries = findByC_C(
+				classNameId, classPK);
+
+			announcementsEntries = InlineSQLHelperUtil.filter(
+				announcementsEntries);
+
+			return announcementsEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5434,6 +5509,13 @@ public class AnnouncementsEntryPersistenceImpl
 				companyId, classNameId, classPK, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_C_C(
+					companyId, classNameId, classPK, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5837,6 +5919,16 @@ public class AnnouncementsEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_C_C(companyId, classNameId, classPK);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AnnouncementsEntry> announcementsEntries = findByC_C_C(
+				companyId, classNameId, classPK);
+
+			announcementsEntries = InlineSQLHelperUtil.filter(
+				announcementsEntries);
+
+			return announcementsEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -6452,6 +6544,13 @@ public class AnnouncementsEntryPersistenceImpl
 				classNameId, classPK, alert, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_C_A(
+					classNameId, classPK, alert, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6853,6 +6952,16 @@ public class AnnouncementsEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByC_C_A(classNameId, classPK, alert);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AnnouncementsEntry> announcementsEntries = findByC_C_A(
+				classNameId, classPK, alert);
+
+			announcementsEntries = InlineSQLHelperUtil.filter(
+				announcementsEntries);
+
+			return announcementsEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -7509,6 +7618,13 @@ public class AnnouncementsEntryPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_C_C_A(
+					companyId, classNameId, classPK, alert, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -7934,6 +8050,16 @@ public class AnnouncementsEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_C_C_A(companyId, classNameId, classPK, alert);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AnnouncementsEntry> announcementsEntries = findByC_C_C_A(
+				companyId, classNameId, classPK, alert);
+
+			announcementsEntries = InlineSQLHelperUtil.filter(
+				announcementsEntries);
+
+			return announcementsEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(5);
@@ -9080,6 +9206,14 @@ public class AnnouncementsEntryPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "announcementsEntry";
 
 	private static final String _FILTER_ENTITY_TABLE = "AnnouncementsEntry";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.announcements.kernel.model.AnnouncementsEntry")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "announcementsEntry.";
 

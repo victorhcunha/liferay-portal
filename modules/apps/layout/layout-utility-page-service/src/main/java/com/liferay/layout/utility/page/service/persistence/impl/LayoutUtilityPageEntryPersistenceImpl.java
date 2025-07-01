@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1965,6 +1966,11 @@ public class LayoutUtilityPageEntryPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2334,6 +2340,16 @@ public class LayoutUtilityPageEntryPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutUtilityPageEntry> layoutUtilityPageEntries =
+				findByGroupId(groupId);
+
+			layoutUtilityPageEntries = InlineSQLHelperUtil.filter(
+				layoutUtilityPageEntries, groupId);
+
+			return layoutUtilityPageEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3101,6 +3117,12 @@ public class LayoutUtilityPageEntryPersistenceImpl
 			return findByG_T(groupId, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_T(groupId, type, start, end, orderByComparator),
+				groupId);
+		}
+
 		type = Objects.toString(type, "");
 
 		StringBundler sb = null;
@@ -3481,6 +3503,12 @@ public class LayoutUtilityPageEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_T(groupId, types, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_T(groupId, types, start, end, orderByComparator),
+				groupId);
 		}
 
 		if (types == null) {
@@ -4020,6 +4048,16 @@ public class LayoutUtilityPageEntryPersistenceImpl
 			return countByG_T(groupId, type);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutUtilityPageEntry> layoutUtilityPageEntries = findByG_T(
+				groupId, type);
+
+			layoutUtilityPageEntries = InlineSQLHelperUtil.filter(
+				layoutUtilityPageEntries, groupId);
+
+			return layoutUtilityPageEntries.size();
+		}
+
 		type = Objects.toString(type, "");
 
 		StringBundler sb = new StringBundler(3);
@@ -4084,6 +4122,13 @@ public class LayoutUtilityPageEntryPersistenceImpl
 	public int filterCountByG_T(long groupId, String[] types) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_T(groupId, types);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutUtilityPageEntry> layoutUtilityPageEntries =
+				InlineSQLHelperUtil.filter(findByG_T(groupId, types), groupId);
+
+			return layoutUtilityPageEntries.size();
 		}
 
 		if (types == null) {
@@ -4781,6 +4826,14 @@ public class LayoutUtilityPageEntryPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_D_T(
+					groupId, defaultLayoutUtilityPageEntry, type, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		type = Objects.toString(type, "");
 
 		StringBundler sb = null;
@@ -5232,6 +5285,16 @@ public class LayoutUtilityPageEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_D_T(groupId, defaultLayoutUtilityPageEntry, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutUtilityPageEntry> layoutUtilityPageEntries = findByG_D_T(
+				groupId, defaultLayoutUtilityPageEntry, type);
+
+			layoutUtilityPageEntries = InlineSQLHelperUtil.filter(
+				layoutUtilityPageEntries, groupId);
+
+			return layoutUtilityPageEntries.size();
 		}
 
 		type = Objects.toString(type, "");
@@ -6153,6 +6216,13 @@ public class LayoutUtilityPageEntryPersistenceImpl
 				groupId, name, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeN_T(
+					groupId, name, type, start, end, orderByComparator),
+				groupId);
+		}
+
 		name = Objects.toString(name, "");
 		type = Objects.toString(type, "");
 
@@ -6572,6 +6642,13 @@ public class LayoutUtilityPageEntryPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_LikeN_T(
 				groupId, name, types, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeN_T(
+					groupId, name, types, start, end, orderByComparator),
+				groupId);
 		}
 
 		name = Objects.toString(name, "");
@@ -7192,6 +7269,16 @@ public class LayoutUtilityPageEntryPersistenceImpl
 			return countByG_LikeN_T(groupId, name, type);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutUtilityPageEntry> layoutUtilityPageEntries =
+				findByG_LikeN_T(groupId, name, type);
+
+			layoutUtilityPageEntries = InlineSQLHelperUtil.filter(
+				layoutUtilityPageEntries, groupId);
+
+			return layoutUtilityPageEntries.size();
+		}
+
 		name = Objects.toString(name, "");
 		type = Objects.toString(type, "");
 
@@ -7275,6 +7362,14 @@ public class LayoutUtilityPageEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_LikeN_T(groupId, name, types);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutUtilityPageEntry> layoutUtilityPageEntries =
+				InlineSQLHelperUtil.filter(
+					findByG_LikeN_T(groupId, name, types), groupId);
+
+			return layoutUtilityPageEntries.size();
 		}
 
 		name = Objects.toString(name, "");
@@ -8849,6 +8944,14 @@ public class LayoutUtilityPageEntryPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "layoutUtilityPageEntry";
 
 	private static final String _FILTER_ENTITY_TABLE = "LayoutUtilityPageEntry";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.layout.utility.page.model.LayoutUtilityPageEntry")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"layoutUtilityPageEntry.";

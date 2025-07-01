@@ -18,6 +18,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -2480,6 +2481,13 @@ public class KBArticlePersistenceImpl
 				resourcePrimKey, groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByR_G(
+					resourcePrimKey, groupId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2851,6 +2859,14 @@ public class KBArticlePersistenceImpl
 	public int filterCountByR_G(long resourcePrimKey, long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByR_G(resourcePrimKey, groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByR_G(resourcePrimKey, groupId);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -6208,6 +6224,14 @@ public class KBArticlePersistenceImpl
 				groupId, externalReferenceCode, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_ERC(
+					groupId, externalReferenceCode, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
 
 		StringBundler sb = null;
@@ -6618,6 +6642,15 @@ public class KBArticlePersistenceImpl
 	public int filterCountByG_ERC(long groupId, String externalReferenceCode) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_ERC(groupId, externalReferenceCode);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_ERC(
+				groupId, externalReferenceCode);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
@@ -7201,6 +7234,12 @@ public class KBArticlePersistenceImpl
 			return findByG_L(groupId, latest, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_L(groupId, latest, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -7569,6 +7608,14 @@ public class KBArticlePersistenceImpl
 	public int filterCountByG_L(long groupId, boolean latest) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_L(groupId, latest);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_L(groupId, latest);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -8135,6 +8182,12 @@ public class KBArticlePersistenceImpl
 			return findByG_M(groupId, main, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_M(groupId, main, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -8503,6 +8556,14 @@ public class KBArticlePersistenceImpl
 	public int filterCountByG_M(long groupId, boolean main) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_M(groupId, main);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_M(groupId, main);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -9070,6 +9131,12 @@ public class KBArticlePersistenceImpl
 			return findByG_S(groupId, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_S(groupId, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -9438,6 +9505,14 @@ public class KBArticlePersistenceImpl
 	public int filterCountByG_S(long groupId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_S(groupId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_S(groupId, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -15028,6 +15103,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByR_G_L(
+					resourcePrimKey, groupId, latest, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -15385,6 +15468,14 @@ public class KBArticlePersistenceImpl
 			return findByR_G_L(
 				resourcePrimKeys, groupId, latest, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByR_G_L(
+					resourcePrimKeys, groupId, latest, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (resourcePrimKeys == null) {
@@ -15897,6 +15988,15 @@ public class KBArticlePersistenceImpl
 			return countByR_G_L(resourcePrimKey, groupId, latest);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByR_G_L(
+				resourcePrimKey, groupId, latest);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_KBARTICLE_WHERE);
@@ -15955,6 +16055,13 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByR_G_L(resourcePrimKeys, groupId, latest);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByR_G_L(resourcePrimKeys, groupId, latest), groupId);
+
+			return kbArticles.size();
 		}
 
 		if (resourcePrimKeys == null) {
@@ -16596,6 +16703,14 @@ public class KBArticlePersistenceImpl
 				resourcePrimKey, groupId, main, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByR_G_M(
+					resourcePrimKey, groupId, main, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -16951,6 +17066,14 @@ public class KBArticlePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByR_G_M(
 				resourcePrimKeys, groupId, main, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByR_G_M(
+					resourcePrimKeys, groupId, main, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (resourcePrimKeys == null) {
@@ -17459,6 +17582,15 @@ public class KBArticlePersistenceImpl
 			return countByR_G_M(resourcePrimKey, groupId, main);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByR_G_M(
+				resourcePrimKey, groupId, main);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_KBARTICLE_WHERE);
@@ -17517,6 +17649,13 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByR_G_M(resourcePrimKeys, groupId, main);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByR_G_M(resourcePrimKeys, groupId, main), groupId);
+
+			return kbArticles.size();
 		}
 
 		if (resourcePrimKeys == null) {
@@ -18161,6 +18300,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByR_G_S(
+					resourcePrimKey, groupId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -18517,6 +18664,14 @@ public class KBArticlePersistenceImpl
 			return findByR_G_S(
 				resourcePrimKeys, groupId, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByR_G_S(
+					resourcePrimKeys, groupId, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (resourcePrimKeys == null) {
@@ -19022,6 +19177,15 @@ public class KBArticlePersistenceImpl
 			return countByR_G_S(resourcePrimKey, groupId, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByR_G_S(
+				resourcePrimKey, groupId, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_KBARTICLE_WHERE);
@@ -19080,6 +19244,13 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByR_G_S(resourcePrimKeys, groupId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByR_G_S(resourcePrimKeys, groupId, status), groupId);
+
+			return kbArticles.size();
 		}
 
 		if (resourcePrimKeys == null) {
@@ -19710,6 +19881,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByR_G_NotS(
+					resourcePrimKey, groupId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -20104,6 +20283,15 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByR_G_NotS(resourcePrimKey, groupId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByR_G_NotS(
+				resourcePrimKey, groupId, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -22750,6 +22938,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_L(
+					groupId, parentResourcePrimKey, latest, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -23107,6 +23303,14 @@ public class KBArticlePersistenceImpl
 			return findByG_P_L(
 				groupId, parentResourcePrimKeys, latest, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_L(
+					groupId, parentResourcePrimKeys, latest, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -23624,6 +23828,15 @@ public class KBArticlePersistenceImpl
 			return countByG_P_L(groupId, parentResourcePrimKey, latest);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_P_L(
+				groupId, parentResourcePrimKey, latest);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_KBARTICLE_WHERE);
@@ -23682,6 +23895,13 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_L(groupId, parentResourcePrimKeys, latest);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_P_L(groupId, parentResourcePrimKeys, latest), groupId);
+
+			return kbArticles.size();
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -24330,6 +24550,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_M(
+					groupId, parentResourcePrimKey, main, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -24687,6 +24915,14 @@ public class KBArticlePersistenceImpl
 			return findByG_P_M(
 				groupId, parentResourcePrimKeys, main, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_M(
+					groupId, parentResourcePrimKeys, main, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -25203,6 +25439,15 @@ public class KBArticlePersistenceImpl
 			return countByG_P_M(groupId, parentResourcePrimKey, main);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_P_M(
+				groupId, parentResourcePrimKey, main);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_KBARTICLE_WHERE);
@@ -25261,6 +25506,13 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_M(groupId, parentResourcePrimKeys, main);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_P_M(groupId, parentResourcePrimKeys, main), groupId);
+
+			return kbArticles.size();
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -25909,6 +26161,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_S(
+					groupId, parentResourcePrimKey, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -26266,6 +26526,14 @@ public class KBArticlePersistenceImpl
 			return findByG_P_S(
 				groupId, parentResourcePrimKeys, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_S(
+					groupId, parentResourcePrimKeys, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -26783,6 +27051,15 @@ public class KBArticlePersistenceImpl
 			return countByG_P_S(groupId, parentResourcePrimKey, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_P_S(
+				groupId, parentResourcePrimKey, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_KBARTICLE_WHERE);
@@ -26841,6 +27118,13 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_S(groupId, parentResourcePrimKeys, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_P_S(groupId, parentResourcePrimKeys, status), groupId);
+
+			return kbArticles.size();
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -27504,6 +27788,14 @@ public class KBArticlePersistenceImpl
 				groupId, kbFolderId, urlTitle, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_KBFI_UT(
+					groupId, kbFolderId, urlTitle, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		urlTitle = Objects.toString(urlTitle, "");
 
 		StringBundler sb = null;
@@ -27936,6 +28228,15 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_KBFI_UT(groupId, kbFolderId, urlTitle);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_KBFI_UT(
+				groupId, kbFolderId, urlTitle);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		urlTitle = Objects.toString(urlTitle, "");
@@ -28565,6 +28866,13 @@ public class KBArticlePersistenceImpl
 				groupId, kbFolderId, latest, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_KBFI_L(
+					groupId, kbFolderId, latest, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -28956,6 +29264,15 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_KBFI_L(groupId, kbFolderId, latest);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_KBFI_L(
+				groupId, kbFolderId, latest);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -29569,6 +29886,13 @@ public class KBArticlePersistenceImpl
 				groupId, kbFolderId, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_KBFI_S(
+					groupId, kbFolderId, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -29958,6 +30282,15 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_KBFI_S(groupId, kbFolderId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_KBFI_S(
+				groupId, kbFolderId, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -30588,6 +30921,13 @@ public class KBArticlePersistenceImpl
 				groupId, sections, latest, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeS_L(
+					groupId, sections, latest, start, end, orderByComparator),
+				groupId);
+		}
+
 		sections = Objects.toString(sections, "");
 
 		StringBundler sb = null;
@@ -30968,6 +31308,13 @@ public class KBArticlePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_LikeS_L(
 				groupId, sectionses, latest, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeS_L(
+					groupId, sectionses, latest, start, end, orderByComparator),
+				groupId);
 		}
 
 		if (sectionses == null) {
@@ -31542,6 +31889,15 @@ public class KBArticlePersistenceImpl
 			return countByG_LikeS_L(groupId, sections, latest);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_LikeS_L(
+				groupId, sections, latest);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		sections = Objects.toString(sections, "");
 
 		StringBundler sb = new StringBundler(4);
@@ -31613,6 +31969,13 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_LikeS_L(groupId, sectionses, latest);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_LikeS_L(groupId, sectionses, latest), groupId);
+
+			return kbArticles.size();
 		}
 
 		if (sectionses == null) {
@@ -32290,6 +32653,13 @@ public class KBArticlePersistenceImpl
 				groupId, sections, main, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeS_M(
+					groupId, sections, main, start, end, orderByComparator),
+				groupId);
+		}
+
 		sections = Objects.toString(sections, "");
 
 		StringBundler sb = null;
@@ -32670,6 +33040,13 @@ public class KBArticlePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_LikeS_M(
 				groupId, sectionses, main, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeS_M(
+					groupId, sectionses, main, start, end, orderByComparator),
+				groupId);
 		}
 
 		if (sectionses == null) {
@@ -33242,6 +33619,15 @@ public class KBArticlePersistenceImpl
 			return countByG_LikeS_M(groupId, sections, main);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_LikeS_M(
+				groupId, sections, main);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		sections = Objects.toString(sections, "");
 
 		StringBundler sb = new StringBundler(4);
@@ -33313,6 +33699,13 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_LikeS_M(groupId, sectionses, main);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_LikeS_M(groupId, sectionses, main), groupId);
+
+			return kbArticles.size();
 		}
 
 		if (sectionses == null) {
@@ -33991,6 +34384,13 @@ public class KBArticlePersistenceImpl
 				groupId, sections, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeS_S(
+					groupId, sections, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		sections = Objects.toString(sections, "");
 
 		StringBundler sb = null;
@@ -34371,6 +34771,13 @@ public class KBArticlePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_LikeS_S(
 				groupId, sectionses, status, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeS_S(
+					groupId, sectionses, status, start, end, orderByComparator),
+				groupId);
 		}
 
 		if (sectionses == null) {
@@ -34941,6 +35348,15 @@ public class KBArticlePersistenceImpl
 			return countByG_LikeS_S(groupId, sections, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_LikeS_S(
+				groupId, sections, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		sections = Objects.toString(sections, "");
 
 		StringBundler sb = new StringBundler(4);
@@ -35012,6 +35428,13 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_LikeS_S(groupId, sectionses, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_LikeS_S(groupId, sectionses, status), groupId);
+
+			return kbArticles.size();
 		}
 
 		if (sectionses == null) {
@@ -35661,6 +36084,13 @@ public class KBArticlePersistenceImpl
 				groupId, latest, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_L_NotS(
+					groupId, latest, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -36048,6 +36478,15 @@ public class KBArticlePersistenceImpl
 	public int filterCountByG_L_NotS(long groupId, boolean latest, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_L_NotS(groupId, latest, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_L_NotS(
+				groupId, latest, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -36647,6 +37086,13 @@ public class KBArticlePersistenceImpl
 				groupId, main, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_M_NotS(
+					groupId, main, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -37034,6 +37480,14 @@ public class KBArticlePersistenceImpl
 	public int filterCountByG_M_NotS(long groupId, boolean main, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_M_NotS(groupId, main, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_M_NotS(groupId, main, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -40632,6 +41086,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByR_G_L_NotS(
+					resourcePrimKey, groupId, latest, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -41002,6 +41464,14 @@ public class KBArticlePersistenceImpl
 			return findByR_G_L_NotS(
 				resourcePrimKeys, groupId, latest, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByR_G_L_NotS(
+					resourcePrimKeys, groupId, latest, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (resourcePrimKeys == null) {
@@ -41542,6 +42012,15 @@ public class KBArticlePersistenceImpl
 			return countByR_G_L_NotS(resourcePrimKey, groupId, latest, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByR_G_L_NotS(
+				resourcePrimKey, groupId, latest, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		StringBundler sb = new StringBundler(5);
 
 		sb.append(_FILTER_SQL_COUNT_KBARTICLE_WHERE);
@@ -41605,6 +42084,14 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByR_G_L_NotS(resourcePrimKeys, groupId, latest, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByR_G_L_NotS(resourcePrimKeys, groupId, latest, status),
+				groupId);
+
+			return kbArticles.size();
 		}
 
 		if (resourcePrimKeys == null) {
@@ -42272,6 +42759,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByR_G_M_NotS(
+					resourcePrimKey, groupId, main, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -42641,6 +43136,14 @@ public class KBArticlePersistenceImpl
 			return findByR_G_M_NotS(
 				resourcePrimKeys, groupId, main, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByR_G_M_NotS(
+					resourcePrimKeys, groupId, main, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (resourcePrimKeys == null) {
@@ -43181,6 +43684,15 @@ public class KBArticlePersistenceImpl
 			return countByR_G_M_NotS(resourcePrimKey, groupId, main, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByR_G_M_NotS(
+				resourcePrimKey, groupId, main, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		StringBundler sb = new StringBundler(5);
 
 		sb.append(_FILTER_SQL_COUNT_KBARTICLE_WHERE);
@@ -43244,6 +43756,14 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByR_G_M_NotS(resourcePrimKeys, groupId, main, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByR_G_M_NotS(resourcePrimKeys, groupId, main, status),
+				groupId);
+
+			return kbArticles.size();
 		}
 
 		if (resourcePrimKeys == null) {
@@ -43928,6 +44448,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_L_S(
+					groupId, parentResourcePrimKey, latest, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -44299,6 +44827,14 @@ public class KBArticlePersistenceImpl
 			return findByG_P_L_S(
 				groupId, parentResourcePrimKeys, latest, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_L_S(
+					groupId, parentResourcePrimKeys, latest, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -44845,6 +45381,15 @@ public class KBArticlePersistenceImpl
 				groupId, parentResourcePrimKey, latest, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_P_L_S(
+				groupId, parentResourcePrimKey, latest, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		StringBundler sb = new StringBundler(5);
 
 		sb.append(_FILTER_SQL_COUNT_KBARTICLE_WHERE);
@@ -44910,6 +45455,14 @@ public class KBArticlePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_L_S(
 				groupId, parentResourcePrimKeys, latest, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_P_L_S(groupId, parentResourcePrimKeys, latest, status),
+				groupId);
+
+			return kbArticles.size();
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -45581,6 +46134,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_L_NotS(
+					groupId, parentResourcePrimKey, latest, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -45952,6 +46513,14 @@ public class KBArticlePersistenceImpl
 			return findByG_P_L_NotS(
 				groupId, parentResourcePrimKeys, latest, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_L_NotS(
+					groupId, parentResourcePrimKeys, latest, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -46501,6 +47070,15 @@ public class KBArticlePersistenceImpl
 				groupId, parentResourcePrimKey, latest, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_P_L_NotS(
+				groupId, parentResourcePrimKey, latest, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		StringBundler sb = new StringBundler(5);
 
 		sb.append(_FILTER_SQL_COUNT_KBARTICLE_WHERE);
@@ -46566,6 +47144,15 @@ public class KBArticlePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_L_NotS(
 				groupId, parentResourcePrimKeys, latest, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_P_L_NotS(
+					groupId, parentResourcePrimKeys, latest, status),
+				groupId);
+
+			return kbArticles.size();
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -47253,6 +47840,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_M_S(
+					groupId, parentResourcePrimKey, main, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -47623,6 +48218,14 @@ public class KBArticlePersistenceImpl
 			return findByG_P_M_S(
 				groupId, parentResourcePrimKeys, main, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_M_S(
+					groupId, parentResourcePrimKeys, main, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -48165,6 +48768,15 @@ public class KBArticlePersistenceImpl
 			return countByG_P_M_S(groupId, parentResourcePrimKey, main, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_P_M_S(
+				groupId, parentResourcePrimKey, main, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		StringBundler sb = new StringBundler(5);
 
 		sb.append(_FILTER_SQL_COUNT_KBARTICLE_WHERE);
@@ -48229,6 +48841,14 @@ public class KBArticlePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_M_S(
 				groupId, parentResourcePrimKeys, main, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_P_M_S(groupId, parentResourcePrimKeys, main, status),
+				groupId);
+
+			return kbArticles.size();
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -48900,6 +49520,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_M_NotS(
+					groupId, parentResourcePrimKey, main, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -49270,6 +49898,14 @@ public class KBArticlePersistenceImpl
 			return findByG_P_M_NotS(
 				groupId, parentResourcePrimKeys, main, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_M_NotS(
+					groupId, parentResourcePrimKeys, main, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -49816,6 +50452,15 @@ public class KBArticlePersistenceImpl
 				groupId, parentResourcePrimKey, main, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_P_M_NotS(
+				groupId, parentResourcePrimKey, main, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		StringBundler sb = new StringBundler(5);
 
 		sb.append(_FILTER_SQL_COUNT_KBARTICLE_WHERE);
@@ -49880,6 +50525,14 @@ public class KBArticlePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_M_NotS(
 				groupId, parentResourcePrimKeys, main, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_P_M_NotS(groupId, parentResourcePrimKeys, main, status),
+				groupId);
+
+			return kbArticles.size();
 		}
 
 		if (parentResourcePrimKeys == null) {
@@ -50589,6 +51242,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_KBFI_UT_ST(
+					groupId, kbFolderId, urlTitle, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		urlTitle = Objects.toString(urlTitle, "");
 
 		StringBundler sb = null;
@@ -50984,6 +51645,14 @@ public class KBArticlePersistenceImpl
 			return findByG_KBFI_UT_ST(
 				groupId, kbFolderId, urlTitle, statuses, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_KBFI_UT_ST(
+					groupId, kbFolderId, urlTitle, statuses, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		urlTitle = Objects.toString(urlTitle, "");
@@ -51569,6 +52238,15 @@ public class KBArticlePersistenceImpl
 			return countByG_KBFI_UT_ST(groupId, kbFolderId, urlTitle, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_KBFI_UT_ST(
+				groupId, kbFolderId, urlTitle, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		urlTitle = Objects.toString(urlTitle, "");
 
 		StringBundler sb = new StringBundler(5);
@@ -51645,6 +52323,14 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_KBFI_UT_ST(groupId, kbFolderId, urlTitle, statuses);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_KBFI_UT_ST(groupId, kbFolderId, urlTitle, statuses),
+				groupId);
+
+			return kbArticles.size();
 		}
 
 		urlTitle = Objects.toString(urlTitle, "");
@@ -52352,6 +53038,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_KBFI_UT_NotS(
+					groupId, kbFolderId, urlTitle, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		urlTitle = Objects.toString(urlTitle, "");
 
 		StringBundler sb = null;
@@ -52804,6 +53498,15 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_KBFI_UT_NotS(groupId, kbFolderId, urlTitle, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_KBFI_UT_NotS(
+				groupId, kbFolderId, urlTitle, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		urlTitle = Objects.toString(urlTitle, "");
@@ -53463,6 +54166,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_KBFI_L_NotS(
+					groupId, kbFolderId, latest, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -53876,6 +54587,15 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_KBFI_L_NotS(groupId, kbFolderId, latest, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_KBFI_L_NotS(
+				groupId, kbFolderId, latest, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
 		}
 
 		StringBundler sb = new StringBundler(5);
@@ -54546,6 +55266,14 @@ public class KBArticlePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeS_L_NotS(
+					groupId, sections, latest, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		sections = Objects.toString(sections, "");
 
 		StringBundler sb = null;
@@ -54941,6 +55669,14 @@ public class KBArticlePersistenceImpl
 			return findByG_LikeS_L_NotS(
 				groupId, sectionses, latest, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeS_L_NotS(
+					groupId, sectionses, latest, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (sectionses == null) {
@@ -55551,6 +56287,15 @@ public class KBArticlePersistenceImpl
 			return countByG_LikeS_L_NotS(groupId, sections, latest, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_LikeS_L_NotS(
+				groupId, sections, latest, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		sections = Objects.toString(sections, "");
 
 		StringBundler sb = new StringBundler(5);
@@ -55627,6 +56372,14 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_LikeS_L_NotS(groupId, sectionses, latest, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_LikeS_L_NotS(groupId, sectionses, latest, status),
+				groupId);
+
+			return kbArticles.size();
 		}
 
 		if (sectionses == null) {
@@ -56344,6 +57097,14 @@ public class KBArticlePersistenceImpl
 				groupId, sections, main, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeS_M_NotS(
+					groupId, sections, main, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		sections = Objects.toString(sections, "");
 
 		StringBundler sb = null;
@@ -56739,6 +57500,14 @@ public class KBArticlePersistenceImpl
 			return findByG_LikeS_M_NotS(
 				groupId, sectionses, main, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeS_M_NotS(
+					groupId, sectionses, main, status, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (sectionses == null) {
@@ -57349,6 +58118,15 @@ public class KBArticlePersistenceImpl
 			return countByG_LikeS_M_NotS(groupId, sections, main, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = findByG_LikeS_M_NotS(
+				groupId, sections, main, status);
+
+			kbArticles = InlineSQLHelperUtil.filter(kbArticles, groupId);
+
+			return kbArticles.size();
+		}
+
 		sections = Objects.toString(sections, "");
 
 		StringBundler sb = new StringBundler(5);
@@ -57425,6 +58203,14 @@ public class KBArticlePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_LikeS_M_NotS(groupId, sectionses, main, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBArticle> kbArticles = InlineSQLHelperUtil.filter(
+				findByG_LikeS_M_NotS(groupId, sectionses, main, status),
+				groupId);
+
+			return kbArticles.size();
 		}
 
 		if (sectionses == null) {
@@ -59742,6 +60528,13 @@ public class KBArticlePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "kbArticle";
 
 	private static final String _FILTER_ENTITY_TABLE = "KBArticle";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.knowledge.base.model.KBArticle")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "kbArticle.";
 

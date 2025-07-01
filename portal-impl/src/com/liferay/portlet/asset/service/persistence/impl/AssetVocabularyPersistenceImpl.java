@@ -15,6 +15,7 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -1929,6 +1930,11 @@ public class AssetVocabularyPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2261,6 +2267,12 @@ public class AssetVocabularyPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByGroupId(groupIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -2691,6 +2703,15 @@ public class AssetVocabularyPersistenceImpl
 			return countByGroupId(groupId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetVocabulary> assetVocabularies = findByGroupId(groupId);
+
+			assetVocabularies = InlineSQLHelperUtil.filter(
+				assetVocabularies, groupId);
+
+			return assetVocabularies.size();
+		}
+
 		StringBundler sb = new StringBundler(2);
 
 		sb.append(_FILTER_SQL_COUNT_ASSETVOCABULARY_WHERE);
@@ -2737,6 +2758,13 @@ public class AssetVocabularyPersistenceImpl
 	public int filterCountByGroupId(long[] groupIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByGroupId(groupIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetVocabulary> assetVocabularies =
+				InlineSQLHelperUtil.filter(findByGroupId(groupIds), groupIds);
+
+			return assetVocabularies.size();
 		}
 
 		if (groupIds == null) {
@@ -4054,6 +4082,12 @@ public class AssetVocabularyPersistenceImpl
 			return findByG_LikeN(groupId, name, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeN(groupId, name, start, end, orderByComparator),
+				groupId);
+		}
+
 		name = Objects.toString(name, "");
 
 		StringBundler sb = null;
@@ -4473,6 +4507,16 @@ public class AssetVocabularyPersistenceImpl
 	public int filterCountByG_LikeN(long groupId, String name) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_LikeN(groupId, name);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetVocabulary> assetVocabularies = findByG_LikeN(
+				groupId, name);
+
+			assetVocabularies = InlineSQLHelperUtil.filter(
+				assetVocabularies, groupId);
+
+			return assetVocabularies.size();
 		}
 
 		name = Objects.toString(name, "");
@@ -5069,6 +5113,13 @@ public class AssetVocabularyPersistenceImpl
 				groupId, visibilityType, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_V(
+					groupId, visibilityType, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5420,6 +5471,13 @@ public class AssetVocabularyPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByG_V(
 				groupIds, visibilityTypes, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_V(
+					groupIds, visibilityTypes, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -5940,6 +5998,16 @@ public class AssetVocabularyPersistenceImpl
 			return countByG_V(groupId, visibilityType);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetVocabulary> assetVocabularies = findByG_V(
+				groupId, visibilityType);
+
+			assetVocabularies = InlineSQLHelperUtil.filter(
+				assetVocabularies, groupId);
+
+			return assetVocabularies.size();
+		}
+
 		StringBundler sb = new StringBundler(3);
 
 		sb.append(_FILTER_SQL_COUNT_ASSETVOCABULARY_WHERE);
@@ -5991,6 +6059,14 @@ public class AssetVocabularyPersistenceImpl
 	public int filterCountByG_V(long[] groupIds, int[] visibilityTypes) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_V(groupIds, visibilityTypes);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetVocabulary> assetVocabularies =
+				InlineSQLHelperUtil.filter(
+					findByG_V(groupIds, visibilityTypes), groupIds);
+
+			return assetVocabularies.size();
 		}
 
 		if (groupIds == null) {
@@ -7428,6 +7504,13 @@ public class AssetVocabularyPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "assetVocabulary";
 
 	private static final String _FILTER_ENTITY_TABLE = "AssetVocabulary";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.asset.kernel.model.AssetVocabulary")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "assetVocabulary.";
 

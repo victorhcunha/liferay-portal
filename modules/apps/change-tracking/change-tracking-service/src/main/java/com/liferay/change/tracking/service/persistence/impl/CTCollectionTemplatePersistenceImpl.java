@@ -15,6 +15,7 @@ import com.liferay.change.tracking.service.persistence.CTCollectionTemplateUtil;
 import com.liferay.change.tracking.service.persistence.impl.constants.CTPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -577,6 +578,11 @@ public class CTCollectionTemplatePersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -938,6 +944,16 @@ public class CTCollectionTemplatePersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CTCollectionTemplate> ctCollectionTemplates = findByCompanyId(
+				companyId);
+
+			ctCollectionTemplates = InlineSQLHelperUtil.filter(
+				ctCollectionTemplates);
+
+			return ctCollectionTemplates.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1633,6 +1649,14 @@ public class CTCollectionTemplatePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "ctCollectionTemplate";
 
 	private static final String _FILTER_ENTITY_TABLE = "CTCollectionTemplate";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.change.tracking.model.CTCollectionTemplate")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"ctCollectionTemplate.";

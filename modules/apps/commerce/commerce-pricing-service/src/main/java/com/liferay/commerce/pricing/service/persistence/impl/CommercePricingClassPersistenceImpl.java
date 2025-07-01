@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -623,6 +624,11 @@ public class CommercePricingClassPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1025,6 +1031,16 @@ public class CommercePricingClassPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommercePricingClass> commercePricingClasses = findByUuid(
+				uuid);
+
+			commercePricingClasses = InlineSQLHelperUtil.filter(
+				commercePricingClasses);
+
+			return commercePricingClasses.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1645,6 +1661,11 @@ public class CommercePricingClassPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2068,6 +2089,16 @@ public class CommercePricingClassPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommercePricingClass> commercePricingClasses = findByUuid_C(
+				uuid, companyId);
+
+			commercePricingClasses = InlineSQLHelperUtil.filter(
+				commercePricingClasses);
+
+			return commercePricingClasses.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2635,6 +2666,11 @@ public class CommercePricingClassPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3002,6 +3038,16 @@ public class CommercePricingClassPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommercePricingClass> commercePricingClasses = findByCompanyId(
+				companyId);
+
+			commercePricingClasses = InlineSQLHelperUtil.filter(
+				commercePricingClasses);
+
+			return commercePricingClasses.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -4341,6 +4387,14 @@ public class CommercePricingClassPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "commercePricingClass";
 
 	private static final String _FILTER_ENTITY_TABLE = "CommercePricingClass";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.commerce.pricing.model.CommercePricingClass")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"commercePricingClass.";

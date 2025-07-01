@@ -16,6 +16,7 @@ import com.liferay.commerce.service.persistence.CommerceOrderTypeUtil;
 import com.liferay.commerce.service.persistence.impl.constants.CommercePersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -605,6 +606,11 @@ public class CommerceOrderTypePersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1001,6 +1007,14 @@ public class CommerceOrderTypePersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceOrderType> commerceOrderTypes = findByUuid(uuid);
+
+			commerceOrderTypes = InlineSQLHelperUtil.filter(commerceOrderTypes);
+
+			return commerceOrderTypes.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1612,6 +1626,11 @@ public class CommerceOrderTypePersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2028,6 +2047,15 @@ public class CommerceOrderTypePersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceOrderType> commerceOrderTypes = findByUuid_C(
+				uuid, companyId);
+
+			commerceOrderTypes = InlineSQLHelperUtil.filter(commerceOrderTypes);
+
+			return commerceOrderTypes.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2588,6 +2616,11 @@ public class CommerceOrderTypePersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2947,6 +2980,15 @@ public class CommerceOrderTypePersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceOrderType> commerceOrderTypes = findByCompanyId(
+				companyId);
+
+			commerceOrderTypes = InlineSQLHelperUtil.filter(commerceOrderTypes);
+
+			return commerceOrderTypes.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3510,6 +3552,11 @@ public class CommerceOrderTypePersistenceImpl
 			return findByC_A(companyId, active, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A(companyId, active, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3887,6 +3934,15 @@ public class CommerceOrderTypePersistenceImpl
 	public int filterCountByC_A(long companyId, boolean active) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A(companyId, active);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceOrderType> commerceOrderTypes = findByC_A(
+				companyId, active);
+
+			commerceOrderTypes = InlineSQLHelperUtil.filter(commerceOrderTypes);
+
+			return commerceOrderTypes.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4474,6 +4530,12 @@ public class CommerceOrderTypePersistenceImpl
 				displayDate, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByLtD_S(
+					displayDate, status, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4884,6 +4946,15 @@ public class CommerceOrderTypePersistenceImpl
 	public int filterCountByLtD_S(Date displayDate, int status) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByLtD_S(displayDate, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceOrderType> commerceOrderTypes = findByLtD_S(
+				displayDate, status);
+
+			commerceOrderTypes = InlineSQLHelperUtil.filter(commerceOrderTypes);
+
+			return commerceOrderTypes.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5485,6 +5556,12 @@ public class CommerceOrderTypePersistenceImpl
 				expirationDate, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByLtE_S(
+					expirationDate, status, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5896,6 +5973,15 @@ public class CommerceOrderTypePersistenceImpl
 	public int filterCountByLtE_S(Date expirationDate, int status) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByLtE_S(expirationDate, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceOrderType> commerceOrderTypes = findByLtE_S(
+				expirationDate, status);
+
+			commerceOrderTypes = InlineSQLHelperUtil.filter(commerceOrderTypes);
+
+			return commerceOrderTypes.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -7016,6 +7102,13 @@ public class CommerceOrderTypePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "commerceOrderType";
 
 	private static final String _FILTER_ENTITY_TABLE = "CommerceOrderType";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.commerce.model.CommerceOrderType")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "commerceOrderType.";
 

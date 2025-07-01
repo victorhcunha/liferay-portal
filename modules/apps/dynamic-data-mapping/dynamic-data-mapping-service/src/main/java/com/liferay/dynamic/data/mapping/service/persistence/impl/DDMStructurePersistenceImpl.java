@@ -18,6 +18,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1927,6 +1928,11 @@ public class DDMStructurePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2255,6 +2261,12 @@ public class DDMStructurePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByGroupId(groupIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -2684,6 +2696,14 @@ public class DDMStructurePersistenceImpl
 			return countByGroupId(groupId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDMStructure> ddmStructures = findByGroupId(groupId);
+
+			ddmStructures = InlineSQLHelperUtil.filter(ddmStructures, groupId);
+
+			return ddmStructures.size();
+		}
+
 		StringBundler sb = new StringBundler(2);
 
 		sb.append(_FILTER_SQL_COUNT_DDMSTRUCTURE_WHERE);
@@ -2730,6 +2750,13 @@ public class DDMStructurePersistenceImpl
 	public int filterCountByGroupId(long[] groupIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByGroupId(groupIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDMStructure> ddmStructures = InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds), groupIds);
+
+			return ddmStructures.size();
 		}
 
 		if (groupIds == null) {
@@ -4394,6 +4421,13 @@ public class DDMStructurePersistenceImpl
 				groupId, parentStructureId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P(
+					groupId, parentStructureId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4771,6 +4805,15 @@ public class DDMStructurePersistenceImpl
 	public int filterCountByG_P(long groupId, long parentStructureId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P(groupId, parentStructureId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDMStructure> ddmStructures = findByG_P(
+				groupId, parentStructureId);
+
+			ddmStructures = InlineSQLHelperUtil.filter(ddmStructures, groupId);
+
+			return ddmStructures.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5344,6 +5387,12 @@ public class DDMStructurePersistenceImpl
 				groupId, classNameId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C(groupId, classNameId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5690,6 +5739,12 @@ public class DDMStructurePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByG_C(
 				groupIds, classNameId, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C(groupIds, classNameId, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -6163,6 +6218,14 @@ public class DDMStructurePersistenceImpl
 			return countByG_C(groupId, classNameId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDMStructure> ddmStructures = findByG_C(groupId, classNameId);
+
+			ddmStructures = InlineSQLHelperUtil.filter(ddmStructures, groupId);
+
+			return ddmStructures.size();
+		}
+
 		StringBundler sb = new StringBundler(3);
 
 		sb.append(_FILTER_SQL_COUNT_DDMSTRUCTURE_WHERE);
@@ -6214,6 +6277,13 @@ public class DDMStructurePersistenceImpl
 	public int filterCountByG_C(long[] groupIds, long classNameId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_C(groupIds, classNameId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDMStructure> ddmStructures = InlineSQLHelperUtil.filter(
+				findByG_C(groupIds, classNameId), groupIds);
+
+			return ddmStructures.size();
 		}
 
 		if (groupIds == null) {
@@ -7907,6 +7977,13 @@ public class DDMStructurePersistenceImpl
 				groupId, name, description, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_N_D(
+					groupId, name, description, start, end, orderByComparator),
+				groupId);
+		}
+
 		name = Objects.toString(name, "");
 		description = Objects.toString(description, "");
 
@@ -8377,6 +8454,15 @@ public class DDMStructurePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_N_D(groupId, name, description);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDMStructure> ddmStructures = findByG_N_D(
+				groupId, name, description);
+
+			ddmStructures = InlineSQLHelperUtil.filter(ddmStructures, groupId);
+
+			return ddmStructures.size();
 		}
 
 		name = Objects.toString(name, "");
@@ -9110,6 +9196,14 @@ public class DDMStructurePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_N_D(
+					groupId, classNameId, name, description, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		name = Objects.toString(name, "");
 		description = Objects.toString(description, "");
 
@@ -9536,6 +9630,14 @@ public class DDMStructurePersistenceImpl
 			return findByG_C_N_D(
 				groupIds, classNameId, name, description, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_N_D(
+					groupIds, classNameId, name, description, start, end,
+					orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -10179,6 +10281,15 @@ public class DDMStructurePersistenceImpl
 			return countByG_C_N_D(groupId, classNameId, name, description);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDMStructure> ddmStructures = findByG_C_N_D(
+				groupId, classNameId, name, description);
+
+			ddmStructures = InlineSQLHelperUtil.filter(ddmStructures, groupId);
+
+			return ddmStructures.size();
+		}
+
 		name = Objects.toString(name, "");
 		description = Objects.toString(description, "");
 
@@ -10267,6 +10378,14 @@ public class DDMStructurePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_C_N_D(groupIds, classNameId, name, description);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDMStructure> ddmStructures = InlineSQLHelperUtil.filter(
+				findByG_C_N_D(groupIds, classNameId, name, description),
+				groupIds);
+
+			return ddmStructures.size();
 		}
 
 		if (groupIds == null) {
@@ -11657,6 +11776,14 @@ public class DDMStructurePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "ddmStructure";
 
 	private static final String _FILTER_ENTITY_TABLE = "DDMStructure";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.dynamic.data.mapping.model.DDMStructure")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "ddmStructure.";
 

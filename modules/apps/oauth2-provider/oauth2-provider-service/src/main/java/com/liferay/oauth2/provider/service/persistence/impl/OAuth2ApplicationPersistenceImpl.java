@@ -16,6 +16,7 @@ import com.liferay.oauth2.provider.service.persistence.OAuth2ApplicationUtil;
 import com.liferay.oauth2.provider.service.persistence.impl.constants.OAuthTwoPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -605,6 +606,11 @@ public class OAuth2ApplicationPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1001,6 +1007,14 @@ public class OAuth2ApplicationPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<OAuth2Application> oAuth2Applications = findByUuid(uuid);
+
+			oAuth2Applications = InlineSQLHelperUtil.filter(oAuth2Applications);
+
+			return oAuth2Applications.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1612,6 +1626,11 @@ public class OAuth2ApplicationPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2028,6 +2047,15 @@ public class OAuth2ApplicationPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<OAuth2Application> oAuth2Applications = findByUuid_C(
+				uuid, companyId);
+
+			oAuth2Applications = InlineSQLHelperUtil.filter(oAuth2Applications);
+
+			return oAuth2Applications.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2588,6 +2616,11 @@ public class OAuth2ApplicationPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2947,6 +2980,15 @@ public class OAuth2ApplicationPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<OAuth2Application> oAuth2Applications = findByCompanyId(
+				companyId);
+
+			oAuth2Applications = InlineSQLHelperUtil.filter(oAuth2Applications);
+
+			return oAuth2Applications.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3730,6 +3772,12 @@ public class OAuth2ApplicationPersistenceImpl
 				companyId, clientProfile, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_CP(
+					companyId, clientProfile, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4109,6 +4157,15 @@ public class OAuth2ApplicationPersistenceImpl
 	public int filterCountByC_CP(long companyId, int clientProfile) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_CP(companyId, clientProfile);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<OAuth2Application> oAuth2Applications = findByC_CP(
+				companyId, clientProfile);
+
+			oAuth2Applications = InlineSQLHelperUtil.filter(oAuth2Applications);
+
+			return oAuth2Applications.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5201,6 +5258,14 @@ public class OAuth2ApplicationPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "oAuth2Application";
 
 	private static final String _FILTER_ENTITY_TABLE = "OAuth2Application";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.oauth2.provider.model.OAuth2Application")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "oAuth2Application.";
 

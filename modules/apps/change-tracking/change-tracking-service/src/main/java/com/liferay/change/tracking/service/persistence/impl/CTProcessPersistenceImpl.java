@@ -15,6 +15,7 @@ import com.liferay.change.tracking.service.persistence.CTProcessUtil;
 import com.liferay.change.tracking.service.persistence.impl.constants.CTPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -566,6 +567,11 @@ public class CTProcessPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -911,6 +917,14 @@ public class CTProcessPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CTProcess> ctProcesses = findByCompanyId(companyId);
+
+			ctProcesses = InlineSQLHelperUtil.filter(ctProcesses);
+
+			return ctProcesses.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1436,6 +1450,12 @@ public class CTProcessPersistenceImpl
 				ctCollectionId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCtCollectionId(
+					ctCollectionId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1782,6 +1802,14 @@ public class CTProcessPersistenceImpl
 	public int filterCountByCtCollectionId(long ctCollectionId) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByCtCollectionId(ctCollectionId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CTProcess> ctProcesses = findByCtCollectionId(ctCollectionId);
+
+			ctProcesses = InlineSQLHelperUtil.filter(ctProcesses);
+
+			return ctProcesses.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2341,6 +2369,11 @@ public class CTProcessPersistenceImpl
 				ctCollectionId, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_T(ctCollectionId, type, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2705,6 +2738,14 @@ public class CTProcessPersistenceImpl
 	public int filterCountByC_T(long ctCollectionId, int type) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByC_T(ctCollectionId, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CTProcess> ctProcesses = findByC_T(ctCollectionId, type);
+
+			ctProcesses = InlineSQLHelperUtil.filter(ctProcesses);
+
+			return ctProcesses.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -3420,6 +3461,13 @@ public class CTProcessPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "ctProcess";
 
 	private static final String _FILTER_ENTITY_TABLE = "CTProcess";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.change.tracking.model.CTProcess")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "ctProcess.";
 

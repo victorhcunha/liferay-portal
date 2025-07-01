@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -623,6 +624,11 @@ public class ClientExtensionEntryPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1025,6 +1031,16 @@ public class ClientExtensionEntryPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<ClientExtensionEntry> clientExtensionEntries = findByUuid(
+				uuid);
+
+			clientExtensionEntries = InlineSQLHelperUtil.filter(
+				clientExtensionEntries);
+
+			return clientExtensionEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1645,6 +1661,11 @@ public class ClientExtensionEntryPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2068,6 +2089,16 @@ public class ClientExtensionEntryPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<ClientExtensionEntry> clientExtensionEntries = findByUuid_C(
+				uuid, companyId);
+
+			clientExtensionEntries = InlineSQLHelperUtil.filter(
+				clientExtensionEntries);
+
+			return clientExtensionEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2635,6 +2666,11 @@ public class ClientExtensionEntryPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3002,6 +3038,16 @@ public class ClientExtensionEntryPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<ClientExtensionEntry> clientExtensionEntries = findByCompanyId(
+				companyId);
+
+			clientExtensionEntries = InlineSQLHelperUtil.filter(
+				clientExtensionEntries);
+
+			return clientExtensionEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3597,6 +3643,11 @@ public class ClientExtensionEntryPersistenceImpl
 			return findByC_T(companyId, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_T(companyId, type, start, end, orderByComparator));
+		}
+
 		type = Objects.toString(type, "");
 
 		StringBundler sb = null;
@@ -4020,6 +4071,16 @@ public class ClientExtensionEntryPersistenceImpl
 	public int filterCountByC_T(long companyId, String type) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_T(companyId, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<ClientExtensionEntry> clientExtensionEntries = findByC_T(
+				companyId, type);
+
+			clientExtensionEntries = InlineSQLHelperUtil.filter(
+				clientExtensionEntries);
+
+			return clientExtensionEntries.size();
 		}
 
 		type = Objects.toString(type, "");
@@ -5442,6 +5503,14 @@ public class ClientExtensionEntryPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "clientExtensionEntry";
 
 	private static final String _FILTER_ENTITY_TABLE = "ClientExtensionEntry";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.client.extension.model.ClientExtensionEntry")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"clientExtensionEntry.";

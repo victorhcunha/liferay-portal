@@ -15,6 +15,7 @@ import com.liferay.notification.service.persistence.NotificationQueueEntryUtil;
 import com.liferay.notification.service.persistence.impl.constants.NotificationPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -582,6 +583,11 @@ public class NotificationQueueEntryPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -945,6 +951,16 @@ public class NotificationQueueEntryPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<NotificationQueueEntry> notificationQueueEntries =
+				findByCompanyId(companyId);
+
+			notificationQueueEntries = InlineSQLHelperUtil.filter(
+				notificationQueueEntries);
+
+			return notificationQueueEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1494,6 +1510,12 @@ public class NotificationQueueEntryPersistenceImpl
 				notificationTemplateId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByNotificationTemplateId(
+					notificationTemplateId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1866,6 +1888,16 @@ public class NotificationQueueEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByNotificationTemplateId(notificationTemplateId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<NotificationQueueEntry> notificationQueueEntries =
+				findByNotificationTemplateId(notificationTemplateId);
+
+			notificationQueueEntries = InlineSQLHelperUtil.filter(
+				notificationQueueEntries);
+
+			return notificationQueueEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2415,6 +2447,11 @@ public class NotificationQueueEntryPersistenceImpl
 			return findByLtSentDate(sentDate, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByLtSentDate(sentDate, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2811,6 +2848,16 @@ public class NotificationQueueEntryPersistenceImpl
 	public int filterCountByLtSentDate(Date sentDate) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByLtSentDate(sentDate);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<NotificationQueueEntry> notificationQueueEntries =
+				findByLtSentDate(sentDate);
+
+			notificationQueueEntries = InlineSQLHelperUtil.filter(
+				notificationQueueEntries);
+
+			return notificationQueueEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3414,6 +3461,11 @@ public class NotificationQueueEntryPersistenceImpl
 			return findByT_S(type, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByT_S(type, status, start, end, orderByComparator));
+		}
+
 		type = Objects.toString(type, "");
 
 		StringBundler sb = null;
@@ -3832,6 +3884,16 @@ public class NotificationQueueEntryPersistenceImpl
 	public int filterCountByT_S(String type, int status) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByT_S(type, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<NotificationQueueEntry> notificationQueueEntries = findByT_S(
+				type, status);
+
+			notificationQueueEntries = InlineSQLHelperUtil.filter(
+				notificationQueueEntries);
+
+			return notificationQueueEntries.size();
 		}
 
 		type = Objects.toString(type, "");
@@ -4639,6 +4701,14 @@ public class NotificationQueueEntryPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "notificationQueueEntry";
 
 	private static final String _FILTER_ENTITY_TABLE = "NotificationQueueEntry";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.notification.model.NotificationQueueEntry")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"notificationQueueEntry.";

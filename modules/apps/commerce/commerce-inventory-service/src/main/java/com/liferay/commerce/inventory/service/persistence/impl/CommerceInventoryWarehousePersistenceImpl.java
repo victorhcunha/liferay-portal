@@ -16,6 +16,7 @@ import com.liferay.commerce.inventory.service.persistence.CommerceInventoryWareh
 import com.liferay.commerce.inventory.service.persistence.impl.constants.CommercePersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -615,6 +616,11 @@ public class CommerceInventoryWarehousePersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1017,6 +1023,16 @@ public class CommerceInventoryWarehousePersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceInventoryWarehouse> commerceInventoryWarehouses =
+				findByUuid(uuid);
+
+			commerceInventoryWarehouses = InlineSQLHelperUtil.filter(
+				commerceInventoryWarehouses);
+
+			return commerceInventoryWarehouses.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1635,6 +1651,11 @@ public class CommerceInventoryWarehousePersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2056,6 +2077,16 @@ public class CommerceInventoryWarehousePersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceInventoryWarehouse> commerceInventoryWarehouses =
+				findByUuid_C(uuid, companyId);
+
+			commerceInventoryWarehouses = InlineSQLHelperUtil.filter(
+				commerceInventoryWarehouses);
+
+			return commerceInventoryWarehouses.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2625,6 +2656,11 @@ public class CommerceInventoryWarehousePersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2989,6 +3025,16 @@ public class CommerceInventoryWarehousePersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceInventoryWarehouse> commerceInventoryWarehouses =
+				findByCompanyId(companyId);
+
+			commerceInventoryWarehouses = InlineSQLHelperUtil.filter(
+				commerceInventoryWarehouses);
+
+			return commerceInventoryWarehouses.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3559,6 +3605,11 @@ public class CommerceInventoryWarehousePersistenceImpl
 			return findByC_A(companyId, active, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A(companyId, active, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3941,6 +3992,16 @@ public class CommerceInventoryWarehousePersistenceImpl
 	public int filterCountByC_A(long companyId, boolean active) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A(companyId, active);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceInventoryWarehouse> commerceInventoryWarehouses =
+				findByC_A(companyId, active);
+
+			commerceInventoryWarehouses = InlineSQLHelperUtil.filter(
+				commerceInventoryWarehouses);
+
+			return commerceInventoryWarehouses.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4561,6 +4622,13 @@ public class CommerceInventoryWarehousePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_C(
+					companyId, countryTwoLettersISOCode, start, end,
+					orderByComparator));
+		}
+
 		countryTwoLettersISOCode = Objects.toString(
 			countryTwoLettersISOCode, "");
 
@@ -4990,6 +5058,16 @@ public class CommerceInventoryWarehousePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_C(companyId, countryTwoLettersISOCode);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceInventoryWarehouse> commerceInventoryWarehouses =
+				findByC_C(companyId, countryTwoLettersISOCode);
+
+			commerceInventoryWarehouses = InlineSQLHelperUtil.filter(
+				commerceInventoryWarehouses);
+
+			return commerceInventoryWarehouses.size();
 		}
 
 		countryTwoLettersISOCode = Objects.toString(
@@ -5661,6 +5739,13 @@ public class CommerceInventoryWarehousePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A_C(
+					companyId, active, countryTwoLettersISOCode, start, end,
+					orderByComparator));
+		}
+
 		countryTwoLettersISOCode = Objects.toString(
 			countryTwoLettersISOCode, "");
 
@@ -6110,6 +6195,16 @@ public class CommerceInventoryWarehousePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A_C(companyId, active, countryTwoLettersISOCode);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceInventoryWarehouse> commerceInventoryWarehouses =
+				findByC_A_C(companyId, active, countryTwoLettersISOCode);
+
+			commerceInventoryWarehouses = InlineSQLHelperUtil.filter(
+				commerceInventoryWarehouses);
+
+			return commerceInventoryWarehouses.size();
 		}
 
 		countryTwoLettersISOCode = Objects.toString(
@@ -7305,6 +7400,14 @@ public class CommerceInventoryWarehousePersistenceImpl
 		"commerceInventoryWarehouse";
 
 	private static final String _FILTER_ENTITY_TABLE = "CIWarehouse";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.commerce.inventory.model.CommerceInventoryWarehouse")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"commerceInventoryWarehouse.";

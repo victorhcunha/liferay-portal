@@ -10,6 +10,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -5150,6 +5151,14 @@ public class WikiPagePersistenceImpl
 				groupId, externalReferenceCode, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_ERC(
+					groupId, externalReferenceCode, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
 
 		StringBundler sb = null;
@@ -5560,6 +5569,15 @@ public class WikiPagePersistenceImpl
 	public int filterCountByG_ERC(long groupId, String externalReferenceCode) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_ERC(groupId, externalReferenceCode);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<WikiPage> wikiPages = findByG_ERC(
+				groupId, externalReferenceCode);
+
+			wikiPages = InlineSQLHelperUtil.filter(wikiPages, groupId);
+
+			return wikiPages.size();
 		}
 
 		externalReferenceCode = Objects.toString(externalReferenceCode, "");
@@ -10642,6 +10660,13 @@ public class WikiPagePersistenceImpl
 				groupId, nodeId, head, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_N_H(
+					groupId, nodeId, head, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -11029,6 +11054,14 @@ public class WikiPagePersistenceImpl
 	public int filterCountByG_N_H(long groupId, long nodeId, boolean head) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_N_H(groupId, nodeId, head);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<WikiPage> wikiPages = findByG_N_H(groupId, nodeId, head);
+
+			wikiPages = InlineSQLHelperUtil.filter(wikiPages, groupId);
+
+			return wikiPages.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -11638,6 +11671,13 @@ public class WikiPagePersistenceImpl
 				groupId, nodeId, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_N_S(
+					groupId, nodeId, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -12025,6 +12065,14 @@ public class WikiPagePersistenceImpl
 	public int filterCountByG_N_S(long groupId, long nodeId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_N_S(groupId, nodeId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<WikiPage> wikiPages = findByG_N_S(groupId, nodeId, status);
+
+			wikiPages = InlineSQLHelperUtil.filter(wikiPages, groupId);
+
+			return wikiPages.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -17128,6 +17176,14 @@ public class WikiPagePersistenceImpl
 				groupId, userId, nodeId, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_U_N_S(
+					groupId, userId, nodeId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -17539,6 +17595,15 @@ public class WikiPagePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_U_N_S(groupId, userId, nodeId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<WikiPage> wikiPages = findByG_U_N_S(
+				groupId, userId, nodeId, status);
+
+			wikiPages = InlineSQLHelperUtil.filter(wikiPages, groupId);
+
+			return wikiPages.size();
 		}
 
 		StringBundler sb = new StringBundler(5);
@@ -18214,6 +18279,14 @@ public class WikiPagePersistenceImpl
 				groupId, nodeId, title, head, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_N_T_H(
+					groupId, nodeId, title, head, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		title = Objects.toString(title, "");
 
 		StringBundler sb = null;
@@ -18662,6 +18735,15 @@ public class WikiPagePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_N_T_H(groupId, nodeId, title, head);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<WikiPage> wikiPages = findByG_N_T_H(
+				groupId, nodeId, title, head);
+
+			wikiPages = InlineSQLHelperUtil.filter(wikiPages, groupId);
+
+			return wikiPages.size();
 		}
 
 		title = Objects.toString(title, "");
@@ -19326,6 +19408,14 @@ public class WikiPagePersistenceImpl
 				groupId, nodeId, head, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_N_H_S(
+					groupId, nodeId, head, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -19735,6 +19825,15 @@ public class WikiPagePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_N_H_S(groupId, nodeId, head, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<WikiPage> wikiPages = findByG_N_H_S(
+				groupId, nodeId, head, status);
+
+			wikiPages = InlineSQLHelperUtil.filter(wikiPages, groupId);
+
+			return wikiPages.size();
 		}
 
 		StringBundler sb = new StringBundler(5);
@@ -23120,6 +23219,14 @@ public class WikiPagePersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_N_H_P_S(
+					groupId, nodeId, head, parentTitle, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		parentTitle = Objects.toString(parentTitle, "");
 
 		StringBundler sb = null;
@@ -23591,6 +23698,15 @@ public class WikiPagePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_N_H_P_S(groupId, nodeId, head, parentTitle, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<WikiPage> wikiPages = findByG_N_H_P_S(
+				groupId, nodeId, head, parentTitle, status);
+
+			wikiPages = InlineSQLHelperUtil.filter(wikiPages, groupId);
+
+			return wikiPages.size();
 		}
 
 		parentTitle = Objects.toString(parentTitle, "");
@@ -25469,6 +25585,13 @@ public class WikiPagePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "wikiPage";
 
 	private static final String _FILTER_ENTITY_TABLE = "WikiPage";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.wiki.model.WikiPage")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "wikiPage.";
 

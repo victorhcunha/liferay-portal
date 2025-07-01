@@ -18,6 +18,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1969,6 +1970,11 @@ public class DDMDataProviderInstancePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2310,6 +2316,12 @@ public class DDMDataProviderInstancePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByGroupId(groupIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -2744,6 +2756,16 @@ public class DDMDataProviderInstancePersistenceImpl
 			return countByGroupId(groupId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDMDataProviderInstance> ddmDataProviderInstances =
+				findByGroupId(groupId);
+
+			ddmDataProviderInstances = InlineSQLHelperUtil.filter(
+				ddmDataProviderInstances, groupId);
+
+			return ddmDataProviderInstances.size();
+		}
+
 		StringBundler sb = new StringBundler(2);
 
 		sb.append(_FILTER_SQL_COUNT_DDMDATAPROVIDERINSTANCE_WHERE);
@@ -2790,6 +2812,13 @@ public class DDMDataProviderInstancePersistenceImpl
 	public int filterCountByGroupId(long[] groupIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByGroupId(groupIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDMDataProviderInstance> ddmDataProviderInstances =
+				InlineSQLHelperUtil.filter(findByGroupId(groupIds), groupIds);
+
+			return ddmDataProviderInstances.size();
 		}
 
 		if (groupIds == null) {
@@ -4433,6 +4462,14 @@ public class DDMDataProviderInstancePersistenceImpl
 
 	private static final String _FILTER_ENTITY_TABLE =
 		"DDMDataProviderInstance";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.dynamic.data.mapping.model.DDMDataProviderInstance")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"ddmDataProviderInstance.";

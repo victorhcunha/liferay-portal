@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -623,6 +624,11 @@ public class CPSpecificationOptionPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1027,6 +1033,16 @@ public class CPSpecificationOptionPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CPSpecificationOption> cpSpecificationOptions = findByUuid(
+				uuid);
+
+			cpSpecificationOptions = InlineSQLHelperUtil.filter(
+				cpSpecificationOptions);
+
+			return cpSpecificationOptions.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1647,6 +1663,11 @@ public class CPSpecificationOptionPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2072,6 +2093,16 @@ public class CPSpecificationOptionPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CPSpecificationOption> cpSpecificationOptions = findByUuid_C(
+				uuid, companyId);
+
+			cpSpecificationOptions = InlineSQLHelperUtil.filter(
+				cpSpecificationOptions);
+
+			return cpSpecificationOptions.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2639,6 +2670,11 @@ public class CPSpecificationOptionPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3008,6 +3044,16 @@ public class CPSpecificationOptionPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CPSpecificationOption> cpSpecificationOptions =
+				findByCompanyId(companyId);
+
+			cpSpecificationOptions = InlineSQLHelperUtil.filter(
+				cpSpecificationOptions);
+
+			return cpSpecificationOptions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3559,6 +3605,12 @@ public class CPSpecificationOptionPersistenceImpl
 				CPOptionCategoryId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCPOptionCategoryId(
+					CPOptionCategoryId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3930,6 +3982,16 @@ public class CPSpecificationOptionPersistenceImpl
 	public int filterCountByCPOptionCategoryId(long CPOptionCategoryId) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByCPOptionCategoryId(CPOptionCategoryId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CPSpecificationOption> cpSpecificationOptions =
+				findByCPOptionCategoryId(CPOptionCategoryId);
+
+			cpSpecificationOptions = InlineSQLHelperUtil.filter(
+				cpSpecificationOptions);
+
+			return cpSpecificationOptions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -5535,6 +5597,14 @@ public class CPSpecificationOptionPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "cpSpecificationOption";
 
 	private static final String _FILTER_ENTITY_TABLE = "CPSpecificationOption";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.commerce.product.model.CPSpecificationOption")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"cpSpecificationOption.";

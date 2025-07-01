@@ -18,6 +18,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1933,6 +1934,11 @@ public class CalendarResourcePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2297,6 +2303,15 @@ public class CalendarResourcePersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CalendarResource> calendarResources = findByGroupId(groupId);
+
+			calendarResources = InlineSQLHelperUtil.filter(
+				calendarResources, groupId);
+
+			return calendarResources.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3400,6 +3415,12 @@ public class CalendarResourcePersistenceImpl
 			return findByG_C(groupId, code, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C(groupId, code, start, end, orderByComparator),
+				groupId);
+		}
+
 		code = Objects.toString(code, "");
 
 		StringBundler sb = null;
@@ -3777,6 +3798,12 @@ public class CalendarResourcePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByG_C(groupIds, code, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C(groupIds, code, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -4301,6 +4328,15 @@ public class CalendarResourcePersistenceImpl
 			return countByG_C(groupId, code);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CalendarResource> calendarResources = findByG_C(groupId, code);
+
+			calendarResources = InlineSQLHelperUtil.filter(
+				calendarResources, groupId);
+
+			return calendarResources.size();
+		}
+
 		code = Objects.toString(code, "");
 
 		StringBundler sb = new StringBundler(3);
@@ -4365,6 +4401,13 @@ public class CalendarResourcePersistenceImpl
 	public int filterCountByG_C(long[] groupIds, String code) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_C(groupIds, code);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CalendarResource> calendarResources =
+				InlineSQLHelperUtil.filter(findByG_C(groupIds, code), groupIds);
+
+			return calendarResources.size();
 		}
 
 		if (groupIds == null) {
@@ -4984,6 +5027,12 @@ public class CalendarResourcePersistenceImpl
 			return findByG_A(groupId, active, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_A(groupId, active, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5367,6 +5416,16 @@ public class CalendarResourcePersistenceImpl
 	public int filterCountByG_A(long groupId, boolean active) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_A(groupId, active);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CalendarResource> calendarResources = findByG_A(
+				groupId, active);
+
+			calendarResources = InlineSQLHelperUtil.filter(
+				calendarResources, groupId);
+
+			return calendarResources.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -7335,6 +7394,13 @@ public class CalendarResourcePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "calendarResource";
 
 	private static final String _FILTER_ENTITY_TABLE = "CalendarResource";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.calendar.model.CalendarResource")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "calendarResource.";
 

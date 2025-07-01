@@ -15,6 +15,7 @@ import com.liferay.commerce.notification.service.persistence.CommerceNotificatio
 import com.liferay.commerce.notification.service.persistence.impl.constants.CommercePersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1931,6 +1932,11 @@ public class CommerceNotificationTemplatePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2297,6 +2303,16 @@ public class CommerceNotificationTemplatePersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceNotificationTemplate> commerceNotificationTemplates =
+				findByGroupId(groupId);
+
+			commerceNotificationTemplates = InlineSQLHelperUtil.filter(
+				commerceNotificationTemplates, groupId);
+
+			return commerceNotificationTemplates.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2867,6 +2883,12 @@ public class CommerceNotificationTemplatePersistenceImpl
 			return findByG_E(groupId, enabled, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_E(groupId, enabled, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3252,6 +3274,16 @@ public class CommerceNotificationTemplatePersistenceImpl
 	public int filterCountByG_E(long groupId, boolean enabled) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_E(groupId, enabled);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceNotificationTemplate> commerceNotificationTemplates =
+				findByG_E(groupId, enabled);
+
+			commerceNotificationTemplates = InlineSQLHelperUtil.filter(
+				commerceNotificationTemplates, groupId);
+
+			return commerceNotificationTemplates.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -3885,6 +3917,13 @@ public class CommerceNotificationTemplatePersistenceImpl
 				groupId, type, enabled, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_T_E(
+					groupId, type, enabled, start, end, orderByComparator),
+				groupId);
+		}
+
 		type = Objects.toString(type, "");
 
 		StringBundler sb = null;
@@ -4326,6 +4365,16 @@ public class CommerceNotificationTemplatePersistenceImpl
 	public int filterCountByG_T_E(long groupId, String type, boolean enabled) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_T_E(groupId, type, enabled);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceNotificationTemplate> commerceNotificationTemplates =
+				findByG_T_E(groupId, type, enabled);
+
+			commerceNotificationTemplates = InlineSQLHelperUtil.filter(
+				commerceNotificationTemplates, groupId);
+
+			return commerceNotificationTemplates.size();
 		}
 
 		type = Objects.toString(type, "");
@@ -5227,6 +5276,14 @@ public class CommerceNotificationTemplatePersistenceImpl
 
 	private static final String _FILTER_ENTITY_TABLE =
 		"CommerceNotificationTemplate";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.commerce.notification.model.CommerceNotificationTemplate")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"commerceNotificationTemplate.";

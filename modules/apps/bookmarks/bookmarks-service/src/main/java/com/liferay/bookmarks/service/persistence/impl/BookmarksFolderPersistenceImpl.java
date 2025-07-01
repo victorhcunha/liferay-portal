@@ -18,6 +18,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1928,6 +1929,11 @@ public class BookmarksFolderPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2289,6 +2295,15 @@ public class BookmarksFolderPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<BookmarksFolder> bookmarksFolders = findByGroupId(groupId);
+
+			bookmarksFolders = InlineSQLHelperUtil.filter(
+				bookmarksFolders, groupId);
+
+			return bookmarksFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3372,6 +3387,13 @@ public class BookmarksFolderPersistenceImpl
 				groupId, parentFolderId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P(
+					groupId, parentFolderId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3753,6 +3775,16 @@ public class BookmarksFolderPersistenceImpl
 	public int filterCountByG_P(long groupId, long parentFolderId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P(groupId, parentFolderId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<BookmarksFolder> bookmarksFolders = findByG_P(
+				groupId, parentFolderId);
+
+			bookmarksFolders = InlineSQLHelperUtil.filter(
+				bookmarksFolders, groupId);
+
+			return bookmarksFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4905,6 +4937,14 @@ public class BookmarksFolderPersistenceImpl
 				groupId, parentFolderId, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_S(
+					groupId, parentFolderId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5306,6 +5346,16 @@ public class BookmarksFolderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_S(groupId, parentFolderId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<BookmarksFolder> bookmarksFolders = findByG_P_S(
+				groupId, parentFolderId, status);
+
+			bookmarksFolders = InlineSQLHelperUtil.filter(
+				bookmarksFolders, groupId);
+
+			return bookmarksFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -5914,6 +5964,14 @@ public class BookmarksFolderPersistenceImpl
 				groupId, parentFolderId, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_NotS(
+					groupId, parentFolderId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6317,6 +6375,16 @@ public class BookmarksFolderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_NotS(groupId, parentFolderId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<BookmarksFolder> bookmarksFolders = findByG_P_NotS(
+				groupId, parentFolderId, status);
+
+			bookmarksFolders = InlineSQLHelperUtil.filter(
+				bookmarksFolders, groupId);
+
+			return bookmarksFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -7944,6 +8012,13 @@ public class BookmarksFolderPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "bookmarksFolder";
 
 	private static final String _FILTER_ENTITY_TABLE = "BookmarksFolder";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.bookmarks.model.BookmarksFolder")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "bookmarksFolder.";
 

@@ -15,6 +15,7 @@ import com.liferay.object.service.persistence.ObjectEntryFolderUtil;
 import com.liferay.object.service.persistence.impl.constants.ObjectPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -2209,6 +2210,14 @@ public class ObjectEntryFolderPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_P(
+					groupId, companyId, parentObjectEntryFolderId, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2613,6 +2622,16 @@ public class ObjectEntryFolderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_P(groupId, companyId, parentObjectEntryFolderId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<ObjectEntryFolder> objectEntryFolders = findByG_C_P(
+				groupId, companyId, parentObjectEntryFolderId);
+
+			objectEntryFolders = InlineSQLHelperUtil.filter(
+				objectEntryFolders, groupId);
+
+			return objectEntryFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -3243,6 +3262,14 @@ public class ObjectEntryFolderPersistenceImpl
 				groupId, companyId, treePath, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_LikeT(
+					groupId, companyId, treePath, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		treePath = Objects.toString(treePath, "");
 
 		StringBundler sb = null;
@@ -3682,6 +3709,16 @@ public class ObjectEntryFolderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_LikeT(groupId, companyId, treePath);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<ObjectEntryFolder> objectEntryFolders = findByG_C_LikeT(
+				groupId, companyId, treePath);
+
+			objectEntryFolders = InlineSQLHelperUtil.filter(
+				objectEntryFolders, groupId);
+
+			return objectEntryFolders.size();
 		}
 
 		treePath = Objects.toString(treePath, "");
@@ -4852,6 +4889,13 @@ public class ObjectEntryFolderPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "objectEntryFolder";
 
 	private static final String _FILTER_ENTITY_TABLE = "ObjectEntryFolder";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.object.model.ObjectEntryFolder")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "objectEntryFolder.";
 

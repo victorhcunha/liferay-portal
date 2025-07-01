@@ -15,6 +15,7 @@ import com.liferay.oauth.client.persistence.service.persistence.OAuthClientASLoc
 import com.liferay.oauth.client.persistence.service.persistence.impl.constants.OAuthClientPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -585,6 +586,11 @@ public class OAuthClientASLocalMetadataPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -949,6 +955,16 @@ public class OAuthClientASLocalMetadataPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<OAuthClientASLocalMetadata> oAuthClientASLocalMetadatas =
+				findByCompanyId(companyId);
+
+			oAuthClientASLocalMetadatas = InlineSQLHelperUtil.filter(
+				oAuthClientASLocalMetadatas);
+
+			return oAuthClientASLocalMetadatas.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1482,6 +1498,11 @@ public class OAuthClientASLocalMetadataPersistenceImpl
 			return findByUserId(userId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUserId(userId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1846,6 +1867,16 @@ public class OAuthClientASLocalMetadataPersistenceImpl
 	public int filterCountByUserId(long userId) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUserId(userId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<OAuthClientASLocalMetadata> oAuthClientASLocalMetadatas =
+				findByUserId(userId);
+
+			oAuthClientASLocalMetadatas = InlineSQLHelperUtil.filter(
+				oAuthClientASLocalMetadatas);
+
+			return oAuthClientASLocalMetadatas.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2809,6 +2840,14 @@ public class OAuthClientASLocalMetadataPersistenceImpl
 
 	private static final String _FILTER_ENTITY_TABLE =
 		"OAuthClientASLocalMetadata";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.oauth.client.persistence.model.OAuthClientASLocalMetadata")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"oAuthClientASLocalMetadata.";

@@ -6,6 +6,7 @@
 package com.liferay.portal.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -561,6 +562,11 @@ public class LayoutSetBranchPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -917,6 +923,15 @@ public class LayoutSetBranchPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutSetBranch> layoutSetBranchs = findByGroupId(groupId);
+
+			layoutSetBranchs = InlineSQLHelperUtil.filter(
+				layoutSetBranchs, groupId);
+
+			return layoutSetBranchs.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1483,6 +1498,13 @@ public class LayoutSetBranchPersistenceImpl
 				groupId, privateLayout, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P(
+					groupId, privateLayout, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1859,6 +1881,16 @@ public class LayoutSetBranchPersistenceImpl
 	public int filterCountByG_P(long groupId, boolean privateLayout) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P(groupId, privateLayout);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutSetBranch> layoutSetBranchs = findByG_P(
+				groupId, privateLayout);
+
+			layoutSetBranchs = InlineSQLHelperUtil.filter(
+				layoutSetBranchs, groupId);
+
+			return layoutSetBranchs.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -2689,6 +2721,14 @@ public class LayoutSetBranchPersistenceImpl
 				groupId, privateLayout, master, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_M(
+					groupId, privateLayout, master, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3089,6 +3129,16 @@ public class LayoutSetBranchPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_M(groupId, privateLayout, master);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutSetBranch> layoutSetBranchs = findByG_P_M(
+				groupId, privateLayout, master);
+
+			layoutSetBranchs = InlineSQLHelperUtil.filter(
+				layoutSetBranchs, groupId);
+
+			return layoutSetBranchs.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -3836,6 +3886,13 @@ public class LayoutSetBranchPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "layoutSetBranch";
 
 	private static final String _FILTER_ENTITY_TABLE = "LayoutSetBranch";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.portal.kernel.model.LayoutSetBranch")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "layoutSetBranch.";
 

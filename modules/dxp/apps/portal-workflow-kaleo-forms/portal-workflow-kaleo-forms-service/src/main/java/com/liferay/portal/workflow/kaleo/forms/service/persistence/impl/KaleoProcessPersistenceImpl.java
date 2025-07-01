@@ -7,6 +7,7 @@ package com.liferay.portal.workflow.kaleo.forms.service.persistence.impl;
 
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1877,6 +1878,11 @@ public class KaleoProcessPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2228,6 +2234,15 @@ public class KaleoProcessPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KaleoProcess> kaleoProcesses = findByGroupId(groupId);
+
+			kaleoProcesses = InlineSQLHelperUtil.filter(
+				kaleoProcesses, groupId);
+
+			return kaleoProcesses.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3175,6 +3190,14 @@ public class KaleoProcessPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "kaleoProcess";
 
 	private static final String _FILTER_ENTITY_TABLE = "KaleoProcess";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.portal.workflow.kaleo.forms.model.KaleoProcess")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "kaleoProcess.";
 

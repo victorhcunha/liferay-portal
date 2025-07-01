@@ -16,6 +16,7 @@ import com.liferay.dispatch.service.persistence.DispatchTriggerUtil;
 import com.liferay.dispatch.service.persistence.impl.constants.DispatchPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -603,6 +604,11 @@ public class DispatchTriggerPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -996,6 +1002,14 @@ public class DispatchTriggerPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DispatchTrigger> dispatchTriggers = findByUuid(uuid);
+
+			dispatchTriggers = InlineSQLHelperUtil.filter(dispatchTriggers);
+
+			return dispatchTriggers.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1606,6 +1620,11 @@ public class DispatchTriggerPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2019,6 +2038,15 @@ public class DispatchTriggerPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DispatchTrigger> dispatchTriggers = findByUuid_C(
+				uuid, companyId);
+
+			dispatchTriggers = InlineSQLHelperUtil.filter(dispatchTriggers);
+
+			return dispatchTriggers.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2575,6 +2603,11 @@ public class DispatchTriggerPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2930,6 +2963,14 @@ public class DispatchTriggerPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DispatchTrigger> dispatchTriggers = findByCompanyId(companyId);
+
+			dispatchTriggers = InlineSQLHelperUtil.filter(dispatchTriggers);
+
+			return dispatchTriggers.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3454,6 +3495,11 @@ public class DispatchTriggerPersistenceImpl
 			return findByActive(active, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByActive(active, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3809,6 +3855,14 @@ public class DispatchTriggerPersistenceImpl
 	public int filterCountByActive(boolean active) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByActive(active);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DispatchTrigger> dispatchTriggers = findByActive(active);
+
+			dispatchTriggers = InlineSQLHelperUtil.filter(dispatchTriggers);
+
+			return dispatchTriggers.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -4372,6 +4426,11 @@ public class DispatchTriggerPersistenceImpl
 			return findByC_U(companyId, userId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_U(companyId, userId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4746,6 +4805,15 @@ public class DispatchTriggerPersistenceImpl
 	public int filterCountByC_U(long companyId, long userId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_U(companyId, userId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DispatchTrigger> dispatchTriggers = findByC_U(
+				companyId, userId);
+
+			dispatchTriggers = InlineSQLHelperUtil.filter(dispatchTriggers);
+
+			return dispatchTriggers.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5357,6 +5425,13 @@ public class DispatchTriggerPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_DTET(
+					companyId, dispatchTaskExecutorType, start, end,
+					orderByComparator));
+		}
+
 		dispatchTaskExecutorType = Objects.toString(
 			dispatchTaskExecutorType, "");
 
@@ -5782,6 +5857,15 @@ public class DispatchTriggerPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_DTET(companyId, dispatchTaskExecutorType);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DispatchTrigger> dispatchTriggers = findByC_DTET(
+				companyId, dispatchTaskExecutorType);
+
+			dispatchTriggers = InlineSQLHelperUtil.filter(dispatchTriggers);
+
+			return dispatchTriggers.size();
 		}
 
 		dispatchTaskExecutorType = Objects.toString(
@@ -6579,6 +6663,13 @@ public class DispatchTriggerPersistenceImpl
 				active, dispatchTaskClusterMode, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByA_DTCM(
+					active, dispatchTaskClusterMode, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6933,6 +7024,13 @@ public class DispatchTriggerPersistenceImpl
 			return findByA_DTCM(
 				active, dispatchTaskClusterModes, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByA_DTCM(
+					active, dispatchTaskClusterModes, start, end,
+					orderByComparator));
 		}
 
 		if (dispatchTaskClusterModes == null) {
@@ -7394,6 +7492,15 @@ public class DispatchTriggerPersistenceImpl
 			return countByA_DTCM(active, dispatchTaskClusterMode);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DispatchTrigger> dispatchTriggers = findByA_DTCM(
+				active, dispatchTaskClusterMode);
+
+			dispatchTriggers = InlineSQLHelperUtil.filter(dispatchTriggers);
+
+			return dispatchTriggers.size();
+		}
+
 		StringBundler sb = new StringBundler(3);
 
 		sb.append(_FILTER_SQL_COUNT_DISPATCHTRIGGER_WHERE);
@@ -7447,6 +7554,13 @@ public class DispatchTriggerPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByA_DTCM(active, dispatchTaskClusterModes);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DispatchTrigger> dispatchTriggers = InlineSQLHelperUtil.filter(
+				findByA_DTCM(active, dispatchTaskClusterModes));
+
+			return dispatchTriggers.size();
 		}
 
 		if (dispatchTaskClusterModes == null) {
@@ -8620,6 +8734,13 @@ public class DispatchTriggerPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "dispatchTrigger";
 
 	private static final String _FILTER_ENTITY_TABLE = "DispatchTrigger";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.dispatch.model.DispatchTrigger")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "dispatchTrigger.";
 

@@ -16,6 +16,7 @@ import com.liferay.account.service.persistence.AccountRoleUtil;
 import com.liferay.account.service.persistence.impl.constants.AccountPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -575,6 +576,11 @@ public class AccountRolePersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -924,6 +930,14 @@ public class AccountRolePersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AccountRole> accountRoles = findByCompanyId(companyId);
+
+			accountRoles = InlineSQLHelperUtil.filter(accountRoles);
+
+			return accountRoles.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1452,6 +1466,12 @@ public class AccountRolePersistenceImpl
 				accountEntryId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByAccountEntryId(
+					accountEntryId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1781,6 +1801,12 @@ public class AccountRolePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return findByAccountEntryId(
 				accountEntryIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByAccountEntryId(
+					accountEntryIds, start, end, orderByComparator));
 		}
 
 		if (accountEntryIds == null) {
@@ -2194,6 +2220,15 @@ public class AccountRolePersistenceImpl
 			return countByAccountEntryId(accountEntryId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AccountRole> accountRoles = findByAccountEntryId(
+				accountEntryId);
+
+			accountRoles = InlineSQLHelperUtil.filter(accountRoles);
+
+			return accountRoles.size();
+		}
+
 		StringBundler sb = new StringBundler(2);
 
 		sb.append(_FILTER_SQL_COUNT_ACCOUNTROLE_WHERE);
@@ -2240,6 +2275,13 @@ public class AccountRolePersistenceImpl
 	public int filterCountByAccountEntryId(long[] accountEntryIds) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByAccountEntryId(accountEntryIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AccountRole> accountRoles = InlineSQLHelperUtil.filter(
+				findByAccountEntryId(accountEntryIds));
+
+			return accountRoles.size();
 		}
 
 		if (accountEntryIds == null) {
@@ -2998,6 +3040,12 @@ public class AccountRolePersistenceImpl
 				companyId, accountEntryId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A(
+					companyId, accountEntryId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3343,6 +3391,12 @@ public class AccountRolePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return findByC_A(
 				companyId, accountEntryIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A(
+					companyId, accountEntryIds, start, end, orderByComparator));
 		}
 
 		if (accountEntryIds == null) {
@@ -3790,6 +3844,15 @@ public class AccountRolePersistenceImpl
 			return countByC_A(companyId, accountEntryId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AccountRole> accountRoles = findByC_A(
+				companyId, accountEntryId);
+
+			accountRoles = InlineSQLHelperUtil.filter(accountRoles);
+
+			return accountRoles.size();
+		}
+
 		StringBundler sb = new StringBundler(3);
 
 		sb.append(_FILTER_SQL_COUNT_ACCOUNTROLE_WHERE);
@@ -3841,6 +3904,13 @@ public class AccountRolePersistenceImpl
 	public int filterCountByC_A(long companyId, long[] accountEntryIds) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A(companyId, accountEntryIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AccountRole> accountRoles = InlineSQLHelperUtil.filter(
+				findByC_A(companyId, accountEntryIds));
+
+			return accountRoles.size();
 		}
 
 		if (accountEntryIds == null) {
@@ -4869,6 +4939,13 @@ public class AccountRolePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "accountRole";
 
 	private static final String _FILTER_ENTITY_TABLE = "AccountRole";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.account.model.AccountRole")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "accountRole.";
 

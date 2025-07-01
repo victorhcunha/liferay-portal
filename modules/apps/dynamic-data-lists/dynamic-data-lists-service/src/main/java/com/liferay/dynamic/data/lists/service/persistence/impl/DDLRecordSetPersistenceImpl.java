@@ -18,6 +18,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1921,6 +1922,11 @@ public class DDLRecordSetPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2249,6 +2255,12 @@ public class DDLRecordSetPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByGroupId(groupIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -2678,6 +2690,14 @@ public class DDLRecordSetPersistenceImpl
 			return countByGroupId(groupId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDLRecordSet> ddlRecordSets = findByGroupId(groupId);
+
+			ddlRecordSets = InlineSQLHelperUtil.filter(ddlRecordSets, groupId);
+
+			return ddlRecordSets.size();
+		}
+
 		StringBundler sb = new StringBundler(2);
 
 		sb.append(_FILTER_SQL_COUNT_DDLRECORDSET_WHERE);
@@ -2724,6 +2744,13 @@ public class DDLRecordSetPersistenceImpl
 	public int filterCountByGroupId(long[] groupIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByGroupId(groupIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDLRecordSet> ddlRecordSets = InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds), groupIds);
+
+			return ddlRecordSets.size();
 		}
 
 		if (groupIds == null) {
@@ -4832,6 +4859,14 @@ public class DDLRecordSetPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "ddlRecordSet";
 
 	private static final String _FILTER_ENTITY_TABLE = "DDLRecordSet";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.dynamic.data.lists.model.DDLRecordSet")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "ddlRecordSet.";
 

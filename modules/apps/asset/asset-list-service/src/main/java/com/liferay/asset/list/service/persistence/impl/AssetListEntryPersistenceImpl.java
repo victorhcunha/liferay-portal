@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1936,6 +1937,11 @@ public class AssetListEntryPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2265,6 +2271,12 @@ public class AssetListEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByGroupId(groupIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -2694,6 +2706,15 @@ public class AssetListEntryPersistenceImpl
 			return countByGroupId(groupId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = findByGroupId(groupId);
+
+			assetListEntries = InlineSQLHelperUtil.filter(
+				assetListEntries, groupId);
+
+			return assetListEntries.size();
+		}
+
 		StringBundler sb = new StringBundler(2);
 
 		sb.append(_FILTER_SQL_COUNT_ASSETLISTENTRY_WHERE);
@@ -2740,6 +2761,13 @@ public class AssetListEntryPersistenceImpl
 	public int filterCountByGroupId(long[] groupIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByGroupId(groupIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds), groupIds);
+
+			return assetListEntries.size();
 		}
 
 		if (groupIds == null) {
@@ -3756,6 +3784,12 @@ public class AssetListEntryPersistenceImpl
 			return findByG_LikeT(groupId, title, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeT(groupId, title, start, end, orderByComparator),
+				groupId);
+		}
+
 		title = Objects.toString(title, "");
 
 		StringBundler sb = null;
@@ -4129,6 +4163,12 @@ public class AssetListEntryPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByG_LikeT(
 				groupIds, title, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeT(groupIds, title, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -4657,6 +4697,16 @@ public class AssetListEntryPersistenceImpl
 			return countByG_LikeT(groupId, title);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = findByG_LikeT(
+				groupId, title);
+
+			assetListEntries = InlineSQLHelperUtil.filter(
+				assetListEntries, groupId);
+
+			return assetListEntries.size();
+		}
+
 		title = Objects.toString(title, "");
 
 		StringBundler sb = new StringBundler(3);
@@ -4721,6 +4771,13 @@ public class AssetListEntryPersistenceImpl
 	public int filterCountByG_LikeT(long[] groupIds, String title) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_LikeT(groupIds, title);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = InlineSQLHelperUtil.filter(
+				findByG_LikeT(groupIds, title), groupIds);
+
+			return assetListEntries.size();
 		}
 
 		if (groupIds == null) {
@@ -5330,6 +5387,12 @@ public class AssetListEntryPersistenceImpl
 			return findByG_TY(groupId, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_TY(groupId, type, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5707,6 +5770,15 @@ public class AssetListEntryPersistenceImpl
 	public int filterCountByG_TY(long groupId, int type) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_TY(groupId, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = findByG_TY(groupId, type);
+
+			assetListEntries = InlineSQLHelperUtil.filter(
+				assetListEntries, groupId);
+
+			return assetListEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -6317,6 +6389,13 @@ public class AssetListEntryPersistenceImpl
 				groupId, assetEntryType, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_AET(
+					groupId, assetEntryType, start, end, orderByComparator),
+				groupId);
+		}
+
 		assetEntryType = Objects.toString(assetEntryType, "");
 
 		StringBundler sb = null;
@@ -6691,6 +6770,13 @@ public class AssetListEntryPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByG_AET(
 				groupIds, assetEntryTypes, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_AET(
+					groupIds, assetEntryTypes, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -7291,6 +7377,16 @@ public class AssetListEntryPersistenceImpl
 			return countByG_AET(groupId, assetEntryType);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = findByG_AET(
+				groupId, assetEntryType);
+
+			assetListEntries = InlineSQLHelperUtil.filter(
+				assetListEntries, groupId);
+
+			return assetListEntries.size();
+		}
+
 		assetEntryType = Objects.toString(assetEntryType, "");
 
 		StringBundler sb = new StringBundler(3);
@@ -7355,6 +7451,13 @@ public class AssetListEntryPersistenceImpl
 	public int filterCountByG_AET(long[] groupIds, String[] assetEntryTypes) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_AET(groupIds, assetEntryTypes);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = InlineSQLHelperUtil.filter(
+				findByG_AET(groupIds, assetEntryTypes), groupIds);
+
+			return assetListEntries.size();
 		}
 
 		if (groupIds == null) {
@@ -8068,6 +8171,14 @@ public class AssetListEntryPersistenceImpl
 				groupId, title, assetEntryType, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeT_AET(
+					groupId, title, assetEntryType, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		title = Objects.toString(title, "");
 		assetEntryType = Objects.toString(assetEntryType, "");
 
@@ -8483,6 +8594,14 @@ public class AssetListEntryPersistenceImpl
 			return findByG_LikeT_AET(
 				groupIds, title, assetEntryTypes, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeT_AET(
+					groupIds, title, assetEntryTypes, start, end,
+					orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -9179,6 +9298,16 @@ public class AssetListEntryPersistenceImpl
 			return countByG_LikeT_AET(groupId, title, assetEntryType);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = findByG_LikeT_AET(
+				groupId, title, assetEntryType);
+
+			assetListEntries = InlineSQLHelperUtil.filter(
+				assetListEntries, groupId);
+
+			return assetListEntries.size();
+		}
+
 		title = Objects.toString(title, "");
 		assetEntryType = Objects.toString(assetEntryType, "");
 
@@ -9262,6 +9391,13 @@ public class AssetListEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_LikeT_AET(groupIds, title, assetEntryTypes);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = InlineSQLHelperUtil.filter(
+				findByG_LikeT_AET(groupIds, title, assetEntryTypes), groupIds);
+
+			return assetListEntries.size();
 		}
 
 		if (groupIds == null) {
@@ -10019,6 +10155,14 @@ public class AssetListEntryPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_AES_AET(
+					groupId, assetEntrySubtype, assetEntryType, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		assetEntrySubtype = Objects.toString(assetEntrySubtype, "");
 		assetEntryType = Objects.toString(assetEntryType, "");
 
@@ -10435,6 +10579,14 @@ public class AssetListEntryPersistenceImpl
 			return findByG_AES_AET(
 				groupIds, assetEntrySubtype, assetEntryType, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_AES_AET(
+					groupIds, assetEntrySubtype, assetEntryType, start, end,
+					orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -11055,6 +11207,16 @@ public class AssetListEntryPersistenceImpl
 			return countByG_AES_AET(groupId, assetEntrySubtype, assetEntryType);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = findByG_AES_AET(
+				groupId, assetEntrySubtype, assetEntryType);
+
+			assetListEntries = InlineSQLHelperUtil.filter(
+				assetListEntries, groupId);
+
+			return assetListEntries.size();
+		}
+
 		assetEntrySubtype = Objects.toString(assetEntrySubtype, "");
 		assetEntryType = Objects.toString(assetEntryType, "");
 
@@ -11139,6 +11301,14 @@ public class AssetListEntryPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_AES_AET(
 				groupIds, assetEntrySubtype, assetEntryType);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = InlineSQLHelperUtil.filter(
+				findByG_AES_AET(groupIds, assetEntrySubtype, assetEntryType),
+				groupIds);
+
+			return assetListEntries.size();
 		}
 
 		if (groupIds == null) {
@@ -11926,6 +12096,14 @@ public class AssetListEntryPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeT_AES_AET(
+					groupId, title, assetEntrySubtype, assetEntryType, start,
+					end, orderByComparator),
+				groupId);
+		}
+
 		title = Objects.toString(title, "");
 		assetEntrySubtype = Objects.toString(assetEntrySubtype, "");
 		assetEntryType = Objects.toString(assetEntryType, "");
@@ -12380,6 +12558,14 @@ public class AssetListEntryPersistenceImpl
 			return findByG_LikeT_AES_AET(
 				groupIds, title, assetEntrySubtype, assetEntryType, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeT_AES_AET(
+					groupIds, title, assetEntrySubtype, assetEntryType, start,
+					end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -13093,6 +13279,16 @@ public class AssetListEntryPersistenceImpl
 				groupId, title, assetEntrySubtype, assetEntryType);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = findByG_LikeT_AES_AET(
+				groupId, title, assetEntrySubtype, assetEntryType);
+
+			assetListEntries = InlineSQLHelperUtil.filter(
+				assetListEntries, groupId);
+
+			return assetListEntries.size();
+		}
+
 		title = Objects.toString(title, "");
 		assetEntrySubtype = Objects.toString(assetEntrySubtype, "");
 		assetEntryType = Objects.toString(assetEntryType, "");
@@ -13195,6 +13391,15 @@ public class AssetListEntryPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_LikeT_AES_AET(
 				groupIds, title, assetEntrySubtype, assetEntryType);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<AssetListEntry> assetListEntries = InlineSQLHelperUtil.filter(
+				findByG_LikeT_AES_AET(
+					groupIds, title, assetEntrySubtype, assetEntryType),
+				groupIds);
+
+			return assetListEntries.size();
 		}
 
 		if (groupIds == null) {
@@ -14815,6 +15020,13 @@ public class AssetListEntryPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "assetListEntry";
 
 	private static final String _FILTER_ENTITY_TABLE = "AssetListEntry";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.asset.list.model.AssetListEntry")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "assetListEntry.";
 

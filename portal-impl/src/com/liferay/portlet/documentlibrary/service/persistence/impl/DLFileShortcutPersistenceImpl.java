@@ -15,6 +15,7 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -1924,6 +1925,11 @@ public class DLFileShortcutPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2282,6 +2288,15 @@ public class DLFileShortcutPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileShortcut> dlFileShortcuts = findByGroupId(groupId);
+
+			dlFileShortcuts = InlineSQLHelperUtil.filter(
+				dlFileShortcuts, groupId);
+
+			return dlFileShortcuts.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3874,6 +3889,12 @@ public class DLFileShortcutPersistenceImpl
 			return findByG_F(groupId, folderId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_F(groupId, folderId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4252,6 +4273,15 @@ public class DLFileShortcutPersistenceImpl
 	public int filterCountByG_F(long groupId, long folderId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_F(groupId, folderId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileShortcut> dlFileShortcuts = findByG_F(groupId, folderId);
+
+			dlFileShortcuts = InlineSQLHelperUtil.filter(
+				dlFileShortcuts, groupId);
+
+			return dlFileShortcuts.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5398,6 +5428,13 @@ public class DLFileShortcutPersistenceImpl
 				groupId, folderId, active, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_F_A(
+					groupId, folderId, active, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5792,6 +5829,16 @@ public class DLFileShortcutPersistenceImpl
 	public int filterCountByG_F_A(long groupId, long folderId, boolean active) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_F_A(groupId, folderId, active);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileShortcut> dlFileShortcuts = findByG_F_A(
+				groupId, folderId, active);
+
+			dlFileShortcuts = InlineSQLHelperUtil.filter(
+				dlFileShortcuts, groupId);
+
+			return dlFileShortcuts.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -6445,6 +6492,14 @@ public class DLFileShortcutPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_F_A_S(
+					groupId, folderId, active, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6864,6 +6919,16 @@ public class DLFileShortcutPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_F_A_S(groupId, folderId, active, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileShortcut> dlFileShortcuts = findByG_F_A_S(
+				groupId, folderId, active, status);
+
+			dlFileShortcuts = InlineSQLHelperUtil.filter(
+				dlFileShortcuts, groupId);
+
+			return dlFileShortcuts.size();
 		}
 
 		StringBundler sb = new StringBundler(5);
@@ -8315,6 +8380,14 @@ public class DLFileShortcutPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "dlFileShortcut";
 
 	private static final String _FILTER_ENTITY_TABLE = "DLFileShortcut";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.document.library.kernel.model.DLFileShortcut")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "dlFileShortcut.";
 

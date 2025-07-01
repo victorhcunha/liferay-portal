@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1992,6 +1993,11 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2364,6 +2370,16 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutPageTemplateCollection> layoutPageTemplateCollections =
+				findByGroupId(groupId);
+
+			layoutPageTemplateCollections = InlineSQLHelperUtil.filter(
+				layoutPageTemplateCollections, groupId);
+
+			return layoutPageTemplateCollections.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2967,6 +2983,14 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P(
+					groupId, parentLayoutPageTemplateCollectionId, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3370,6 +3394,16 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P(groupId, parentLayoutPageTemplateCollectionId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutPageTemplateCollection> layoutPageTemplateCollections =
+				findByG_P(groupId, parentLayoutPageTemplateCollectionId);
+
+			layoutPageTemplateCollections = InlineSQLHelperUtil.filter(
+				layoutPageTemplateCollections, groupId);
+
+			return layoutPageTemplateCollections.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -3960,6 +3994,12 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 			return findByG_T(groupId, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_T(groupId, type, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4351,6 +4391,16 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 	public int filterCountByG_T(long groupId, int type) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_T(groupId, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutPageTemplateCollection> layoutPageTemplateCollections =
+				findByG_T(groupId, type);
+
+			layoutPageTemplateCollections = InlineSQLHelperUtil.filter(
+				layoutPageTemplateCollections, groupId);
+
+			return layoutPageTemplateCollections.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4996,6 +5046,14 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_T(
+					groupId, parentLayoutPageTemplateCollectionId, type, start,
+					end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5418,6 +5476,17 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_T(
 				groupId, parentLayoutPageTemplateCollectionId, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutPageTemplateCollection> layoutPageTemplateCollections =
+				findByG_P_T(
+					groupId, parentLayoutPageTemplateCollectionId, type);
+
+			layoutPageTemplateCollections = InlineSQLHelperUtil.filter(
+				layoutPageTemplateCollections, groupId);
+
+			return layoutPageTemplateCollections.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -6317,6 +6386,12 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 				groupId, name, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_N_T(groupId, name, type, start, end, orderByComparator),
+				groupId);
+		}
+
 		name = Objects.toString(name, "");
 
 		StringBundler sb = null;
@@ -6764,6 +6839,16 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 	public int filterCountByG_N_T(long groupId, String name, int type) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_N_T(groupId, name, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutPageTemplateCollection> layoutPageTemplateCollections =
+				findByG_N_T(groupId, name, type);
+
+			layoutPageTemplateCollections = InlineSQLHelperUtil.filter(
+				layoutPageTemplateCollections, groupId);
+
+			return layoutPageTemplateCollections.size();
 		}
 
 		name = Objects.toString(name, "");
@@ -7421,6 +7506,13 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 				groupId, name, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeN_T(
+					groupId, name, type, start, end, orderByComparator),
+				groupId);
+		}
+
 		name = Objects.toString(name, "");
 
 		StringBundler sb = null;
@@ -7868,6 +7960,16 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 	public int filterCountByG_LikeN_T(long groupId, String name, int type) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_LikeN_T(groupId, name, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<LayoutPageTemplateCollection> layoutPageTemplateCollections =
+				findByG_LikeN_T(groupId, name, type);
+
+			layoutPageTemplateCollections = InlineSQLHelperUtil.filter(
+				layoutPageTemplateCollections, groupId);
+
+			return layoutPageTemplateCollections.size();
 		}
 
 		name = Objects.toString(name, "");
@@ -9762,6 +9864,14 @@ public class LayoutPageTemplateCollectionPersistenceImpl
 
 	private static final String _FILTER_ENTITY_TABLE =
 		"LayoutPageTemplateCollection";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.layout.page.template.model.LayoutPageTemplateCollection")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"layoutPageTemplateCollection.";

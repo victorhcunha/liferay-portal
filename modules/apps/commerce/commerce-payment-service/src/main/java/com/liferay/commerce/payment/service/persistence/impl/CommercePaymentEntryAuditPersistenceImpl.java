@@ -15,6 +15,7 @@ import com.liferay.commerce.payment.service.persistence.CommercePaymentEntryAudi
 import com.liferay.commerce.payment.service.persistence.impl.constants.CommercePersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -596,6 +597,12 @@ public class CommercePaymentEntryAuditPersistenceImpl
 				commercePaymentEntryId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCommercePaymentEntryId(
+					commercePaymentEntryId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -970,6 +977,16 @@ public class CommercePaymentEntryAuditPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByCommercePaymentEntryId(commercePaymentEntryId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommercePaymentEntryAudit> commercePaymentEntryAudits =
+				findByCommercePaymentEntryId(commercePaymentEntryId);
+
+			commercePaymentEntryAudits = InlineSQLHelperUtil.filter(
+				commercePaymentEntryAudits);
+
+			return commercePaymentEntryAudits.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1693,6 +1710,14 @@ public class CommercePaymentEntryAuditPersistenceImpl
 
 	private static final String _FILTER_ENTITY_TABLE =
 		"CommercePaymentEntryAudit";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.commerce.payment.model.CommercePaymentEntryAudit")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"commercePaymentEntryAudit.";

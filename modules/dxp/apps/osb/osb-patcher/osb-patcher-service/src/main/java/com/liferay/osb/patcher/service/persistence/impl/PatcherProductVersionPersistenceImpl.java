@@ -15,6 +15,7 @@ import com.liferay.osb.patcher.service.persistence.PatcherProductVersionUtil;
 import com.liferay.osb.patcher.service.persistence.impl.constants.OSBPatcherPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -589,6 +590,12 @@ public class PatcherProductVersionPersistenceImpl
 				fixDeliveryMethod, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByFixDeliveryMethod(
+					fixDeliveryMethod, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -953,6 +960,16 @@ public class PatcherProductVersionPersistenceImpl
 	public int filterCountByFixDeliveryMethod(int fixDeliveryMethod) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByFixDeliveryMethod(fixDeliveryMethod);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherProductVersion> patcherProductVersions =
+				findByFixDeliveryMethod(fixDeliveryMethod);
+
+			patcherProductVersions = InlineSQLHelperUtil.filter(
+				patcherProductVersions);
+
+			return patcherProductVersions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1858,6 +1875,14 @@ public class PatcherProductVersionPersistenceImpl
 
 	private static final String _FILTER_ENTITY_TABLE =
 		"OSBPatcher_PProductVersion";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.osb.patcher.model.PatcherProductVersion")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"patcherProductVersion.";

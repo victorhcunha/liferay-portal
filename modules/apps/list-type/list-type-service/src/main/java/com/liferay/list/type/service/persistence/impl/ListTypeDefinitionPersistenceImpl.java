@@ -16,6 +16,7 @@ import com.liferay.list.type.service.persistence.ListTypeDefinitionUtil;
 import com.liferay.list.type.service.persistence.impl.constants.ListTypePersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -607,6 +608,11 @@ public class ListTypeDefinitionPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1003,6 +1009,15 @@ public class ListTypeDefinitionPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<ListTypeDefinition> listTypeDefinitions = findByUuid(uuid);
+
+			listTypeDefinitions = InlineSQLHelperUtil.filter(
+				listTypeDefinitions);
+
+			return listTypeDefinitions.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1614,6 +1629,11 @@ public class ListTypeDefinitionPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2030,6 +2050,16 @@ public class ListTypeDefinitionPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<ListTypeDefinition> listTypeDefinitions = findByUuid_C(
+				uuid, companyId);
+
+			listTypeDefinitions = InlineSQLHelperUtil.filter(
+				listTypeDefinitions);
+
+			return listTypeDefinitions.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2622,6 +2652,11 @@ public class ListTypeDefinitionPersistenceImpl
 			return findByC_U(companyId, userId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_U(companyId, userId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2999,6 +3034,16 @@ public class ListTypeDefinitionPersistenceImpl
 	public int filterCountByC_U(long companyId, long userId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_U(companyId, userId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<ListTypeDefinition> listTypeDefinitions = findByC_U(
+				companyId, userId);
+
+			listTypeDefinitions = InlineSQLHelperUtil.filter(
+				listTypeDefinitions);
+
+			return listTypeDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4054,6 +4099,13 @@ public class ListTypeDefinitionPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "listTypeDefinition";
 
 	private static final String _FILTER_ENTITY_TABLE = "ListTypeDefinition";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.list.type.model.ListTypeDefinition")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "listTypeDefinition.";
 

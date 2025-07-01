@@ -17,6 +17,7 @@ import com.liferay.osb.patcher.service.persistence.PatcherFixUtil;
 import com.liferay.osb.patcher.service.persistence.impl.constants.OSBPatcherPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -601,6 +602,12 @@ public class PatcherFixPersistenceImpl
 				patcherProjectVersionId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByPatcherProjectVersionId(
+					patcherProjectVersionId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -954,6 +961,15 @@ public class PatcherFixPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByPatcherProjectVersionId(patcherProjectVersionId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFix> patcherFixes = findByPatcherProjectVersionId(
+				patcherProjectVersionId);
+
+			patcherFixes = InlineSQLHelperUtil.filter(patcherFixes);
+
+			return patcherFixes.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1560,6 +1576,13 @@ public class PatcherFixPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByP_L_T(
+					patcherProjectVersionId, latestFix, type, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1950,6 +1973,15 @@ public class PatcherFixPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByP_L_T(patcherProjectVersionId, latestFix, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFix> patcherFixes = findByP_L_T(
+				patcherProjectVersionId, latestFix, type);
+
+			patcherFixes = InlineSQLHelperUtil.filter(patcherFixes);
+
+			return patcherFixes.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -2558,6 +2590,13 @@ public class PatcherFixPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByP_L_NotT(
+					patcherProjectVersionId, latestFix, type, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2948,6 +2987,15 @@ public class PatcherFixPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByP_L_NotT(patcherProjectVersionId, latestFix, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFix> patcherFixes = findByP_L_NotT(
+				patcherProjectVersionId, latestFix, type);
+
+			patcherFixes = InlineSQLHelperUtil.filter(patcherFixes);
+
+			return patcherFixes.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -3572,6 +3620,12 @@ public class PatcherFixPersistenceImpl
 				key, keyVersion, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByK_GtKV_NotT(
+					key, keyVersion, type, start, end, orderByComparator));
+		}
+
 		key = Objects.toString(key, "");
 
 		StringBundler sb = null;
@@ -3994,6 +4048,15 @@ public class PatcherFixPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByK_GtKV_NotT(key, keyVersion, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFix> patcherFixes = findByK_GtKV_NotT(
+				key, keyVersion, type);
+
+			patcherFixes = InlineSQLHelperUtil.filter(patcherFixes);
+
+			return patcherFixes.size();
 		}
 
 		key = Objects.toString(key, "");
@@ -4639,6 +4702,12 @@ public class PatcherFixPersistenceImpl
 				key, keyVersion, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByK_LtKV_NotT(
+					key, keyVersion, type, start, end, orderByComparator));
+		}
+
 		key = Objects.toString(key, "");
 
 		StringBundler sb = null;
@@ -5061,6 +5130,15 @@ public class PatcherFixPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByK_LtKV_NotT(key, keyVersion, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFix> patcherFixes = findByK_LtKV_NotT(
+				key, keyVersion, type);
+
+			patcherFixes = InlineSQLHelperUtil.filter(patcherFixes);
+
+			return patcherFixes.size();
 		}
 
 		key = Objects.toString(key, "");
@@ -5706,6 +5784,12 @@ public class PatcherFixPersistenceImpl
 				key, latestFix, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByK_L_NotT(
+					key, latestFix, type, start, end, orderByComparator));
+		}
+
 		key = Objects.toString(key, "");
 
 		StringBundler sb = null;
@@ -6126,6 +6210,15 @@ public class PatcherFixPersistenceImpl
 	public int filterCountByK_L_NotT(String key, boolean latestFix, int type) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByK_L_NotT(key, latestFix, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFix> patcherFixes = findByK_L_NotT(
+				key, latestFix, type);
+
+			patcherFixes = InlineSQLHelperUtil.filter(patcherFixes);
+
+			return patcherFixes.size();
 		}
 
 		key = Objects.toString(key, "");
@@ -6804,6 +6897,13 @@ public class PatcherFixPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByLtM_N_T_S(
+					modifiedDate, notified, type, status, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -7195,6 +7295,13 @@ public class PatcherFixPersistenceImpl
 			return findByLtM_N_T_S(
 				modifiedDate, notified, types, status, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByLtM_N_T_S(
+					modifiedDate, notified, types, status, start, end,
+					orderByComparator));
 		}
 
 		if (types == null) {
@@ -7758,6 +7865,15 @@ public class PatcherFixPersistenceImpl
 			return countByLtM_N_T_S(modifiedDate, notified, type, status);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFix> patcherFixes = findByLtM_N_T_S(
+				modifiedDate, notified, type, status);
+
+			patcherFixes = InlineSQLHelperUtil.filter(patcherFixes);
+
+			return patcherFixes.size();
+		}
+
 		StringBundler sb = new StringBundler(5);
 
 		sb.append(_FILTER_SQL_COUNT_PATCHERFIX_WHERE);
@@ -7832,6 +7948,13 @@ public class PatcherFixPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByLtM_N_T_S(modifiedDate, notified, types, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFix> patcherFixes = InlineSQLHelperUtil.filter(
+				findByLtM_N_T_S(modifiedDate, notified, types, status));
+
+			return patcherFixes.size();
 		}
 
 		if (types == null) {
@@ -8545,6 +8668,13 @@ public class PatcherFixPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByP_L_N_NotT(
+					patcherProjectVersionId, latestFix, name, type, start, end,
+					orderByComparator));
+		}
+
 		name = Objects.toString(name, "");
 
 		StringBundler sb = null;
@@ -8995,6 +9125,15 @@ public class PatcherFixPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByP_L_N_NotT(
 				patcherProjectVersionId, latestFix, name, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFix> patcherFixes = findByP_L_N_NotT(
+				patcherProjectVersionId, latestFix, name, type);
+
+			patcherFixes = InlineSQLHelperUtil.filter(patcherFixes);
+
+			return patcherFixes.size();
 		}
 
 		name = Objects.toString(name, "");
@@ -9659,6 +9798,13 @@ public class PatcherFixPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByP_L_NotT_S(
+					patcherProjectVersionId, latestFix, type, status, start,
+					end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -10067,6 +10213,15 @@ public class PatcherFixPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByP_L_NotT_S(
 				patcherProjectVersionId, latestFix, type, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFix> patcherFixes = findByP_L_NotT_S(
+				patcherProjectVersionId, latestFix, type, status);
+
+			patcherFixes = InlineSQLHelperUtil.filter(patcherFixes);
+
+			return patcherFixes.size();
 		}
 
 		StringBundler sb = new StringBundler(5);
@@ -11626,6 +11781,13 @@ public class PatcherFixPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "patcherFix";
 
 	private static final String _FILTER_ENTITY_TABLE = "OSBPatcher_PatcherFix";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.osb.patcher.model.PatcherFix")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "patcherFix.";
 

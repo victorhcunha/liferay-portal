@@ -18,6 +18,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1931,6 +1932,11 @@ public class DDMFormInstancePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2263,6 +2269,12 @@ public class DDMFormInstancePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByGroupId(groupIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -2693,6 +2705,15 @@ public class DDMFormInstancePersistenceImpl
 			return countByGroupId(groupId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDMFormInstance> ddmFormInstances = findByGroupId(groupId);
+
+			ddmFormInstances = InlineSQLHelperUtil.filter(
+				ddmFormInstances, groupId);
+
+			return ddmFormInstances.size();
+		}
+
 		StringBundler sb = new StringBundler(2);
 
 		sb.append(_FILTER_SQL_COUNT_DDMFORMINSTANCE_WHERE);
@@ -2739,6 +2760,13 @@ public class DDMFormInstancePersistenceImpl
 	public int filterCountByGroupId(long[] groupIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByGroupId(groupIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DDMFormInstance> ddmFormInstances = InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds), groupIds);
+
+			return ddmFormInstances.size();
 		}
 
 		if (groupIds == null) {
@@ -4008,6 +4036,14 @@ public class DDMFormInstancePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "ddmFormInstance";
 
 	private static final String _FILTER_ENTITY_TABLE = "DDMFormInstance";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.dynamic.data.mapping.model.DDMFormInstance")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "ddmFormInstance.";
 

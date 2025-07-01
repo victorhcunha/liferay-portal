@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1922,6 +1923,11 @@ public class CPInstancePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2273,6 +2279,14 @@ public class CPInstancePersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CPInstance> cpInstances = findByGroupId(groupId);
+
+			cpInstances = InlineSQLHelperUtil.filter(cpInstances, groupId);
+
+			return cpInstances.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -4410,6 +4424,12 @@ public class CPInstancePersistenceImpl
 			return findByG_ST(groupId, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_ST(groupId, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4778,6 +4798,14 @@ public class CPInstancePersistenceImpl
 	public int filterCountByG_ST(long groupId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_ST(groupId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CPInstance> cpInstances = findByG_ST(groupId, status);
+
+			cpInstances = InlineSQLHelperUtil.filter(cpInstances, groupId);
+
+			return cpInstances.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -9769,6 +9797,13 @@ public class CPInstancePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "cpInstance";
 
 	private static final String _FILTER_ENTITY_TABLE = "CPInstance";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.commerce.product.model.CPInstance")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "cpInstance.";
 

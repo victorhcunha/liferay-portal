@@ -16,6 +16,7 @@ import com.liferay.osb.patcher.service.persistence.PatcherAccountUtil;
 import com.liferay.osb.patcher.service.persistence.impl.constants.OSBPatcherPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -827,6 +828,13 @@ public class PatcherAccountPersistenceImpl
 				companyId, accountEntryCode, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_LikeA(
+					companyId, accountEntryCode, start, end,
+					orderByComparator));
+		}
+
 		accountEntryCode = Objects.toString(accountEntryCode, "");
 
 		StringBundler sb = null;
@@ -1239,6 +1247,15 @@ public class PatcherAccountPersistenceImpl
 	public int filterCountByC_LikeA(long companyId, String accountEntryCode) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_LikeA(companyId, accountEntryCode);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherAccount> patcherAccounts = findByC_LikeA(
+				companyId, accountEntryCode);
+
+			patcherAccounts = InlineSQLHelperUtil.filter(patcherAccounts);
+
+			return patcherAccounts.size();
 		}
 
 		accountEntryCode = Objects.toString(accountEntryCode, "");
@@ -2295,6 +2312,13 @@ public class PatcherAccountPersistenceImpl
 
 	private static final String _FILTER_ENTITY_TABLE =
 		"OSBPatcher_PatcherAccount";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.osb.patcher.model.PatcherAccount")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "patcherAccount.";
 

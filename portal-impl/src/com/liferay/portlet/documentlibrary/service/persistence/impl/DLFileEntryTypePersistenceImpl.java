@@ -17,6 +17,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -1934,6 +1935,11 @@ public class DLFileEntryTypePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2266,6 +2272,12 @@ public class DLFileEntryTypePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByGroupId(groupIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -2696,6 +2708,15 @@ public class DLFileEntryTypePersistenceImpl
 			return countByGroupId(groupId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileEntryType> dlFileEntryTypes = findByGroupId(groupId);
+
+			dlFileEntryTypes = InlineSQLHelperUtil.filter(
+				dlFileEntryTypes, groupId);
+
+			return dlFileEntryTypes.size();
+		}
+
 		StringBundler sb = new StringBundler(2);
 
 		sb.append(_FILTER_SQL_COUNT_DLFILEENTRYTYPE_WHERE);
@@ -2742,6 +2763,13 @@ public class DLFileEntryTypePersistenceImpl
 	public int filterCountByGroupId(long[] groupIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByGroupId(groupIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileEntryType> dlFileEntryTypes = InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds), groupIds);
+
+			return dlFileEntryTypes.size();
 		}
 
 		if (groupIds == null) {
@@ -5407,6 +5435,14 @@ public class DLFileEntryTypePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "dlFileEntryType";
 
 	private static final String _FILTER_ENTITY_TABLE = "DLFileEntryType";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.document.library.kernel.model.DLFileEntryType")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "dlFileEntryType.";
 

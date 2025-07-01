@@ -15,6 +15,7 @@ import com.liferay.oauth.client.persistence.service.persistence.OAuthClientEntry
 import com.liferay.oauth.client.persistence.service.persistence.impl.constants.OAuthClientPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -573,6 +574,11 @@ public class OAuthClientEntryPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -931,6 +937,15 @@ public class OAuthClientEntryPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<OAuthClientEntry> oAuthClientEntries = findByCompanyId(
+				companyId);
+
+			oAuthClientEntries = InlineSQLHelperUtil.filter(oAuthClientEntries);
+
+			return oAuthClientEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1454,6 +1469,11 @@ public class OAuthClientEntryPersistenceImpl
 			return findByUserId(userId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUserId(userId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1812,6 +1832,14 @@ public class OAuthClientEntryPersistenceImpl
 	public int filterCountByUserId(long userId) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUserId(userId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<OAuthClientEntry> oAuthClientEntries = findByUserId(userId);
+
+			oAuthClientEntries = InlineSQLHelperUtil.filter(oAuthClientEntries);
+
+			return oAuthClientEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2413,6 +2441,13 @@ public class OAuthClientEntryPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A(
+					companyId, authServerWellKnownURI, start, end,
+					orderByComparator));
+		}
+
 		authServerWellKnownURI = Objects.toString(authServerWellKnownURI, "");
 
 		StringBundler sb = null;
@@ -2832,6 +2867,15 @@ public class OAuthClientEntryPersistenceImpl
 	public int filterCountByC_A(long companyId, String authServerWellKnownURI) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A(companyId, authServerWellKnownURI);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<OAuthClientEntry> oAuthClientEntries = findByC_A(
+				companyId, authServerWellKnownURI);
+
+			oAuthClientEntries = InlineSQLHelperUtil.filter(oAuthClientEntries);
+
+			return oAuthClientEntries.size();
 		}
 
 		authServerWellKnownURI = Objects.toString(authServerWellKnownURI, "");
@@ -3847,6 +3891,14 @@ public class OAuthClientEntryPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "oAuthClientEntry";
 
 	private static final String _FILTER_ENTITY_TABLE = "OAuthClientEntry";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.oauth.client.persistence.model.OAuthClientEntry")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "oAuthClientEntry.";
 

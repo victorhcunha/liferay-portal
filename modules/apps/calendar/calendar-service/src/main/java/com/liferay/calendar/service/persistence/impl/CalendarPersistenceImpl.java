@@ -18,6 +18,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1956,6 +1957,13 @@ public class CalendarPersistenceImpl
 				groupId, calendarResourceId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C(
+					groupId, calendarResourceId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2327,6 +2335,14 @@ public class CalendarPersistenceImpl
 	public int filterCountByG_C(long groupId, long calendarResourceId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C(groupId, calendarResourceId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Calendar> calendars = findByG_C(groupId, calendarResourceId);
+
+			calendars = InlineSQLHelperUtil.filter(calendars, groupId);
+
+			return calendars.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -2945,6 +2961,14 @@ public class CalendarPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_D(
+					groupId, calendarResourceId, defaultCalendar, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3342,6 +3366,15 @@ public class CalendarPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_D(groupId, calendarResourceId, defaultCalendar);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Calendar> calendars = findByG_C_D(
+				groupId, calendarResourceId, defaultCalendar);
+
+			calendars = InlineSQLHelperUtil.filter(calendars, groupId);
+
+			return calendars.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -4401,6 +4434,13 @@ public class CalendarPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "calendar";
 
 	private static final String _FILTER_ENTITY_TABLE = "Calendar";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.calendar.model.Calendar")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "calendar.";
 

@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1922,6 +1923,11 @@ public class CPDefinitionPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2279,6 +2285,14 @@ public class CPDefinitionPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CPDefinition> cpDefinitions = findByGroupId(groupId);
+
+			cpDefinitions = InlineSQLHelperUtil.filter(cpDefinitions, groupId);
+
+			return cpDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -4385,6 +4399,14 @@ public class CPDefinitionPersistenceImpl
 				groupId, subscriptionEnabled, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_SE(
+					groupId, subscriptionEnabled, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4763,6 +4785,15 @@ public class CPDefinitionPersistenceImpl
 	public int filterCountByG_SE(long groupId, boolean subscriptionEnabled) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_SE(groupId, subscriptionEnabled);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CPDefinition> cpDefinitions = findByG_SE(
+				groupId, subscriptionEnabled);
+
+			cpDefinitions = InlineSQLHelperUtil.filter(cpDefinitions, groupId);
+
+			return cpDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5332,6 +5363,12 @@ public class CPDefinitionPersistenceImpl
 			return findByG_S(groupId, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_S(groupId, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5708,6 +5745,14 @@ public class CPDefinitionPersistenceImpl
 	public int filterCountByG_S(long groupId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_S(groupId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CPDefinition> cpDefinitions = findByG_S(groupId, status);
+
+			cpDefinitions = InlineSQLHelperUtil.filter(cpDefinitions, groupId);
+
+			return cpDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -8269,6 +8314,13 @@ public class CPDefinitionPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "cpDefinition";
 
 	private static final String _FILTER_ENTITY_TABLE = "CPDefinition";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.commerce.product.model.CPDefinition")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "cpDefinition.";
 

@@ -10,6 +10,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1916,6 +1917,11 @@ public class WikiNodePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2267,6 +2273,14 @@ public class WikiNodePersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<WikiNode> wikiNodes = findByGroupId(groupId);
+
+			wikiNodes = InlineSQLHelperUtil.filter(wikiNodes, groupId);
+
+			return wikiNodes.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3530,6 +3544,12 @@ public class WikiNodePersistenceImpl
 			return findByG_S(groupId, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_S(groupId, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3898,6 +3918,14 @@ public class WikiNodePersistenceImpl
 	public int filterCountByG_S(long groupId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_S(groupId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<WikiNode> wikiNodes = findByG_S(groupId, status);
+
+			wikiNodes = InlineSQLHelperUtil.filter(wikiNodes, groupId);
+
+			return wikiNodes.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5828,6 +5856,13 @@ public class WikiNodePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "wikiNode";
 
 	private static final String _FILTER_ENTITY_TABLE = "WikiNode";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.wiki.model.WikiNode")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "wikiNode.";
 

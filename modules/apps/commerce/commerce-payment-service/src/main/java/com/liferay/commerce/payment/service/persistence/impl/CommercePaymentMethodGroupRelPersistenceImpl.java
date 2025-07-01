@@ -15,6 +15,7 @@ import com.liferay.commerce.payment.service.persistence.CommercePaymentMethodGro
 import com.liferay.commerce.payment.service.persistence.impl.constants.CommercePersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -584,6 +585,11 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -951,6 +957,16 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommercePaymentMethodGroupRel> commercePaymentMethodGroupRels =
+				findByGroupId(groupId);
+
+			commercePaymentMethodGroupRels = InlineSQLHelperUtil.filter(
+				commercePaymentMethodGroupRels, groupId);
+
+			return commercePaymentMethodGroupRels.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1521,6 +1537,12 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 			return findByG_A(groupId, active, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_A(groupId, active, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1906,6 +1928,16 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 	public int filterCountByG_A(long groupId, boolean active) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_A(groupId, active);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommercePaymentMethodGroupRel> commercePaymentMethodGroupRels =
+				findByG_A(groupId, active);
+
+			commercePaymentMethodGroupRels = InlineSQLHelperUtil.filter(
+				commercePaymentMethodGroupRels, groupId);
+
+			return commercePaymentMethodGroupRels.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -2918,6 +2950,14 @@ public class CommercePaymentMethodGroupRelPersistenceImpl
 
 	private static final String _FILTER_ENTITY_TABLE =
 		"CommercePaymentMethodGroupRel";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.commerce.payment.model.CommercePaymentMethodGroupRel")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"commercePaymentMethodGroupRel.";

@@ -15,6 +15,7 @@ import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -1916,6 +1917,11 @@ public class DLFileEntryPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2271,6 +2277,14 @@ public class DLFileEntryPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileEntry> dlFileEntries = findByGroupId(groupId);
+
+			dlFileEntries = InlineSQLHelperUtil.filter(dlFileEntries, groupId);
+
+			return dlFileEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -6954,6 +6968,12 @@ public class DLFileEntryPersistenceImpl
 			return findByG_U(groupId, userId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_U(groupId, userId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -7327,6 +7347,14 @@ public class DLFileEntryPersistenceImpl
 	public int filterCountByG_U(long groupId, long userId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_U(groupId, userId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileEntry> dlFileEntries = findByG_U(groupId, userId);
+
+			dlFileEntries = InlineSQLHelperUtil.filter(dlFileEntries, groupId);
+
+			return dlFileEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -7898,6 +7926,12 @@ public class DLFileEntryPersistenceImpl
 			return findByG_F(groupId, folderId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_F(groupId, folderId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -8238,6 +8272,12 @@ public class DLFileEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_F(groupId, folderIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_F(groupId, folderIds, start, end, orderByComparator),
+				groupId);
 		}
 
 		if (folderIds == null) {
@@ -8703,6 +8743,14 @@ public class DLFileEntryPersistenceImpl
 			return countByG_F(groupId, folderId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileEntry> dlFileEntries = findByG_F(groupId, folderId);
+
+			dlFileEntries = InlineSQLHelperUtil.filter(dlFileEntries, groupId);
+
+			return dlFileEntries.size();
+		}
+
 		StringBundler sb = new StringBundler(3);
 
 		sb.append(_FILTER_SQL_COUNT_DLFILEENTRY_WHERE);
@@ -8754,6 +8802,13 @@ public class DLFileEntryPersistenceImpl
 	public int filterCountByG_F(long groupId, long[] folderIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_F(groupId, folderIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileEntry> dlFileEntries = InlineSQLHelperUtil.filter(
+				findByG_F(groupId, folderIds), groupId);
+
+			return dlFileEntries.size();
 		}
 
 		if (folderIds == null) {
@@ -10519,6 +10574,13 @@ public class DLFileEntryPersistenceImpl
 				groupId, userId, folderId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_U_F(
+					groupId, userId, folderId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -10876,6 +10938,13 @@ public class DLFileEntryPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return findByG_U_F(
 				groupId, userId, folderIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_U_F(
+					groupId, userId, folderIds, start, end, orderByComparator),
+				groupId);
 		}
 
 		if (folderIds == null) {
@@ -11370,6 +11439,15 @@ public class DLFileEntryPersistenceImpl
 			return countByG_U_F(groupId, userId, folderId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileEntry> dlFileEntries = findByG_U_F(
+				groupId, userId, folderId);
+
+			dlFileEntries = InlineSQLHelperUtil.filter(dlFileEntries, groupId);
+
+			return dlFileEntries.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_DLFILEENTRY_WHERE);
@@ -11426,6 +11504,13 @@ public class DLFileEntryPersistenceImpl
 	public int filterCountByG_U_F(long groupId, long userId, long[] folderIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_U_F(groupId, userId, folderIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileEntry> dlFileEntries = InlineSQLHelperUtil.filter(
+				findByG_U_F(groupId, userId, folderIds), groupId);
+
+			return dlFileEntries.size();
 		}
 
 		if (folderIds == null) {
@@ -12730,6 +12815,14 @@ public class DLFileEntryPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_F_F(
+					groupId, folderId, fileEntryTypeId, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -13091,6 +13184,14 @@ public class DLFileEntryPersistenceImpl
 			return findByG_F_F(
 				groupId, folderIds, fileEntryTypeId, start, end,
 				orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_F_F(
+					groupId, folderIds, fileEntryTypeId, start, end,
+					orderByComparator),
+				groupId);
 		}
 
 		if (folderIds == null) {
@@ -13604,6 +13705,15 @@ public class DLFileEntryPersistenceImpl
 			return countByG_F_F(groupId, folderId, fileEntryTypeId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileEntry> dlFileEntries = findByG_F_F(
+				groupId, folderId, fileEntryTypeId);
+
+			dlFileEntries = InlineSQLHelperUtil.filter(dlFileEntries, groupId);
+
+			return dlFileEntries.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_DLFILEENTRY_WHERE);
@@ -13662,6 +13772,13 @@ public class DLFileEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_F_F(groupId, folderIds, fileEntryTypeId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<DLFileEntry> dlFileEntries = InlineSQLHelperUtil.filter(
+				findByG_F_F(groupId, folderIds, fileEntryTypeId), groupId);
+
+			return dlFileEntries.size();
 		}
 
 		if (folderIds == null) {
@@ -16057,6 +16174,14 @@ public class DLFileEntryPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "dlFileEntry";
 
 	private static final String _FILTER_ENTITY_TABLE = "DLFileEntry";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.document.library.kernel.model.DLFileEntry")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "dlFileEntry.";
 

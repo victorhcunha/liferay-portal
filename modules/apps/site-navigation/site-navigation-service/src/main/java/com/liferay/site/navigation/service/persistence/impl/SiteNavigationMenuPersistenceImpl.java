@@ -10,6 +10,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1949,6 +1950,11 @@ public class SiteNavigationMenuPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2284,6 +2290,12 @@ public class SiteNavigationMenuPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByGroupId(groupIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -2714,6 +2726,16 @@ public class SiteNavigationMenuPersistenceImpl
 			return countByGroupId(groupId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SiteNavigationMenu> siteNavigationMenus = findByGroupId(
+				groupId);
+
+			siteNavigationMenus = InlineSQLHelperUtil.filter(
+				siteNavigationMenus, groupId);
+
+			return siteNavigationMenus.size();
+		}
+
 		StringBundler sb = new StringBundler(2);
 
 		sb.append(_FILTER_SQL_COUNT_SITENAVIGATIONMENU_WHERE);
@@ -2760,6 +2782,13 @@ public class SiteNavigationMenuPersistenceImpl
 	public int filterCountByGroupId(long[] groupIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByGroupId(groupIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SiteNavigationMenu> siteNavigationMenus =
+				InlineSQLHelperUtil.filter(findByGroupId(groupIds), groupIds);
+
+			return siteNavigationMenus.size();
 		}
 
 		if (groupIds == null) {
@@ -4084,6 +4113,12 @@ public class SiteNavigationMenuPersistenceImpl
 			return findByG_LikeN(groupId, name, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeN(groupId, name, start, end, orderByComparator),
+				groupId);
+		}
+
 		name = Objects.toString(name, "");
 
 		StringBundler sb = null;
@@ -4461,6 +4496,12 @@ public class SiteNavigationMenuPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByG_LikeN(groupIds, name, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_LikeN(groupIds, name, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -4992,6 +5033,16 @@ public class SiteNavigationMenuPersistenceImpl
 			return countByG_LikeN(groupId, name);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SiteNavigationMenu> siteNavigationMenus = findByG_LikeN(
+				groupId, name);
+
+			siteNavigationMenus = InlineSQLHelperUtil.filter(
+				siteNavigationMenus, groupId);
+
+			return siteNavigationMenus.size();
+		}
+
 		name = Objects.toString(name, "");
 
 		StringBundler sb = new StringBundler(3);
@@ -5056,6 +5107,14 @@ public class SiteNavigationMenuPersistenceImpl
 	public int filterCountByG_LikeN(long[] groupIds, String name) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_LikeN(groupIds, name);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SiteNavigationMenu> siteNavigationMenus =
+				InlineSQLHelperUtil.filter(
+					findByG_LikeN(groupIds, name), groupIds);
+
+			return siteNavigationMenus.size();
 		}
 
 		if (groupIds == null) {
@@ -5667,6 +5726,12 @@ public class SiteNavigationMenuPersistenceImpl
 			return findByG_T(groupId, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_T(groupId, type, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6050,6 +6115,16 @@ public class SiteNavigationMenuPersistenceImpl
 	public int filterCountByG_T(long groupId, int type) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_T(groupId, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SiteNavigationMenu> siteNavigationMenus = findByG_T(
+				groupId, type);
+
+			siteNavigationMenus = InlineSQLHelperUtil.filter(
+				siteNavigationMenus, groupId);
+
+			return siteNavigationMenus.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -6627,6 +6702,12 @@ public class SiteNavigationMenuPersistenceImpl
 			return findByG_A(groupId, auto, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_A(groupId, auto, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -7010,6 +7091,16 @@ public class SiteNavigationMenuPersistenceImpl
 	public int filterCountByG_A(long groupId, boolean auto) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_A(groupId, auto);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SiteNavigationMenu> siteNavigationMenus = findByG_A(
+				groupId, auto);
+
+			siteNavigationMenus = InlineSQLHelperUtil.filter(
+				siteNavigationMenus, groupId);
+
+			return siteNavigationMenus.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -8475,6 +8566,14 @@ public class SiteNavigationMenuPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "siteNavigationMenu";
 
 	private static final String _FILTER_ENTITY_TABLE = "SiteNavigationMenu";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.site.navigation.model.SiteNavigationMenu")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "siteNavigationMenu.";
 

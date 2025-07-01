@@ -10,6 +10,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.bean.BeanReference;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.EntityCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
@@ -63,6 +64,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumMap;
@@ -604,6 +606,11 @@ public class RolePersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -991,6 +998,14 @@ public class RolePersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = findByUuid(uuid);
+
+			roles = InlineSQLHelperUtil.filter(roles);
+
+			return roles.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1596,6 +1611,11 @@ public class RolePersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2003,6 +2023,14 @@ public class RolePersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = findByUuid_C(uuid, companyId);
+
+			roles = InlineSQLHelperUtil.filter(roles);
+
+			return roles.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2554,6 +2582,11 @@ public class RolePersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2905,6 +2938,14 @@ public class RolePersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = findByCompanyId(companyId);
+
+			roles = InlineSQLHelperUtil.filter(roles);
+
+			return roles.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3446,6 +3487,11 @@ public class RolePersistenceImpl
 			return findByName(name, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByName(name, start, end, orderByComparator));
+		}
+
 		name = Objects.toString(name, "");
 
 		StringBundler sb = null;
@@ -3833,6 +3879,14 @@ public class RolePersistenceImpl
 	public int filterCountByName(String name) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByName(name);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = findByName(name);
+
+			roles = InlineSQLHelperUtil.filter(roles);
+
+			return roles.size();
 		}
 
 		name = Objects.toString(name, "");
@@ -4363,6 +4417,11 @@ public class RolePersistenceImpl
 			return findByType(type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByType(type, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4711,6 +4770,14 @@ public class RolePersistenceImpl
 	public int filterCountByType(int type) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByType(type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = findByType(type);
+
+			roles = InlineSQLHelperUtil.filter(roles);
+
+			return roles.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -5259,6 +5326,11 @@ public class RolePersistenceImpl
 			return findBySubtype(subtype, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findBySubtype(subtype, start, end, orderByComparator));
+		}
+
 		subtype = Objects.toString(subtype, "");
 
 		StringBundler sb = null;
@@ -5649,6 +5721,14 @@ public class RolePersistenceImpl
 	public int filterCountBySubtype(String subtype) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countBySubtype(subtype);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = findBySubtype(subtype);
+
+			roles = InlineSQLHelperUtil.filter(roles);
+
+			return roles.size();
 		}
 
 		subtype = Objects.toString(subtype, "");
@@ -6419,6 +6499,11 @@ public class RolePersistenceImpl
 			return findByC_T(companyId, type, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_T(companyId, type, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6753,6 +6838,11 @@ public class RolePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return findByC_T(companyId, types, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_T(companyId, types, start, end, orderByComparator));
 		}
 
 		if (types == null) {
@@ -7213,6 +7303,14 @@ public class RolePersistenceImpl
 			return countByC_T(companyId, type);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = findByC_T(companyId, type);
+
+			roles = InlineSQLHelperUtil.filter(roles);
+
+			return roles.size();
+		}
+
 		StringBundler sb = new StringBundler(3);
 
 		sb.append(_FILTER_SQL_COUNT_ROLE__WHERE);
@@ -7264,6 +7362,13 @@ public class RolePersistenceImpl
 	public int filterCountByC_T(long companyId, int[] types) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_T(companyId, types);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = InlineSQLHelperUtil.filter(
+				findByC_T(companyId, types));
+
+			return roles.size();
 		}
 
 		if (types == null) {
@@ -7872,6 +7977,11 @@ public class RolePersistenceImpl
 			return findByT_S(type, subtype, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByT_S(type, subtype, start, end, orderByComparator));
+		}
+
 		subtype = Objects.toString(subtype, "");
 
 		StringBundler sb = null;
@@ -8279,6 +8389,14 @@ public class RolePersistenceImpl
 	public int filterCountByT_S(int type, String subtype) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByT_S(type, subtype);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = findByT_S(type, subtype);
+
+			roles = InlineSQLHelperUtil.filter(roles);
+
+			return roles.size();
 		}
 
 		subtype = Objects.toString(subtype, "");
@@ -8918,6 +9036,15 @@ public class RolePersistenceImpl
 			return countByC_C_C(companyId, classNameId, classPK);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = Arrays.asList(
+				fetchByC_C_C(companyId, classNameId, classPK));
+
+			roles = InlineSQLHelperUtil.filter(roles);
+
+			return roles.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_ROLE__WHERE);
@@ -8976,6 +9103,13 @@ public class RolePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_C_C(companyId, classNameId, classPKs);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = InlineSQLHelperUtil.filter(
+				findByC_C_C(companyId, classNameId, classPKs));
+
+			return roles.size();
 		}
 
 		if (classPKs == null) {
@@ -9674,6 +9808,15 @@ public class RolePersistenceImpl
 			return countByC_C_C_T(companyId, classNameId, classPK, type);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = Arrays.asList(
+				fetchByC_C_C_T(companyId, classNameId, classPK, type));
+
+			roles = InlineSQLHelperUtil.filter(roles);
+
+			return roles.size();
+		}
+
 		StringBundler sb = new StringBundler(5);
 
 		sb.append(_FILTER_SQL_COUNT_ROLE__WHERE);
@@ -9737,6 +9880,13 @@ public class RolePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_C_C_T(companyId, classNameId, classPKs, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<Role> roles = InlineSQLHelperUtil.filter(
+				findByC_C_C_T(companyId, classNameId, classPKs, type));
+
+			return roles.size();
 		}
 
 		if (classPKs == null) {
@@ -11935,6 +12085,13 @@ public class RolePersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "role_";
 
 	private static final String _FILTER_ENTITY_TABLE = "Role_";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.portal.kernel.model.Role")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "role_.";
 

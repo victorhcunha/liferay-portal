@@ -19,6 +19,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -2464,6 +2465,13 @@ public class KBFolderPersistenceImpl
 				groupId, parentKBFolderId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P(
+					groupId, parentKBFolderId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2834,6 +2842,14 @@ public class KBFolderPersistenceImpl
 	public int filterCountByG_P(long groupId, long parentKBFolderId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P(groupId, parentKBFolderId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBFolder> kbFolders = findByG_P(groupId, parentKBFolderId);
+
+			kbFolders = InlineSQLHelperUtil.filter(kbFolders, groupId);
+
+			return kbFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -3930,6 +3946,14 @@ public class KBFolderPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_S(
+					groupId, parentKBFolderId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4322,6 +4346,15 @@ public class KBFolderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_S(groupId, parentKBFolderId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<KBFolder> kbFolders = findByG_P_S(
+				groupId, parentKBFolderId, status);
+
+			kbFolders = InlineSQLHelperUtil.filter(kbFolders, groupId);
+
+			return kbFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -5735,6 +5768,13 @@ public class KBFolderPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "kbFolder";
 
 	private static final String _FILTER_ENTITY_TABLE = "KBFolder";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.knowledge.base.model.KBFolder")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "kbFolder.";
 

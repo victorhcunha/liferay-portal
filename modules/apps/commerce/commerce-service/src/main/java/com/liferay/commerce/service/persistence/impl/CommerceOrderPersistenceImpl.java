@@ -16,6 +16,7 @@ import com.liferay.commerce.service.persistence.CommerceOrderUtil;
 import com.liferay.commerce.service.persistence.impl.constants.CommercePersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1889,6 +1890,11 @@ public class CommerceOrderPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2241,6 +2247,15 @@ public class CommerceOrderPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceOrder> commerceOrders = findByGroupId(groupId);
+
+			commerceOrders = InlineSQLHelperUtil.filter(
+				commerceOrders, groupId);
+
+			return commerceOrders.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -4825,6 +4840,13 @@ public class CommerceOrderPersistenceImpl
 				groupId, commerceAccountId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C(
+					groupId, commerceAccountId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5197,6 +5219,16 @@ public class CommerceOrderPersistenceImpl
 	public int filterCountByG_C(long groupId, long commerceAccountId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C(groupId, commerceAccountId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceOrder> commerceOrders = findByG_C(
+				groupId, commerceAccountId);
+
+			commerceOrders = InlineSQLHelperUtil.filter(
+				commerceOrders, groupId);
+
+			return commerceOrders.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5804,6 +5836,14 @@ public class CommerceOrderPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_CP(
+					groupId, commercePaymentMethodKey, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		commercePaymentMethodKey = Objects.toString(
 			commercePaymentMethodKey, "");
 
@@ -6221,6 +6261,16 @@ public class CommerceOrderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_CP(groupId, commercePaymentMethodKey);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceOrder> commerceOrders = findByG_CP(
+				groupId, commercePaymentMethodKey);
+
+			commerceOrders = InlineSQLHelperUtil.filter(
+				commerceOrders, groupId);
+
+			return commerceOrders.size();
 		}
 
 		commercePaymentMethodKey = Objects.toString(
@@ -6840,6 +6890,14 @@ public class CommerceOrderPersistenceImpl
 				groupId, userId, orderStatus, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_U_O(
+					groupId, userId, orderStatus, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -7229,6 +7287,16 @@ public class CommerceOrderPersistenceImpl
 	public int filterCountByG_U_O(long groupId, long userId, int orderStatus) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_U_O(groupId, userId, orderStatus);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceOrder> commerceOrders = findByG_U_O(
+				groupId, userId, orderStatus);
+
+			commerceOrders = InlineSQLHelperUtil.filter(
+				commerceOrders, groupId);
+
+			return commerceOrders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -7848,6 +7916,14 @@ public class CommerceOrderPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_O(
+					groupId, commerceAccountId, orderStatus, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -8245,6 +8321,16 @@ public class CommerceOrderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_O(groupId, commerceAccountId, orderStatus);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommerceOrder> commerceOrders = findByG_C_O(
+				groupId, commerceAccountId, orderStatus);
+
+			commerceOrders = InlineSQLHelperUtil.filter(
+				commerceOrders, groupId);
+
+			return commerceOrders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -10833,6 +10919,13 @@ public class CommerceOrderPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "commerceOrder";
 
 	private static final String _FILTER_ENTITY_TABLE = "CommerceOrder";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.commerce.model.CommerceOrder")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "commerceOrder.";
 

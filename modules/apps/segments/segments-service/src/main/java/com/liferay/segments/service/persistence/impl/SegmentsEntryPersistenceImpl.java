@@ -10,6 +10,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -2566,6 +2567,11 @@ public class SegmentsEntryPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2895,6 +2901,12 @@ public class SegmentsEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByGroupId(groupIds, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -3324,6 +3336,15 @@ public class SegmentsEntryPersistenceImpl
 			return countByGroupId(groupId);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SegmentsEntry> segmentsEntries = findByGroupId(groupId);
+
+			segmentsEntries = InlineSQLHelperUtil.filter(
+				segmentsEntries, groupId);
+
+			return segmentsEntries.size();
+		}
+
 		StringBundler sb = new StringBundler(2);
 
 		sb.append(_FILTER_SQL_COUNT_SEGMENTSENTRY_WHERE);
@@ -3370,6 +3391,13 @@ public class SegmentsEntryPersistenceImpl
 	public int filterCountByGroupId(long[] groupIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByGroupId(groupIds);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SegmentsEntry> segmentsEntries = InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds), groupIds);
+
+			return segmentsEntries.size();
 		}
 
 		if (groupIds == null) {
@@ -5984,6 +6012,12 @@ public class SegmentsEntryPersistenceImpl
 			return findByG_A(groupId, active, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_A(groupId, active, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6330,6 +6364,12 @@ public class SegmentsEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByG_A(groupIds, active, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_A(groupIds, active, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -6802,6 +6842,15 @@ public class SegmentsEntryPersistenceImpl
 			return countByG_A(groupId, active);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SegmentsEntry> segmentsEntries = findByG_A(groupId, active);
+
+			segmentsEntries = InlineSQLHelperUtil.filter(
+				segmentsEntries, groupId);
+
+			return segmentsEntries.size();
+		}
+
 		StringBundler sb = new StringBundler(3);
 
 		sb.append(_FILTER_SQL_COUNT_SEGMENTSENTRY_WHERE);
@@ -6853,6 +6902,13 @@ public class SegmentsEntryPersistenceImpl
 	public int filterCountByG_A(long[] groupIds, boolean active) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_A(groupIds, active);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SegmentsEntry> segmentsEntries = InlineSQLHelperUtil.filter(
+				findByG_A(groupIds, active), groupIds);
+
+			return segmentsEntries.size();
 		}
 
 		if (groupIds == null) {
@@ -7478,6 +7534,12 @@ public class SegmentsEntryPersistenceImpl
 			return findByG_SRC(groupId, source, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_SRC(groupId, source, start, end, orderByComparator),
+				groupId);
+		}
+
 		source = Objects.toString(source, "");
 
 		StringBundler sb = null;
@@ -7850,6 +7912,12 @@ public class SegmentsEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByG_SRC(groupIds, source, start, end, orderByComparator);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByG_SRC(groupIds, source, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -8376,6 +8444,15 @@ public class SegmentsEntryPersistenceImpl
 			return countByG_SRC(groupId, source);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SegmentsEntry> segmentsEntries = findByG_SRC(groupId, source);
+
+			segmentsEntries = InlineSQLHelperUtil.filter(
+				segmentsEntries, groupId);
+
+			return segmentsEntries.size();
+		}
+
 		source = Objects.toString(source, "");
 
 		StringBundler sb = new StringBundler(3);
@@ -8440,6 +8517,13 @@ public class SegmentsEntryPersistenceImpl
 	public int filterCountByG_SRC(long[] groupIds, String source) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_SRC(groupIds, source);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<SegmentsEntry> segmentsEntries = InlineSQLHelperUtil.filter(
+				findByG_SRC(groupIds, source), groupIds);
+
+			return segmentsEntries.size();
 		}
 
 		if (groupIds == null) {
@@ -9682,6 +9766,13 @@ public class SegmentsEntryPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "segmentsEntry";
 
 	private static final String _FILTER_ENTITY_TABLE = "SegmentsEntry";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.segments.model.SegmentsEntry")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "segmentsEntry.";
 

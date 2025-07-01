@@ -16,6 +16,7 @@ import com.liferay.commerce.payment.service.persistence.CommercePaymentEntryUtil
 import com.liferay.commerce.payment.service.persistence.impl.constants.CommercePersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -588,6 +589,11 @@ public class CommercePaymentEntryPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -949,6 +955,16 @@ public class CommercePaymentEntryPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommercePaymentEntry> commercePaymentEntries = findByCompanyId(
+				companyId);
+
+			commercePaymentEntries = InlineSQLHelperUtil.filter(
+				commercePaymentEntries);
+
+			return commercePaymentEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1550,6 +1566,13 @@ public class CommercePaymentEntryPersistenceImpl
 				companyId, classNameId, classPK, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_C_C(
+					companyId, classNameId, classPK, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1948,6 +1971,16 @@ public class CommercePaymentEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_C_C(companyId, classNameId, classPK);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommercePaymentEntry> commercePaymentEntries = findByC_C_C(
+				companyId, classNameId, classPK);
+
+			commercePaymentEntries = InlineSQLHelperUtil.filter(
+				commercePaymentEntries);
+
+			return commercePaymentEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -2597,6 +2630,13 @@ public class CommercePaymentEntryPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_C_C_T(
+					companyId, classNameId, classPK, type, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3017,6 +3057,16 @@ public class CommercePaymentEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_C_C_T(companyId, classNameId, classPK, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommercePaymentEntry> commercePaymentEntries = findByC_C_C_T(
+				companyId, classNameId, classPK, type);
+
+			commercePaymentEntries = InlineSQLHelperUtil.filter(
+				commercePaymentEntries);
+
+			return commercePaymentEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(5);
@@ -3715,6 +3765,13 @@ public class CommercePaymentEntryPersistenceImpl
 				end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByC_C_C_P_T(
+					companyId, classNameId, classPK, paymentStatus, type, start,
+					end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4155,6 +4212,16 @@ public class CommercePaymentEntryPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_C_C_P_T(
 				companyId, classNameId, classPK, paymentStatus, type);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<CommercePaymentEntry> commercePaymentEntries = findByC_C_C_P_T(
+				companyId, classNameId, classPK, paymentStatus, type);
+
+			commercePaymentEntries = InlineSQLHelperUtil.filter(
+				commercePaymentEntries);
+
+			return commercePaymentEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(6);
@@ -5282,6 +5349,14 @@ public class CommercePaymentEntryPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "commercePaymentEntry";
 
 	private static final String _FILTER_ENTITY_TABLE = "CommercePaymentEntry";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter(
+					"com.liferay.commerce.payment.model.CommercePaymentEntry")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS =
 		"commercePaymentEntry.";

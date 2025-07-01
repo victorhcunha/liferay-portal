@@ -18,6 +18,7 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
 import com.liferay.portal.kernel.change.tracking.CTColumnResolutionType;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -1916,6 +1917,11 @@ public class JournalFeedPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2270,6 +2276,14 @@ public class JournalFeedPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<JournalFeed> journalFeeds = findByGroupId(groupId);
+
+			journalFeeds = InlineSQLHelperUtil.filter(journalFeeds, groupId);
+
+			return journalFeeds.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3527,6 +3541,13 @@ public class JournalFeedPersistenceImpl
 	private static final String _FILTER_ENTITY_ALIAS = "journalFeed";
 
 	private static final String _FILTER_ENTITY_TABLE = "JournalFeed";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.journal.model.JournalFeed")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "journalFeed.";
 

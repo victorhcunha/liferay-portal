@@ -16,6 +16,7 @@ import com.liferay.osb.patcher.service.persistence.PatcherFixPackUtil;
 import com.liferay.osb.patcher.service.persistence.impl.constants.OSBPatcherPersistenceConstants;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.configuration.Configuration;
+import com.liferay.portal.kernel.configuration.Filter;
 import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
@@ -760,6 +761,12 @@ public class PatcherFixPackPersistenceImpl
 				patcherFixComponentId, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByPatcherFixComponentId(
+					patcherFixComponentId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1117,6 +1124,15 @@ public class PatcherFixPackPersistenceImpl
 	public int filterCountByPatcherFixComponentId(long patcherFixComponentId) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByPatcherFixComponentId(patcherFixComponentId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFixPack> patcherFixPacks = findByPatcherFixComponentId(
+				patcherFixComponentId);
+
+			patcherFixPacks = InlineSQLHelperUtil.filter(patcherFixPacks);
+
+			return patcherFixPacks.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1638,6 +1654,11 @@ public class PatcherFixPackPersistenceImpl
 			return findByVersion(version, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByVersion(version, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1990,6 +2011,14 @@ public class PatcherFixPackPersistenceImpl
 	public int filterCountByVersion(int version) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByVersion(version);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFixPack> patcherFixPacks = findByVersion(version);
+
+			patcherFixPacks = InlineSQLHelperUtil.filter(patcherFixPacks);
+
+			return patcherFixPacks.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2572,6 +2601,13 @@ public class PatcherFixPackPersistenceImpl
 				orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByPFCI_PPVI(
+					patcherFixComponentId, patcherProjectVersionId, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2955,6 +2991,15 @@ public class PatcherFixPackPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByPFCI_PPVI(
 				patcherFixComponentId, patcherProjectVersionId);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFixPack> patcherFixPacks = findByPFCI_PPVI(
+				patcherFixComponentId, patcherProjectVersionId);
+
+			patcherFixPacks = InlineSQLHelperUtil.filter(patcherFixPacks);
+
+			return patcherFixPacks.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -3535,6 +3580,13 @@ public class PatcherFixPackPersistenceImpl
 				patcherFixComponentId, version, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByPFCI_V(
+					patcherFixComponentId, version, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3908,6 +3960,15 @@ public class PatcherFixPackPersistenceImpl
 	public int filterCountByPFCI_V(long patcherFixComponentId, int version) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByPFCI_V(patcherFixComponentId, version);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFixPack> patcherFixPacks = findByPFCI_V(
+				patcherFixComponentId, version);
+
+			patcherFixPacks = InlineSQLHelperUtil.filter(patcherFixPacks);
+
+			return patcherFixPacks.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4693,6 +4754,13 @@ public class PatcherFixPackPersistenceImpl
 				patcherProjectVersionId, status, start, end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByPFCI_S(
+					patcherProjectVersionId, status, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5066,6 +5134,15 @@ public class PatcherFixPackPersistenceImpl
 	public int filterCountByPFCI_S(long patcherProjectVersionId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByPFCI_S(patcherProjectVersionId, status);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFixPack> patcherFixPacks = findByPFCI_S(
+				patcherProjectVersionId, status);
+
+			patcherFixPacks = InlineSQLHelperUtil.filter(patcherFixPacks);
+
+			return patcherFixPacks.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5676,6 +5753,13 @@ public class PatcherFixPackPersistenceImpl
 				end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByPFCI_PPVI_GtV(
+					patcherFixComponentId, patcherProjectVersionId, version,
+					start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6075,6 +6159,15 @@ public class PatcherFixPackPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByPFCI_PPVI_GtV(
 				patcherFixComponentId, patcherProjectVersionId, version);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFixPack> patcherFixPacks = findByPFCI_PPVI_GtV(
+				patcherFixComponentId, patcherProjectVersionId, version);
+
+			patcherFixPacks = InlineSQLHelperUtil.filter(patcherFixPacks);
+
+			return patcherFixPacks.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -6693,6 +6786,13 @@ public class PatcherFixPackPersistenceImpl
 				end, orderByComparator);
 		}
 
+		if (_inMemoryFilterPermissionEnabled) {
+			return InlineSQLHelperUtil.filter(
+				findByPFCI_PPVI_LtV(
+					patcherFixComponentId, patcherProjectVersionId, version,
+					start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -7092,6 +7192,15 @@ public class PatcherFixPackPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByPFCI_PPVI_LtV(
 				patcherFixComponentId, patcherProjectVersionId, version);
+		}
+
+		if (_inMemoryFilterPermissionEnabled) {
+			List<PatcherFixPack> patcherFixPacks = findByPFCI_PPVI_LtV(
+				patcherFixComponentId, patcherProjectVersionId, version);
+
+			patcherFixPacks = InlineSQLHelperUtil.filter(patcherFixPacks);
+
+			return patcherFixPacks.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -8574,6 +8683,13 @@ public class PatcherFixPackPersistenceImpl
 
 	private static final String _FILTER_ENTITY_TABLE =
 		"OSBPatcher_PatcherFixPack";
+
+	private static boolean _inMemoryFilterPermissionEnabled =
+		GetterUtil.getBoolean(
+			PropsUtil.get(
+				"in.memory.filter.permission.enabled",
+				new Filter("com.liferay.osb.patcher.model.PatcherFixPack")),
+			true);
 
 	private static final String _ORDER_BY_ENTITY_ALIAS = "patcherFixPack.";
 
