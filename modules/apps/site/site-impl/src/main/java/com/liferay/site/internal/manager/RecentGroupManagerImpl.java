@@ -88,6 +88,9 @@ public class RecentGroupManagerImpl implements RecentGroupManager {
 			return;
 		}
 
+		_log.error(
+			new Exception("Moving " + liveGroupId + " to top : " + groupIds));
+
 		groupIds.remove(liveGroupId);
 
 		groupIds.add(0, liveGroupId);
