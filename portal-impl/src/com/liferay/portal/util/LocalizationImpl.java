@@ -500,13 +500,20 @@ public class LocalizationImpl implements Localization {
 
 		Map<Locale, String> map = new HashMap<>();
 
-		for (Locale locale : LanguageUtil.getAvailableLocales()) {
-			String languageId = LocaleUtil.toLanguageId(locale);
+		Map<String, Locale> availableLocaleMap =
+			LanguageUtil.getAvailableLocaleMap();
+
+		for (Map.Entry<String, Locale> entry : availableLocaleMap.entrySet()) {
+			String languageId = entry.getKey();
+
+			if (!useDefault && !xml.contains(languageId)) {
+				continue;
+			}
 
 			String value = getLocalization(xml, languageId, useDefault);
 
 			if (Validator.isNotNull(value)) {
-				map.put(locale, value);
+				map.put(entry.getValue(), value);
 			}
 		}
 
