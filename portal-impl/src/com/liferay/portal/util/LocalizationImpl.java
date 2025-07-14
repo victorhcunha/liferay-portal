@@ -212,6 +212,20 @@ public class LocalizationImpl implements Localization {
 		String xml, String requestedLanguageId, boolean useDefault,
 		String defaultValue) {
 
+		String openTag = "language-id=\"" + requestedLanguageId + "\">";
+
+		int startIndex = xml.indexOf(openTag);
+
+		if (startIndex != -1) {
+			startIndex += openTag.length();
+
+			int endIndex = xml.indexOf("</", startIndex);
+
+			if (endIndex != -1) {
+				return xml.substring(startIndex, endIndex);
+			}
+		}
+
 		if (!Validator.isXml(xml)) {
 			if (useDefault ||
 				requestedLanguageId.equals(
