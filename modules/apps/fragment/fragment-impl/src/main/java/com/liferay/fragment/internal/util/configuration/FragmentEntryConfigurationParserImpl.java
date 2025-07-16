@@ -114,19 +114,16 @@ public class FragmentEntryConfigurationParserImpl
 
 	@Override
 	public JSONObject getConfigurationJSONObject(
-			String configuration, String editableValues, Locale locale)
+			JSONObject configurationJSONObject,
+			JSONObject editableValuesJSONObject, Locale locale)
 		throws JSONException {
 
 		JSONObject configurationDefaultValuesJSONObject =
-			getConfigurationDefaultValuesJSONObject(
-				_jsonFactory.toJSONObject(configuration));
+			getConfigurationDefaultValuesJSONObject(configurationJSONObject);
 
 		if (configurationDefaultValuesJSONObject == null) {
 			return _jsonFactory.createJSONObject();
 		}
-
-		JSONObject editableValuesJSONObject = _jsonFactory.createJSONObject(
-			editableValues);
 
 		JSONObject configurationValuesJSONObject =
 			editableValuesJSONObject.getJSONObject(
@@ -138,7 +135,7 @@ public class FragmentEntryConfigurationParserImpl
 		}
 
 		List<FragmentConfigurationField> fragmentConfigurationFields =
-			getFragmentConfigurationFields(configuration);
+			getFragmentConfigurationFields(configurationJSONObject.toString());
 
 		for (FragmentConfigurationField fragmentConfigurationField :
 				fragmentConfigurationFields) {
