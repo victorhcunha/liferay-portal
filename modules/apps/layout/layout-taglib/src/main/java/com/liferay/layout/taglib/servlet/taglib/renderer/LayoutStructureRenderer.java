@@ -1267,7 +1267,7 @@ public class LayoutStructureRenderer {
 
 					String fieldName = GetterUtil.getString(
 						fragmentEntryConfigurationParser.getFieldValue(
-							fragmentEntryLink.getEditableValues(),
+							fragmentEntryLink.getEditableValuesJSONObject(),
 							new FragmentConfigurationField(
 								"inputFieldId", "string", "", false, "text"),
 							_themeDisplay.getLocale()));

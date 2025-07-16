@@ -226,13 +226,10 @@ public class FragmentEntryConfigurationParserImpl
 
 	@Override
 	public Object getFieldValue(
-		String editableValues,
+		JSONObject editableValuesJSONObject,
 		FragmentConfigurationField fragmentConfigurationField, Locale locale) {
 
 		try {
-			JSONObject editableValuesJSONObject = _jsonFactory.createJSONObject(
-				editableValues);
-
 			JSONObject configurationValuesJSONObject =
 				editableValuesJSONObject.getJSONObject(
 					FragmentEntryProcessorConstants.
@@ -258,22 +255,8 @@ public class FragmentEntryConfigurationParserImpl
 
 	@Override
 	public Object getFieldValue(
-		String configuration, String editableValues, Locale locale,
-		String name) {
-
-		JSONObject editableValuesJSONObject = null;
-
-		try {
-			editableValuesJSONObject = _jsonFactory.createJSONObject(
-				editableValues);
-		}
-		catch (Exception exception) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(exception);
-			}
-
-			return null;
-		}
+		JSONObject configurationJSONObject, JSONObject editableValuesJSONObject,
+		Locale locale, String name) {
 
 		JSONObject configurationValuesJSONObject =
 			editableValuesJSONObject.getJSONObject(
@@ -285,7 +268,7 @@ public class FragmentEntryConfigurationParserImpl
 		}
 
 		List<FragmentConfigurationField> fragmentConfigurationFields =
-			getFragmentConfigurationFields(configuration);
+			getFragmentConfigurationFields(configurationJSONObject.toString());
 
 		for (FragmentConfigurationField fragmentConfigurationField :
 				fragmentConfigurationFields) {
