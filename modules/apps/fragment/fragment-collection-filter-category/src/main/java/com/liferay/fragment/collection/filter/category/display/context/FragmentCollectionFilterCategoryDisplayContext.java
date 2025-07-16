@@ -122,8 +122,8 @@ public class FragmentCollectionFilterCategoryDisplayContext {
 		).put(
 			"targetCollections",
 			_fragmentEntryConfigurationParser.getConfigurationFieldValue(
-				_fragmentEntryLink.getEditableValues(), "targetCollections",
-				FragmentConfigurationFieldDataType.ARRAY)
+				_fragmentEntryLink.getEditableValuesJSONObject(),
+				"targetCollections", FragmentConfigurationFieldDataType.ARRAY)
 		).build();
 
 		return _props;
