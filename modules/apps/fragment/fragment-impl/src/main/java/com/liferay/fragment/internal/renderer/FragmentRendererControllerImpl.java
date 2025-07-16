@@ -52,7 +52,7 @@ public class FragmentRendererControllerImpl
 	implements FragmentRendererController {
 
 	@Override
-	public String getConfiguration(
+	public JSONObject getConfiguration(
 		FragmentRendererContext fragmentRendererContext) {
 
 		FragmentRenderer fragmentRenderer = _getFragmentRenderer(
@@ -62,9 +62,8 @@ public class FragmentRendererControllerImpl
 			JSONObject jsonObject = _jsonFactory.createJSONObject(
 				fragmentRenderer.getConfiguration(fragmentRendererContext));
 
-			return String.valueOf(
-				_translateConfigurationFields(
-					jsonObject, fragmentRendererContext.getLocale()));
+			return _translateConfigurationFields(
+				jsonObject, fragmentRendererContext.getLocale());
 		}
 		catch (JSONException jsonException) {
 			_log.error(
@@ -72,7 +71,7 @@ public class FragmentRendererControllerImpl
 				jsonException);
 		}
 
-		return StringPool.BLANK;
+		return _jsonFactory.createJSONObject();
 	}
 
 	@Override
