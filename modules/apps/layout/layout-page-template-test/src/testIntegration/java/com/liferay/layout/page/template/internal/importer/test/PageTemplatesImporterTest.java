@@ -508,8 +508,8 @@ public class PageTemplatesImporterTest {
 
 		Assert.assertNotNull(fragmentEntryLink);
 
-		JSONObject editableValuesJSONObject = JSONFactoryUtil.createJSONObject(
-			fragmentEntryLink.getEditableValues());
+		JSONObject editableValuesJSONObject =
+			fragmentEntryLink.getEditableValuesJSONObject();
 
 		String portletId = editableValuesJSONObject.getString("portletId");
 
@@ -987,7 +987,7 @@ public class PageTemplatesImporterTest {
 			layoutPageTemplateEntry);
 
 		_validateHTMLFragmentEntryLinkEditableValues(
-			fragmentEntryLink.getEditableValues());
+			fragmentEntryLink.getEditableValuesJSONObject());
 	}
 
 	@Test
@@ -1029,7 +1029,7 @@ public class PageTemplatesImporterTest {
 			layoutPageTemplateEntry);
 
 		_validateLinkFragmentEntryLinkEditableValues(
-			fragmentEntryLink.getEditableValues());
+			fragmentEntryLink.getEditableValuesJSONObject());
 	}
 
 	@Test
@@ -1049,7 +1049,7 @@ public class PageTemplatesImporterTest {
 			layoutPageTemplateEntry);
 
 		_validateTextFragmentEntryLinkEditableValues(
-			fragmentEntryLink.getEditableValues());
+			fragmentEntryLink.getEditableValuesJSONObject());
 	}
 
 	@Test
@@ -1556,14 +1556,11 @@ public class PageTemplatesImporterTest {
 	}
 
 	private void _validateHTMLFragmentEntryLinkEditableValues(
-			String editableValues)
+			JSONObject editableValuesJSONObject)
 		throws Exception {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-			editableValues);
-
 		JSONObject editableFragmentEntryProcessorJSONObject =
-			jsonObject.getJSONObject(
+			editableValuesJSONObject.getJSONObject(
 				FragmentEntryProcessorConstants.
 					KEY_EDITABLE_FRAGMENT_ENTRY_PROCESSOR);
 
@@ -1630,14 +1627,11 @@ public class PageTemplatesImporterTest {
 	}
 
 	private void _validateLinkFragmentEntryLinkEditableValues(
-			String editableValues)
+			JSONObject editableValuesJSONObject)
 		throws Exception {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-			editableValues);
-
 		JSONObject editableFragmentEntryProcessorJSONObject =
-			jsonObject.getJSONObject(
+			editableValuesJSONObject.getJSONObject(
 				FragmentEntryProcessorConstants.
 					KEY_EDITABLE_FRAGMENT_ENTRY_PROCESSOR);
 
@@ -1661,14 +1655,11 @@ public class PageTemplatesImporterTest {
 	}
 
 	private void _validateTextFragmentEntryLinkEditableValues(
-			String editableValues)
+			JSONObject editableValuesJSONObject)
 		throws Exception {
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-			editableValues);
-
 		JSONObject editableFragmentEntryProcessorJSONObject =
-			jsonObject.getJSONObject(
+			editableValuesJSONObject.getJSONObject(
 				FragmentEntryProcessorConstants.
 					KEY_EDITABLE_FRAGMENT_ENTRY_PROCESSOR);
 
@@ -1692,7 +1683,7 @@ public class PageTemplatesImporterTest {
 			"Edited Text", elementJSONObject.getString("en_US"));
 
 		JSONObject freeMarkerFragmentEntryProcessorJSONObject =
-			jsonObject.getJSONObject(
+			editableValuesJSONObject.getJSONObject(
 				FragmentEntryProcessorConstants.
 					KEY_FREEMARKER_FRAGMENT_ENTRY_PROCESSOR);
 

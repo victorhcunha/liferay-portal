@@ -80,7 +80,6 @@ import com.liferay.portal.background.task.model.BackgroundTask;
 import com.liferay.portal.background.task.service.BackgroundTaskLocalService;
 import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstants;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.Company;
@@ -1921,8 +1920,8 @@ public class LayoutStagedModelDataHandlerTest
 
 		FragmentEntryLink fragmentEntryLink = fragmentEntryLinks.get(0);
 
-		JSONObject editableValuesJSONObject = _jsonFactory.createJSONObject(
-			fragmentEntryLink.getEditableValues());
+		JSONObject editableValuesJSONObject =
+			fragmentEntryLink.getEditableValuesJSONObject();
 
 		JSONObject editableJSONObject = editableValuesJSONObject.getJSONObject(
 			FragmentEntryProcessorConstants.
@@ -2442,9 +2441,6 @@ public class LayoutStagedModelDataHandlerTest
 
 	@Inject
 	private JournalArticleLocalService _journalArticleLocalService;
-
-	@Inject
-	private JSONFactory _jsonFactory;
 
 	@Inject
 	private LayoutFriendlyURLLocalService _layoutFriendlyURLLocalService;

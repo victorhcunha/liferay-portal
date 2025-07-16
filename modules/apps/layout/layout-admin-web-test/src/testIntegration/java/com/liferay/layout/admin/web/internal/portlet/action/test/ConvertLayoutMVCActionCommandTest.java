@@ -20,7 +20,6 @@ import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.layout.util.structure.RootLayoutStructureItem;
 import com.liferay.layout.util.structure.RowStyledLayoutStructureItem;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
@@ -216,8 +215,8 @@ public class ConvertLayoutMVCActionCommandTest {
 
 		FragmentEntryLink fragmentEntryLink = fragmentEntryLinks.get(0);
 
-		JSONObject editableValuesJSONObject = _jsonFactory.createJSONObject(
-			fragmentEntryLink.getEditableValues());
+		JSONObject editableValuesJSONObject =
+			fragmentEntryLink.getEditableValuesJSONObject();
 
 		PortletPreferences portletPreferences =
 			_portletPreferenceValueLocalService.getPreferences(
@@ -531,9 +530,6 @@ public class ConvertLayoutMVCActionCommandTest {
 
 	@DeleteAfterTestRun
 	private Group _group;
-
-	@Inject
-	private JSONFactory _jsonFactory;
 
 	@Inject
 	private LayoutLocalService _layoutLocalService;

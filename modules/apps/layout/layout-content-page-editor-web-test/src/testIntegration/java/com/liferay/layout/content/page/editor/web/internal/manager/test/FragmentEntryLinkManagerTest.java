@@ -251,8 +251,8 @@ public class FragmentEntryLinkManagerTest {
 			_fragmentEntryLinkLocalService.fetchFragmentEntryLink(
 				iterator.next());
 
-		JSONObject editableValuesJSONObject = _jsonFactory.createJSONObject(
-			fragmentEntryLink.getEditableValues());
+		JSONObject editableValuesJSONObject =
+			fragmentEntryLink.getEditableValuesJSONObject();
 
 		JSONObject freeMarkerEntryProcessorJSONObject =
 			editableValuesJSONObject.getJSONObject(

@@ -20,7 +20,6 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.function.UnsafeTriConsumer;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -86,8 +85,7 @@ public class InfoFieldUtil {
 						_getInfoField(
 							fragmentEntryLink.getFragmentEntryLinkId(), name,
 							type),
-						() -> JSONFactoryUtil.createJSONObject(
-							fragmentEntryLink.getEditableValues()));
+						fragmentEntryLink::getEditableValuesJSONObject);
 				}
 			}
 		}

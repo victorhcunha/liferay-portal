@@ -32,7 +32,6 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.aop.AopService;
 import com.liferay.portal.kernel.exception.LockedLayoutException;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.log.Log;
@@ -279,8 +278,8 @@ public class FragmentEntryLinkLocalServiceImpl
 
 				if (fragmentEntryLink.isTypePortlet()) {
 					try {
-						JSONObject jsonObject = _jsonFactory.createJSONObject(
-							fragmentEntryLink.getEditableValues());
+						JSONObject jsonObject =
+							fragmentEntryLink.getEditableValuesJSONObject();
 
 						String instanceId = jsonObject.getString("instanceId");
 						String portletId = jsonObject.getString("portletId");
@@ -797,21 +796,23 @@ public class FragmentEntryLinkLocalServiceImpl
 			fragmentEntry.getFragmentEntryId(), fragmentEntry.getHtml());
 
 		if (!Objects.equals(fragmentEntryLink.getHtml(), html)) {
-			String editableValues = fragmentEntryLink.getEditableValues();
+			JSONObject editableValuesJSONObject =
+				fragmentEntryLink.getEditableValuesJSONObject();
 
 			fragmentEntryLink.setHtml(html);
 			fragmentEntryLink.setEditableValues(null);
 
-			String defaultEditableValues = String.valueOf(
+			JSONObject defaultEditableValuesJSONObject =
 				_fragmentEntryProcessorRegistry.
 					getDefaultEditableValuesJSONObject(
 						_getProcessedHTML(
 							fragmentEntryLink,
 							ServiceContextThreadLocal.getServiceContext()),
-						fragmentEntryLink.getConfigurationJSONObject()));
+						fragmentEntryLink.getConfigurationJSONObject());
 
 			fragmentEntryLink.setEditableValues(
-				_mergeEditableValues(defaultEditableValues, editableValues));
+				_mergeEditableValues(
+					defaultEditableValuesJSONObject, editableValuesJSONObject));
 
 			modified = true;
 		}
@@ -910,88 +911,71 @@ public class FragmentEntryLinkLocalServiceImpl
 	}
 
 	private String _mergeEditableValues(
-		String defaultEditableValues, String editableValues) {
+		JSONObject defaultEditableValuesJSONObject,
+		JSONObject editableValuesJSONObject) {
 
-		try {
-			JSONObject defaultEditableValuesJSONObject =
-				_jsonFactory.createJSONObject(defaultEditableValues);
+		for (String fragmentEntryProcessorKey :
+				_FRAGMENT_ENTRY_PROCESSOR_KEYS) {
 
-			JSONObject editableValuesJSONObject = _jsonFactory.createJSONObject(
-				editableValues);
+			JSONObject editableFragmentEntryProcessorJSONObject =
+				editableValuesJSONObject.getJSONObject(
+					fragmentEntryProcessorKey);
 
-			for (String fragmentEntryProcessorKey :
-					_FRAGMENT_ENTRY_PROCESSOR_KEYS) {
-
-				JSONObject editableFragmentEntryProcessorJSONObject =
-					editableValuesJSONObject.getJSONObject(
-						fragmentEntryProcessorKey);
-
-				if (editableFragmentEntryProcessorJSONObject == null) {
-					editableFragmentEntryProcessorJSONObject =
-						_jsonFactory.createJSONObject();
-				}
-
-				JSONObject defaultEditableFragmentEntryProcessorJSONObject =
-					defaultEditableValuesJSONObject.getJSONObject(
-						fragmentEntryProcessorKey);
-
-				if (defaultEditableFragmentEntryProcessorJSONObject == null) {
-					continue;
-				}
-
-				Iterator<String> defaultEditableValuesIterator =
-					defaultEditableFragmentEntryProcessorJSONObject.keys();
-
-				while (defaultEditableValuesIterator.hasNext()) {
-					String key = defaultEditableValuesIterator.next();
-
-					if (editableFragmentEntryProcessorJSONObject.has(key)) {
-						JSONObject editableValueJSONObject =
-							editableFragmentEntryProcessorJSONObject.
-								getJSONObject(key);
-
-						JSONObject defaultEditableValueJSONObject =
-							defaultEditableFragmentEntryProcessorJSONObject.
-								getJSONObject(key);
-
-						editableValueJSONObject.put(
-							"defaultValue",
-							defaultEditableValueJSONObject.get("defaultValue"));
-
-						defaultEditableFragmentEntryProcessorJSONObject.put(
-							key, editableValueJSONObject);
-					}
-				}
-
-				Iterator<String> editableValuesIterator =
-					editableFragmentEntryProcessorJSONObject.keys();
-
-				while (editableValuesIterator.hasNext()) {
-					String key = editableValuesIterator.next();
-
-					if (!defaultEditableFragmentEntryProcessorJSONObject.has(
-							key)) {
-
-						defaultEditableFragmentEntryProcessorJSONObject.put(
-							key,
-							editableFragmentEntryProcessorJSONObject.get(key));
-					}
-				}
-
-				editableValuesJSONObject.put(
-					fragmentEntryProcessorKey,
-					defaultEditableFragmentEntryProcessorJSONObject);
+			if (editableFragmentEntryProcessorJSONObject == null) {
+				editableFragmentEntryProcessorJSONObject =
+					_jsonFactory.createJSONObject();
 			}
 
-			return editableValuesJSONObject.toString();
-		}
-		catch (JSONException jsonException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(jsonException);
+			JSONObject defaultEditableFragmentEntryProcessorJSONObject =
+				defaultEditableValuesJSONObject.getJSONObject(
+					fragmentEntryProcessorKey);
+
+			if (defaultEditableFragmentEntryProcessorJSONObject == null) {
+				continue;
 			}
+
+			Iterator<String> defaultEditableValuesIterator =
+				defaultEditableFragmentEntryProcessorJSONObject.keys();
+
+			while (defaultEditableValuesIterator.hasNext()) {
+				String key = defaultEditableValuesIterator.next();
+
+				if (editableFragmentEntryProcessorJSONObject.has(key)) {
+					JSONObject editableValueJSONObject =
+						editableFragmentEntryProcessorJSONObject.getJSONObject(
+							key);
+
+					JSONObject defaultEditableValueJSONObject =
+						defaultEditableFragmentEntryProcessorJSONObject.
+							getJSONObject(key);
+
+					editableValueJSONObject.put(
+						"defaultValue",
+						defaultEditableValueJSONObject.get("defaultValue"));
+
+					defaultEditableFragmentEntryProcessorJSONObject.put(
+						key, editableValueJSONObject);
+				}
+			}
+
+			Iterator<String> editableValuesIterator =
+				editableFragmentEntryProcessorJSONObject.keys();
+
+			while (editableValuesIterator.hasNext()) {
+				String key = editableValuesIterator.next();
+
+				if (!defaultEditableFragmentEntryProcessorJSONObject.has(key)) {
+					defaultEditableFragmentEntryProcessorJSONObject.put(
+						key, editableFragmentEntryProcessorJSONObject.get(key));
+				}
+			}
+
+			editableValuesJSONObject.put(
+				fragmentEntryProcessorKey,
+				defaultEditableFragmentEntryProcessorJSONObject);
 		}
 
-		return editableValues;
+		return editableValuesJSONObject.toString();
 	}
 
 	private String _replaceResources(long fragmentEntryId, String html)

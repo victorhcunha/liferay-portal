@@ -6,11 +6,8 @@
 package com.liferay.layout.page.template.internal.upgrade.v3_3_0.util;
 
 import com.liferay.fragment.entry.processor.constants.FragmentEntryProcessorConstants;
-import com.liferay.portal.kernel.json.JSONException;
 import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.log.Log;
-import com.liferay.portal.kernel.log.LogFactoryUtil;
 
 import java.util.Iterator;
 import java.util.Objects;
@@ -21,60 +18,50 @@ import java.util.Objects;
 public class EditableValuesTransformerUtil {
 
 	public static String getEditableValues(
-		String editableValues, long segmentsExperienceId) {
+		JSONObject editableValuesJSONObject, long segmentsExperienceId) {
 
 		JSONObject newEditableValuesJSONObject =
 			JSONFactoryUtil.createJSONObject();
 
-		try {
-			JSONObject editableValuesJSONObject =
-				JSONFactoryUtil.createJSONObject(editableValues);
+		Iterator<String> keysIterator = editableValuesJSONObject.keys();
 
-			Iterator<String> keysIterator = editableValuesJSONObject.keys();
+		while (keysIterator.hasNext()) {
+			String editableProcessorKey = keysIterator.next();
 
-			while (keysIterator.hasNext()) {
-				String editableProcessorKey = keysIterator.next();
+			Object editableProcessorObject = editableValuesJSONObject.get(
+				editableProcessorKey);
 
-				Object editableProcessorObject = editableValuesJSONObject.get(
-					editableProcessorKey);
-
-				if (!(editableProcessorObject instanceof JSONObject)) {
-					newEditableValuesJSONObject.put(
-						editableProcessorKey, editableProcessorObject);
-
-					continue;
-				}
-
-				JSONObject editableProcessorJSONObject =
-					(JSONObject)editableProcessorObject;
-
-				if (Objects.equals(
-						editableProcessorKey,
-						FragmentEntryProcessorConstants.
-							KEY_FREEMARKER_FRAGMENT_ENTRY_PROCESSOR)) {
-
-					editableProcessorJSONObject =
-						_getFreeMarkerFragmentEntryProcessorJSONObject(
-							editableProcessorJSONObject, segmentsExperienceId);
-				}
-				else if (editableProcessorJSONObject.length() > 0) {
-					editableProcessorJSONObject =
-						_getFragmentEntryProcessorJSONObject(
-							editableProcessorJSONObject, segmentsExperienceId);
-				}
-
-				if (editableProcessorJSONObject.length() <= 0) {
-					continue;
-				}
-
+			if (!(editableProcessorObject instanceof JSONObject)) {
 				newEditableValuesJSONObject.put(
-					editableProcessorKey, editableProcessorJSONObject);
+					editableProcessorKey, editableProcessorObject);
+
+				continue;
 			}
-		}
-		catch (JSONException jsonException) {
-			if (_log.isWarnEnabled()) {
-				_log.warn(jsonException);
+
+			JSONObject editableProcessorJSONObject =
+				(JSONObject)editableProcessorObject;
+
+			if (Objects.equals(
+					editableProcessorKey,
+					FragmentEntryProcessorConstants.
+						KEY_FREEMARKER_FRAGMENT_ENTRY_PROCESSOR)) {
+
+				editableProcessorJSONObject =
+					_getFreeMarkerFragmentEntryProcessorJSONObject(
+						editableProcessorJSONObject, segmentsExperienceId);
 			}
+			else if (editableProcessorJSONObject.length() > 0) {
+				editableProcessorJSONObject =
+					_getFragmentEntryProcessorJSONObject(
+						editableProcessorJSONObject, segmentsExperienceId);
+			}
+
+			if (editableProcessorJSONObject.length() <= 0) {
+				continue;
+			}
+
+			newEditableValuesJSONObject.put(
+				editableProcessorKey, editableProcessorJSONObject);
 		}
 
 		return newEditableValuesJSONObject.toString();
@@ -174,8 +161,5 @@ public class EditableValuesTransformerUtil {
 	}
 
 	private static final String _ID_PREFIX = "segments-experience-id-";
-
-	private static final Log _log = LogFactoryUtil.getLog(
-		EditableValuesTransformerUtil.class);
 
 }

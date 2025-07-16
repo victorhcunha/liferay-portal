@@ -36,7 +36,6 @@ import com.liferay.object.field.util.ObjectFieldUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.test.util.ObjectDefinitionTestUtil;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
@@ -608,10 +607,9 @@ public class CopyItemsMVCActionCommandTest {
 			FragmentEntryLink fragmentEntryLink)
 		throws Exception {
 
-		JSONObject jsonObject = _jsonFactory.createJSONObject(
-			fragmentEntryLink.getEditableValues());
-		JSONObject copiedJSONObject = _jsonFactory.createJSONObject(
-			copiedFragmentEntryLink.getEditableValues());
+		JSONObject jsonObject = fragmentEntryLink.getEditableValuesJSONObject();
+		JSONObject copiedJSONObject =
+			copiedFragmentEntryLink.getEditableValuesJSONObject();
 
 		Assert.assertEquals(jsonObject.length(), copiedJSONObject.length());
 
@@ -862,9 +860,6 @@ public class CopyItemsMVCActionCommandTest {
 
 	@Inject
 	private InfoItemServiceRegistry _infoItemServiceRegistry;
-
-	@Inject
-	private JSONFactory _jsonFactory;
 
 	@Inject
 	private Language _language;

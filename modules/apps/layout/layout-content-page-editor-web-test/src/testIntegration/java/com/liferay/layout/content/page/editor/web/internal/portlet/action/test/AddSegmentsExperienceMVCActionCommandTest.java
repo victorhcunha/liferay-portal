@@ -19,7 +19,6 @@ import com.liferay.layout.provider.LayoutStructureProvider;
 import com.liferay.layout.test.util.ContentLayoutTestUtil;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.layout.util.LayoutServiceContextHelper;
-import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
@@ -315,8 +314,8 @@ public class AddSegmentsExperienceMVCActionCommandTest {
 		Assert.assertEquals(
 			FragmentConstants.TYPE_PORTLET, fragmentEntryLink.getType());
 
-		JSONObject editableValuesJSONObject = _jsonFactory.createJSONObject(
-			fragmentEntryLink.getEditableValues());
+		JSONObject editableValuesJSONObject =
+			fragmentEntryLink.getEditableValuesJSONObject();
 
 		return PortletIdCodec.encode(
 			editableValuesJSONObject.getString("portletId"),
@@ -381,9 +380,6 @@ public class AddSegmentsExperienceMVCActionCommandTest {
 
 	@DeleteAfterTestRun
 	private Group _group;
-
-	@Inject
-	private JSONFactory _jsonFactory;
 
 	private Layout _layout;
 

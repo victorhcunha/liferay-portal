@@ -15,7 +15,6 @@ import com.liferay.layout.util.structure.LayoutStructureItem;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.jdbc.AutoBatchPreparedStatementUtil;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.PortletPreferences;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
@@ -145,7 +144,7 @@ public class LayoutPageTemplateStructureRelUpgradeProcess
 			if (segmentsExperienceId == _SEGMENTS_EXPERIENCE_ID_DEFAULT) {
 				fragmentEntryLink.setEditableValues(
 					EditableValuesTransformerUtil.getEditableValues(
-						fragmentEntryLink.getEditableValues(),
+						fragmentEntryLink.getEditableValuesJSONObject(),
 						segmentsExperienceId));
 
 				fragmentEntryLink =
@@ -159,8 +158,7 @@ public class LayoutPageTemplateStructureRelUpgradeProcess
 			String oldNamespace = fragmentEntryLink.getNamespace();
 
 			JSONObject editableValuesJSONObject =
-				JSONFactoryUtil.createJSONObject(
-					fragmentEntryLink.getEditableValues());
+				fragmentEntryLink.getEditableValuesJSONObject();
 
 			String instanceId = editableValuesJSONObject.getString(
 				"instanceId");
@@ -202,8 +200,7 @@ public class LayoutPageTemplateStructureRelUpgradeProcess
 					fragmentEntryLink.getJs(),
 					fragmentEntryLink.getConfiguration(),
 					EditableValuesTransformerUtil.getEditableValues(
-						editableValuesJSONObject.toString(),
-						segmentsExperienceId),
+						editableValuesJSONObject, segmentsExperienceId),
 					newNamespace, fragmentEntryLink.getPosition(),
 					fragmentEntryLink.getRendererKey(),
 					fragmentEntryLink.getType(), serviceContext);

@@ -31,7 +31,6 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
@@ -207,7 +206,7 @@ public class FragmentEntryLinkStagedModelDataHandlerTest
 			(FragmentEntryLink)_getExportImportStagedModel(stagedModel);
 
 		_assertCollectionFieldId(
-			fragmentEntryLink.getEditableValues(),
+			fragmentEntryLink.getEditableValuesJSONObject(),
 			() -> {
 				TemplateEntry importedTemplateEntry =
 					_templateEntryLocalService.
@@ -266,7 +265,7 @@ public class FragmentEntryLinkStagedModelDataHandlerTest
 			(FragmentEntryLink)_getExportImportStagedModel(stagedModel);
 
 		_assertCollectionFieldId(
-			fragmentEntryLink.getEditableValues(),
+			fragmentEntryLink.getEditableValuesJSONObject(),
 			() -> {
 				LayoutPageTemplateEntry importedLayoutPageTemplateEntry =
 					_layoutPageTemplateEntryLocalService.
@@ -324,8 +323,7 @@ public class FragmentEntryLinkStagedModelDataHandlerTest
 		FragmentEntryLink fragmentEntryLink =
 			(FragmentEntryLink)_getExportImportStagedModel(stagedModel);
 
-		JSONObject jsonObject = _jsonFactory.createJSONObject(
-			fragmentEntryLink.getEditableValues());
+		JSONObject jsonObject = fragmentEntryLink.getEditableValuesJSONObject();
 
 		JSONObject freeMarkerJSONObject = jsonObject.getJSONObject(
 			FragmentEntryProcessorConstants.
@@ -471,19 +469,17 @@ public class FragmentEntryLinkStagedModelDataHandlerTest
 	}
 
 	private void _assertCollectionFieldId(
-			String editableValues,
+			JSONObject editableValuesJSONObject,
 			UnsafeSupplier<Long, Exception> fieldIdUnsafeSupplier,
 			String prefix)
 		throws Exception {
 
-		JSONObject jsonObject = _jsonFactory.createJSONObject(editableValues);
-
-		JSONObject editableValuesJSONObject = jsonObject.getJSONObject(
+		JSONObject jsonObject = editableValuesJSONObject.getJSONObject(
 			FragmentEntryProcessorConstants.
 				KEY_EDITABLE_FRAGMENT_ENTRY_PROCESSOR);
 
-		JSONObject collectionJSONObject =
-			editableValuesJSONObject.getJSONObject("element-text");
+		JSONObject collectionJSONObject = jsonObject.getJSONObject(
+			"element-text");
 
 		Assert.assertEquals(
 			prefix + fieldIdUnsafeSupplier.get(),
@@ -574,9 +570,6 @@ public class FragmentEntryLinkStagedModelDataHandlerTest
 
 	@Inject
 	private GroupLocalService _groupLocalService;
-
-	@Inject
-	private JSONFactory _jsonFactory;
 
 	private Layout _layout;
 

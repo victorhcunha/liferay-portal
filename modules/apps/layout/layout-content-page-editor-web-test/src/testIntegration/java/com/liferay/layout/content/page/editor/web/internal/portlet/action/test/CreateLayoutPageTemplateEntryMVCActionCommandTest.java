@@ -213,8 +213,8 @@ public class CreateLayoutPageTemplateEntryMVCActionCommandTest {
 
 		Assert.assertTrue(fragmentEntryLink.isTypePortlet());
 
-		JSONObject editableValuesJSONObject = _jsonFactory.createJSONObject(
-			fragmentEntryLink.getEditableValues());
+		JSONObject editableValuesJSONObject =
+			fragmentEntryLink.getEditableValuesJSONObject();
 
 		Assert.assertEquals(
 			JournalContentPortletKeys.JOURNAL_CONTENT,

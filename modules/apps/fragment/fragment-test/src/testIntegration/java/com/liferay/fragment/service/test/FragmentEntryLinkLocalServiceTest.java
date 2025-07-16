@@ -234,8 +234,8 @@ public class FragmentEntryLinkLocalServiceTest {
 				_fragmentEntryLinkLocalService.fetchFragmentEntryLink(
 					fragmentEntryLink.getFragmentEntryLinkId()));
 
-			JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-				fragmentEntryLink.getEditableValues());
+			JSONObject jsonObject =
+				fragmentEntryLink.getEditableValuesJSONObject();
 
 			JSONObject editableJSONObject = jsonObject.getJSONObject(
 				FragmentEntryProcessorConstants.
@@ -299,8 +299,7 @@ public class FragmentEntryLinkLocalServiceTest {
 			_fragmentEntryLinkLocalService.fetchFragmentEntryLink(
 				fragmentEntryLink.getFragmentEntryLinkId()));
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-			fragmentEntryLink.getEditableValues());
+		JSONObject jsonObject = fragmentEntryLink.getEditableValuesJSONObject();
 
 		JSONObject editableJSONObject = jsonObject.getJSONObject(
 			FragmentEntryProcessorConstants.
@@ -329,8 +328,7 @@ public class FragmentEntryLinkLocalServiceTest {
 			_fragmentEntryLinkLocalService.fetchFragmentEntryLink(
 				fragmentEntryLink.getFragmentEntryLinkId()));
 
-		JSONObject jsonObject = JSONFactoryUtil.createJSONObject(
-			fragmentEntryLink.getEditableValues());
+		JSONObject jsonObject = fragmentEntryLink.getEditableValuesJSONObject();
 
 		JSONObject editableJSONObject = jsonObject.getJSONObject(
 			FragmentEntryProcessorConstants.

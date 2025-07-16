@@ -332,8 +332,8 @@ public class LayoutPageTemplateStructureRelUpgradeProcessTest {
 		Assert.assertTrue(
 			Validator.isNotNull(fragmentEntryLink.getEditableValues()));
 
-		JSONObject editableValuesJSONObject = _jsonFactory.createJSONObject(
-			fragmentEntryLink.getEditableValues());
+		JSONObject editableValuesJSONObject =
+			fragmentEntryLink.getEditableValuesJSONObject();
 
 		JSONObject editableJSONObject = editableValuesJSONObject.getJSONObject(
 			FragmentEntryProcessorConstants.
@@ -371,8 +371,8 @@ public class LayoutPageTemplateStructureRelUpgradeProcessTest {
 		Assert.assertTrue(
 			Validator.isNotNull(fragmentEntryLink.getEditableValues()));
 
-		JSONObject editableValuesJSONObject = _jsonFactory.createJSONObject(
-			fragmentEntryLink.getEditableValues());
+		JSONObject editableValuesJSONObject =
+			fragmentEntryLink.getEditableValuesJSONObject();
 
 		Assert.assertEquals(
 			portletId, editableValuesJSONObject.getString("portletId"));
