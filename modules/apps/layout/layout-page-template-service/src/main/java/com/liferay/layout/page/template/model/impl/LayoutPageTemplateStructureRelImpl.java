@@ -5,9 +5,41 @@
 
 package com.liferay.layout.page.template.model.impl;
 
+import com.liferay.portal.kernel.json.JSONException;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
+import com.liferay.portal.kernel.json.JSONObject;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.cache.CacheField;
+
 /**
  * @author Eudaldo Alonso
  */
 public class LayoutPageTemplateStructureRelImpl
 	extends LayoutPageTemplateStructureRelBaseImpl {
+
+	@Override
+	public JSONObject getDataJSONObject() {
+		if (_dataJSONObject == null) {
+			try {
+				_dataJSONObject = JSONFactoryUtil.createJSONObject(getData());
+
+				dataJSONObjectUpdateEntityCacheConsumer.accept(_dataJSONObject);
+			}
+			catch (JSONException jsonException) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(jsonException);
+				}
+			}
+		}
+
+		return _dataJSONObject;
+	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		LayoutPageTemplateStructureRelImpl.class);
+
+	@CacheField(permanent = true, propagateToInterface = true)
+	private JSONObject _dataJSONObject;
+
 }
