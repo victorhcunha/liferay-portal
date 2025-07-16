@@ -319,10 +319,15 @@ public class FragmentsImporterImpl implements FragmentsImporter {
 		String errorMessage = null;
 
 		try {
-			_fragmentEntryProcessorRegistry.validateFragmentEntryHTML(
-				html, _jsonFactory.toJSONObject(configuration));
+			JSONObject configurationJSONObject = _jsonFactory.toJSONObject(
+				configuration);
 
-			_fragmentEntryValidator.validateConfiguration(configuration);
+			_fragmentEntryProcessorRegistry.validateFragmentEntryHTML(
+				html, configurationJSONObject);
+
+			_fragmentEntryValidator.validateConfiguration(
+				configurationJSONObject);
+
 			_fragmentEntryValidator.validateTypeOptions(type, typeOptions);
 		}
 		catch (PortalException portalException) {

@@ -373,7 +373,7 @@ public class FragmentCollectionContributorRegistryImpl
 	private boolean _validateFragmentEntry(FragmentEntry fragmentEntry) {
 		try {
 			fragmentEntryValidator.validateConfiguration(
-				fragmentEntry.getConfiguration());
+				_jsonFactory.toJSONObject(fragmentEntry.getConfiguration()));
 			fragmentEntryValidator.validateTypeOptions(
 				fragmentEntry.getType(), fragmentEntry.getTypeOptions());
 

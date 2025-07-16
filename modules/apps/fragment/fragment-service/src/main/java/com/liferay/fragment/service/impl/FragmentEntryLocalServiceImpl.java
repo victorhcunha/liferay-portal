@@ -111,7 +111,8 @@ public class FragmentEntryLocalServiceImpl
 		_validateFragmentEntryKey(groupId, fragmentEntryKey);
 
 		if (WorkflowConstants.STATUS_APPROVED == status) {
-			_fragmentEntryValidator.validateConfiguration(configuration);
+			_fragmentEntryValidator.validateConfiguration(
+				_jsonFactory.toJSONObject(configuration));
 			_fragmentEntryValidator.validateTypeOptions(type, typeOptions);
 			_validateContent(html, configuration);
 		}
@@ -672,7 +673,8 @@ public class FragmentEntryLocalServiceImpl
 		_validate(name);
 
 		if (WorkflowConstants.STATUS_APPROVED == status) {
-			_fragmentEntryValidator.validateConfiguration(configuration);
+			_fragmentEntryValidator.validateConfiguration(
+				_jsonFactory.toJSONObject(configuration));
 			_fragmentEntryValidator.validateTypeOptions(
 				fragmentEntry.getType(), typeOptions);
 
@@ -994,7 +996,7 @@ public class FragmentEntryLocalServiceImpl
 		}
 
 		_fragmentEntryValidator.validateConfiguration(
-			draftFragmentEntry.getConfiguration());
+			_jsonFactory.toJSONObject(draftFragmentEntry.getConfiguration()));
 		_fragmentEntryValidator.validateTypeOptions(
 			draftFragmentEntry.getType(), draftFragmentEntry.getTypeOptions());
 		_validateContent(
