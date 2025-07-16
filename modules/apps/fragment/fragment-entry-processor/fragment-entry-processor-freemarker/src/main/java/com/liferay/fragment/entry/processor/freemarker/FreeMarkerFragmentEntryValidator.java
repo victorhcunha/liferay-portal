@@ -14,7 +14,6 @@ import com.liferay.petra.io.DummyWriter;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.exception.PortalException;
-import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
@@ -53,7 +52,7 @@ public class FreeMarkerFragmentEntryValidator
 
 	@Override
 	public void validateFragmentEntryHTML(
-			String html, String configuration, Locale locale)
+			String html, JSONObject configurationJSONObject, Locale locale)
 		throws PortalException {
 
 		FreeMarkerFragmentEntryProcessorConfiguration
@@ -99,7 +98,7 @@ public class FreeMarkerFragmentEntryValidator
 			JSONObject configurationDefaultValuesJSONObject =
 				_fragmentEntryConfigurationParser.
 					getConfigurationDefaultValuesJSONObject(
-						_jsonFactory.toJSONObject(configuration));
+						configurationJSONObject);
 
 			Template template = TemplateManagerUtil.getTemplate(
 				TemplateConstants.LANG_TYPE_FTL,
@@ -126,8 +125,7 @@ public class FreeMarkerFragmentEntryValidator
 				).putAll(
 					_fragmentEntryConfigurationParser.getContextObjects(
 						configurationDefaultValuesJSONObject,
-						_jsonFactory.toJSONObject(configuration), null,
-						new long[0])
+						configurationJSONObject, null, new long[0])
 				).build());
 
 			template.prepareTaglib(httpServletRequest, httpServletResponse);
@@ -175,9 +173,6 @@ public class FreeMarkerFragmentEntryValidator
 
 	@Reference
 	private FragmentEntryConfigurationParser _fragmentEntryConfigurationParser;
-
-	@Reference
-	private JSONFactory _jsonFactory;
 
 	@Reference
 	private Language _language;
