@@ -135,6 +135,10 @@ public class JSONFactoryUtil {
 		return _jsonFactory.serializeThrowable(throwable);
 	}
 
+	public static JSONObject toJSONObject(String json) {
+		return _jsonFactory.toJSONObject(json);
+	}
+
 	public void setJSONFactory(JSONFactory jsonFactory) {
 		_jsonFactory = jsonFactory;
 	}
