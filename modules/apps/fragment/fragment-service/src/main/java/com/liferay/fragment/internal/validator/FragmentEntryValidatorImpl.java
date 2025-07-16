@@ -43,20 +43,21 @@ public class FragmentEntryValidatorImpl implements FragmentEntryValidator {
 	public void validateConfiguration(JSONObject configurationJSONObject)
 		throws FragmentEntryConfigurationException {
 
-		validateConfigurationValues(configurationJSONObject.toString(), null);
+		validateConfigurationValues(configurationJSONObject, null);
 	}
 
 	@Override
 	public void validateConfigurationValues(
-			String configuration, JSONObject valuesJSONObject)
+			JSONObject configurationJSONObject, JSONObject valuesJSONObject)
 		throws FragmentEntryConfigurationException {
 
-		if (Validator.isNull(configuration)) {
+		if (JSONUtil.isEmpty(configurationJSONObject)) {
 			return;
 		}
 
 		try {
-			_validateConfigurationValues(configuration, valuesJSONObject);
+			_validateConfigurationValues(
+				configurationJSONObject, valuesJSONObject);
 		}
 		catch (Exception exception) {
 			throw new FragmentEntryConfigurationException(
@@ -178,15 +179,13 @@ public class FragmentEntryValidatorImpl implements FragmentEntryValidator {
 	}
 
 	private void _validateConfigurationValues(
-			String configuration, JSONObject valuesJSONObject)
+			JSONObject configurationJSONObject, JSONObject valuesJSONObject)
 		throws Exception {
 
-		_configurationJSONValidator.validate(configuration);
+		_configurationJSONValidator.validate(
+			configurationJSONObject.toString());
 
 		Set<String> fieldNames = new HashSet<>();
-
-		JSONObject configurationJSONObject = _jsonFactory.createJSONObject(
-			configuration);
 
 		JSONArray fieldSetsJSONArray = configurationJSONObject.getJSONArray(
 			"fieldSets");

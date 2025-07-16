@@ -369,7 +369,7 @@ public class FragmentLayoutStructureItemImporter
 				(Map<String, Object>)definitionMap.get("fragmentConfig"));
 
 		_fragmentEntryValidator.validateConfigurationValues(
-			configuration, fragmentEntryProcessorValuesJSONObject);
+			configurationJSONObject, fragmentEntryProcessorValuesJSONObject);
 
 		if (freeMarkerFragmentEntryProcessorJSONObject.length() > 0) {
 			fragmentEntryProcessorValuesJSONObject.put(
