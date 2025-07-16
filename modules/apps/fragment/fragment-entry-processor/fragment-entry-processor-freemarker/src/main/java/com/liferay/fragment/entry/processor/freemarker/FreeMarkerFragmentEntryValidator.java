@@ -125,8 +125,9 @@ public class FreeMarkerFragmentEntryValidator
 					"layoutMode", Constants.VIEW
 				).putAll(
 					_fragmentEntryConfigurationParser.getContextObjects(
-						configurationDefaultValuesJSONObject, configuration,
-						null, new long[0])
+						configurationDefaultValuesJSONObject,
+						_jsonFactory.toJSONObject(configuration), null,
+						new long[0])
 				).build());
 
 			template.prepareTaglib(httpServletRequest, httpServletResponse);
