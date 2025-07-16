@@ -16,6 +16,7 @@ import com.liferay.layout.exporter.PortletPreferencesPortletConfigurationExporte
 import com.liferay.layout.importer.PortletPreferencesPortletConfigurationImporter;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.json.JSONFactoryUtil;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Layout;
@@ -133,7 +134,7 @@ public class WidgetInstanceDefinitionDTOConverterTest {
 
 		JSONObject editableValueJSONObject =
 			_fragmentEntryProcessorRegistry.getDefaultEditableValuesJSONObject(
-				StringPool.BLANK, StringPool.BLANK);
+				StringPool.BLANK, JSONFactoryUtil.createJSONObject());
 
 		editableValueJSONObject.put(
 			"instanceId", instanceId
