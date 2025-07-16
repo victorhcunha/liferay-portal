@@ -90,7 +90,8 @@ public class FragmentCollectionFilterRegistryImpl
 
 			try {
 				_fragmentEntryValidator.validateConfiguration(
-					fragmentCollectionFilter.getConfiguration());
+					String.valueOf(
+						fragmentCollectionFilter.getConfiguration()));
 
 				return fragmentCollectionFilter;
 			}
