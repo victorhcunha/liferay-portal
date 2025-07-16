@@ -339,6 +339,7 @@ public class FragmentLayoutStructureItemImporter
 		String js = StringPool.BLANK;
 		String css = StringPool.BLANK;
 		String configuration = StringPool.BLANK;
+		JSONObject configurationJSONObject = null;
 		int type = FragmentConstants.TYPE_COMPONENT;
 
 		JSONObject defaultEditableValuesJSONObject =
@@ -347,21 +348,26 @@ public class FragmentLayoutStructureItemImporter
 		if (fragmentEntry != null) {
 			js = fragmentEntry.getJs();
 			css = fragmentEntry.getCss();
+
 			configuration = fragmentEntry.getConfiguration();
+
+			configurationJSONObject = JSONFactoryUtil.createJSONObject(
+				configuration);
+
 			html = fragmentEntry.getHtml();
 			type = fragmentEntry.getType();
 		}
 		else {
-			configuration = fragmentRenderer.getConfiguration(
+			configurationJSONObject = fragmentRenderer.getConfiguration(
 				new DefaultFragmentRendererContext(null));
+
+			configuration = configurationJSONObject.toString();
+
 			type = fragmentRenderer.getType();
 		}
 
 		JSONObject fragmentEntryProcessorValuesJSONObject =
 			JSONFactoryUtil.createJSONObject();
-
-		JSONObject configurationJSONObject = JSONFactoryUtil.createJSONObject(
-			configuration);
 
 		JSONObject freeMarkerFragmentEntryProcessorJSONObject =
 			_toFreeMarkerFragmentEntryProcessorJSONObject(

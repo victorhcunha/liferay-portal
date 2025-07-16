@@ -249,8 +249,9 @@ public class DisplayPagesImporterTest {
 					null, TestPropsValues.getUserId(), draftLayout.getGroupId(),
 					0, 0, segmentsExperienceId, draftLayout.getPlid(),
 					StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
-					fragmentRenderer.getConfiguration(
-						new DefaultFragmentRendererContext(null)),
+					String.valueOf(
+						fragmentRenderer.getConfiguration(
+							new DefaultFragmentRendererContext(null))),
 					JSONUtil.put(
 						FragmentEntryProcessorConstants.
 							KEY_FREEMARKER_FRAGMENT_ENTRY_PROCESSOR,

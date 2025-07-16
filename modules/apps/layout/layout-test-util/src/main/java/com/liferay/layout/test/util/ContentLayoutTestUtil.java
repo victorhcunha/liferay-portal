@@ -297,8 +297,9 @@ public class ContentLayoutTestUtil {
 				null, layout.getGroupId(), 0, 0, segmentsExperienceId,
 				layout.getPlid(), StringPool.BLANK, StringPool.BLANK,
 				StringPool.BLANK,
-				fragmentRenderer.getConfiguration(
-					defaultFragmentRendererContext),
+				String.valueOf(
+					fragmentRenderer.getConfiguration(
+						defaultFragmentRendererContext)),
 				editableValues, StringPool.BLANK, 0, fragmentRenderer.getKey(),
 				fragmentRenderer.getType(),
 				ServiceContextTestUtil.getServiceContext(

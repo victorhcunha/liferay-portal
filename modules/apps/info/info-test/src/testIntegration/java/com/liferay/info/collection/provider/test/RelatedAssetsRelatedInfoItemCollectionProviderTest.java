@@ -572,8 +572,9 @@ public class RelatedAssetsRelatedInfoItemCollectionProviderTest {
 				null, TestPropsValues.getUserId(), draftLayout.getGroupId(), 0,
 				0, segmentsExperienceId, draftLayout.getPlid(),
 				StringPool.BLANK, StringPool.BLANK, StringPool.BLANK,
-				fragmentRenderer.getConfiguration(
-					defaultFragmentRendererContext),
+				String.valueOf(
+					fragmentRenderer.getConfiguration(
+						defaultFragmentRendererContext)),
 				"{}", StringPool.BLANK, 0, fragmentRenderer.getKey(),
 				fragmentRenderer.getType(), _serviceContext));
 

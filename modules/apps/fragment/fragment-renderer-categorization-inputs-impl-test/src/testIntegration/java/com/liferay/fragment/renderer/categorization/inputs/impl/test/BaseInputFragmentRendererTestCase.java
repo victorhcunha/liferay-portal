@@ -140,8 +140,9 @@ public abstract class BaseInputFragmentRendererTestCase {
 
 		return ContentLayoutTestUtil.addFragmentEntryLinkToLayout(
 			StringPool.BLANK, StringPool.BLANK,
-			fragmentRenderer.getConfiguration(
-				new DefaultFragmentRendererContext(null)),
+			String.valueOf(
+				fragmentRenderer.getConfiguration(
+					new DefaultFragmentRendererContext(null))),
 			0, StringPool.BLANK, StringPool.BLANK, draftLayout, getRenderKey(),
 			fragmentRenderer.getType(), jsonObject.getString("addedItemId"), 0,
 			segmentsExperienceId);
