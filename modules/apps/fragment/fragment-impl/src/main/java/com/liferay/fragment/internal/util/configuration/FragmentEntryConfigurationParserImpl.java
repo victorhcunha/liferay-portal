@@ -75,8 +75,7 @@ public class FragmentEntryConfigurationParserImpl
 		JSONObject configurationJSONObject) {
 
 		List<FragmentConfigurationField> fragmentConfigurationFields =
-			getFragmentConfigurationFields(
-				String.valueOf(configurationJSONObject));
+			getFragmentConfigurationFields(configurationJSONObject);
 
 		JSONObject defaultValuesJSONObject = _jsonFactory.createJSONObject();
 
@@ -135,7 +134,7 @@ public class FragmentEntryConfigurationParserImpl
 		}
 
 		List<FragmentConfigurationField> fragmentConfigurationFields =
-			getFragmentConfigurationFields(configurationJSONObject.toString());
+			getFragmentConfigurationFields(configurationJSONObject);
 
 		for (FragmentConfigurationField fragmentConfigurationField :
 				fragmentConfigurationFields) {
@@ -167,7 +166,7 @@ public class FragmentEntryConfigurationParserImpl
 		HashMap<String, Object> contextObjects = new HashMap<>();
 
 		List<FragmentConfigurationField> fragmentConfigurationFields =
-			getFragmentConfigurationFields(configurationJSONObject.toString());
+			getFragmentConfigurationFields(configurationJSONObject);
 
 		for (FragmentConfigurationField fragmentConfigurationField :
 				fragmentConfigurationFields) {
@@ -268,7 +267,7 @@ public class FragmentEntryConfigurationParserImpl
 		}
 
 		List<FragmentConfigurationField> fragmentConfigurationFields =
-			getFragmentConfigurationFields(configurationJSONObject.toString());
+			getFragmentConfigurationFields(configurationJSONObject);
 
 		for (FragmentConfigurationField fragmentConfigurationField :
 				fragmentConfigurationFields) {
@@ -287,9 +286,10 @@ public class FragmentEntryConfigurationParserImpl
 
 	@Override
 	public List<FragmentConfigurationField> getFragmentConfigurationFields(
-		String configuration) {
+		JSONObject configurationJSONObject) {
 
-		JSONArray fieldSetsJSONArray = _getFieldSetsJSONArray(configuration);
+		JSONArray fieldSetsJSONArray = configurationJSONObject.getJSONArray(
+			"fieldSets");
 
 		if (fieldSetsJSONArray == null) {
 			return Collections.emptyList();
@@ -415,24 +415,6 @@ public class FragmentEntryConfigurationParserImpl
 		}
 
 		return fieldValue;
-	}
-
-	private JSONArray _getFieldSetsJSONArray(String configuration) {
-		try {
-			JSONObject configurationJSONObject = _jsonFactory.createJSONObject(
-				configuration);
-
-			return configurationJSONObject.getJSONArray("fieldSets");
-		}
-		catch (JSONException jsonException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(
-					"Unable to parse configuration JSON: " + configuration,
-					jsonException);
-			}
-		}
-
-		return null;
 	}
 
 	private Object _getFieldValue(
