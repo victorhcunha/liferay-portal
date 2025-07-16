@@ -102,9 +102,11 @@ public class OrderActionsFragmentRenderer implements FragmentRenderer {
 					getClass(),
 					"order_actions/dependencies/configuration.json"));
 
-			return _fragmentEntryConfigurationParser.translateConfiguration(
-				jsonObject,
-				ResourceBundleUtil.getBundle("content.Language", getClass()));
+			return String.valueOf(
+				_fragmentEntryConfigurationParser.translateConfiguration(
+					jsonObject,
+					ResourceBundleUtil.getBundle(
+						"content.Language", getClass())));
 		}
 		catch (JSONException jsonException) {
 			if (_log.isDebugEnabled()) {

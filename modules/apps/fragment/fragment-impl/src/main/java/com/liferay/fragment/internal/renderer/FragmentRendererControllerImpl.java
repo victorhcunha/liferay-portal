@@ -62,8 +62,9 @@ public class FragmentRendererControllerImpl
 			JSONObject jsonObject = _jsonFactory.createJSONObject(
 				fragmentRenderer.getConfiguration(fragmentRendererContext));
 
-			return _translateConfigurationFields(
-				jsonObject, fragmentRendererContext.getLocale());
+			return String.valueOf(
+				_translateConfigurationFields(
+					jsonObject, fragmentRendererContext.getLocale()));
 		}
 		catch (JSONException jsonException) {
 			_log.error(
@@ -198,7 +199,7 @@ public class FragmentRendererControllerImpl
 		return fragmentRenderer;
 	}
 
-	private String _translateConfigurationFields(
+	private JSONObject _translateConfigurationFields(
 		JSONObject jsonObject, Locale locale) {
 
 		ResourceBundleLoader resourceBundleLoader =

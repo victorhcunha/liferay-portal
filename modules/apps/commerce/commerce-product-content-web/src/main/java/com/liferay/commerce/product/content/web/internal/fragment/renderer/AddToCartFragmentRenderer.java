@@ -75,8 +75,9 @@ public class AddToCartFragmentRenderer implements FragmentRenderer {
 						"/fragment/renderer/add_to_cart/dependencies" +
 							"/configuration.json"));
 
-			return _fragmentEntryConfigurationParser.translateConfiguration(
-				jsonObject, resourceBundle);
+			return String.valueOf(
+				_fragmentEntryConfigurationParser.translateConfiguration(
+					jsonObject, resourceBundle));
 		}
 		catch (JSONException jsonException) {
 			if (_log.isDebugEnabled()) {
