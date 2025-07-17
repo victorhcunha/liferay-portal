@@ -11,6 +11,9 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
+import com.liferay.portal.kernel.cache.thread.local.Lifecycle;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCache;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCacheManager;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.settings.CompanyServiceSettingsLocator;
@@ -29,6 +32,8 @@ import java.io.IOException;
 import java.io.Serializable;
 
 import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.osgi.framework.Constants;
 import org.osgi.framework.InvalidSyntaxException;
@@ -97,6 +102,25 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
 			Class<T> clazz, SettingsLocator settingsLocator)
 		throws ConfigurationException {
 
+		ThreadLocalCache<Map<SettingsLocator, T>> threadLocalCache =
+			ThreadLocalCacheManager.getThreadLocalCache(
+				Lifecycle.REQUEST, ConfigurationProviderImpl.class.getName());
+
+		Map<SettingsLocator, T> configurations = threadLocalCache.get(
+			clazz.getName());
+
+		if (configurations == null) {
+			configurations = new HashMap<>();
+
+			threadLocalCache.put(clazz.getName(), configurations);
+		}
+
+		T configuration = configurations.get(settingsLocator);
+
+		if (configuration != null) {
+			return configuration;
+		}
+
 		try {
 			ConfigurationInvocationHandler<T> configurationInvocationHandler =
 				new ConfigurationInvocationHandler<>(
@@ -104,13 +128,17 @@ public class ConfigurationProviderImpl implements ConfigurationProvider {
 					new TypedSettings(
 						FallbackKeysSettingsUtil.getSettings(settingsLocator)));
 
-			return configurationInvocationHandler.createProxy();
+			configuration = configurationInvocationHandler.createProxy();
+
+			configurations.put(settingsLocator, configuration);
 		}
 		catch (ReflectiveOperationException | SettingsException exception) {
 			throw new ConfigurationException(
 				"Unable to load configuration of type " + clazz.getName(),
 				exception);
 		}
+
+		return configuration;
 	}
 
 	@Override
