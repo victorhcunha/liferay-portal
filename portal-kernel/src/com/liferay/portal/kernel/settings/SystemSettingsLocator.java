@@ -5,6 +5,10 @@
 
 package com.liferay.portal.kernel.settings;
 
+import com.liferay.petra.string.StringBundler;
+
+import java.util.Objects;
+
 /**
  * @author Drew Brokke
  */
@@ -12,6 +16,23 @@ public class SystemSettingsLocator implements SettingsLocator {
 
 	public SystemSettingsLocator(String configurationPid) {
 		_configurationPid = configurationPid;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof SystemSettingsLocator)) {
+			return false;
+		}
+
+		SystemSettingsLocator systemSettingsLocator =
+			(SystemSettingsLocator)object;
+
+		return Objects.equals(
+			_configurationPid, systemSettingsLocator._configurationPid);
 	}
 
 	@Override
@@ -23,6 +44,17 @@ public class SystemSettingsLocator implements SettingsLocator {
 	@Override
 	public String getSettingsId() {
 		return _configurationPid;
+	}
+
+	@Override
+	public int hashCode() {
+		return _configurationPid.hashCode();
+	}
+
+	@Override
+	public String toString() {
+		return StringBundler.concat(
+			"{configurationPid=", _configurationPid, "}");
 	}
 
 	private final String _configurationPid;

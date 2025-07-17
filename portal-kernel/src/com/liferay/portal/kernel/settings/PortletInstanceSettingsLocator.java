@@ -5,11 +5,15 @@
 
 package com.liferay.portal.kernel.settings;
 
+import com.liferay.petra.lang.HashUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalServiceUtil;
 import com.liferay.portal.kernel.util.PortletKeys;
 import com.liferay.portal.kernel.util.PrefsPropsUtil;
+
+import java.util.Objects;
 
 /**
  * @author Iván Zaera
@@ -31,6 +35,33 @@ public class PortletInstanceSettingsLocator implements SettingsLocator {
 		_layout = layout;
 		_portletInstanceKey = portletInstanceKey;
 		_configurationPid = configurationPid;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof PortletInstanceSettingsLocator)) {
+			return false;
+		}
+
+		PortletInstanceSettingsLocator portletInstanceSettingsLocator =
+			(PortletInstanceSettingsLocator)object;
+
+		if (Objects.equals(
+				_configurationPid,
+				portletInstanceSettingsLocator._configurationPid) &&
+			Objects.equals(_layout, portletInstanceSettingsLocator._layout) &&
+			Objects.equals(
+				_portletInstanceKey,
+				portletInstanceSettingsLocator._portletInstanceKey)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	public String getConfigurationPid() {
@@ -70,6 +101,23 @@ public class PortletInstanceSettingsLocator implements SettingsLocator {
 	@Override
 	public String getSettingsId() {
 		return _portletInstanceKey;
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = HashUtil.hash(0, _configurationPid);
+
+		hash = HashUtil.hash(hash, _layout);
+		hash = HashUtil.hash(hash, _portletInstanceKey);
+
+		return hash;
+	}
+
+	@Override
+	public String toString() {
+		return StringBundler.concat(
+			"{configurationPid=", _configurationPid, ", layout=", _layout,
+			", portletInstanceKey=", _portletInstanceKey, "}");
 	}
 
 	protected boolean isEmbeddedPortlet() {

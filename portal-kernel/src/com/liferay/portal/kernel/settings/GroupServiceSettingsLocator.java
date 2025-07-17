@@ -5,9 +5,13 @@
 
 package com.liferay.portal.kernel.settings;
 
+import com.liferay.petra.lang.HashUtil;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
+
+import java.util.Objects;
 
 /**
  * @author Iván Zaera
@@ -28,6 +32,32 @@ public class GroupServiceSettingsLocator implements SettingsLocator {
 	}
 
 	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof GroupServiceSettingsLocator)) {
+			return false;
+		}
+
+		GroupServiceSettingsLocator groupServiceSettingsLocator =
+			(GroupServiceSettingsLocator)object;
+
+		if (Objects.equals(
+				_configurationPid,
+				groupServiceSettingsLocator._configurationPid) &&
+			Objects.equals(_groupId, groupServiceSettingsLocator._groupId) &&
+			Objects.equals(
+				_settingsId, groupServiceSettingsLocator._settingsId)) {
+
+			return true;
+		}
+
+		return false;
+	}
+
+	@Override
 	public Settings getSettings() throws SettingsException {
 		CompanyServiceSettingsLocator companyServiceSettingsLocator =
 			new CompanyServiceSettingsLocator(
@@ -45,6 +75,23 @@ public class GroupServiceSettingsLocator implements SettingsLocator {
 	@Override
 	public String getSettingsId() {
 		return _settingsId;
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = HashUtil.hash(0, _configurationPid);
+
+		hash = HashUtil.hash(hash, _groupId);
+		hash = HashUtil.hash(hash, _settingsId);
+
+		return hash;
+	}
+
+	@Override
+	public String toString() {
+		return StringBundler.concat(
+			"{configurationPid=", _configurationPid, ", groupId=", _groupId,
+			", settingsId=", _settingsId, "}");
 	}
 
 	protected long getCompanyId(long groupId) throws SettingsException {

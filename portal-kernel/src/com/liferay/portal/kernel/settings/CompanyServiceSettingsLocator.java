@@ -5,6 +5,11 @@
 
 package com.liferay.portal.kernel.settings;
 
+import com.liferay.petra.lang.HashUtil;
+import com.liferay.petra.string.StringBundler;
+
+import java.util.Objects;
+
 /**
  * @author Iván Zaera
  * @author Jorge Ferrer
@@ -22,6 +27,33 @@ public class CompanyServiceSettingsLocator implements SettingsLocator {
 		_companyId = companyId;
 		_settingsId = settingsId;
 		_configurationPid = configurationPid;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+
+		if (!(object instanceof CompanyServiceSettingsLocator)) {
+			return false;
+		}
+
+		CompanyServiceSettingsLocator companyServiceSettingsLocator =
+			(CompanyServiceSettingsLocator)object;
+
+		if (Objects.equals(
+				_companyId, companyServiceSettingsLocator._companyId) &&
+			Objects.equals(
+				_configurationPid,
+				companyServiceSettingsLocator._configurationPid) &&
+			Objects.equals(
+				_settingsId, companyServiceSettingsLocator._settingsId)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	@Override
@@ -44,6 +76,23 @@ public class CompanyServiceSettingsLocator implements SettingsLocator {
 	@Override
 	public String getSettingsId() {
 		return _settingsId;
+	}
+
+	@Override
+	public int hashCode() {
+		int hash = HashUtil.hash(0, _companyId);
+
+		hash = HashUtil.hash(hash, _configurationPid);
+		hash = HashUtil.hash(hash, _settingsId);
+
+		return hash;
+	}
+
+	@Override
+	public String toString() {
+		return StringBundler.concat(
+			"{companyId=", _companyId, ", configurationPid=", _configurationPid,
+			", settingsId=", _settingsId, "}");
 	}
 
 	private final long _companyId;
