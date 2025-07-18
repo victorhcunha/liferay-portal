@@ -12,6 +12,9 @@ import com.liferay.petra.function.UnsafeRunnable;
 import com.liferay.petra.reflect.ReflectionUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.cache.thread.local.Lifecycle;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCache;
+import com.liferay.portal.kernel.cache.thread.local.ThreadLocalCacheManager;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.HashMapDictionaryBuilder;
 import com.liferay.portal.kernel.util.MapUtil;
@@ -120,6 +123,8 @@ public class ConfigurationTestUtil {
 				StringBundler.concat(
 					"(", Constants.SERVICE_PID, "=", pid, ")")));
 
+		_clearConfigurationThreadLocalCache();
+
 		if (ArrayUtil.isEmpty(configurations)) {
 			return null;
 		}
@@ -159,6 +164,8 @@ public class ConfigurationTestUtil {
 			configurationAdmin -> configurationAdmin.listConfigurations(
 				StringBundler.concat(
 					"(", Constants.SERVICE_PID, "=", pid, ")")));
+
+		_clearConfigurationThreadLocalCache();
 
 		if (ArrayUtil.isEmpty(configurations)) {
 			return null;
@@ -201,6 +208,16 @@ public class ConfigurationTestUtil {
 			<String, Dictionary<String, ?>, ConfigurationException>
 				_unsafeBiConsumer;
 
+	}
+
+	private static void _clearConfigurationThreadLocalCache() {
+		ThreadLocalCache<?> threadLocalCache =
+			ThreadLocalCacheManager.getThreadLocalCache(
+				Lifecycle.REQUEST,
+				"com.liferay.portal.configuration.module.configuration." +
+					"internal.ConfigurationProviderImpl");
+
+		threadLocalCache.removeAll();
 	}
 
 	private static Configuration _createFactoryConfiguration(
@@ -315,6 +332,8 @@ public class ConfigurationTestUtil {
 			markerConfiguration.delete();
 
 			updateCountDownLatch.await(1, TimeUnit.MINUTES);
+
+			_clearConfigurationThreadLocalCache();
 		}
 		finally {
 			configurationListenerServiceRegistration.unregister();
