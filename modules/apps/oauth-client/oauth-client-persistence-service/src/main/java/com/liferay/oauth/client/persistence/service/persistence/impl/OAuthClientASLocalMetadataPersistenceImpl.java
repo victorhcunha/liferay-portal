@@ -585,6 +585,11 @@ public class OAuthClientASLocalMetadataPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -949,6 +954,16 @@ public class OAuthClientASLocalMetadataPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<OAuthClientASLocalMetadata> oAuthClientASLocalMetadatas =
+				findByCompanyId(companyId);
+
+			oAuthClientASLocalMetadatas = InlineSQLHelperUtil.filter(
+				oAuthClientASLocalMetadatas);
+
+			return oAuthClientASLocalMetadatas.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1482,6 +1497,11 @@ public class OAuthClientASLocalMetadataPersistenceImpl
 			return findByUserId(userId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUserId(userId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1846,6 +1866,16 @@ public class OAuthClientASLocalMetadataPersistenceImpl
 	public int filterCountByUserId(long userId) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUserId(userId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<OAuthClientASLocalMetadata> oAuthClientASLocalMetadatas =
+				findByUserId(userId);
+
+			oAuthClientASLocalMetadatas = InlineSQLHelperUtil.filter(
+				oAuthClientASLocalMetadatas);
+
+			return oAuthClientASLocalMetadatas.size();
 		}
 
 		StringBundler sb = new StringBundler(2);

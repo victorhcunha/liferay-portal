@@ -1928,6 +1928,11 @@ public class BookmarksFolderPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2289,6 +2294,15 @@ public class BookmarksFolderPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<BookmarksFolder> bookmarksFolders = findByGroupId(groupId);
+
+			bookmarksFolders = InlineSQLHelperUtil.filter(
+				bookmarksFolders, groupId);
+
+			return bookmarksFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3372,6 +3386,13 @@ public class BookmarksFolderPersistenceImpl
 				groupId, parentFolderId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P(
+					groupId, parentFolderId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3753,6 +3774,16 @@ public class BookmarksFolderPersistenceImpl
 	public int filterCountByG_P(long groupId, long parentFolderId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P(groupId, parentFolderId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<BookmarksFolder> bookmarksFolders = findByG_P(
+				groupId, parentFolderId);
+
+			bookmarksFolders = InlineSQLHelperUtil.filter(
+				bookmarksFolders, groupId);
+
+			return bookmarksFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4905,6 +4936,14 @@ public class BookmarksFolderPersistenceImpl
 				groupId, parentFolderId, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_S(
+					groupId, parentFolderId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5306,6 +5345,16 @@ public class BookmarksFolderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_S(groupId, parentFolderId, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<BookmarksFolder> bookmarksFolders = findByG_P_S(
+				groupId, parentFolderId, status);
+
+			bookmarksFolders = InlineSQLHelperUtil.filter(
+				bookmarksFolders, groupId);
+
+			return bookmarksFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -5914,6 +5963,14 @@ public class BookmarksFolderPersistenceImpl
 				groupId, parentFolderId, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_NotS(
+					groupId, parentFolderId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6317,6 +6374,16 @@ public class BookmarksFolderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_NotS(groupId, parentFolderId, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<BookmarksFolder> bookmarksFolders = findByG_P_NotS(
+				groupId, parentFolderId, status);
+
+			bookmarksFolders = InlineSQLHelperUtil.filter(
+				bookmarksFolders, groupId);
+
+			return bookmarksFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);

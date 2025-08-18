@@ -562,6 +562,11 @@ public class CTRemotePersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -907,6 +912,14 @@ public class CTRemotePersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CTRemote> ctRemotes = findByCompanyId(companyId);
+
+			ctRemotes = InlineSQLHelperUtil.filter(ctRemotes);
+
+			return ctRemotes.size();
 		}
 
 		StringBundler sb = new StringBundler(2);

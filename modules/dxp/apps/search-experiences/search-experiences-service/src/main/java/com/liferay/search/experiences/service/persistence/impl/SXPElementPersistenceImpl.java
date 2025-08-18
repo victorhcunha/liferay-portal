@@ -594,6 +594,11 @@ public class SXPElementPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -977,6 +982,14 @@ public class SXPElementPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<SXPElement> sxpElements = findByUuid(uuid);
+
+			sxpElements = InlineSQLHelperUtil.filter(sxpElements);
+
+			return sxpElements.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1581,6 +1594,11 @@ public class SXPElementPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1982,6 +2000,14 @@ public class SXPElementPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<SXPElement> sxpElements = findByUuid_C(uuid, companyId);
+
+			sxpElements = InlineSQLHelperUtil.filter(sxpElements);
+
+			return sxpElements.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2534,6 +2560,11 @@ public class SXPElementPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2879,6 +2910,14 @@ public class SXPElementPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<SXPElement> sxpElements = findByCompanyId(companyId);
+
+			sxpElements = InlineSQLHelperUtil.filter(sxpElements);
+
+			return sxpElements.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3439,6 +3478,11 @@ public class SXPElementPersistenceImpl
 				companyId, readOnly, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_R(companyId, readOnly, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3804,6 +3848,14 @@ public class SXPElementPersistenceImpl
 	public int filterCountByC_R(long companyId, boolean readOnly) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_R(companyId, readOnly);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<SXPElement> sxpElements = findByC_R(companyId, readOnly);
+
+			sxpElements = InlineSQLHelperUtil.filter(sxpElements);
+
+			return sxpElements.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4366,6 +4418,11 @@ public class SXPElementPersistenceImpl
 			return findByC_T(companyId, type, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_T(companyId, type, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4728,6 +4785,14 @@ public class SXPElementPersistenceImpl
 	public int filterCountByC_T(long companyId, int type) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_T(companyId, type);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<SXPElement> sxpElements = findByC_T(companyId, type);
+
+			sxpElements = InlineSQLHelperUtil.filter(sxpElements);
+
+			return sxpElements.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5329,6 +5394,12 @@ public class SXPElementPersistenceImpl
 				companyId, type, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_T_S(
+					companyId, type, status, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5710,6 +5781,14 @@ public class SXPElementPersistenceImpl
 	public int filterCountByC_T_S(long companyId, int type, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_T_S(companyId, type, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<SXPElement> sxpElements = findByC_T_S(companyId, type, status);
+
+			sxpElements = InlineSQLHelperUtil.filter(sxpElements);
+
+			return sxpElements.size();
 		}
 
 		StringBundler sb = new StringBundler(4);

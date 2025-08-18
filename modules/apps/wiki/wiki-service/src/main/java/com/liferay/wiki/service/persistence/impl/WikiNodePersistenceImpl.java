@@ -1916,6 +1916,11 @@ public class WikiNodePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2267,6 +2272,14 @@ public class WikiNodePersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<WikiNode> wikiNodes = findByGroupId(groupId);
+
+			wikiNodes = InlineSQLHelperUtil.filter(wikiNodes, groupId);
+
+			return wikiNodes.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3530,6 +3543,12 @@ public class WikiNodePersistenceImpl
 			return findByG_S(groupId, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_S(groupId, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3898,6 +3917,14 @@ public class WikiNodePersistenceImpl
 	public int filterCountByG_S(long groupId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_S(groupId, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<WikiNode> wikiNodes = findByG_S(groupId, status);
+
+			wikiNodes = InlineSQLHelperUtil.filter(wikiNodes, groupId);
+
+			return wikiNodes.size();
 		}
 
 		StringBundler sb = new StringBundler(3);

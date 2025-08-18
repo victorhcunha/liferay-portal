@@ -1861,6 +1861,11 @@ public class SourcePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2206,6 +2211,14 @@ public class SourcePersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<Source> sources = findByGroupId(groupId);
+
+			sources = InlineSQLHelperUtil.filter(sources, groupId);
+
+			return sources.size();
 		}
 
 		StringBundler sb = new StringBundler(2);

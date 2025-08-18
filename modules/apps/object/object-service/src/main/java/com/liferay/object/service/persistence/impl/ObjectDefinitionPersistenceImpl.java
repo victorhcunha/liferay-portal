@@ -605,6 +605,11 @@ public class ObjectDefinitionPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1001,6 +1006,14 @@ public class ObjectDefinitionPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions = findByUuid(uuid);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1612,6 +1625,11 @@ public class ObjectDefinitionPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2028,6 +2046,15 @@ public class ObjectDefinitionPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions = findByUuid_C(
+				uuid, companyId);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2585,6 +2612,11 @@ public class ObjectDefinitionPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2943,6 +2975,15 @@ public class ObjectDefinitionPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions = findByCompanyId(
+				companyId);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3481,6 +3522,12 @@ public class ObjectDefinitionPersistenceImpl
 				objectFolderId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByObjectFolderId(
+					objectFolderId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3842,6 +3889,15 @@ public class ObjectDefinitionPersistenceImpl
 	public int filterCountByObjectFolderId(long objectFolderId) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByObjectFolderId(objectFolderId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions = findByObjectFolderId(
+				objectFolderId);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -4388,6 +4444,12 @@ public class ObjectDefinitionPersistenceImpl
 				accountEntryRestricted, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByAccountEntryRestricted(
+					accountEntryRestricted, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4755,6 +4817,15 @@ public class ObjectDefinitionPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByAccountEntryRestricted(accountEntryRestricted);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions =
+				findByAccountEntryRestricted(accountEntryRestricted);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -5478,6 +5549,11 @@ public class ObjectDefinitionPersistenceImpl
 			return findBySystem(system, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findBySystem(system, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5836,6 +5912,14 @@ public class ObjectDefinitionPersistenceImpl
 	public int filterCountBySystem(boolean system) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countBySystem(system);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions = findBySystem(system);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -6400,6 +6484,11 @@ public class ObjectDefinitionPersistenceImpl
 			return findByC_U(companyId, userId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_U(companyId, userId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6777,6 +6866,15 @@ public class ObjectDefinitionPersistenceImpl
 	public int filterCountByC_U(long companyId, long userId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_U(companyId, userId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions = findByC_U(
+				companyId, userId);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -7773,6 +7871,11 @@ public class ObjectDefinitionPersistenceImpl
 			return findByC_S(companyId, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_S(companyId, status, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -8150,6 +8253,15 @@ public class ObjectDefinitionPersistenceImpl
 	public int filterCountByC_S(long companyId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_S(companyId, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions = findByC_S(
+				companyId, status);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -8717,6 +8829,11 @@ public class ObjectDefinitionPersistenceImpl
 			return findByS_S(system, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByS_S(system, status, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -9094,6 +9211,15 @@ public class ObjectDefinitionPersistenceImpl
 	public int filterCountByS_S(boolean system, int status) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByS_S(system, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions = findByS_S(
+				system, status);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -9700,6 +9826,12 @@ public class ObjectDefinitionPersistenceImpl
 				companyId, active, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A_S(
+					companyId, active, status, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -10095,6 +10227,15 @@ public class ObjectDefinitionPersistenceImpl
 	public int filterCountByC_A_S(long companyId, boolean active, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A_S(companyId, active, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions = findByC_A_S(
+				companyId, active, status);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -10712,6 +10853,13 @@ public class ObjectDefinitionPersistenceImpl
 				companyId, modifiable, system, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_M_S(
+					companyId, modifiable, system, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -11114,6 +11262,15 @@ public class ObjectDefinitionPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_M_S(companyId, modifiable, system);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions = findByC_M_S(
+				companyId, modifiable, system);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -11762,6 +11919,13 @@ public class ObjectDefinitionPersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A_S_S(
+					companyId, active, system, status, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -12180,6 +12344,15 @@ public class ObjectDefinitionPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A_S_S(companyId, active, system, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions = findByC_A_S_S(
+				companyId, active, system, status);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(5);
@@ -12945,6 +13118,13 @@ public class ObjectDefinitionPersistenceImpl
 				scope, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_OFI_A_E_S_S(
+					companyId, objectFolderId, active, enableObjectEntryDraft,
+					scope, status, start, end, orderByComparator));
+		}
+
 		scope = Objects.toString(scope, "");
 
 		StringBundler sb = null;
@@ -13385,6 +13565,13 @@ public class ObjectDefinitionPersistenceImpl
 			return findByC_OFI_A_E_S_S(
 				companyId, objectFolderIds, active, enableObjectEntryDraft,
 				scope, status, start, end, orderByComparator);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_OFI_A_E_S_S(
+					companyId, objectFolderIds, active, enableObjectEntryDraft,
+					scope, status, start, end, orderByComparator));
 		}
 
 		if (objectFolderIds == null) {
@@ -14029,6 +14216,16 @@ public class ObjectDefinitionPersistenceImpl
 				scope, status);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions = findByC_OFI_A_E_S_S(
+				companyId, objectFolderId, active, enableObjectEntryDraft,
+				scope, status);
+
+			objectDefinitions = InlineSQLHelperUtil.filter(objectDefinitions);
+
+			return objectDefinitions.size();
+		}
+
 		scope = Objects.toString(scope, "");
 
 		StringBundler sb = new StringBundler(7);
@@ -14118,6 +14315,16 @@ public class ObjectDefinitionPersistenceImpl
 			return countByC_OFI_A_E_S_S(
 				companyId, objectFolderIds, active, enableObjectEntryDraft,
 				scope, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectDefinition> objectDefinitions =
+				InlineSQLHelperUtil.filter(
+					findByC_OFI_A_E_S_S(
+						companyId, objectFolderIds, active,
+						enableObjectEntryDraft, scope, status));
+
+			return objectDefinitions.size();
 		}
 
 		if (objectFolderIds == null) {

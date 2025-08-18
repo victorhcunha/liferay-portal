@@ -584,6 +584,11 @@ public class PasswordPolicyPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -975,6 +980,14 @@ public class PasswordPolicyPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PasswordPolicy> passwordPolicies = findByUuid(uuid);
+
+			passwordPolicies = InlineSQLHelperUtil.filter(passwordPolicies);
+
+			return passwordPolicies.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1585,6 +1598,11 @@ public class PasswordPolicyPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1997,6 +2015,15 @@ public class PasswordPolicyPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PasswordPolicy> passwordPolicies = findByUuid_C(
+				uuid, companyId);
+
+			passwordPolicies = InlineSQLHelperUtil.filter(passwordPolicies);
+
+			return passwordPolicies.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2550,6 +2577,11 @@ public class PasswordPolicyPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2903,6 +2935,14 @@ public class PasswordPolicyPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PasswordPolicy> passwordPolicies = findByCompanyId(companyId);
+
+			passwordPolicies = InlineSQLHelperUtil.filter(passwordPolicies);
+
+			return passwordPolicies.size();
 		}
 
 		StringBundler sb = new StringBundler(2);

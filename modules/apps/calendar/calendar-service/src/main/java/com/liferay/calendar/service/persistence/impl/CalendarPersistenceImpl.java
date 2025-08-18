@@ -1956,6 +1956,13 @@ public class CalendarPersistenceImpl
 				groupId, calendarResourceId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C(
+					groupId, calendarResourceId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2327,6 +2334,14 @@ public class CalendarPersistenceImpl
 	public int filterCountByG_C(long groupId, long calendarResourceId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C(groupId, calendarResourceId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<Calendar> calendars = findByG_C(groupId, calendarResourceId);
+
+			calendars = InlineSQLHelperUtil.filter(calendars, groupId);
+
+			return calendars.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -2945,6 +2960,14 @@ public class CalendarPersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_D(
+					groupId, calendarResourceId, defaultCalendar, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3342,6 +3365,15 @@ public class CalendarPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_D(groupId, calendarResourceId, defaultCalendar);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<Calendar> calendars = findByG_C_D(
+				groupId, calendarResourceId, defaultCalendar);
+
+			calendars = InlineSQLHelperUtil.filter(calendars, groupId);
+
+			return calendars.size();
 		}
 
 		StringBundler sb = new StringBundler(4);

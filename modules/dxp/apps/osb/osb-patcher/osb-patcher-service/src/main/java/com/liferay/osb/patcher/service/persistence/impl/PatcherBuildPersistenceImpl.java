@@ -584,6 +584,12 @@ public class PatcherBuildPersistenceImpl
 				patcherFixId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByPatcherFixId(
+					patcherFixId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -935,6 +941,14 @@ public class PatcherBuildPersistenceImpl
 	public int filterCountByPatcherFixId(long patcherFixId) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByPatcherFixId(patcherFixId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByPatcherFixId(patcherFixId);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1481,6 +1495,12 @@ public class PatcherBuildPersistenceImpl
 				patcherProjectVersionId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByPatcherProjectVersionId(
+					patcherProjectVersionId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1841,6 +1861,15 @@ public class PatcherBuildPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByPatcherProjectVersionId(patcherProjectVersionId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByPatcherProjectVersionId(
+				patcherProjectVersionId);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2381,6 +2410,11 @@ public class PatcherBuildPersistenceImpl
 			return findByKey(key, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByKey(key, start, end, orderByComparator));
+		}
+
 		key = Objects.toString(key, "");
 
 		StringBundler sb = null;
@@ -2770,6 +2804,14 @@ public class PatcherBuildPersistenceImpl
 	public int filterCountByKey(String key) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByKey(key);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByKey(key);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		key = Objects.toString(key, "");
@@ -3371,6 +3413,13 @@ public class PatcherBuildPersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByP_P(
+					patcherAccountId, patcherProductVersionId, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3750,6 +3799,15 @@ public class PatcherBuildPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByP_P(patcherAccountId, patcherProductVersionId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByP_P(
+				patcherAccountId, patcherProductVersionId);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4321,6 +4379,12 @@ public class PatcherBuildPersistenceImpl
 				patcherFixId, childBuild, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByP_C(
+					patcherFixId, childBuild, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4692,6 +4756,15 @@ public class PatcherBuildPersistenceImpl
 	public int filterCountByP_C(long patcherFixId, boolean childBuild) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByP_C(patcherFixId, childBuild);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByP_C(
+				patcherFixId, childBuild);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5473,6 +5546,11 @@ public class PatcherBuildPersistenceImpl
 			return findByK_GtKV(key, keyVersion, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByK_GtKV(key, keyVersion, start, end, orderByComparator));
+		}
+
 		key = Objects.toString(key, "");
 
 		StringBundler sb = null;
@@ -5883,6 +5961,14 @@ public class PatcherBuildPersistenceImpl
 	public int filterCountByK_GtKV(String key, double keyVersion) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByK_GtKV(key, keyVersion);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByK_GtKV(key, keyVersion);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		key = Objects.toString(key, "");
@@ -6488,6 +6574,11 @@ public class PatcherBuildPersistenceImpl
 			return findByK_LtKV(key, keyVersion, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByK_LtKV(key, keyVersion, start, end, orderByComparator));
+		}
+
 		key = Objects.toString(key, "");
 
 		StringBundler sb = null;
@@ -6898,6 +6989,14 @@ public class PatcherBuildPersistenceImpl
 	public int filterCountByK_LtKV(String key, double keyVersion) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByK_LtKV(key, keyVersion);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByK_LtKV(key, keyVersion);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		key = Objects.toString(key, "");
@@ -7515,6 +7614,11 @@ public class PatcherBuildPersistenceImpl
 				key, latestKeyBuild, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByK_L(key, latestKeyBuild, start, end, orderByComparator));
+		}
+
 		key = Objects.toString(key, "");
 
 		StringBundler sb = null;
@@ -7925,6 +8029,14 @@ public class PatcherBuildPersistenceImpl
 	public int filterCountByK_L(String key, boolean latestKeyBuild) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByK_L(key, latestKeyBuild);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByK_L(key, latestKeyBuild);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		key = Objects.toString(key, "");
@@ -8559,6 +8671,13 @@ public class PatcherBuildPersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByL_S(
+					latestSupportTicketBuild, supportTicket, start, end,
+					orderByComparator));
+		}
+
 		supportTicket = Objects.toString(supportTicket, "");
 
 		StringBundler sb = null;
@@ -8979,6 +9098,15 @@ public class PatcherBuildPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByL_S(latestSupportTicketBuild, supportTicket);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByL_S(
+				latestSupportTicketBuild, supportTicket);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		supportTicket = Objects.toString(supportTicket, "");
@@ -9591,6 +9719,13 @@ public class PatcherBuildPersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByS_GtS(
+					supportTicket, supportTicketVersion, start, end,
+					orderByComparator));
+		}
+
 		supportTicket = Objects.toString(supportTicket, "");
 
 		StringBundler sb = null;
@@ -10009,6 +10144,15 @@ public class PatcherBuildPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByS_GtS(supportTicket, supportTicketVersion);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByS_GtS(
+				supportTicket, supportTicketVersion);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		supportTicket = Objects.toString(supportTicket, "");
@@ -10621,6 +10765,13 @@ public class PatcherBuildPersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByS_LtS(
+					supportTicket, supportTicketVersion, start, end,
+					orderByComparator));
+		}
+
 		supportTicket = Objects.toString(supportTicket, "");
 
 		StringBundler sb = null;
@@ -11039,6 +11190,15 @@ public class PatcherBuildPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByS_LtS(supportTicket, supportTicketVersion);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByS_LtS(
+				supportTicket, supportTicketVersion);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		supportTicket = Objects.toString(supportTicket, "");
@@ -11671,6 +11831,13 @@ public class PatcherBuildPersistenceImpl
 				modifiedDate, notified, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByLtM_N_S(
+					modifiedDate, notified, status, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -12056,6 +12223,13 @@ public class PatcherBuildPersistenceImpl
 			return findByLtM_N_S(
 				modifiedDate, notified, statuses, start, end,
 				orderByComparator);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByLtM_N_S(
+					modifiedDate, notified, statuses, start, end,
+					orderByComparator));
 		}
 
 		if (statuses == null) {
@@ -12590,6 +12764,15 @@ public class PatcherBuildPersistenceImpl
 			return countByLtM_N_S(modifiedDate, notified, status);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByLtM_N_S(
+				modifiedDate, notified, status);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_PATCHERBUILD_WHERE);
@@ -12659,6 +12842,13 @@ public class PatcherBuildPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByLtM_N_S(modifiedDate, notified, statuses);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = InlineSQLHelperUtil.filter(
+				findByLtM_N_S(modifiedDate, notified, statuses));
+
+			return patcherBuilds.size();
 		}
 
 		if (statuses == null) {
@@ -13338,6 +13528,13 @@ public class PatcherBuildPersistenceImpl
 				end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByP_NotP_C_NotT(
+					patcherFixId, patcherProductVersionId, childBuild, type,
+					start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -13755,6 +13952,15 @@ public class PatcherBuildPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByP_NotP_C_NotT(
 				patcherFixId, patcherProductVersionId, childBuild, type);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByP_NotP_C_NotT(
+				patcherFixId, patcherProductVersionId, childBuild, type);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		StringBundler sb = new StringBundler(5);
@@ -14482,6 +14688,13 @@ public class PatcherBuildPersistenceImpl
 				start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByP_N_L_A(
+					patcherProjectVersionId, accountEntryCode, latestKeyBuild,
+					name, start, end, orderByComparator));
+		}
+
 		accountEntryCode = Objects.toString(accountEntryCode, "");
 		name = Objects.toString(name, "");
 
@@ -14978,6 +15191,16 @@ public class PatcherBuildPersistenceImpl
 			return countByP_N_L_A(
 				patcherProjectVersionId, accountEntryCode, latestKeyBuild,
 				name);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherBuild> patcherBuilds = findByP_N_L_A(
+				patcherProjectVersionId, accountEntryCode, latestKeyBuild,
+				name);
+
+			patcherBuilds = InlineSQLHelperUtil.filter(patcherBuilds);
+
+			return patcherBuilds.size();
 		}
 
 		accountEntryCode = Objects.toString(accountEntryCode, "");

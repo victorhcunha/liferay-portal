@@ -1934,6 +1934,11 @@ public class DLFileEntryTypePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2266,6 +2271,12 @@ public class DLFileEntryTypePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByGroupId(groupIds, start, end, orderByComparator);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -2696,6 +2707,15 @@ public class DLFileEntryTypePersistenceImpl
 			return countByGroupId(groupId);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<DLFileEntryType> dlFileEntryTypes = findByGroupId(groupId);
+
+			dlFileEntryTypes = InlineSQLHelperUtil.filter(
+				dlFileEntryTypes, groupId);
+
+			return dlFileEntryTypes.size();
+		}
+
 		StringBundler sb = new StringBundler(2);
 
 		sb.append(_FILTER_SQL_COUNT_DLFILEENTRYTYPE_WHERE);
@@ -2742,6 +2762,13 @@ public class DLFileEntryTypePersistenceImpl
 	public int filterCountByGroupId(long[] groupIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByGroupId(groupIds);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<DLFileEntryType> dlFileEntryTypes = InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds), groupIds);
+
+			return dlFileEntryTypes.size();
 		}
 
 		if (groupIds == null) {

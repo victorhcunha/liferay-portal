@@ -1922,6 +1922,11 @@ public class CPDefinitionPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2279,6 +2284,14 @@ public class CPDefinitionPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CPDefinition> cpDefinitions = findByGroupId(groupId);
+
+			cpDefinitions = InlineSQLHelperUtil.filter(cpDefinitions, groupId);
+
+			return cpDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -4385,6 +4398,14 @@ public class CPDefinitionPersistenceImpl
 				groupId, subscriptionEnabled, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_SE(
+					groupId, subscriptionEnabled, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4763,6 +4784,15 @@ public class CPDefinitionPersistenceImpl
 	public int filterCountByG_SE(long groupId, boolean subscriptionEnabled) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_SE(groupId, subscriptionEnabled);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CPDefinition> cpDefinitions = findByG_SE(
+				groupId, subscriptionEnabled);
+
+			cpDefinitions = InlineSQLHelperUtil.filter(cpDefinitions, groupId);
+
+			return cpDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5332,6 +5362,12 @@ public class CPDefinitionPersistenceImpl
 			return findByG_S(groupId, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_S(groupId, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5708,6 +5744,14 @@ public class CPDefinitionPersistenceImpl
 	public int filterCountByG_S(long groupId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_S(groupId, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CPDefinition> cpDefinitions = findByG_S(groupId, status);
+
+			cpDefinitions = InlineSQLHelperUtil.filter(cpDefinitions, groupId);
+
+			return cpDefinitions.size();
 		}
 
 		StringBundler sb = new StringBundler(3);

@@ -1886,6 +1886,11 @@ public class RedirectEntryPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2238,6 +2243,15 @@ public class RedirectEntryPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<RedirectEntry> redirectEntries = findByGroupId(groupId);
+
+			redirectEntries = InlineSQLHelperUtil.filter(
+				redirectEntries, groupId);
+
+			return redirectEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2830,6 +2844,13 @@ public class RedirectEntryPersistenceImpl
 				groupId, destinationURL, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_D(
+					groupId, destinationURL, start, end, orderByComparator),
+				groupId);
+		}
+
 		destinationURL = Objects.toString(destinationURL, "");
 
 		StringBundler sb = null;
@@ -3241,6 +3262,16 @@ public class RedirectEntryPersistenceImpl
 	public int filterCountByG_D(long groupId, String destinationURL) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_D(groupId, destinationURL);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<RedirectEntry> redirectEntries = findByG_D(
+				groupId, destinationURL);
+
+			redirectEntries = InlineSQLHelperUtil.filter(
+				redirectEntries, groupId);
+
+			return redirectEntries.size();
 		}
 
 		destinationURL = Objects.toString(destinationURL, "");

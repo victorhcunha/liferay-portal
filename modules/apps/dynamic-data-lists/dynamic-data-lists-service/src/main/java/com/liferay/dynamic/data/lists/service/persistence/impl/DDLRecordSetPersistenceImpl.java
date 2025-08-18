@@ -1921,6 +1921,11 @@ public class DDLRecordSetPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2249,6 +2254,12 @@ public class DDLRecordSetPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByGroupId(groupIds, start, end, orderByComparator);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -2678,6 +2689,14 @@ public class DDLRecordSetPersistenceImpl
 			return countByGroupId(groupId);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<DDLRecordSet> ddlRecordSets = findByGroupId(groupId);
+
+			ddlRecordSets = InlineSQLHelperUtil.filter(ddlRecordSets, groupId);
+
+			return ddlRecordSets.size();
+		}
+
 		StringBundler sb = new StringBundler(2);
 
 		sb.append(_FILTER_SQL_COUNT_DDLRECORDSET_WHERE);
@@ -2724,6 +2743,13 @@ public class DDLRecordSetPersistenceImpl
 	public int filterCountByGroupId(long[] groupIds) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByGroupId(groupIds);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<DDLRecordSet> ddlRecordSets = InlineSQLHelperUtil.filter(
+				findByGroupId(groupIds), groupIds);
+
+			return ddlRecordSets.size();
 		}
 
 		if (groupIds == null) {

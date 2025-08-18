@@ -588,6 +588,11 @@ public class SAPEntryPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -970,6 +975,14 @@ public class SAPEntryPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<SAPEntry> sapEntries = findByUuid(uuid);
+
+			sapEntries = InlineSQLHelperUtil.filter(sapEntries);
+
+			return sapEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1573,6 +1586,11 @@ public class SAPEntryPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1974,6 +1992,14 @@ public class SAPEntryPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<SAPEntry> sapEntries = findByUuid_C(uuid, companyId);
+
+			sapEntries = InlineSQLHelperUtil.filter(sapEntries);
+
+			return sapEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2522,6 +2548,11 @@ public class SAPEntryPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2867,6 +2898,14 @@ public class SAPEntryPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<SAPEntry> sapEntries = findByCompanyId(companyId);
+
+			sapEntries = InlineSQLHelperUtil.filter(sapEntries);
+
+			return sapEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3430,6 +3469,12 @@ public class SAPEntryPersistenceImpl
 				companyId, defaultSAPEntry, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_D(
+					companyId, defaultSAPEntry, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3795,6 +3840,14 @@ public class SAPEntryPersistenceImpl
 	public int filterCountByC_D(long companyId, boolean defaultSAPEntry) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_D(companyId, defaultSAPEntry);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<SAPEntry> sapEntries = findByC_D(companyId, defaultSAPEntry);
+
+			sapEntries = InlineSQLHelperUtil.filter(sapEntries);
+
+			return sapEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(3);

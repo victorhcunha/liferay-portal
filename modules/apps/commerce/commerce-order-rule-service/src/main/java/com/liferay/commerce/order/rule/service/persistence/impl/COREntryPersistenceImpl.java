@@ -596,6 +596,11 @@ public class COREntryPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -978,6 +983,14 @@ public class COREntryPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<COREntry> corEntries = findByUuid(uuid);
+
+			corEntries = InlineSQLHelperUtil.filter(corEntries);
+
+			return corEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1581,6 +1594,11 @@ public class COREntryPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1982,6 +2000,14 @@ public class COREntryPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<COREntry> corEntries = findByUuid_C(uuid, companyId);
+
+			corEntries = InlineSQLHelperUtil.filter(corEntries);
+
+			return corEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2566,6 +2592,11 @@ public class COREntryPersistenceImpl
 			return findByC_A(companyId, active, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A(companyId, active, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2928,6 +2959,14 @@ public class COREntryPersistenceImpl
 	public int filterCountByC_A(long companyId, boolean active) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A(companyId, active);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<COREntry> corEntries = findByC_A(companyId, active);
+
+			corEntries = InlineSQLHelperUtil.filter(corEntries);
+
+			return corEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -3510,6 +3549,12 @@ public class COREntryPersistenceImpl
 				companyId, type, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_LikeType(
+					companyId, type, start, end, orderByComparator));
+		}
+
 		type = Objects.toString(type, "");
 
 		StringBundler sb = null;
@@ -3911,6 +3956,14 @@ public class COREntryPersistenceImpl
 	public int filterCountByC_LikeType(long companyId, String type) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_LikeType(companyId, type);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<COREntry> corEntries = findByC_LikeType(companyId, type);
+
+			corEntries = InlineSQLHelperUtil.filter(corEntries);
+
+			return corEntries.size();
 		}
 
 		type = Objects.toString(type, "");
@@ -4509,6 +4562,12 @@ public class COREntryPersistenceImpl
 				displayDate, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByLtD_S(
+					displayDate, status, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4906,6 +4965,14 @@ public class COREntryPersistenceImpl
 	public int filterCountByLtD_S(Date displayDate, int status) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByLtD_S(displayDate, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<COREntry> corEntries = findByLtD_S(displayDate, status);
+
+			corEntries = InlineSQLHelperUtil.filter(corEntries);
+
+			return corEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5496,6 +5563,12 @@ public class COREntryPersistenceImpl
 				expirationDate, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByLtE_S(
+					expirationDate, status, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5893,6 +5966,14 @@ public class COREntryPersistenceImpl
 	public int filterCountByLtE_S(Date expirationDate, int status) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByLtE_S(expirationDate, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<COREntry> corEntries = findByLtE_S(expirationDate, status);
+
+			corEntries = InlineSQLHelperUtil.filter(corEntries);
+
+			return corEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -6523,6 +6604,12 @@ public class COREntryPersistenceImpl
 				companyId, active, type, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A_LikeType(
+					companyId, active, type, start, end, orderByComparator));
+		}
+
 		type = Objects.toString(type, "");
 
 		StringBundler sb = null;
@@ -6949,6 +7036,15 @@ public class COREntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A_LikeType(companyId, active, type);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<COREntry> corEntries = findByC_A_LikeType(
+				companyId, active, type);
+
+			corEntries = InlineSQLHelperUtil.filter(corEntries);
+
+			return corEntries.size();
 		}
 
 		type = Objects.toString(type, "");

@@ -1916,6 +1916,11 @@ public class JournalFeedPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2270,6 +2275,14 @@ public class JournalFeedPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<JournalFeed> journalFeeds = findByGroupId(groupId);
+
+			journalFeeds = InlineSQLHelperUtil.filter(journalFeeds, groupId);
+
+			return journalFeeds.size();
 		}
 
 		StringBundler sb = new StringBundler(2);

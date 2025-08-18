@@ -566,6 +566,11 @@ public class CTProcessPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -911,6 +916,14 @@ public class CTProcessPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CTProcess> ctProcesses = findByCompanyId(companyId);
+
+			ctProcesses = InlineSQLHelperUtil.filter(ctProcesses);
+
+			return ctProcesses.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1436,6 +1449,12 @@ public class CTProcessPersistenceImpl
 				ctCollectionId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCtCollectionId(
+					ctCollectionId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1782,6 +1801,14 @@ public class CTProcessPersistenceImpl
 	public int filterCountByCtCollectionId(long ctCollectionId) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByCtCollectionId(ctCollectionId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CTProcess> ctProcesses = findByCtCollectionId(ctCollectionId);
+
+			ctProcesses = InlineSQLHelperUtil.filter(ctProcesses);
+
+			return ctProcesses.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2341,6 +2368,11 @@ public class CTProcessPersistenceImpl
 				ctCollectionId, type, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_T(ctCollectionId, type, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2705,6 +2737,14 @@ public class CTProcessPersistenceImpl
 	public int filterCountByC_T(long ctCollectionId, int type) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByC_T(ctCollectionId, type);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CTProcess> ctProcesses = findByC_T(ctCollectionId, type);
+
+			ctProcesses = InlineSQLHelperUtil.filter(ctProcesses);
+
+			return ctProcesses.size();
 		}
 
 		StringBundler sb = new StringBundler(3);

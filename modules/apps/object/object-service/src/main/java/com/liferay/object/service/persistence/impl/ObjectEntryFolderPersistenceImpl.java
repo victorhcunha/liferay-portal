@@ -2209,6 +2209,14 @@ public class ObjectEntryFolderPersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_P(
+					groupId, companyId, parentObjectEntryFolderId, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2613,6 +2621,16 @@ public class ObjectEntryFolderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_P(groupId, companyId, parentObjectEntryFolderId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectEntryFolder> objectEntryFolders = findByG_C_P(
+				groupId, companyId, parentObjectEntryFolderId);
+
+			objectEntryFolders = InlineSQLHelperUtil.filter(
+				objectEntryFolders, groupId);
+
+			return objectEntryFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -3243,6 +3261,14 @@ public class ObjectEntryFolderPersistenceImpl
 				groupId, companyId, treePath, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_LikeT(
+					groupId, companyId, treePath, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		treePath = Objects.toString(treePath, "");
 
 		StringBundler sb = null;
@@ -3682,6 +3708,16 @@ public class ObjectEntryFolderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_LikeT(groupId, companyId, treePath);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ObjectEntryFolder> objectEntryFolders = findByG_C_LikeT(
+				groupId, companyId, treePath);
+
+			objectEntryFolders = InlineSQLHelperUtil.filter(
+				objectEntryFolders, groupId);
+
+			return objectEntryFolders.size();
 		}
 
 		treePath = Objects.toString(treePath, "");

@@ -1939,6 +1939,11 @@ public class SegmentsExperimentPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2303,6 +2308,16 @@ public class SegmentsExperimentPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<SegmentsExperiment> segmentsExperiments = findByGroupId(
+				groupId);
+
+			segmentsExperiments = InlineSQLHelperUtil.filter(
+				segmentsExperiments, groupId);
+
+			return segmentsExperiments.size();
 		}
 
 		StringBundler sb = new StringBundler(2);

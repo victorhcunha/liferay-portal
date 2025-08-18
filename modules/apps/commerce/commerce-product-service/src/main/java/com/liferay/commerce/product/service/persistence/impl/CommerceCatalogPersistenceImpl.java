@@ -615,6 +615,11 @@ public class CommerceCatalogPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1014,6 +1019,14 @@ public class CommerceCatalogPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceCatalog> commerceCatalogs = findByUuid(uuid);
+
+			commerceCatalogs = InlineSQLHelperUtil.filter(commerceCatalogs);
+
+			return commerceCatalogs.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1629,6 +1642,11 @@ public class CommerceCatalogPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2048,6 +2066,15 @@ public class CommerceCatalogPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceCatalog> commerceCatalogs = findByUuid_C(
+				uuid, companyId);
+
+			commerceCatalogs = InlineSQLHelperUtil.filter(commerceCatalogs);
+
+			return commerceCatalogs.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2609,6 +2636,11 @@ public class CommerceCatalogPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2970,6 +3002,14 @@ public class CommerceCatalogPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceCatalog> commerceCatalogs = findByCompanyId(companyId);
+
+			commerceCatalogs = InlineSQLHelperUtil.filter(commerceCatalogs);
+
+			return commerceCatalogs.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3513,6 +3553,12 @@ public class CommerceCatalogPersistenceImpl
 				accountEntryId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByAccountEntryId(
+					accountEntryId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3877,6 +3923,15 @@ public class CommerceCatalogPersistenceImpl
 	public int filterCountByAccountEntryId(long accountEntryId) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByAccountEntryId(accountEntryId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceCatalog> commerceCatalogs = findByAccountEntryId(
+				accountEntryId);
+
+			commerceCatalogs = InlineSQLHelperUtil.filter(commerceCatalogs);
+
+			return commerceCatalogs.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -4444,6 +4499,11 @@ public class CommerceCatalogPersistenceImpl
 			return findByC_S(companyId, system, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_S(companyId, system, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -4824,6 +4884,15 @@ public class CommerceCatalogPersistenceImpl
 	public int filterCountByC_S(long companyId, boolean system) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_S(companyId, system);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceCatalog> commerceCatalogs = findByC_S(
+				companyId, system);
+
+			commerceCatalogs = InlineSQLHelperUtil.filter(commerceCatalogs);
+
+			return commerceCatalogs.size();
 		}
 
 		StringBundler sb = new StringBundler(3);

@@ -597,6 +597,11 @@ public class AccountEntryPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -986,6 +991,14 @@ public class AccountEntryPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<AccountEntry> accountEntries = findByUuid(uuid);
+
+			accountEntries = InlineSQLHelperUtil.filter(accountEntries);
+
+			return accountEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1592,6 +1605,11 @@ public class AccountEntryPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2001,6 +2019,14 @@ public class AccountEntryPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<AccountEntry> accountEntries = findByUuid_C(uuid, companyId);
+
+			accountEntries = InlineSQLHelperUtil.filter(accountEntries);
+
+			return accountEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2553,6 +2579,11 @@ public class AccountEntryPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2904,6 +2935,14 @@ public class AccountEntryPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<AccountEntry> accountEntries = findByCompanyId(companyId);
+
+			accountEntries = InlineSQLHelperUtil.filter(accountEntries);
+
+			return accountEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3462,6 +3501,11 @@ public class AccountEntryPersistenceImpl
 			return findByC_S(companyId, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_S(companyId, status, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3832,6 +3876,14 @@ public class AccountEntryPersistenceImpl
 	public int filterCountByC_S(long companyId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_S(companyId, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<AccountEntry> accountEntries = findByC_S(companyId, status);
+
+			accountEntries = InlineSQLHelperUtil.filter(accountEntries);
+
+			return accountEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4420,6 +4472,11 @@ public class AccountEntryPersistenceImpl
 			return findByU_T(userId, type, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByU_T(userId, type, start, end, orderByComparator));
+		}
+
 		type = Objects.toString(type, "");
 
 		StringBundler sb = null;
@@ -4826,6 +4883,14 @@ public class AccountEntryPersistenceImpl
 	public int filterCountByU_T(long userId, String type) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByU_T(userId, type);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<AccountEntry> accountEntries = findByU_T(userId, type);
+
+			accountEntries = InlineSQLHelperUtil.filter(accountEntries);
+
+			return accountEntries.size();
 		}
 
 		type = Objects.toString(type, "");

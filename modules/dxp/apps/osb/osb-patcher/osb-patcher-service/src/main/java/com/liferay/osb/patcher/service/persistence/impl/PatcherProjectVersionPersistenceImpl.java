@@ -597,6 +597,12 @@ public class PatcherProjectVersionPersistenceImpl
 				patcherProductVersionId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByPatcherProductVersionId(
+					patcherProductVersionId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -969,6 +975,16 @@ public class PatcherProjectVersionPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByPatcherProductVersionId(patcherProductVersionId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherProjectVersion> patcherProjectVersions =
+				findByPatcherProductVersionId(patcherProductVersionId);
+
+			patcherProjectVersions = InlineSQLHelperUtil.filter(
+				patcherProjectVersions);
+
+			return patcherProjectVersions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1528,6 +1544,13 @@ public class PatcherProjectVersionPersistenceImpl
 				rootPatcherProjectVersionId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByRootPatcherProjectVersionId(
+					rootPatcherProjectVersionId, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1905,6 +1928,16 @@ public class PatcherProjectVersionPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByRootPatcherProjectVersionId(
 				rootPatcherProjectVersionId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherProjectVersion> patcherProjectVersions =
+				findByRootPatcherProjectVersionId(rootPatcherProjectVersionId);
+
+			patcherProjectVersions = InlineSQLHelperUtil.filter(
+				patcherProjectVersions);
+
+			return patcherProjectVersions.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -2869,6 +2902,13 @@ public class PatcherProjectVersionPersistenceImpl
 				end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByP_R(
+					patcherProductVersionId, rootPatcherProjectVersionId, start,
+					end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3260,6 +3300,16 @@ public class PatcherProjectVersionPersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByP_R(
 				patcherProductVersionId, rootPatcherProjectVersionId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherProjectVersion> patcherProjectVersions = findByP_R(
+				patcherProductVersionId, rootPatcherProjectVersionId);
+
+			patcherProjectVersions = InlineSQLHelperUtil.filter(
+				patcherProjectVersions);
+
+			return patcherProjectVersions.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -3877,6 +3927,13 @@ public class PatcherProjectVersionPersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByP_RN(
+					patcherProductVersionId, repositoryName, start, end,
+					orderByComparator));
+		}
+
 		repositoryName = Objects.toString(repositoryName, "");
 
 		StringBundler sb = null;
@@ -4306,6 +4363,16 @@ public class PatcherProjectVersionPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByP_RN(patcherProductVersionId, repositoryName);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherProjectVersion> patcherProjectVersions = findByP_RN(
+				patcherProductVersionId, repositoryName);
+
+			patcherProjectVersions = InlineSQLHelperUtil.filter(
+				patcherProjectVersions);
+
+			return patcherProjectVersions.size();
 		}
 
 		repositoryName = Objects.toString(repositoryName, "");

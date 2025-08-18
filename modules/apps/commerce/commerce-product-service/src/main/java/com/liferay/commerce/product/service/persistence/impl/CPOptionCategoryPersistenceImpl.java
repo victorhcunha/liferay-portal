@@ -616,6 +616,11 @@ public class CPOptionCategoryPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1018,6 +1023,14 @@ public class CPOptionCategoryPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CPOptionCategory> cpOptionCategories = findByUuid(uuid);
+
+			cpOptionCategories = InlineSQLHelperUtil.filter(cpOptionCategories);
+
+			return cpOptionCategories.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1634,6 +1647,11 @@ public class CPOptionCategoryPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2056,6 +2074,15 @@ public class CPOptionCategoryPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CPOptionCategory> cpOptionCategories = findByUuid_C(
+				uuid, companyId);
+
+			cpOptionCategories = InlineSQLHelperUtil.filter(cpOptionCategories);
+
+			return cpOptionCategories.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2618,6 +2645,11 @@ public class CPOptionCategoryPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2982,6 +3014,15 @@ public class CPOptionCategoryPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CPOptionCategory> cpOptionCategories = findByCompanyId(
+				companyId);
+
+			cpOptionCategories = InlineSQLHelperUtil.filter(cpOptionCategories);
+
+			return cpOptionCategories.size();
 		}
 
 		StringBundler sb = new StringBundler(2);

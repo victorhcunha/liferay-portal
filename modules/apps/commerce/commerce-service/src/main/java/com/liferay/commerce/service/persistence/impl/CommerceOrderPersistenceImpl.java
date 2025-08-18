@@ -1889,6 +1889,11 @@ public class CommerceOrderPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2241,6 +2246,15 @@ public class CommerceOrderPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceOrder> commerceOrders = findByGroupId(groupId);
+
+			commerceOrders = InlineSQLHelperUtil.filter(
+				commerceOrders, groupId);
+
+			return commerceOrders.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -4825,6 +4839,13 @@ public class CommerceOrderPersistenceImpl
 				groupId, commerceAccountId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C(
+					groupId, commerceAccountId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5197,6 +5218,16 @@ public class CommerceOrderPersistenceImpl
 	public int filterCountByG_C(long groupId, long commerceAccountId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C(groupId, commerceAccountId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceOrder> commerceOrders = findByG_C(
+				groupId, commerceAccountId);
+
+			commerceOrders = InlineSQLHelperUtil.filter(
+				commerceOrders, groupId);
+
+			return commerceOrders.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5804,6 +5835,14 @@ public class CommerceOrderPersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_CP(
+					groupId, commercePaymentMethodKey, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		commercePaymentMethodKey = Objects.toString(
 			commercePaymentMethodKey, "");
 
@@ -6221,6 +6260,16 @@ public class CommerceOrderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_CP(groupId, commercePaymentMethodKey);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceOrder> commerceOrders = findByG_CP(
+				groupId, commercePaymentMethodKey);
+
+			commerceOrders = InlineSQLHelperUtil.filter(
+				commerceOrders, groupId);
+
+			return commerceOrders.size();
 		}
 
 		commercePaymentMethodKey = Objects.toString(
@@ -6840,6 +6889,14 @@ public class CommerceOrderPersistenceImpl
 				groupId, userId, orderStatus, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_U_O(
+					groupId, userId, orderStatus, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -7229,6 +7286,16 @@ public class CommerceOrderPersistenceImpl
 	public int filterCountByG_U_O(long groupId, long userId, int orderStatus) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_U_O(groupId, userId, orderStatus);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceOrder> commerceOrders = findByG_U_O(
+				groupId, userId, orderStatus);
+
+			commerceOrders = InlineSQLHelperUtil.filter(
+				commerceOrders, groupId);
+
+			return commerceOrders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -7848,6 +7915,14 @@ public class CommerceOrderPersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_O(
+					groupId, commerceAccountId, orderStatus, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -8245,6 +8320,16 @@ public class CommerceOrderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_O(groupId, commerceAccountId, orderStatus);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceOrder> commerceOrders = findByG_C_O(
+				groupId, commerceAccountId, orderStatus);
+
+			commerceOrders = InlineSQLHelperUtil.filter(
+				commerceOrders, groupId);
+
+			return commerceOrders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);

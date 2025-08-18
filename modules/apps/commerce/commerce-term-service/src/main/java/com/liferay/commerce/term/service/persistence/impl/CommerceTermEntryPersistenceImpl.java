@@ -607,6 +607,11 @@ public class CommerceTermEntryPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1003,6 +1008,15 @@ public class CommerceTermEntryPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceTermEntry> commerceTermEntries = findByUuid(uuid);
+
+			commerceTermEntries = InlineSQLHelperUtil.filter(
+				commerceTermEntries);
+
+			return commerceTermEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1614,6 +1628,11 @@ public class CommerceTermEntryPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2030,6 +2049,16 @@ public class CommerceTermEntryPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceTermEntry> commerceTermEntries = findByUuid_C(
+				uuid, companyId);
+
+			commerceTermEntries = InlineSQLHelperUtil.filter(
+				commerceTermEntries);
+
+			return commerceTermEntries.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2622,6 +2651,11 @@ public class CommerceTermEntryPersistenceImpl
 			return findByC_A(companyId, active, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A(companyId, active, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2999,6 +3033,16 @@ public class CommerceTermEntryPersistenceImpl
 	public int filterCountByC_A(long companyId, boolean active) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A(companyId, active);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceTermEntry> commerceTermEntries = findByC_A(
+				companyId, active);
+
+			commerceTermEntries = InlineSQLHelperUtil.filter(
+				commerceTermEntries);
+
+			return commerceTermEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -3790,6 +3834,12 @@ public class CommerceTermEntryPersistenceImpl
 				companyId, type, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_LikeType(
+					companyId, type, start, end, orderByComparator));
+		}
+
 		type = Objects.toString(type, "");
 
 		StringBundler sb = null;
@@ -4206,6 +4256,16 @@ public class CommerceTermEntryPersistenceImpl
 	public int filterCountByC_LikeType(long companyId, String type) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_LikeType(companyId, type);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceTermEntry> commerceTermEntries = findByC_LikeType(
+				companyId, type);
+
+			commerceTermEntries = InlineSQLHelperUtil.filter(
+				commerceTermEntries);
+
+			return commerceTermEntries.size();
 		}
 
 		type = Objects.toString(type, "");
@@ -4812,6 +4872,12 @@ public class CommerceTermEntryPersistenceImpl
 				displayDate, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByLtD_S(
+					displayDate, status, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5222,6 +5288,16 @@ public class CommerceTermEntryPersistenceImpl
 	public int filterCountByLtD_S(Date displayDate, int status) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByLtD_S(displayDate, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceTermEntry> commerceTermEntries = findByLtD_S(
+				displayDate, status);
+
+			commerceTermEntries = InlineSQLHelperUtil.filter(
+				commerceTermEntries);
+
+			return commerceTermEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5823,6 +5899,12 @@ public class CommerceTermEntryPersistenceImpl
 				expirationDate, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByLtE_S(
+					expirationDate, status, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6234,6 +6316,16 @@ public class CommerceTermEntryPersistenceImpl
 	public int filterCountByLtE_S(Date expirationDate, int status) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByLtE_S(expirationDate, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceTermEntry> commerceTermEntries = findByLtE_S(
+				expirationDate, status);
+
+			commerceTermEntries = InlineSQLHelperUtil.filter(
+				commerceTermEntries);
+
+			return commerceTermEntries.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -6869,6 +6961,12 @@ public class CommerceTermEntryPersistenceImpl
 				companyId, active, type, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A_LikeType(
+					companyId, active, type, start, end, orderByComparator));
+		}
+
 		type = Objects.toString(type, "");
 
 		StringBundler sb = null;
@@ -7309,6 +7407,16 @@ public class CommerceTermEntryPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A_LikeType(companyId, active, type);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<CommerceTermEntry> commerceTermEntries = findByC_A_LikeType(
+				companyId, active, type);
+
+			commerceTermEntries = InlineSQLHelperUtil.filter(
+				commerceTermEntries);
+
+			return commerceTermEntries.size();
 		}
 
 		type = Objects.toString(type, "");

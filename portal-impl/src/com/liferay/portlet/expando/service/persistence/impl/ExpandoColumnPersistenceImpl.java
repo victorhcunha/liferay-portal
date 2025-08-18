@@ -48,6 +48,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationHandler;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.EnumMap;
@@ -576,6 +577,11 @@ public class ExpandoColumnPersistenceImpl
 			return findByTableId(tableId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByTableId(tableId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -934,6 +940,14 @@ public class ExpandoColumnPersistenceImpl
 	public int filterCountByTableId(long tableId) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByTableId(tableId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ExpandoColumn> expandoColumns = findByTableId(tableId);
+
+			expandoColumns = InlineSQLHelperUtil.filter(expandoColumns);
+
+			return expandoColumns.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1570,6 +1584,15 @@ public class ExpandoColumnPersistenceImpl
 			return countByT_N(tableId, name);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ExpandoColumn> expandoColumns = Arrays.asList(
+				fetchByT_N(tableId, name));
+
+			expandoColumns = InlineSQLHelperUtil.filter(expandoColumns);
+
+			return expandoColumns.size();
+		}
+
 		name = Objects.toString(name, "");
 
 		StringBundler sb = new StringBundler(3);
@@ -1634,6 +1657,13 @@ public class ExpandoColumnPersistenceImpl
 	public int filterCountByT_N(long tableId, String[] names) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByT_N(tableId, names);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<ExpandoColumn> expandoColumns = InlineSQLHelperUtil.filter(
+				findByT_N(tableId, names));
+
+			return expandoColumns.size();
 		}
 
 		if (names == null) {

@@ -2401,6 +2401,11 @@ public class TeamPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2752,6 +2757,14 @@ public class TeamPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<Team> teams = findByGroupId(groupId);
+
+			teams = InlineSQLHelperUtil.filter(teams, groupId);
+
+			return teams.size();
 		}
 
 		StringBundler sb = new StringBundler(2);

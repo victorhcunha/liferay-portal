@@ -608,6 +608,11 @@ public class UserGroupPersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -996,6 +1001,14 @@ public class UserGroupPersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<UserGroup> userGroups = findByUuid(uuid);
+
+			userGroups = InlineSQLHelperUtil.filter(userGroups);
+
+			return userGroups.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1605,6 +1618,11 @@ public class UserGroupPersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2012,6 +2030,14 @@ public class UserGroupPersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<UserGroup> userGroups = findByUuid_C(uuid, companyId);
+
+			userGroups = InlineSQLHelperUtil.filter(userGroups);
+
+			return userGroups.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2567,6 +2593,11 @@ public class UserGroupPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2918,6 +2949,14 @@ public class UserGroupPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<UserGroup> userGroups = findByCompanyId(companyId);
+
+			userGroups = InlineSQLHelperUtil.filter(userGroups);
+
+			return userGroups.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3488,6 +3527,13 @@ public class UserGroupPersistenceImpl
 				companyId, parentUserGroupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_P(
+					companyId, parentUserGroupId, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3859,6 +3905,15 @@ public class UserGroupPersistenceImpl
 	public int filterCountByC_P(long companyId, long parentUserGroupId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_P(companyId, parentUserGroupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<UserGroup> userGroups = findByC_P(
+				companyId, parentUserGroupId);
+
+			userGroups = InlineSQLHelperUtil.filter(userGroups);
+
+			return userGroups.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -4648,6 +4703,11 @@ public class UserGroupPersistenceImpl
 				companyId, name, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_LikeN(companyId, name, start, end, orderByComparator));
+		}
+
 		name = Objects.toString(name, "");
 
 		StringBundler sb = null;
@@ -5055,6 +5115,14 @@ public class UserGroupPersistenceImpl
 	public int filterCountByC_LikeN(long companyId, String name) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_LikeN(companyId, name);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<UserGroup> userGroups = findByC_LikeN(companyId, name);
+
+			userGroups = InlineSQLHelperUtil.filter(userGroups);
+
+			return userGroups.size();
 		}
 
 		name = Objects.toString(name, "");
@@ -5511,6 +5579,13 @@ public class UserGroupPersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGtU_C_P(
+					userGroupId, companyId, parentUserGroupId, start, end,
+					orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5697,6 +5772,15 @@ public class UserGroupPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByGtU_C_P(userGroupId, companyId, parentUserGroupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<UserGroup> userGroups = findByGtU_C_P(
+				userGroupId, companyId, parentUserGroupId);
+
+			userGroups = InlineSQLHelperUtil.filter(userGroups);
+
+			return userGroups.size();
 		}
 
 		StringBundler sb = new StringBundler(4);

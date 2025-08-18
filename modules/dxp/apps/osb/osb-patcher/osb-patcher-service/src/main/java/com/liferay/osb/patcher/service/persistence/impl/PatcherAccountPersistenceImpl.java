@@ -577,6 +577,11 @@ public class PatcherAccountPersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -929,6 +934,14 @@ public class PatcherAccountPersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherAccount> patcherAccounts = findByCompanyId(companyId);
+
+			patcherAccounts = InlineSQLHelperUtil.filter(patcherAccounts);
+
+			return patcherAccounts.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1703,6 +1716,13 @@ public class PatcherAccountPersistenceImpl
 				companyId, accountEntryCode, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_LikeA(
+					companyId, accountEntryCode, start, end,
+					orderByComparator));
+		}
+
 		accountEntryCode = Objects.toString(accountEntryCode, "");
 
 		StringBundler sb = null;
@@ -2115,6 +2135,15 @@ public class PatcherAccountPersistenceImpl
 	public int filterCountByC_LikeA(long companyId, String accountEntryCode) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_LikeA(companyId, accountEntryCode);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<PatcherAccount> patcherAccounts = findByC_LikeA(
+				companyId, accountEntryCode);
+
+			patcherAccounts = InlineSQLHelperUtil.filter(patcherAccounts);
+
+			return patcherAccounts.size();
 		}
 
 		accountEntryCode = Objects.toString(accountEntryCode, "");

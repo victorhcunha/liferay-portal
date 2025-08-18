@@ -605,6 +605,11 @@ public class LayoutSetPrototypePersistenceImpl
 			return findByUuid(uuid, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid(uuid, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -1007,6 +1012,15 @@ public class LayoutSetPrototypePersistenceImpl
 	public int filterCountByUuid(String uuid) {
 		if (!InlineSQLHelperUtil.isEnabled()) {
 			return countByUuid(uuid);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<LayoutSetPrototype> layoutSetPrototypes = findByUuid(uuid);
+
+			layoutSetPrototypes = InlineSQLHelperUtil.filter(
+				layoutSetPrototypes);
+
+			return layoutSetPrototypes.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -1623,6 +1637,11 @@ public class LayoutSetPrototypePersistenceImpl
 			return findByUuid_C(uuid, companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByUuid_C(uuid, companyId, start, end, orderByComparator));
+		}
+
 		uuid = Objects.toString(uuid, "");
 
 		StringBundler sb = null;
@@ -2045,6 +2064,16 @@ public class LayoutSetPrototypePersistenceImpl
 	public int filterCountByUuid_C(String uuid, long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByUuid_C(uuid, companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<LayoutSetPrototype> layoutSetPrototypes = findByUuid_C(
+				uuid, companyId);
+
+			layoutSetPrototypes = InlineSQLHelperUtil.filter(
+				layoutSetPrototypes);
+
+			return layoutSetPrototypes.size();
 		}
 
 		uuid = Objects.toString(uuid, "");
@@ -2611,6 +2640,11 @@ public class LayoutSetPrototypePersistenceImpl
 			return findByCompanyId(companyId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByCompanyId(companyId, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2977,6 +3011,16 @@ public class LayoutSetPrototypePersistenceImpl
 	public int filterCountByCompanyId(long companyId) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByCompanyId(companyId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<LayoutSetPrototype> layoutSetPrototypes = findByCompanyId(
+				companyId);
+
+			layoutSetPrototypes = InlineSQLHelperUtil.filter(
+				layoutSetPrototypes);
+
+			return layoutSetPrototypes.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3545,6 +3589,11 @@ public class LayoutSetPrototypePersistenceImpl
 			return findByC_A(companyId, active, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByC_A(companyId, active, start, end, orderByComparator));
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3928,6 +3977,16 @@ public class LayoutSetPrototypePersistenceImpl
 	public int filterCountByC_A(long companyId, boolean active) {
 		if (!InlineSQLHelperUtil.isEnabled(companyId, 0)) {
 			return countByC_A(companyId, active);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<LayoutSetPrototype> layoutSetPrototypes = findByC_A(
+				companyId, active);
+
+			layoutSetPrototypes = InlineSQLHelperUtil.filter(
+				layoutSetPrototypes);
+
+			return layoutSetPrototypes.size();
 		}
 
 		StringBundler sb = new StringBundler(3);

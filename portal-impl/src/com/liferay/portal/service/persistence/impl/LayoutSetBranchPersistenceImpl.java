@@ -561,6 +561,11 @@ public class LayoutSetBranchPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -917,6 +922,15 @@ public class LayoutSetBranchPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<LayoutSetBranch> layoutSetBranchs = findByGroupId(groupId);
+
+			layoutSetBranchs = InlineSQLHelperUtil.filter(
+				layoutSetBranchs, groupId);
+
+			return layoutSetBranchs.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -1483,6 +1497,13 @@ public class LayoutSetBranchPersistenceImpl
 				groupId, privateLayout, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P(
+					groupId, privateLayout, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -1859,6 +1880,16 @@ public class LayoutSetBranchPersistenceImpl
 	public int filterCountByG_P(long groupId, boolean privateLayout) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P(groupId, privateLayout);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<LayoutSetBranch> layoutSetBranchs = findByG_P(
+				groupId, privateLayout);
+
+			layoutSetBranchs = InlineSQLHelperUtil.filter(
+				layoutSetBranchs, groupId);
+
+			return layoutSetBranchs.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -2689,6 +2720,14 @@ public class LayoutSetBranchPersistenceImpl
 				groupId, privateLayout, master, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_M(
+					groupId, privateLayout, master, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3089,6 +3128,16 @@ public class LayoutSetBranchPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_M(groupId, privateLayout, master);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<LayoutSetBranch> layoutSetBranchs = findByG_P_M(
+				groupId, privateLayout, master);
+
+			layoutSetBranchs = InlineSQLHelperUtil.filter(
+				layoutSetBranchs, groupId);
+
+			return layoutSetBranchs.size();
 		}
 
 		StringBundler sb = new StringBundler(4);

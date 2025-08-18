@@ -1925,6 +1925,11 @@ public class DDMTemplatePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2280,6 +2285,14 @@ public class DDMTemplatePersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<DDMTemplate> ddmTemplates = findByGroupId(groupId);
+
+			ddmTemplates = InlineSQLHelperUtil.filter(ddmTemplates, groupId);
+
+			return ddmTemplates.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -5177,6 +5190,12 @@ public class DDMTemplatePersistenceImpl
 				groupId, classNameId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C(groupId, classNameId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5552,6 +5571,14 @@ public class DDMTemplatePersistenceImpl
 	public int filterCountByG_C(long groupId, long classNameId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C(groupId, classNameId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<DDMTemplate> ddmTemplates = findByG_C(groupId, classNameId);
+
+			ddmTemplates = InlineSQLHelperUtil.filter(ddmTemplates, groupId);
+
+			return ddmTemplates.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -6123,6 +6150,12 @@ public class DDMTemplatePersistenceImpl
 			return findByG_CPK(groupId, classPK, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_CPK(groupId, classPK, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6464,6 +6497,12 @@ public class DDMTemplatePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByG_CPK(
 				groupIds, classPK, start, end, orderByComparator);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_CPK(groupIds, classPK, start, end, orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -6936,6 +6975,14 @@ public class DDMTemplatePersistenceImpl
 			return countByG_CPK(groupId, classPK);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<DDMTemplate> ddmTemplates = findByG_CPK(groupId, classPK);
+
+			ddmTemplates = InlineSQLHelperUtil.filter(ddmTemplates, groupId);
+
+			return ddmTemplates.size();
+		}
+
 		StringBundler sb = new StringBundler(3);
 
 		sb.append(_FILTER_SQL_COUNT_DDMTEMPLATE_WHERE);
@@ -6987,6 +7034,13 @@ public class DDMTemplatePersistenceImpl
 	public int filterCountByG_CPK(long[] groupIds, long classPK) {
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_CPK(groupIds, classPK);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<DDMTemplate> ddmTemplates = InlineSQLHelperUtil.filter(
+				findByG_CPK(groupIds, classPK), groupIds);
+
+			return ddmTemplates.size();
 		}
 
 		if (groupIds == null) {
@@ -7617,6 +7671,14 @@ public class DDMTemplatePersistenceImpl
 				groupId, classNameId, classPK, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_C(
+					groupId, classNameId, classPK, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -7975,6 +8037,14 @@ public class DDMTemplatePersistenceImpl
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return findByG_C_C(
 				groupIds, classNameId, classPK, start, end, orderByComparator);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_C(
+					groupIds, classNameId, classPK, start, end,
+					orderByComparator),
+				groupIds);
 		}
 
 		if (groupIds == null) {
@@ -8479,6 +8549,15 @@ public class DDMTemplatePersistenceImpl
 			return countByG_C_C(groupId, classNameId, classPK);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<DDMTemplate> ddmTemplates = findByG_C_C(
+				groupId, classNameId, classPK);
+
+			ddmTemplates = InlineSQLHelperUtil.filter(ddmTemplates, groupId);
+
+			return ddmTemplates.size();
+		}
+
 		StringBundler sb = new StringBundler(4);
 
 		sb.append(_FILTER_SQL_COUNT_DDMTEMPLATE_WHERE);
@@ -8537,6 +8616,13 @@ public class DDMTemplatePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupIds)) {
 			return countByG_C_C(groupIds, classNameId, classPK);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<DDMTemplate> ddmTemplates = InlineSQLHelperUtil.filter(
+				findByG_C_C(groupIds, classNameId, classPK), groupIds);
+
+			return ddmTemplates.size();
 		}
 
 		if (groupIds == null) {
@@ -10093,6 +10179,14 @@ public class DDMTemplatePersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_C_T(
+					groupId, classNameId, classPK, type, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		type = Objects.toString(type, "");
 
 		StringBundler sb = null;
@@ -10548,6 +10642,15 @@ public class DDMTemplatePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_C_T(groupId, classNameId, classPK, type);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<DDMTemplate> ddmTemplates = findByG_C_C_T(
+				groupId, classNameId, classPK, type);
+
+			ddmTemplates = InlineSQLHelperUtil.filter(ddmTemplates, groupId);
+
+			return ddmTemplates.size();
 		}
 
 		type = Objects.toString(type, "");
@@ -11306,6 +11409,14 @@ public class DDMTemplatePersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_C_T_M(
+					groupId, classNameId, classPK, type, mode, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		type = Objects.toString(type, "");
 		mode = Objects.toString(mode, "");
 
@@ -11817,6 +11928,15 @@ public class DDMTemplatePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_C_T_M(groupId, classNameId, classPK, type, mode);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<DDMTemplate> ddmTemplates = findByG_C_C_T_M(
+				groupId, classNameId, classPK, type, mode);
+
+			ddmTemplates = InlineSQLHelperUtil.filter(ddmTemplates, groupId);
+
+			return ddmTemplates.size();
 		}
 
 		type = Objects.toString(type, "");

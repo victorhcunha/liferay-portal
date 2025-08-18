@@ -1921,6 +1921,11 @@ public class MBMessagePersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2272,6 +2277,14 @@ public class MBMessagePersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<MBMessage> mbMessages = findByGroupId(groupId);
+
+			mbMessages = InlineSQLHelperUtil.filter(mbMessages, groupId);
+
+			return mbMessages.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -5364,6 +5377,12 @@ public class MBMessagePersistenceImpl
 			return findByG_U(groupId, userId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_U(groupId, userId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5732,6 +5751,14 @@ public class MBMessagePersistenceImpl
 	public int filterCountByG_U(long groupId, long userId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_U(groupId, userId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<MBMessage> mbMessages = findByG_U(groupId, userId);
+
+			mbMessages = InlineSQLHelperUtil.filter(mbMessages, groupId);
+
+			return mbMessages.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -6303,6 +6330,12 @@ public class MBMessagePersistenceImpl
 				groupId, categoryId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C(groupId, categoryId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6673,6 +6706,14 @@ public class MBMessagePersistenceImpl
 	public int filterCountByG_C(long groupId, long categoryId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C(groupId, categoryId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<MBMessage> mbMessages = findByG_C(groupId, categoryId);
+
+			mbMessages = InlineSQLHelperUtil.filter(mbMessages, groupId);
+
+			return mbMessages.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -7443,6 +7484,12 @@ public class MBMessagePersistenceImpl
 			return findByG_S(groupId, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_S(groupId, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -7811,6 +7858,14 @@ public class MBMessagePersistenceImpl
 	public int filterCountByG_S(long groupId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_S(groupId, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<MBMessage> mbMessages = findByG_S(groupId, status);
+
+			mbMessages = InlineSQLHelperUtil.filter(mbMessages, groupId);
+
+			return mbMessages.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -13624,6 +13679,13 @@ public class MBMessagePersistenceImpl
 				groupId, userId, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_U_S(
+					groupId, userId, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -14011,6 +14073,14 @@ public class MBMessagePersistenceImpl
 	public int filterCountByG_U_S(long groupId, long userId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_U_S(groupId, userId, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<MBMessage> mbMessages = findByG_U_S(groupId, userId, status);
+
+			mbMessages = InlineSQLHelperUtil.filter(mbMessages, groupId);
+
+			return mbMessages.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -14624,6 +14694,14 @@ public class MBMessagePersistenceImpl
 				groupId, categoryId, threadId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_T(
+					groupId, categoryId, threadId, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -15013,6 +15091,15 @@ public class MBMessagePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_T(groupId, categoryId, threadId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<MBMessage> mbMessages = findByG_C_T(
+				groupId, categoryId, threadId);
+
+			mbMessages = InlineSQLHelperUtil.filter(mbMessages, groupId);
+
+			return mbMessages.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -15625,6 +15712,13 @@ public class MBMessagePersistenceImpl
 				groupId, categoryId, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_S(
+					groupId, categoryId, status, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -16012,6 +16106,15 @@ public class MBMessagePersistenceImpl
 	public int filterCountByG_C_S(long groupId, long categoryId, int status) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_S(groupId, categoryId, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<MBMessage> mbMessages = findByG_C_S(
+				groupId, categoryId, status);
+
+			mbMessages = InlineSQLHelperUtil.filter(mbMessages, groupId);
+
+			return mbMessages.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -18727,6 +18830,14 @@ public class MBMessagePersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_T_A(
+					groupId, categoryId, threadId, answer, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -19139,6 +19250,15 @@ public class MBMessagePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_T_A(groupId, categoryId, threadId, answer);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<MBMessage> mbMessages = findByG_C_T_A(
+				groupId, categoryId, threadId, answer);
+
+			mbMessages = InlineSQLHelperUtil.filter(mbMessages, groupId);
+
+			return mbMessages.size();
 		}
 
 		StringBundler sb = new StringBundler(5);
@@ -19795,6 +19915,14 @@ public class MBMessagePersistenceImpl
 				orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_C_T_S(
+					groupId, categoryId, threadId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -20207,6 +20335,15 @@ public class MBMessagePersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_C_T_S(groupId, categoryId, threadId, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<MBMessage> mbMessages = findByG_C_T_S(
+				groupId, categoryId, threadId, status);
+
+			mbMessages = InlineSQLHelperUtil.filter(mbMessages, groupId);
+
+			return mbMessages.size();
 		}
 
 		StringBundler sb = new StringBundler(5);

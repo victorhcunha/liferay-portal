@@ -1931,6 +1931,11 @@ public class JournalFolderPersistenceImpl
 			return findByGroupId(groupId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByGroupId(groupId, start, end, orderByComparator), groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -2289,6 +2294,15 @@ public class JournalFolderPersistenceImpl
 	public int filterCountByGroupId(long groupId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByGroupId(groupId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<JournalFolder> journalFolders = findByGroupId(groupId);
+
+			journalFolders = InlineSQLHelperUtil.filter(
+				journalFolders, groupId);
+
+			return journalFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(2);
@@ -3368,6 +3382,13 @@ public class JournalFolderPersistenceImpl
 				groupId, parentFolderId, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P(
+					groupId, parentFolderId, start, end, orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -3746,6 +3767,16 @@ public class JournalFolderPersistenceImpl
 	public int filterCountByG_P(long groupId, long parentFolderId) {
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P(groupId, parentFolderId);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<JournalFolder> journalFolders = findByG_P(
+				groupId, parentFolderId);
+
+			journalFolders = InlineSQLHelperUtil.filter(
+				journalFolders, groupId);
+
+			return journalFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(3);
@@ -5342,6 +5373,14 @@ public class JournalFolderPersistenceImpl
 				groupId, parentFolderId, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_S(
+					groupId, parentFolderId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -5740,6 +5779,16 @@ public class JournalFolderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_S(groupId, parentFolderId, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<JournalFolder> journalFolders = findByG_P_S(
+				groupId, parentFolderId, status);
+
+			journalFolders = InlineSQLHelperUtil.filter(
+				journalFolders, groupId);
+
+			return journalFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
@@ -6347,6 +6396,14 @@ public class JournalFolderPersistenceImpl
 				groupId, parentFolderId, status, start, end, orderByComparator);
 		}
 
+		if (isPermissionsInMemoryFilterEnabled()) {
+			return InlineSQLHelperUtil.filter(
+				findByG_P_NotS(
+					groupId, parentFolderId, status, start, end,
+					orderByComparator),
+				groupId);
+		}
+
 		StringBundler sb = null;
 
 		if (orderByComparator != null) {
@@ -6747,6 +6804,16 @@ public class JournalFolderPersistenceImpl
 
 		if (!InlineSQLHelperUtil.isEnabled(groupId)) {
 			return countByG_P_NotS(groupId, parentFolderId, status);
+		}
+
+		if (isPermissionsInMemoryFilterEnabled()) {
+			List<JournalFolder> journalFolders = findByG_P_NotS(
+				groupId, parentFolderId, status);
+
+			journalFolders = InlineSQLHelperUtil.filter(
+				journalFolders, groupId);
+
+			return journalFolders.size();
 		}
 
 		StringBundler sb = new StringBundler(4);
