@@ -168,8 +168,8 @@ public class LocalizationSelectFragmentRenderer implements FragmentRenderer {
 					"allowLocalizationManagement",
 					GetterUtil.getBoolean(
 						_fragmentEntryConfigurationParser.getFieldValue(
-							fragmentEntryLink.getConfiguration(),
-							fragmentEntryLink.getEditableValues(),
+							fragmentEntryLink.getConfigurationJSONObject(),
+							fragmentEntryLink.getEditableValuesJSONObject(),
 							LocaleUtil.getMostRelevantLocale(),
 							"allowLocalizationManagement"))
 				).put(
@@ -181,8 +181,8 @@ public class LocalizationSelectFragmentRenderer implements FragmentRenderer {
 					"hideLanguageLabel",
 					GetterUtil.getBoolean(
 						_fragmentEntryConfigurationParser.getFieldValue(
-							fragmentEntryLink.getConfiguration(),
-							fragmentEntryLink.getEditableValues(),
+							fragmentEntryLink.getConfigurationJSONObject(),
+							fragmentEntryLink.getEditableValuesJSONObject(),
 							LocaleUtil.getMostRelevantLocale(),
 							"hideLanguageLabel"))
 				).put(
@@ -208,8 +208,8 @@ public class LocalizationSelectFragmentRenderer implements FragmentRenderer {
 					"size",
 					GetterUtil.getString(
 						_fragmentEntryConfigurationParser.getFieldValue(
-							fragmentEntryLink.getConfiguration(),
-							fragmentEntryLink.getEditableValues(),
+							fragmentEntryLink.getConfigurationJSONObject(),
+							fragmentEntryLink.getEditableValuesJSONObject(),
 							LocaleUtil.getMostRelevantLocale(), "size"),
 						"normal")
 				).build());
