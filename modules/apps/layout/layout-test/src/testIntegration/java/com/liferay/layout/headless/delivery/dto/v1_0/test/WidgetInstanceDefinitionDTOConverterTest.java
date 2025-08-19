@@ -133,7 +133,7 @@ public class WidgetInstanceDefinitionDTOConverterTest {
 
 		JSONObject editableValueJSONObject =
 			_fragmentEntryProcessorRegistry.getDefaultEditableValuesJSONObject(
-				StringPool.BLANK, StringPool.BLANK);
+				StringPool.BLANK, null);
 
 		editableValueJSONObject.put(
 			"instanceId", instanceId
