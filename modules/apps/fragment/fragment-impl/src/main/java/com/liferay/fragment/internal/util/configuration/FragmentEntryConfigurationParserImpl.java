@@ -321,13 +321,13 @@ public class FragmentEntryConfigurationParserImpl
 	}
 
 	@Override
-	public String translateConfiguration(
+	public JSONObject translateConfiguration(
 		JSONObject jsonObject, ResourceBundle resourceBundle) {
 
 		JSONArray fieldSetsJSONArray = jsonObject.getJSONArray("fieldSets");
 
 		if (fieldSetsJSONArray == null) {
-			return StringPool.BLANK;
+			return null;
 		}
 
 		Iterator<JSONObject> iterator = fieldSetsJSONArray.iterator();
@@ -352,7 +352,7 @@ public class FragmentEntryConfigurationParserImpl
 						fieldJSONObject, resourceBundle));
 			});
 
-		return jsonObject.toString();
+		return jsonObject;
 	}
 
 	private String _getColorPickerCssVariable(String fieldValue) {
