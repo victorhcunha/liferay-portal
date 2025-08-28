@@ -115,6 +115,8 @@ definition {
 	@description = "Automation ID: LRAC-9073 | Test Summary: Member cannot invite users"
 	@priority = 3
 	test MemberCannotInviteUsers {
+		property portal.upstream = "poshi";
+
 		task ("sign out and login as member") {
 			ACWorkspace.signOut();
 
@@ -133,6 +135,8 @@ definition {
 	@description = "Automation ID: LRAC-9071 | Test Summary: Owner can invite users"
 	@priority = 5
 	test OwnerCanInviteUsers {
+		property portal.upstream = "poshi";
+
 		task ("sign out and login as member") {
 			ACWorkspace.signOut();
 
