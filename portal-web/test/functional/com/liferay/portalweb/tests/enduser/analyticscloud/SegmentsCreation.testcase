@@ -996,7 +996,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8471 | Test Summary: Paginate Segment Profile in Membership List"
 	@priority = 3
 	test CanPaginateSegmentProfileInMembershipList {
-		property portal.upstream = "quarantine";
+		property portal.upstream = "poshi";
+
 
 		// AC Quarantine Reason: The membership list takes a long time to update
 		// AC Refactor ticket: LRAC-10769

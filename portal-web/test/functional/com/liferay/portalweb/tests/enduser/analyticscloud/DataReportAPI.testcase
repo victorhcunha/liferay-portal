@@ -69,7 +69,8 @@ definition {
 	@description = "Feature ID: LRAC-12919 | Automation ID: LRAC-13511 | Test Summary: Check that an error message appears when using an invalid type in the endpoint"
 	@priority = 2
 	test RequestShowErrorMessageWhenUseInvalidType {
-		property portal.upstream = "quarantine";
+		property portal.upstream = "poshi";
+
 
 		// AC Quarantine Reason: Test fix sites incorrect error message
 		// AC Quarantine Ticket: LRAC-13783
@@ -1040,8 +1041,8 @@ definition {
 	@description = "Feature ID: LRAC-12919 | Automation ID: LRAC-13509 | Test Summary: Check if you can access data for a specific Web Content"
 	@priority = 4
 	test RequestToAccessDataForSpecificWebContent {
-		property portal.upstream = "quarantine";
-
+		property portal.upstream = "poshi";
+		
 		// AC Quarantine Reason: Test fix sending too many requests
 		// AC Quarantine Ticket: LRAC-13756
 

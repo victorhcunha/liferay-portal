@@ -787,7 +787,7 @@ definition {
 	@description = "Feature ID: LRAC-10405 | Automation ID: LRAC-11121 | Test Summary: Empty state Segments page no/with segment with data source and property no data"
 	@priority = 2
 	test CheckAllSegmentMessagesWhenHasPropertyAndDataSourceButNoData {
-		property portal.upstream = "quarantine";
+		property portal.upstream = "poshi";
 
 		// AC Quarantine Reason: Test fix investigate empty state message
 		// AC Quarantine Ticket: LRAC-14036
