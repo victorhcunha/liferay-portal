@@ -6,6 +6,8 @@
 package com.liferay.portal.test.rule;
 
 import com.liferay.portal.kernel.feature.flag.constants.FeatureFlagConstants;
+import com.liferay.portal.kernel.module.util.SystemBundleUtil;
+import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.rule.AbstractTestRule;
 import com.liferay.portal.kernel.util.KeyValuePair;
 import com.liferay.portal.kernel.util.PropsUtil;
@@ -56,10 +58,26 @@ public class FeatureFlagTestRule
 		return _updateFeatureFlags(description);
 	}
 
+	private void _clearCache() {
+		SystemBundleUtil.callService(
+			"com.liferay.feature.flag.web.internal.feature.flag." +
+				"FeatureFlagsBagProvider",
+			service -> {
+				if (service != null) {
+					ReflectionTestUtil.invoke(
+						service, "clearCache", new Class<?>[0]);
+				}
+
+				return null;
+			});
+	}
+
 	private void _restoreFeatureFlags(Map<String, String> previousValues) {
 		for (Map.Entry<String, String> entry : previousValues.entrySet()) {
 			PropsUtil.set(entry.getKey(), entry.getValue());
 		}
+
+		_clearCache();
 	}
 
 	private KeyValuePair _updateFeatureFlag(FeatureFlag featureFlag) {
@@ -103,6 +121,8 @@ public class FeatureFlagTestRule
 			previousValues.put(
 				previousKeyValuePair.getKey(), previousKeyValuePair.getValue());
 		}
+
+		_clearCache();
 
 		return previousValues;
 	}
