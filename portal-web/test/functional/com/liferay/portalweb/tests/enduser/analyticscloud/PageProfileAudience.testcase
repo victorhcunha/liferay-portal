@@ -36,6 +36,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8351 | Test Summary: Check that page profile audience card displays only known individuals in the segmented/unsegmented graph"
 	@priority = 5
 	test ShowsKnownAnonymousIndividualsAsWellAsSegmentedUnsegmentedIndividuals {
+        property portal.upstream = "objects5";
+
 		var usernameList = "ac,liferay";
 		var emailList = "ac@liferay.com,liferay@liferay.com";
 

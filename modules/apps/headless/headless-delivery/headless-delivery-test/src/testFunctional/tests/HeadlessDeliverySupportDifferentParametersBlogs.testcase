@@ -23,6 +23,8 @@ definition {
 
 	@priority = 4
 	test CanReceiveIdFieldValuesOnlyInResponse {
+        property portal.upstream = "objects5";
+
 		property portal.acceptance = "true";
 
 		task ("Given a blog-posting created") {

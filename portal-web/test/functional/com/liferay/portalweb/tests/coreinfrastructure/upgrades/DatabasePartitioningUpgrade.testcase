@@ -135,6 +135,8 @@ definition {
 
 	@priority = 5
 	test CanUpgradePartitionedDatabase7413U33 {
+        property portal.upstream = "objects5";
+
 		property custom.properties = "virtual.hosts.valid.hosts=localhost,127.0.0.1,www.able.com,www.baker.com";
 		property data.archive.type = "data-archive-portal-partition";
 		property portal.smoke.upgrades = "true";

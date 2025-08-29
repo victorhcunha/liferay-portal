@@ -38,6 +38,8 @@ definition {
 	@description = "Runs the smoke test with proxy path."
 	@priority = 5
 	test Smoke {
+        property portal.upstream = "objects5";
+
 		property portal.acceptance = "true";
 		property test.assert.warning.exceptions = "true";
 		property test.liferay.virtual.instance = "false";

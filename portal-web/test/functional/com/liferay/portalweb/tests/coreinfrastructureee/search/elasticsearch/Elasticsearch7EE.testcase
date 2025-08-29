@@ -250,6 +250,8 @@ definition {
 
 	@priority = 5
 	test XPackSmokeTest {
+        property portal.upstream = "objects5";
+
 		property elastic.xpack.enabled = "true";
 		property remote.elasticsearch.enabled = "true";
 		property search.environment.suite.exclude = "true";

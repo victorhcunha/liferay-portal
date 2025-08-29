@@ -141,6 +141,8 @@ definition {
 
 	@priority = 4
 	test CanViewBasicAndBlueprintSuggestionsTogether {
+        property portal.upstream = "objects5";
+
 		property test.run.environment = "EE";
 
 		JSONWebcontent.addWebContent(
@@ -714,6 +716,8 @@ definition {
 
 	@priority = 5
 	test ViewBlueprintSuggestionsAcrossDifferentScopes {
+        property portal.upstream = "objects5";
+
 		property test.run.environment = "EE";
 
 		JSONWebcontent.addWebContent(

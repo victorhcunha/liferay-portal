@@ -55,6 +55,8 @@ definition {
 	@description = "Story: LRAC-11860 | Automation ID: LRAC-12439 | Test Summary: Connect DXP with AC token updates data source status"
 	@priority = 4
 	test CheckDataSourceStatusUpdateWhenSyncSitesAndContacts {
+        property portal.upstream = "objects5";
+
 		property portal.release = "true";
 
 		var sectionTitleList = "Current Status,Synced Sites,Synced Contacts";

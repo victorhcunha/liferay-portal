@@ -939,6 +939,8 @@ definition {
 	@description = "Feature ID: LRAC-4266 | Automation ID: LRAC-10311 | Test Summary: Events are in alphabetical order and attributes are in alphabetical order"
 	@priority = 4
 	test ViewEventsAreListedInAlphabeticalOrder {
+        property portal.upstream = "objects5";
+
 		property test.run.type = "single";
 
 		var attributeName = "assetId";

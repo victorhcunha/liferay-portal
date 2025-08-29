@@ -446,6 +446,8 @@ definition {
 	@description = "Check site teams permissions to see it is able to view page."
 	@priority = 4
 	test SiteTeamsPermissions {
+        property portal.upstream = "objects5";
+
 		property custom.properties = "jsonws.web.service.paths.excludes=";
 
 		task ("Add a site team and a public page basing on Search page template") {

@@ -100,6 +100,8 @@ definition {
 	@description = "This test ensures that the Mime Type Size Limit setting only takes effect in the current asset library."
 	@priority = 4
 	test CanLimitSizeOnlyInCurrentDepot {
+        property portal.upstream = "objects5";
+
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

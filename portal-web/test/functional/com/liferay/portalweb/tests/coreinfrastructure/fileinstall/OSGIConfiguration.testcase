@@ -75,6 +75,8 @@ definition {
 	@description = "This is a usecase for LPS-172690. Verify an UploadServletRequestConfiguration config can be deployed without explicit max size."
 	@priority = 2
 	test CanDeployUploadServletRequestConfigWithoutMaxSize {
+        property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property osgi.module.configuration.file.names = "com.liferay.portal.upload.internal.configuration.UploadServletRequestConfiguration.config";
 		property osgi.module.configurations = "maxTries=\"50\"${line.separator}tempDir=\"\"";
@@ -216,6 +218,7 @@ definition {
 	@description = "Verify multiple factory configurations can be created."
 	@priority = 3
 	test DeployFactoryConfigs {
+		property portal.upstream = "objects5";
 		property database.types = "mysql";
 		property osgi.module.configuration.file.names = "com.liferay.portal.security.auth.verifier.internal.tunnel.configuration.TunnelAuthVerifierConfiguration~test1.config:com.liferay.portal.security.auth.verifier.internal.tunnel.configuration.TunnelAuthVerifierConfiguration~test2.config";
 		property osgi.module.configurations = "urlsIncludes=\"/api/liferay/test1\":urlsIncludes=\"/api/liferay/test2\"";
@@ -265,6 +268,8 @@ definition {
 	@description = "Verify if a config exists only in the database, when a OSGI config file is added, the databse entry is updated."
 	@priority = 3
 	test OSGIConfigFileUpdatesExistingConfigInDatabase {
+        property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "sequential";
@@ -319,6 +324,9 @@ definition {
 	@description = "LPS-132645 Verify the default factory config created by the OSGI configurator can be overriden by an OSGI config file."
 	@priority = 3
 	test OverrideDefaultFactoryConfig {
+
+        property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property osgi.module.configuration.file.names = "com.liferay.portal.security.auth.verifier.internal.tunnel.configuration.TunnelAuthVerifierConfiguration~default.config";
 		property osgi.module.configurations = "urlsIncludes=\"/api/liferay/new\"";
@@ -337,6 +345,8 @@ definition {
 	@description = "LPS-132645 Verify the default factory config created by the OSGI configurator can be recreated using an OSGI config file if it is deleted."
 	@priority = 3
 	test RecreateDefaultFactoryConfig {
+        property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "sequential";

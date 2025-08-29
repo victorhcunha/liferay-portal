@@ -256,6 +256,8 @@ definition {
 	@description = "Set custom range filter with empty data for individual activity"
 	@priority = 5
 	test CanSetEmptyDataCustomRangeOnIndividualActivitiesCard {
+        property portal.upstream = "objects5";
+
 		ACUtils.createDMAndAddToPage();
 
 		var propertyName = ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");

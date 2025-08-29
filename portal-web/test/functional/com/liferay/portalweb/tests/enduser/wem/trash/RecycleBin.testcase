@@ -217,6 +217,8 @@ definition {
 	@description = "Assert scheduled clean up in recycle bin works."
 	@priority = 3
 	test RecycleBinScheduledCleanup {
+        property portal.upstream = "objects5";
+
 		property custom.properties = "feature.flag.LPD-35013=true${line.separator}trash.entries.max.age=0";
 
 		task ("Add a blogs widget to page and a blog entry") {

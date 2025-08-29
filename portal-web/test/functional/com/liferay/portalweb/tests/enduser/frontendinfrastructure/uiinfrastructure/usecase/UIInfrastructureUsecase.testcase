@@ -210,6 +210,8 @@ definition {
 	@priority = 5
 	@refactordone
 	test PortletBoundariesAreContained {
+        property portal.upstream = "objects5";
+
 		property app.server.types = "tomcat";
 		property database.types = "mysql";
 		property environment.acceptance = "false";

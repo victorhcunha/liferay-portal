@@ -48,6 +48,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8419 | Test Summary: Document asset appears on list shows pages that the document exists on"
 	@priority = 5
 	test AssertAppearsOnListShowsPagesDocumentsExists {
+        property portal.upstream = "objects5";
+
 		ACDXPSettings.connectDXPtoAnalyticsCloud(siteName = "Site Name");
 
 		task ("Visit the document") {
@@ -212,6 +214,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8403 | Test Summary: Documents audience card shows expected amount of segmented and unsegmented individuals"
 	@priority = 5
 	test AudienceCardShowsExpectedAmountSegmentedAndUnsegmentedInDM {
+		property portal.upstream = "objects5";
+		
 		var userNames = "ac,ac2,ac3";
 		var emailList = "ac@liferay.com,ac2@liferay.com,ac3@liferay.com";
 

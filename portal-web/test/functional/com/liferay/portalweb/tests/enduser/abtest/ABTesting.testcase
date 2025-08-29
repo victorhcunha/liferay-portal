@@ -289,6 +289,8 @@ definition {
 	@description = "LPS-99225: Validate if the admin cannot rename a segment in an experience with an A/B test in running status"
 	@priority = 3
 	test CanNotRenameSegmentABTestRunning {
+        property portal.upstream = "objects5";
+
 		property portal.upstream = "quarantine";
 
 		// Test quarantined due to LPD-34180

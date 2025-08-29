@@ -136,6 +136,8 @@ definition {
 	@priority = 4
 	test CanAddSegmentUsingIndividualPropertySite {
 		property portal.upstream = "quarantine";
+        property portal.upstream = "objects5";
+
 
 		// AC Quarantine Reason: Not navigating DXP with the correct user line 162
 
@@ -427,6 +429,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8569 | Test Summary: Add segment with custom field for individuals"
 	@priority = 4
 	test CanAddSegmentWithCustomFieldsForIndividuals {
+        property portal.upstream = "objects5";
+
 		property test.run.type = "single";
 
 		task ("Add a user custom field") {
