@@ -102,6 +102,8 @@ definition {
 	@description = "This is a use case for LPS-187661. Verify the admin user can be configured to a non liferay domain via setup wizard."
 	@priority = 5
 	test ConfigureNonLiferayDomain {
+        property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property test.assert.warning.exceptions = "true";
 		property test.liferay.virtual.instance = "false";
@@ -159,6 +161,8 @@ definition {
 
 	@priority = 4
 	test HypersonicToMySQL {
+        property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property test.assert.warning.exceptions = "true";
 		property test.liferay.virtual.instance = "false";
@@ -250,6 +254,8 @@ definition {
 	@description = "This is a use case for LPS-187661. Verify a user created with default liferay admin credentials is not given admin rights by default if created by an admin with a non liferay domain."
 	@priority = 5
 	test NonLiferayDomainDoesNotGiveAdminRightsByDefault {
+        property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property test.assert.warning.exceptions = "true";
 		property test.liferay.virtual.instance = "false";

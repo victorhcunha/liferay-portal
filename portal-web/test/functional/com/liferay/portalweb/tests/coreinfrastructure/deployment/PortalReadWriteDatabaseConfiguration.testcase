@@ -16,6 +16,8 @@ definition {
 
 	@priority = 3
 	test LockUnlockDMFileEntryAndMBTread {
+        property portal.upstream = "objects5";
+
 		property custom.properties = "lock.expiration.time.com.liferay.document.library.kernel.model.DLFileEntry=5000";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -93,6 +95,8 @@ definition {
 
 	@priority = 3
 	test SmokeWithClusteringEnabled {
+        property portal.upstream = "objects5";
+
 		property app.server.bundles.size = "1";
 		property cluster.enabled = "true";
 		property minimum.slave.ram = "24";
@@ -146,6 +150,8 @@ definition {
 
 	@priority = 3
 	test SmokeWithJDBC {
+        property portal.upstream = "objects5";
+
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 
@@ -188,6 +194,8 @@ definition {
 
 	@priority = 3
 	test SmokeWithJNDI {
+        property portal.upstream = "objects5";
+
 		property configure.read.write.database = "jndi";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";

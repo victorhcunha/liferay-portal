@@ -528,6 +528,8 @@ definition {
 	@refactordone
 	@uittest
 	test CanViewEntryInAP {
+        property portal.upstream = "objects5";
+
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
 

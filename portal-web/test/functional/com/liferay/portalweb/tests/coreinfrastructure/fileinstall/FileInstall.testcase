@@ -158,6 +158,8 @@ definition {
 
 	@priority = 4
 	test RestartingPortalDuplicatesOSGiConfiguration {
+        property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";

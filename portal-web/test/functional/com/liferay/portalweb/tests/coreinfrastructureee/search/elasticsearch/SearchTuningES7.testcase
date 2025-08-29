@@ -62,6 +62,8 @@ definition {
 	@description = "This is a use case for LPS-191998."
 	@priority = 3
 	test AssertCannotAddDuplicateQueriesAndAliases {
+        property portal.upstream = "objects5";
+
 		SearchTuning.openResultRankingsAdmin();
 
 		SearchTuning.addResultRanking(searchQuery = "Article");
@@ -133,6 +135,8 @@ definition {
 
 	@priority = 4
 	test AssertDeletedResultRanking {
+        property portal.upstream = "objects5";
+
 		var content = "Article Article Article";
 
 		for (var title : list "Article 1,Article 2,Article 3") {
@@ -186,6 +190,8 @@ definition {
 	@description = "This is a use case for LPS-197744."
 	@priority = 3
 	test AssertResultRankingsDoesNotAffectResultRankingsEditScreen {
+        property portal.upstream = "objects5";
+
 		task ("Add Result Ranking with pinned result") {
 			SearchTuning.openResultRankingsAdmin();
 
@@ -324,6 +330,8 @@ definition {
 
 	@priority = 4
 	test AssertResultRankingsWithSynonyms {
+        property portal.upstream = "objects5";
+
 		for (var webContentTitle : list "Article 1,Article 2,Journal 1,Journal 2") {
 			JSONWebcontent.addWebContent(
 				content = "",
@@ -498,6 +506,8 @@ definition {
 
 	@priority = 3
 	test AssertSynonymBulkActions {
+        property portal.upstream = "objects5";
+
 		SearchTuning.openSynonymsAdmin();
 
 		AssertElementNotPresent(locator1 = "Pagination#PAGINATION_BAR");
@@ -963,6 +973,8 @@ definition {
 	@description = "This is a use case for LPS-184999."
 	@priority = 4
 	test ReindexSearchTuningWithSyncExecutionMode {
+        property portal.upstream = "objects5";
+
 		property search.environment.suite.exclude = "true";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";

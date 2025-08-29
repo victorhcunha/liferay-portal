@@ -39,8 +39,7 @@ definition {
 @description = "This is a use case for LPS-120198. The link information is still kept when the linked page is deleted."
 	@priority = 4
 	test ViewMapInformationAfterDeleteMappedPage {
-		property portal.upstream = "poshi";
-property portal.upstream = "objects5";
+		property portal.upstream = "objects5";
 
 		task ("Add a widget page") {
 			JSONLayout.addPublicLayout(

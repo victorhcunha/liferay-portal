@@ -1397,6 +1397,8 @@ definition {
 	@description = "Verify that is possible to remove duplicated repeatable Fields Group"
 	@priority = 4
 	test CanRemoveDuplicatedRepeatableFieldsGroupTranslated {
+        property portal.upstream = "objects5";
+
 		property custom.properties = "feature.flag.LPD-11228=true";
 
 		NavItem.gotoStructures();

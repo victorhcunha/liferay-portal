@@ -111,6 +111,8 @@ definition {
 
 	@priority = 4
 	test HSQLtoMySQLSampleDataEnabled {
+        property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property databases.size = "1";
 		property test.liferay.virtual.instance = "false";

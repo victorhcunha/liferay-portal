@@ -26,6 +26,8 @@ definition {
 
 	@priority = 5
 	test CanImportDatabaseToPostgreSQL {
+        property portal.upstream = "objects5";
+
 		task ("Export origin database schema definition") {
 			DBMigrationExportImport.dbSchemaDefinitionExport();
 		}
@@ -59,6 +61,8 @@ definition {
 
 	@priority = 5
 	test CanImportPartitionedDatabaseToPostgreSQL {
+        property portal.upstream = "objects5";
+
 		property custom.properties = "database.partition.enabled=true${line.separator}feature.flag.LPD-23840=true${line.separator}virtual.hosts.valid.hosts=localhost,127.0.0.1,www.able.com";
 		property database.types = "mysql";
 		property test.liferay.virtual.instance = "false";

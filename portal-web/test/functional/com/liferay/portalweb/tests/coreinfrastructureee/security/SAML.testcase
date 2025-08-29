@@ -889,6 +889,8 @@ definition {
 	@description = "LPS-143338. Assert SSO reject assertion when nameId value is null."
 	@priority = 4
 	test AssertSSORejectAssertionWithoutANameIDValue {
+        property portal.upstream = "objects5";
+
 		property app.server.bundles.size = "0";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -3114,6 +3116,8 @@ definition {
 	@description = "LPS-105169 TC-4: SP initiated login should not sync IdP&SP user attributes if not sent by IdP - Using virtual instances."
 	@priority = 4
 	test SPInitiatedSSODoesNotSyncAttributesIfNotSent {
+        property portal.upstream = "objects5";
+
 		property app.server.bundles.size = "0";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";

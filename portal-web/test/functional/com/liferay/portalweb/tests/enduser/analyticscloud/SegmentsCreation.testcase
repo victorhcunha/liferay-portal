@@ -501,9 +501,7 @@ definition {
 	@description = "Create a Dynamic Individuals Segment with a criteria that uses is unknown"
 	@priority = 5
 	test CanCreateDynamicSegmentWithIndividualsUseUnknown {
-       property portal.upstream = "poshi";
-property portal.upstream = "objects5";
-
+        property portal.upstream = "objects5";
 
 		// AC Quarantine Reason: Segment membership takes long time to load LRAC-10769
 

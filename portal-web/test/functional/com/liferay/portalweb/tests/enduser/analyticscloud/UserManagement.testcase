@@ -282,6 +282,8 @@ definition {
 	@description = "Automation ID: LRAC-9096 | Test Summary: Member cannot add data sources"
 	@priority = 4
 	test MemberCannotAddDataSources {
+        property portal.upstream = "objects5";
+
 		task ("Login as user with member role") {
 			ACWorkspace.signOut();
 
@@ -302,6 +304,8 @@ definition {
 	@description = "Automation ID: LRAC-9098 | Test Summary: Member cannot change user permissions"
 	@priority = 4
 	test MemberCannotChangeUserPermissions {
+        property portal.upstream = "objects5";
+
 		task ("Go to AC and Login as user with member role") {
 			ACWorkspace.signOut();
 
@@ -360,6 +364,8 @@ definition {
 	@description = "Automation ID: LRAC-9083 | Test Summary: [AC] Only admin or owner users are able to add properties on AC"
 	@priority = 3
 	test OnlyAdminOrOwnerUsersCanAddPropertiesOnAC {
+        property portal.upstream = "objects5";
+
 		var userList = "michelle.hoshi@faro.io,bryan.cheung@faro.io";
 
 		for (var userEmail : list ${userList}) {

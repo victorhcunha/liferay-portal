@@ -168,6 +168,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8424 | Test Summary: Forms audience card shows expected amount of segmented and unsegmented individuals"
 	@priority = 5
 	test AudienceCardShowsExpectedAmountSegmentedAndUnsegmentedInForms {
+        property portal.upstream = "objects5";
+
 		var usernameList = "ac,ac2,ac3";
 		var emailList = "ac@liferay.com,ac2@liferay.com,ac3@liferay.com";
 

@@ -170,6 +170,8 @@ definition {
 
 	@priority = 5
 	test CheckMbeanWhenUpgradeHaveWarnAndError {
+        property portal.upstream = "objects5";
+
 		property custom.mysql.sql.statement = "ALTER TABLE FragmentComposition DROP description;";
 		property data.archive.type = "data-archive-portal";
 		property portal.version = "7.4.13";

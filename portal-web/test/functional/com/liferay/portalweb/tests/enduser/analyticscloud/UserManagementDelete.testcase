@@ -99,6 +99,8 @@ definition {
 	@description = "Automation ID: LRAC-9066 | Test Summary: Member cannot delete users"
 	@priority = 3
 	test MemberCantDeleteUser {
+        property portal.upstream = "objects5";
+
 		task ("Login with a member user and go to settings") {
 			ACWorkspace.signOut();
 

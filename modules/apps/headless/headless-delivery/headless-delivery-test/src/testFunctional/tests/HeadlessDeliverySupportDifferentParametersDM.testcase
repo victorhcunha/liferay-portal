@@ -25,6 +25,8 @@ definition {
 
 	@priority = 4
 	test CanReceiveIdFieldValuesOnlyInResponseForIndividualElement {
+        property portal.upstream = "objects5";
+
 		property portal.acceptance = "true";
 
 		task ("Given a document of an asset library") {

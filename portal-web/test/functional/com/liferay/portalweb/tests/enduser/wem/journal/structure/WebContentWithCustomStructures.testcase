@@ -374,6 +374,8 @@ definition {
 	@description = "The user can add a web content via Web Content Display widget based on global structure and local template."
 	@priority = 4
 	test AddWebContentViaWCDWithGlobalStructureAndLocalTemplate {
+        property portal.upstream = "objects5";
+
 		task ("Add a web content global structure with a text field") {
 			WebContentNavigator.openWebContentStructuresAdmin(siteURLKey = "global");
 
