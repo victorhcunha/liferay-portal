@@ -285,6 +285,7 @@ definition {
 	@priority = 3
 	test ViewUndefinedResultsIsDisplayedWhenChangeDataTypeThatCannotBeInterpreted {
 		property portal.upstream = "quarantine";
+		property portal.upstream = "objects5";
 
 		// AC Quarantine Reason: Test fix investigate issue
 		// AC Quarantine Ticket: LRAC-14034

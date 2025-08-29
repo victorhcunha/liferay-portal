@@ -1,0 +1,116 @@
+@component-name = "portal-page-management"
+definition {
+
+	property ci.retries.disabled = "true";
+	property portal.release = "true";
+	property portal.upstream = "true";
+	property testray.main.component.name = "Content Pages";
+
+	static var randomSiteName = StringUtil.randomString(8);
+
+	var siteURLKey = StringUtil.toLowerCase(${randomSiteName});
+
+	setUp {
+		task ("Set up virtual instance") {
+			TestCase.setUpPortalInstance();
+		}
+
+		task ("Sign in") {
+			User.firstLoginPG();
+		}
+
+		task ("Enable dynamic and manual selection") {
+			AssetPublisherPortlet.enableDynamicAndManualSelection();
+		}
+
+		task ("Add a site") {
+			HeadlessSite.addSite(siteName = ${randomSiteName});
+		}
+
+		task ("Add a content page") {
+			JSONLayout.addPublicLayout(
+				groupName = ${randomSiteName},
+				layoutName = "Content Page Name",
+				type = "content");
+		}
+	}
+
+
+@description = "This is a use case for LPS-120198. The link information is still kept when the linked page is deleted."
+	@priority = 4
+	test ViewMapInformationAfterDeleteMappedPage {
+		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
+
+		task ("Add a widget page") {
+			JSONLayout.addPublicLayout(
+				groupName = ${randomSiteName},
+				layoutName = "Test Widget Page Name");
+		}
+
+		task ("Add a Button fragment to page") {
+			ContentPagesNavigator.openEditContentPage(
+				pageName = "Content Page Name",
+				siteName = ${randomSiteName});
+
+			PageEditor.addFragment(
+				collectionName = "Basic Components",
+				fragmentName = "Button");
+		}
+
+		task ("Map the widget page to editable field of Button") {
+			PageEditorEditableLink.mapEditableFieldToPage(
+				fragmentName = "Button",
+				id = "link",
+				pageName = "Test Widget Page Name");
+		}
+
+		task ("View the selected page is shown in Page field") {
+			AssertTextEquals(
+				key_fieldLabel = "Page",
+				locator1 = "PageEditor#ITEM_SELECTOR_CONTENT_INPUT",
+				value1 = "Test Widget Page Name");
+		}
+
+		task ("View selected page is linked to Button fragment") {
+			AssertVisible(
+				key_append = "[normalize-space(text())='Go Somewhere']",
+				key_url = "/web/${siteURLKey}/test-widget-page-name",
+				locator1 = "Fragment#FRAGMENT_LINK");
+
+			PageEditor.publish();
+		}
+
+		task ("Delete the widget page") {
+			JSONLayout.deletePublicLayout(
+				groupName = ${randomSiteName},
+				layoutName = "Test Widget Page Name");
+		}
+
+		task ("Navigate to content page in view mode") {
+			ContentPagesNavigator.openViewContentPage(
+				pageName = "Content Page Name",
+				siteName = ${randomSiteName});
+		}
+
+		task ("View selected page is still linked to Button fragment") {
+			AssertVisible(
+				key_append = "[normalize-space(text())='Go Somewhere']",
+				key_url = "/web/${siteURLKey}/test-widget-page-name",
+				locator1 = "Fragment#FRAGMENT_LINK");
+		}
+
+		task ("Assert Not Found is shown") {
+			Click(
+				key_append = "[normalize-space(text())='Go Somewhere']",
+				key_url = "/web/${siteURLKey}/test-widget-page-name",
+				locator1 = "Fragment#FRAGMENT_LINK");
+
+			ContentPages.viewFragmentText(
+				fragmentName = "heading",
+				id = "element-text",
+				text = "Page Not Found");
+		}
+	}
+
+}

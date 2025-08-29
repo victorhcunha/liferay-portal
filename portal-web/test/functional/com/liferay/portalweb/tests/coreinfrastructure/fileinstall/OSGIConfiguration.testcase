@@ -91,6 +91,8 @@ definition {
 	@description = "Verify if no osgi config file exists, when a config is updated via UI, then the config is added to the database and a config file is not created."
 	@priority = 3
 	test ConfigAddedViaUIDoesNotCreateNewConfigFile {
+		property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -133,6 +135,8 @@ definition {
 	@description = "Verify if an osgi config file exists, when a config is updated via UI, then the config file is updated with the new values."
 	@priority = 3
 	test ConfigAddedViaUIUpdatesExistingOSGIConfigFile {
+		property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property osgi.module.configuration.file.names = "com.liferay.commerce.product.definitions.web.internal.configuration.CPInstanceConfiguration.config";
 		property osgi.module.configurations = "checkInterval=I\"33\"";
@@ -187,6 +191,7 @@ definition {
 	@description = "Verify OSGI config files added to auto deploy directories other than osgi/configs are not read."
 	@priority = 3
 	test ConfigFilesReadOnlyFromOSGIConfigs {
+		property portal.upstream = "objects5";
 		property database.types = "mysql";
 
 		task ("When an OSGI config file is added to an auto deploy directory other than osgi/configs") {
@@ -379,6 +384,8 @@ definition {
 	@description = "Verify when an existing factory config is renamed, the old entry is removed and the new one is added."
 	@priority = 3
 	test RenameFactoryConfig {
+		property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property osgi.module.configuration.file.names = "com.liferay.portal.security.auth.verifier.internal.tunnel.configuration.TunnelAuthVerifierConfiguration~original.config";
 		property osgi.module.configurations = "enabled=\"true\"";

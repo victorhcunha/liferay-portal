@@ -786,6 +786,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8143 | Test Summary: Owner can delete users"
 	@priority = 5
 	test ViewOwnerCanDeleteUser {
+		property portal.upstream = "objects5";
+
 		ACWorkspace.signOut();
 
 		ACUtils.launchAC(emailAddress = "bryan.cheung@faro.io");

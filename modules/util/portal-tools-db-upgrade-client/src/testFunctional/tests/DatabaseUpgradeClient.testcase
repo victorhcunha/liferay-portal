@@ -60,6 +60,7 @@ definition {
 	@description = "LPS-158522: Upgrade client can connect to Gogo Shell with a failed upgrade"
 	@priority = 4
 	test CheckUpgradeClientGogoShellFailedUpgrade {
+		property portal.upstream = "objects5";
 		property custom.mysql.sql.statement = "ALTER TABLE JournalArticle DROP resourcePrimKey;";
 		property skip.get.testcase.database.properties = "true";
 		property skip.upgrade-legacy-database = "true";
