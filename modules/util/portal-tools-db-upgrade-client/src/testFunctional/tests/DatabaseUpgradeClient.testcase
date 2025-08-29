@@ -61,6 +61,7 @@ definition {
 	@priority = 4
 	test CheckUpgradeClientGogoShellFailedUpgrade {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 		property custom.mysql.sql.statement = "ALTER TABLE JournalArticle DROP resourcePrimKey;";
 		property skip.get.testcase.database.properties = "true";
 		property skip.upgrade-legacy-database = "true";

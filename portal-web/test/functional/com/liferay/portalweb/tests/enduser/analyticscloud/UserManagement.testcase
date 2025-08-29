@@ -787,6 +787,7 @@ definition {
 	@priority = 5
 	test ViewOwnerCanDeleteUser {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 
 		ACWorkspace.signOut();
 

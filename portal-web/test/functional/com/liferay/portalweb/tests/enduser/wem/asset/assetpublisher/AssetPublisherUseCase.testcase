@@ -1169,6 +1169,8 @@ definition {
 	@description = "LPS-103624 - URLs are not well formed when changing language in classic Display Pages."
 	@priority = 4
 	test ViewInContextTranslatedWCWithFriendlyURL {
+		property portal.upstream = "objects5";
+		
 		JSONLayout.addWidgetToPublicLayout(
 			groupName = "Test Site Name",
 			layoutName = "Asset Publisher Page",

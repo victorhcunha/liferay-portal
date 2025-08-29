@@ -38,7 +38,8 @@ definition {
 	@description = "Feature ID: LRAC-10405 | Automation ID: LRAC-11120 | Test Summary: Empty state Assets page with assets with data source and property no data"
 	@priority = 2
 	test CheckAllAssetsMessagesWhenHasPropertyAndDataSource {
-		property portal.upstream = "quarantine";
+		property portal.upstream = "objects5";
+
 
 		// AC Quarantine Reason: Test fix empty state change no tooltip pop up
 		// AC Quarantine Ticket: LRAC-14035
@@ -788,6 +789,7 @@ definition {
 	@priority = 2
 	test CheckAllSegmentMessagesWhenHasPropertyAndDataSourceButNoData {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 
 		// AC Quarantine Reason: Test fix investigate empty state message
 		// AC Quarantine Ticket: LRAC-14036

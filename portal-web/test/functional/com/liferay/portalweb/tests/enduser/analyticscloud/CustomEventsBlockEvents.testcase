@@ -222,6 +222,7 @@ definition {
 	@priority = 3
 	test CheckCannotBlockOrUnblockCustomEventsAsNonAdmin {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 
 		property test.run.type = "single";
 

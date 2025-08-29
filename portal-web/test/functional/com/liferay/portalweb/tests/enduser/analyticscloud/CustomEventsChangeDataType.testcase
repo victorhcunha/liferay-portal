@@ -285,6 +285,7 @@ definition {
 	@priority = 3
 	test ViewUndefinedResultsIsDisplayedWhenChangeDataTypeThatCannotBeInterpreted {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 
 
 		// AC Quarantine Reason: Test fix investigate issue

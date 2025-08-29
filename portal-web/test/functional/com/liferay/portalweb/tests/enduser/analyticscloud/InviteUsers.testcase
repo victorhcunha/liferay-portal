@@ -116,6 +116,7 @@ definition {
 	@priority = 3
 	test MemberCannotInviteUsers {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 
 		task ("sign out and login as member") {
 			ACWorkspace.signOut();
@@ -136,6 +137,7 @@ definition {
 	@priority = 5
 	test OwnerCanInviteUsers {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 
 		task ("sign out and login as member") {
 			ACWorkspace.signOut();

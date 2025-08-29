@@ -501,7 +501,9 @@ definition {
 	@description = "Create a Dynamic Individuals Segment with a criteria that uses is unknown"
 	@priority = 5
 	test CanCreateDynamicSegmentWithIndividualsUseUnknown {
-		property portal.upstream = "quarantine";
+       property portal.upstream = "poshi";
+property portal.upstream = "objects5";
+
 
 		// AC Quarantine Reason: Segment membership takes long time to load LRAC-10769
 
@@ -997,6 +999,7 @@ definition {
 	@priority = 3
 	test CanPaginateSegmentProfileInMembershipList {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 
 
 		// AC Quarantine Reason: The membership list takes a long time to update

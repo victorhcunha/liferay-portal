@@ -91,6 +91,8 @@ definition {
 	@description = "Verify if no osgi config file exists, when a config is updated via UI, then the config is added to the database and a config file is not created."
 	@priority = 3
 	test ConfigAddedViaUIDoesNotCreateNewConfigFile {
+		property portal.upstream = "objects5";
+
 		property database.types = "mysql";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
@@ -134,6 +136,7 @@ definition {
 	@priority = 3
 	test ConfigAddedViaUIUpdatesExistingOSGIConfigFile {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 
 		property database.types = "mysql";
 		property osgi.module.configuration.file.names = "com.liferay.commerce.product.definitions.web.internal.configuration.CPInstanceConfiguration.config";
@@ -189,6 +192,7 @@ definition {
 	@description = "Verify OSGI config files added to auto deploy directories other than osgi/configs are not read."
 	@priority = 3
 	test ConfigFilesReadOnlyFromOSGIConfigs {
+		property portal.upstream = "objects5";
 		property database.types = "mysql";
 
 		task ("When an OSGI config file is added to an auto deploy directory other than osgi/configs") {
@@ -382,6 +386,7 @@ definition {
 	@priority = 3
 	test RenameFactoryConfig {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 
 		property database.types = "mysql";
 		property osgi.module.configuration.file.names = "com.liferay.portal.security.auth.verifier.internal.tunnel.configuration.TunnelAuthVerifierConfiguration~original.config";

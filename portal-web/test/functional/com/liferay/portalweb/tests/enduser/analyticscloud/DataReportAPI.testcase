@@ -70,6 +70,7 @@ definition {
 	@priority = 2
 	test RequestShowErrorMessageWhenUseInvalidType {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 
 
 		// AC Quarantine Reason: Test fix sites incorrect error message
@@ -837,6 +838,7 @@ definition {
 	@description = "Feature ID: LRAC-12919 | Automation ID: LRAC-13507 | Test Summary: Check if you can access data for a specific Forms"
 	@priority = 4
 	test RequestToAccessDataForSpecificForm {
+		property portal.upstream = "objects5";
 		var formsTitleList = "Form AC Title 1,Form AC Title 2";
 		var formPageName = "Forms page";
 		var type = "forms";
@@ -1042,6 +1044,7 @@ definition {
 	@priority = 4
 	test RequestToAccessDataForSpecificWebContent {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 		
 		// AC Quarantine Reason: Test fix sending too many requests
 		// AC Quarantine Ticket: LRAC-13756

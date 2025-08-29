@@ -40,6 +40,7 @@ definition {
 	@priority = 4
 	test ViewMapInformationAfterDeleteMappedPage {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 
 		task ("Add a widget page") {
 			JSONLayout.addPublicLayout(

@@ -204,6 +204,7 @@ definition {
 	@priority = 5
 	test AudienceCardShowsExpectedAmountSegmentedAndUnsegmentedInBlogs {
 		property portal.upstream = "poshi";
+property portal.upstream = "objects5";
 		var usernameList = "ac,liferay,dxp";
 		var emailList = "ac@liferay.com,liferay@liferay.com,dxp@liferay.com";
 
