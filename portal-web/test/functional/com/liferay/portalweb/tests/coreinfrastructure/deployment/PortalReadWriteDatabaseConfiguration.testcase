@@ -19,6 +19,8 @@ definition {
 		property custom.properties = "lock.expiration.time.com.liferay.document.library.kernel.model.DLFileEntry=5000";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+		property portal.upstream = "objects5";
+
 
 		JSONDocument.addFileWithUploadedFile(
 			dmDocumentDescription = "DM Document Description",
@@ -93,6 +95,8 @@ definition {
 
 	@priority = 3
 	test SmokeWithClusteringEnabled {
+		property portal.upstream = "objects5";
+
 		property app.server.bundles.size = "1";
 		property cluster.enabled = "true";
 		property minimum.slave.ram = "24";
@@ -147,7 +151,8 @@ definition {
 	@priority = 3
 	test SmokeWithJDBC {
 		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
+		property portal.upstream = "objects5";
+
 
 		Smoke.viewWelcomeContentPage();
 
@@ -166,9 +171,10 @@ definition {
 
 	@priority = 3
 	test SmokeWithJDBCAndReadDataSourceTimeout {
+		property portal.upstream = "objects5";
+
 		property custom.properties = "jdbc.read.data.source.unavailable.timeout=5000";
 		property test.liferay.virtual.instance = "false";
-		property test.run.type = "single";
 
 		Smoke.viewWelcomeContentPage();
 
@@ -190,6 +196,8 @@ definition {
 		property configure.read.write.database = "jndi";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+		property portal.upstream = "objects5";
+
 
 		Smoke.viewWelcomeContentPage();
 

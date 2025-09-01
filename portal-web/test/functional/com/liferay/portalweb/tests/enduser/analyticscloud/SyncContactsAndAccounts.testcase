@@ -50,6 +50,8 @@ definition {
 	test CanSearchAccountGroupsInContactsModal {
 		var foundAccountGroup = "Brazilian";
 		var notFoundAccountGroup = "Silver,Copper";
+		property portal.upstream = "objects5";
+
 
 		task ("Create 3 account groups") {
 			for (var accountGroupName : list "${foundAccountGroup},${notFoundAccountGroup}") {

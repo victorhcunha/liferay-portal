@@ -124,6 +124,8 @@ definition {
 		property database.types = "db2,mariadb,mysql,oracle,postgresql,sqlserver";
 		property environment.acceptance = "true";
 		property portal.smoke = "false";
+		property portal.upstream = "objects5";
+
 
 		SignIn.signInTestSetup();
 

@@ -140,6 +140,8 @@ definition {
 		property portal.smoke.upgrades = "true";
 		property portal.version = "7.4.13.u33";
 		property test.assert.warning.exceptions = "false";
+		property portal.upstream = "objects5";
+
 
 		User.loginPG(
 			nodePort = 8080,

@@ -161,6 +161,8 @@ definition {
 		property database.types = "mysql";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+		property portal.upstream = "objects5";
+
 
 		var liferayHome = PropsUtil.get("liferay.home.dir.name");
 

@@ -394,6 +394,8 @@ definition {
 	@description = "This is a test for LPS-149468. The kebab menu next to a segment must have icons next to the menu items."
 	@priority = 3
 	test ViewIconsOfSegmentsActions {
+		property portal.upstream = "objects5";
+
 		task ("When the user opens the dropdown menu of a segment") {
 			Segmentation.openSegmentsAdmin(siteURLKey = "test-site-name");
 
