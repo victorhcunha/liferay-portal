@@ -59,7 +59,8 @@ definition {
 	@description = "Feature ID: Legacy | Automation ID: LRAC-8628 | Test Summary: Segment distribution chart can be filtered by text property"
 	@priority = 3
 	test CanDistributionChartFilteredText {
-		property portal.upstream = "quarantine";
+		property portal.upstream = "objects5";
+
 
 		// AC Quarantine Reason: The membership list takes a long time to update
 		// AC Refactor ticket: LRAC-10769

@@ -402,7 +402,8 @@ definition {
 	@description = "Feature ID: LRAC-10403 | Automation ID: LRAC-10740 | Test Summary: Empty state of pages without data source and with property"
 	@priority = 2
 	test CheckAllMessageWhenHasPropertyNoDataSource {
-		property test.run.type = "single";
+		property portal.upstream = "objects5";
+
 
 		// Accounts and Salesforce tests are no longer possible to run after this one from LRAC-11571
 
@@ -920,7 +921,8 @@ definition {
 	@description = "Feature ID: LRAC-10405 | Automation ID: LRAC-11117 | Test Summary: Empty state Sites page with data source and property no data"
 	@priority = 2
 	test CheckAllSitesMessagesWhenHasPropertyAndDataSourceButNoData {
-		property portal.upstream = "quarantine";
+		property portal.upstream = "objects5";
+
 
 		// AC Quarantine Reason: Test fix investigate empty state
 		// AC Quarantine Ticket: LRAC-13989

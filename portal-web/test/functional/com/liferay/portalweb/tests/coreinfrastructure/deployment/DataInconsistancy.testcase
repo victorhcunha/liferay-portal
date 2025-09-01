@@ -12,6 +12,8 @@ definition {
 		property database.types = "mysql";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+		property portal.upstream = "objects5";
+
 
 		task ("Given a widget page with a child page") {
 			User.firstLoginPG();

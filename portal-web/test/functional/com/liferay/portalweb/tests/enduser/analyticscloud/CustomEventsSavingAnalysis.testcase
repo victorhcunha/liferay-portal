@@ -596,6 +596,8 @@ definition {
 	@description = "Feature ID: LRAC-6280 | Automation ID: LRAC-10566 | Test Summary: Empty state of analysis report"
 	@priority = 2
 	test CheckEmptyStateOfAnalysisReport {
+		property portal.upstream = "objects5";
+
 		task ("Switch the property in AC and go to event analysis") {
 			ACUtils.launchAC();
 
