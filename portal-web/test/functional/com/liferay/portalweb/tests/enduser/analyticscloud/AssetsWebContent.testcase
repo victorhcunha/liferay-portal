@@ -162,6 +162,7 @@ definition {
 	@priority = 5
 	test AudienceCardShowsExpectedAmountSegmentedAndUnsegmentedInWC {
 		property test.run.type = "single";
+		property portal.upstream = "objects5";
 
 		var usernameList = "ac,liferay,dxp";
 		var emailList = "ac@liferay.com,liferay@liferay.com,dxp@liferay.com";

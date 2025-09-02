@@ -169,6 +169,7 @@ definition {
 		property custom.properties = "jdbc.read.data.source.unavailable.timeout=5000";
 		property test.liferay.virtual.instance = "false";
 		property test.run.type = "single";
+		property portal.upstream = "objects5";
 
 		Smoke.viewWelcomeContentPage();
 

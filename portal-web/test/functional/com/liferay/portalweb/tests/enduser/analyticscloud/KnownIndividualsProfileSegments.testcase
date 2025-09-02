@@ -250,6 +250,8 @@ definition {
 	@priority = 3
 	test PaginateIndividualsSegmentList {
 		property test.run.type = "single";
+		property portal.upstream = "objects5";
+
 
 		task ("View the page as the new user") {
 			User.logoutAndLoginPG(

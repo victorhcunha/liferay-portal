@@ -48,6 +48,8 @@ definition {
 	@description = "Story: LRAC-10859 | Automation ID: LRAC-12667 | Test Summary: Can search for account groups in the select contacts modal"
 	@priority = 4
 	test CanSearchAccountGroupsInContactsModal {
+		property portal.upstream = "objects5";
+
 		var foundAccountGroup = "Brazilian";
 		var notFoundAccountGroup = "Silver,Copper";
 
