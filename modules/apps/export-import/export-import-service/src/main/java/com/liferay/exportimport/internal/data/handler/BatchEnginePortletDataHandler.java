@@ -79,7 +79,7 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 		String className, CompanyLocalService companyLocalService,
 		ExportImportVulcanBatchEngineTaskItemDelegate
 			exportImportVulcanBatchEngineTaskItemDelegate,
-		String itemClassName, String portletId, String taskItemDelegateName,
+		String itemClassName, String taskItemDelegateName,
 		UserLocalService userLocalService) {
 
 		_batchEngineExportTaskExecutor = batchEngineExportTaskExecutor;
@@ -127,7 +127,6 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 		}
 
 		setEmptyControlsAllowed(true);
-		setPortletId(portletId);
 	}
 
 	public void exportDeletionSystemEvents(
