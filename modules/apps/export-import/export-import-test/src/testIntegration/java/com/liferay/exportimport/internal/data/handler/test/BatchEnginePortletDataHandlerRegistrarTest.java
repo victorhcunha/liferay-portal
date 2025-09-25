@@ -6,13 +6,13 @@
 package com.liferay.exportimport.internal.data.handler.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.exportimport.kernel.lar.PortletDataHandler;
 import com.liferay.exportimport.portlet.data.handler.provider.PortletDataHandlerProvider;
 import com.liferay.exportimport.vulcan.batch.engine.ExportImportVulcanBatchEngineTaskItemDelegate;
 import com.liferay.petra.function.UnsafeBiConsumer;
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.portal.kernel.model.Company;
-import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.Filter;
@@ -50,9 +50,7 @@ import java.util.Map;
 
 import org.hamcrest.CoreMatchers;
 
-import org.junit.AfterClass;
 import org.junit.Assert;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,32 +59,22 @@ import org.junit.runner.RunWith;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 
 /**
  * @author Alejandro Tardín
  */
-@FeatureFlag("LPD-35914")
 @RunWith(Arquillian.class)
-public class BatchEnginePortletDataHandlerRegistryTest {
+public class BatchEnginePortletDataHandlerRegistrarTest {
 
 	@ClassRule
 	@Rule
 	public static final AggregateTestRule liferayIntegrationTestRule =
 		new LiferayIntegrationTestRule();
 
-	@BeforeClass
-	public static void setUpClass() {
-		FeatureFlagTestUtil.invokeFeatureFlagListeners(
-			CompanyConstants.SYSTEM, true, "LPD-35914");
-	}
-
-	@AfterClass
-	public static void tearDownClass() {
-		FeatureFlagTestUtil.invokeFeatureFlagListeners(
-			CompanyConstants.SYSTEM, false, "LPD-35914");
-	}
-
+	@FeatureFlag("LPD-35914")
 	@Test
 	@TestInfo("LPD-56301")
 	public void test() throws Exception {
@@ -113,6 +101,9 @@ public class BatchEnginePortletDataHandlerRegistryTest {
 				).put(
 					"batch.engine.task.item.delegate.name",
 					RandomTestUtil.randomString()
+				).put(
+					"export.import.vulcan.batch.engine.task.item.delegate",
+					"true"
 				).build());
 			SafeCloseable safeCloseable3 = _registerServiceWithSafeCloseable(
 				VulcanBatchEngineTaskItemDelegate.class,
@@ -125,23 +116,63 @@ public class BatchEnginePortletDataHandlerRegistryTest {
 				).put(
 					"batch.engine.task.item.delegate.name",
 					RandomTestUtil.randomString()
+				).put(
+					"export.import.vulcan.batch.engine.task.item.delegate",
+					"true"
 				).build())) {
+
+			Assert.assertEquals(
+				0, _getRegisteredPortletDataHandlersCount(portletId));
+
+			FeatureFlagTestUtil.invokeFeatureFlagListeners(
+				TestPropsValues.getCompanyId(), true, "LPD-35914");
 
 			Thread.sleep(1000);
 
-			Assert.assertThat(
-				ClassUtil.getClassName(
-					_portletDataHandlerProvider.provide(
-						TestPropsValues.getCompanyId(), portletId)),
-				CoreMatchers.containsString("BatchEnginePortletDataHandler"));
+			Assert.assertEquals(
+				1, _getRegisteredPortletDataHandlersCount(portletId));
+
+			try {
+				Assert.assertThat(
+					ClassUtil.getClassName(
+						_portletDataHandlerProvider.provide(
+							TestPropsValues.getCompanyId(), portletId)),
+					CoreMatchers.containsString(
+						"BatchEnginePortletDataHandler"));
+				Assert.assertThat(
+					ClassUtil.getClassName(
+						_portletDataHandlerProvider.provide(
+							RandomTestUtil.randomLong(), portletId)),
+					CoreMatchers.containsString("DefaultPortletDataHandler"));
+			}
+			finally {
+				FeatureFlagTestUtil.invokeFeatureFlagListeners(
+					TestPropsValues.getCompanyId(), false, "LPD-35914");
+			}
 		}
+	}
+
+	private int _getRegisteredPortletDataHandlersCount(String portletId)
+		throws InvalidSyntaxException {
+
+		Bundle bundle = FrameworkUtil.getBundle(
+			BatchEnginePortletDataHandlerRegistrarTest.class);
+
+		BundleContext bundleContext = bundle.getBundleContext();
+
+		Collection<ServiceReference<PortletDataHandler>> serviceReferences =
+			bundleContext.getServiceReferences(
+				PortletDataHandler.class,
+				"(jakarta.portlet.name=" + portletId + ")");
+
+		return serviceReferences.size();
 	}
 
 	private <S> SafeCloseable _registerServiceWithSafeCloseable(
 		Class<S> clazz, S service, Dictionary<String, ?> properties) {
 
 		Bundle bundle = FrameworkUtil.getBundle(
-			BatchEnginePortletDataHandlerRegistryTest.class);
+			BatchEnginePortletDataHandlerRegistrarTest.class);
 
 		BundleContext bundleContext = bundle.getBundleContext();
 
