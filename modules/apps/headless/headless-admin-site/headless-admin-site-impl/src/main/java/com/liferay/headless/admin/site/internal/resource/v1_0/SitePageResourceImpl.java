@@ -95,116 +95,6 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 	}
 
 	@Override
-	public SitePage doGetSiteSitePage(
-			String siteExternalReferenceCode,
-			String sitePageExternalReferenceCode)
-		throws Exception {
-
-		if (!FeatureFlagManagerUtil.isEnabled("LPD-35443")) {
-			throw new UnsupportedOperationException();
-		}
-
-		Layout layout = _layoutService.getLayoutByExternalReferenceCode(
-			sitePageExternalReferenceCode,
-			GroupUtil.getGroupId(
-				true, contextCompany.getCompanyId(),
-				siteExternalReferenceCode));
-
-		_validateSitePageLayout(layout);
-
-		return _toSitePage(layout);
-	}
-
-	@Override
-	public Page<SitePage> doGetSiteSitePagesPage(
-			String siteExternalReferenceCode, String search,
-			Aggregation aggregation, Filter filter, Pagination pagination,
-			Sort[] sorts)
-		throws Exception {
-
-		if (!FeatureFlagManagerUtil.isEnabled("LPD-35443")) {
-			throw new UnsupportedOperationException();
-		}
-
-		return Page.of(
-			transform(
-				_layoutService.getLayouts(
-					GroupUtil.getGroupId(
-						true, contextCompany.getCompanyId(),
-						siteExternalReferenceCode),
-					false, search,
-					new String[] {
-						LayoutConstants.TYPE_CONTENT,
-						LayoutConstants.TYPE_PORTLET
-					},
-					null, pagination.getStartPosition(),
-					pagination.getEndPosition(), null),
-				layout -> _toSitePage(layout)),
-			pagination,
-			_layoutService.getLayoutsCount(
-				GroupUtil.getGroupId(
-					true, contextCompany.getCompanyId(),
-					siteExternalReferenceCode),
-				false, search,
-				new String[] {
-					LayoutConstants.TYPE_CONTENT, LayoutConstants.TYPE_PORTLET
-				},
-				null));
-	}
-
-	@Override
-	public SitePage doPostSiteSitePage(
-			String siteExternalReferenceCode, SitePage sitePage)
-		throws Exception {
-
-		if (!FeatureFlagManagerUtil.isEnabled("LPD-35443")) {
-			throw new UnsupportedOperationException();
-		}
-
-		return _toSitePage(
-			_addLayout(
-				sitePage.getExternalReferenceCode(),
-				GroupUtil.getGroupId(
-					false, contextCompany.getCompanyId(),
-					siteExternalReferenceCode),
-				sitePage));
-	}
-
-	@Override
-	public SitePage doPutSiteSitePage(
-			String siteExternalReferenceCode,
-			String sitePageExternalReferenceCode, SitePage sitePage)
-		throws Exception {
-
-		if (!FeatureFlagManagerUtil.isEnabled("LPD-35443")) {
-			throw new UnsupportedOperationException();
-		}
-
-		long groupId = GroupUtil.getGroupId(
-			false, contextCompany.getCompanyId(), siteExternalReferenceCode);
-
-		Layout layout = _layoutService.fetchLayoutByExternalReferenceCode(
-			sitePageExternalReferenceCode, groupId);
-
-		if (layout == null) {
-			return _toSitePage(
-				_addLayout(sitePageExternalReferenceCode, groupId, sitePage));
-		}
-
-		_validateSitePageLayout(layout);
-
-		if ((sitePage.getType() != null) &&
-			!Objects.equals(
-				layout.getType(),
-				SitePageTypeUtil.toInternalType(sitePage.getType()))) {
-
-			throw new UnsupportedOperationException();
-		}
-
-		return _toSitePage(_updateLayout(layout, sitePage));
-	}
-
-	@Override
 	public ContentPageSpecification postSiteSitePagePageSpecification(
 			String siteExternalReferenceCode,
 			String sitePageExternalReferenceCode,
@@ -254,6 +144,116 @@ public class SitePageResourceImpl extends BaseSitePageResourceImpl {
 
 		throw new NotSupportedException(
 			"One of the following parameters must be specified: [siteId]");
+	}
+
+	@Override
+	protected SitePage doGetSiteSitePage(
+			String siteExternalReferenceCode,
+			String sitePageExternalReferenceCode)
+		throws Exception {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-35443")) {
+			throw new UnsupportedOperationException();
+		}
+
+		Layout layout = _layoutService.getLayoutByExternalReferenceCode(
+			sitePageExternalReferenceCode,
+			GroupUtil.getGroupId(
+				true, contextCompany.getCompanyId(),
+				siteExternalReferenceCode));
+
+		_validateSitePageLayout(layout);
+
+		return _toSitePage(layout);
+	}
+
+	@Override
+	protected Page<SitePage> doGetSiteSitePagesPage(
+			String siteExternalReferenceCode, String search,
+			Aggregation aggregation, Filter filter, Pagination pagination,
+			Sort[] sorts)
+		throws Exception {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-35443")) {
+			throw new UnsupportedOperationException();
+		}
+
+		return Page.of(
+			transform(
+				_layoutService.getLayouts(
+					GroupUtil.getGroupId(
+						true, contextCompany.getCompanyId(),
+						siteExternalReferenceCode),
+					false, search,
+					new String[] {
+						LayoutConstants.TYPE_CONTENT,
+						LayoutConstants.TYPE_PORTLET
+					},
+					null, pagination.getStartPosition(),
+					pagination.getEndPosition(), null),
+				layout -> _toSitePage(layout)),
+			pagination,
+			_layoutService.getLayoutsCount(
+				GroupUtil.getGroupId(
+					true, contextCompany.getCompanyId(),
+					siteExternalReferenceCode),
+				false, search,
+				new String[] {
+					LayoutConstants.TYPE_CONTENT, LayoutConstants.TYPE_PORTLET
+				},
+				null));
+	}
+
+	@Override
+	protected SitePage doPostSiteSitePage(
+			String siteExternalReferenceCode, SitePage sitePage)
+		throws Exception {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-35443")) {
+			throw new UnsupportedOperationException();
+		}
+
+		return _toSitePage(
+			_addLayout(
+				sitePage.getExternalReferenceCode(),
+				GroupUtil.getGroupId(
+					false, contextCompany.getCompanyId(),
+					siteExternalReferenceCode),
+				sitePage));
+	}
+
+	@Override
+	protected SitePage doPutSiteSitePage(
+			String siteExternalReferenceCode,
+			String sitePageExternalReferenceCode, SitePage sitePage)
+		throws Exception {
+
+		if (!FeatureFlagManagerUtil.isEnabled("LPD-35443")) {
+			throw new UnsupportedOperationException();
+		}
+
+		long groupId = GroupUtil.getGroupId(
+			false, contextCompany.getCompanyId(), siteExternalReferenceCode);
+
+		Layout layout = _layoutService.fetchLayoutByExternalReferenceCode(
+			sitePageExternalReferenceCode, groupId);
+
+		if (layout == null) {
+			return _toSitePage(
+				_addLayout(sitePageExternalReferenceCode, groupId, sitePage));
+		}
+
+		_validateSitePageLayout(layout);
+
+		if ((sitePage.getType() != null) &&
+			!Objects.equals(
+				layout.getType(),
+				SitePageTypeUtil.toInternalType(sitePage.getType()))) {
+
+			throw new UnsupportedOperationException();
+		}
+
+		return _toSitePage(_updateLayout(layout, sitePage));
 	}
 
 	@Override

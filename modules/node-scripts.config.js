@@ -10,7 +10,7 @@
  */
 
 module.exports = {
-	hash: 'e0716bc3a1169e76a69665d0d17d3284cfba0221f555ab29737a7b682065d498',
+	hash: '176dd84b5475ca7c9adc096f3d956929e84bacdb8547cd0ab22f884a22880357',
 	imports: {
 		'@liferay/accessibility-menu-web': [],
 		'@liferay/accessibility-settings-state-web': [],
@@ -136,6 +136,7 @@ module.exports = {
 		],
 		'@liferay/frontend-js-importmaps-extender': [],
 		'@liferay/frontend-js-item-selector-sample-web': [],
+		'@liferay/frontend-js-item-selector-web': [],
 		'@liferay/frontend-js-react-web': [
 			'classnames',
 			'formik',
@@ -277,7 +278,6 @@ module.exports = {
 		'frontend-js-aui-web': [],
 		'frontend-js-clay-sample-web': [],
 		'frontend-js-components-web': [],
-		'frontend-js-item-selector-web': [],
 		'frontend-js-loader-modules-extender': [],
 		'frontend-js-lodash-web': [],
 		'frontend-js-recharts': ['recharts'],

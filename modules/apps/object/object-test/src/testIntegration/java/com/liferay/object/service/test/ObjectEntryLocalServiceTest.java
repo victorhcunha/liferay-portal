@@ -268,7 +268,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.BiFunction;
@@ -4698,16 +4697,39 @@ public class ObjectEntryLocalServiceTest {
 			Assert.assertEquals(
 				exportImportReportEntries.toString(), 1,
 				exportImportReportEntries.size());
-			Assert.assertTrue(
-				ListUtil.exists(
-					exportImportReportEntries,
-					exportImportReportEntry ->
-						Objects.equals(
-							exportImportReportEntry.
-								getClassExternalReferenceCode(),
-							externalReferenceCode) &&
-						(exportImportReportEntry.getType() ==
-							ExportImportReportEntryConstants.TYPE_EMPTY)));
+
+			ExportImportReportEntry exportImportReportEntry =
+				exportImportReportEntries.get(0);
+
+			Assert.assertEquals(
+				externalReferenceCode,
+				exportImportReportEntry.getClassExternalReferenceCode());
+			Assert.assertEquals(
+				_classNameLocalService.getClassNameId(
+					_siteObjectDefinition.getClassName()),
+				exportImportReportEntry.getClassNameId());
+			Assert.assertEquals(
+				exportImportConfigurationId,
+				exportImportReportEntry.getExportImportConfigurationId());
+			Assert.assertEquals(
+				_siteObjectDefinition.getShortName(),
+				exportImportReportEntry.getModelName());
+			Assert.assertEquals(
+				ObjectDefinitionConstants.SCOPE_SITE,
+				exportImportReportEntry.getScope());
+
+			Group group = _groupLocalService.getGroup(groupId);
+
+			Assert.assertEquals(
+				exportImportReportEntry.getScopeKey(),
+				group.getExternalReferenceCode());
+
+			Assert.assertEquals(
+				ExportImportReportEntryConstants.TYPE_EMPTY,
+				exportImportReportEntry.getType());
+			Assert.assertEquals(
+				ExportImportReportEntryConstants.STATUS_UNRESOLVED,
+				exportImportReportEntry.getStatus());
 
 			objectEntry = _objectEntryLocalService.updateObjectEntry(
 				objectEntry.getUserId(), objectEntry.getObjectEntryId(),

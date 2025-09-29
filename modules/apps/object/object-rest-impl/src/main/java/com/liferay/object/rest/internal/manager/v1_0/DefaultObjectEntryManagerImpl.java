@@ -609,6 +609,37 @@ public class DefaultObjectEntryManagerImpl
 	}
 
 	@Override
+	public Page<ObjectEntry> getApprovedObjectEntries(
+			long companyId, ObjectDefinition objectDefinition, String scopeKey,
+			Aggregation aggregation, DTOConverterContext dtoConverterContext,
+			String filterString, Pagination pagination, String search,
+			Sort[] sorts)
+		throws Exception {
+
+		dtoConverterContext.setAttribute("preferApproved", Boolean.TRUE);
+
+		return getObjectEntries(
+			companyId, objectDefinition, scopeKey, aggregation,
+			dtoConverterContext,
+			_objectDefinitionFilterParser.parse(filterString, objectDefinition),
+			pagination, search, sorts);
+	}
+
+	@Override
+	public ObjectEntry getApprovedObjectEntry(
+			long companyId, DTOConverterContext dtoConverterContext,
+			String externalReferenceCode, ObjectDefinition objectDefinition,
+			String scopeKey)
+		throws Exception {
+
+		dtoConverterContext.setAttribute("preferApproved", Boolean.TRUE);
+
+		return getObjectEntry(
+			companyId, dtoConverterContext, externalReferenceCode,
+			objectDefinition, scopeKey);
+	}
+
+	@Override
 	public Page<ObjectEntry> getObjectEntries(
 			long companyId, ObjectDefinition objectDefinition, String scopeKey,
 			Aggregation aggregation, DTOConverterContext dtoConverterContext,
@@ -682,18 +713,26 @@ public class DefaultObjectEntryManagerImpl
 				aggregation,
 				aggregationTerm -> objectEntryLocalService.getAggregationCounts(
 					groupId, objectDefinition.getObjectDefinitionId(),
-					aggregationTerm, predicate, start, end)),
+					aggregationTerm, predicate,
+					GetterUtil.getBoolean(
+						dtoConverterContext.getAttribute("preferApproved")),
+					start, end)),
 			TransformUtil.transform(
 				objectEntryLocalService.getPrimaryKeys(
 					groupIds, companyId, dtoConverterContext.getUserId(),
-					objectDefinition.getObjectDefinitionId(), predicate, search,
-					start, end, sorts),
+					objectDefinition.getObjectDefinitionId(), predicate,
+					GetterUtil.getBoolean(
+						dtoConverterContext.getAttribute("preferApproved")),
+					search, start, end, sorts),
 				primaryKey -> _getObjectEntry(
 					dtoConverterContext, objectDefinition, primaryKey)),
 			pagination,
 			objectEntryLocalService.getValuesListCount(
 				groupIds, companyId, dtoConverterContext.getUserId(),
-				objectDefinition.getObjectDefinitionId(), predicate, search));
+				objectDefinition.getObjectDefinitionId(), predicate,
+				GetterUtil.getBoolean(
+					dtoConverterContext.getAttribute("preferApproved")),
+				search));
 	}
 
 	@Override
@@ -971,7 +1010,7 @@ public class DefaultObjectEntryManagerImpl
 					objectRelatedModelsProvider.getRelatedModels(
 						serviceBuilderObjectEntry.getGroupId(),
 						objectRelationship.getObjectRelationshipId(), null,
-						serviceBuilderObjectEntry.getPrimaryKey(), null,
+						false, serviceBuilderObjectEntry.getPrimaryKey(), null,
 						_getStartPosition(pagination),
 						_getEndPosition(pagination), null),
 				baseModel -> _toDTO(
@@ -1344,7 +1383,7 @@ public class DefaultObjectEntryManagerImpl
 
 		return ActionUtil.addAction(
 			actionName, ObjectEntryResourceImpl.class,
-			serviceBuilderObjectEntry.getObjectEntryId(), methodName, null,
+			serviceBuilderObjectEntry.getHeadObjectEntryId(), methodName, null,
 			_objectEntryService.getModelResourcePermission(
 				serviceBuilderObjectEntry.getObjectDefinitionId()),
 			templateParameterMap, uriInfo);
@@ -1677,6 +1716,24 @@ public class DefaultObjectEntryManagerImpl
 						objectEntry, scopeKey, serviceContext),
 					serviceContext),
 				scopeKey));
+	}
+
+	private void _checkApprovedObjectEntry(
+			boolean preferApproved,
+			com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry)
+		throws Exception {
+
+		if (!preferApproved) {
+			_checkHeadObjectEntry(serviceBuilderObjectEntry);
+
+			return;
+		}
+
+		if (serviceBuilderObjectEntry.isApproved()) {
+			return;
+		}
+
+		throw new NoSuchObjectEntryException();
 	}
 
 	private void _checkHeadObjectEntry(
@@ -2153,7 +2210,7 @@ public class DefaultObjectEntryManagerImpl
 				new Long[] {groupId}, objectDefinition.getCompanyId(),
 				objectDefinition.getUserId(),
 				objectDefinition.getObjectDefinitionId(),
-				objectFieldColumn.eq(newValue), null);
+				objectFieldColumn.eq(newValue), false, null);
 
 			if (count == 0) {
 				return newValue;
@@ -2173,7 +2230,10 @@ public class DefaultObjectEntryManagerImpl
 		com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 			_objectEntryService.getObjectEntry(objectEntryId);
 
-		_checkHeadObjectEntry(serviceBuilderObjectEntry);
+		_checkApprovedObjectEntry(
+			GetterUtil.getBoolean(
+				dtoConverterContext.getAttribute("preferApproved")),
+			serviceBuilderObjectEntry);
 		_checkObjectEntryObjectDefinitionId(
 			objectDefinition, serviceBuilderObjectEntry);
 
@@ -2187,7 +2247,10 @@ public class DefaultObjectEntryManagerImpl
 			com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry)
 		throws Exception {
 
-		_checkHeadObjectEntry(serviceBuilderObjectEntry);
+		_checkApprovedObjectEntry(
+			GetterUtil.getBoolean(
+				dtoConverterContext.getAttribute("preferApproved")),
+			serviceBuilderObjectEntry);
 		_checkObjectEntryObjectDefinitionId(
 			objectDefinition, serviceBuilderObjectEntry);
 		_checkRootDescendantNode(serviceBuilderObjectEntry, false);
@@ -2426,8 +2489,8 @@ public class DefaultObjectEntryManagerImpl
 
 		return objectRelatedModelsProvider.getRelatedModels(
 			GroupThreadLocal.getGroupId(),
-			objectRelationship.getObjectRelationshipId(), null, primaryKey,
-			null, -1, -1, null);
+			objectRelationship.getObjectRelationshipId(), null, false,
+			primaryKey, null, -1, -1, null);
 	}
 
 	private ObjectDefinition _getRelatedObjectDefinition(
@@ -2498,7 +2561,7 @@ public class DefaultObjectEntryManagerImpl
 				dtoConverterContext,
 				objectRelatedModelsProvider.getRelatedModels(
 					groupId, objectRelationship.getObjectRelationshipId(),
-					predicate, serviceBuilderObjectEntry.getPrimaryKey(),
+					predicate, false, serviceBuilderObjectEntry.getPrimaryKey(),
 					search, start, end, sorts)),
 			pagination,
 			objectRelatedModelsProvider.getRelatedModelsCount(
@@ -2634,7 +2697,7 @@ public class DefaultObjectEntryManagerImpl
 				dtoConverterContext,
 				objectRelatedModelsProvider.getRelatedModels(
 					groupId, objectRelationship.getObjectRelationshipId(), null,
-					objectEntryId, null, _getStartPosition(pagination),
+					false, objectEntryId, null, _getStartPosition(pagination),
 					_getEndPosition(pagination), null)),
 			pagination,
 			objectRelatedModelsProvider.getRelatedModelsCount(
@@ -3176,30 +3239,21 @@ public class DefaultObjectEntryManagerImpl
 			}
 		}
 
-		DefaultDTOConverterContext defaultDTOConverterContext =
+		return _objectEntryDTOConverter.toDTO(
 			new DefaultDTOConverterContext(
 				dtoConverterContext.isAcceptAllLanguages(), actions,
+				HashMapBuilder.<String, Object>put(
+					"objectDefinition", objectDefinition
+				).putAll(
+					dtoConverterContext.getAttributes()
+				).build(),
 				dtoConverterContext.getDTOConverterRegistry(),
 				dtoConverterContext.getHttpServletRequest(),
 				serviceBuilderObjectEntry.getObjectEntryId(),
 				dtoConverterContext.getLocale(),
 				dtoConverterContext.getUriInfo(),
-				dtoConverterContext.getUser());
-
-		defaultDTOConverterContext.setAttribute(
-			"objectDefinition", objectDefinition);
-
-		ObjectEntryVersion objectEntryVersion =
-			(ObjectEntryVersion)dtoConverterContext.getAttribute(
-				"objectEntryVersion");
-
-		if (objectEntryVersion != null) {
-			defaultDTOConverterContext.setAttribute(
-				"objectEntryVersion", objectEntryVersion);
-		}
-
-		return _objectEntryDTOConverter.toDTO(
-			defaultDTOConverterContext, serviceBuilderObjectEntry);
+				dtoConverterContext.getUser()),
+			serviceBuilderObjectEntry);
 	}
 
 	private Map<String, Serializable> _toObjectValues(
