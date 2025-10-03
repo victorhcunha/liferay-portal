@@ -19,6 +19,7 @@ import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.document.library.kernel.model.DLFileEntry;
+import com.liferay.document.library.kernel.model.DLFileVersion;
 import com.liferay.document.library.kernel.model.DLFolder;
 import com.liferay.document.library.kernel.model.DLFolderConstants;
 import com.liferay.document.library.kernel.service.DLAppLocalService;
@@ -525,6 +526,32 @@ public class ObjectEntryResourceTest {
 		_objectDefinition2 = ObjectDefinitionTestUtil.publishObjectDefinition(
 			ObjectDefinitionTestUtil.getRandomName(),
 			Arrays.asList(
+				ObjectFieldUtil.createObjectField(
+					ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT,
+					ObjectFieldConstants.DB_TYPE_LONG, true, false, null,
+					_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
+					_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
+					Arrays.asList(
+						new ObjectFieldSettingBuilder(
+						).name(
+							ObjectFieldSettingConstants.
+								NAME_ACCEPTED_FILE_EXTENSIONS
+						).value(
+							"pdf"
+						).build(),
+						new ObjectFieldSettingBuilder(
+						).name(
+							ObjectFieldSettingConstants.NAME_FILE_SOURCE
+						).value(
+							ObjectFieldSettingConstants.VALUE_DOCS_AND_MEDIA
+						).build(),
+						new ObjectFieldSettingBuilder(
+						).name(
+							ObjectFieldSettingConstants.NAME_MAX_FILE_SIZE
+						).value(
+							String.valueOf(_MAX_FILE_SIZE_VALUE)
+						).build()),
+					false),
 				ObjectFieldUtil.createObjectField(
 					ObjectFieldConstants.BUSINESS_TYPE_BOOLEAN,
 					ObjectFieldConstants.DB_TYPE_BOOLEAN, true, false, null,
@@ -5771,6 +5798,39 @@ public class ObjectEntryResourceTest {
 	}
 
 	@Test
+	public void testGetObjectEntriesPageActions() throws Exception {
+		JSONObject jsonObject1 = HTTPTestUtil.invokeToJSONObject(
+			null, _objectDefinition4.getRESTContextPath(), Http.Method.GET);
+
+		JSONObject actionsJSONObject1 = jsonObject1.getJSONObject("actions");
+
+		Assert.assertFalse(actionsJSONObject1.isNull("create"));
+		Assert.assertFalse(actionsJSONObject1.isNull("createBatch"));
+		Assert.assertTrue(actionsJSONObject1.isNull("deleteBatch"));
+		Assert.assertTrue(actionsJSONObject1.isNull("get"));
+		Assert.assertTrue(actionsJSONObject1.isNull("updateBatch"));
+
+		HTTPTestUtil.customize(
+		).withGuest(
+		).apply(
+			() -> {
+				JSONObject jsonObject2 = HTTPTestUtil.invokeToJSONObject(
+					null, _objectDefinition4.getRESTContextPath(),
+					Http.Method.GET);
+
+				JSONObject actionsJSONObject2 = jsonObject2.getJSONObject(
+					"actions");
+
+				Assert.assertTrue(actionsJSONObject2.isNull("create"));
+				Assert.assertTrue(actionsJSONObject2.isNull("createBatch"));
+				Assert.assertTrue(actionsJSONObject2.isNull("deleteBatch"));
+				Assert.assertTrue(actionsJSONObject2.isNull("get"));
+				Assert.assertTrue(actionsJSONObject2.isNull("updateBatch"));
+			}
+		);
+	}
+
+	@Test
 	public void testGetObjectEntriesPageWithLocalizedObjectField()
 		throws Exception {
 
@@ -6943,6 +7003,61 @@ public class ObjectEntryResourceTest {
 			jsonObject.getJSONObject(
 				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE),
 			null);
+
+		FileEntry pdfFileEntry = _dlAppLocalService.addFileEntry(
+			null, TestPropsValues.getUserId(), _group.getGroupId(),
+			DLFolderConstants.DEFAULT_PARENT_FOLDER_ID,
+			StringUtil.randomString() + ".pdf", ContentTypes.APPLICATION_PDF,
+			StringUtil.randomString(), StringUtil.randomString(),
+			StringUtil.randomString(), StringUtil.randomString(),
+			FileUtil.getBytes(getClass(), "dependencies/document.pdf"), null,
+			null, null, ServiceContextTestUtil.getServiceContext());
+
+		DLFileEntry pdfDLFileEntry = _dlFileEntryLocalService.getFileEntry(
+			pdfFileEntry.getFileEntryId());
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			JSONUtil.put(
+				_OBJECT_FIELD_NAME_1, "value1"
+			).put(
+				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
+				pdfDLFileEntry.getFileEntryId()
+			).toString(),
+			_objectDefinition2.getRESTContextPath(), Http.Method.POST);
+
+		_assertAttachmentJSONObject(
+			pdfDLFileEntry, null,
+			jsonObject.getJSONObject(
+				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE),
+			scopeJSONObject);
+
+		Assert.assertNull(
+			JSONUtil.getValueAsJSONObject(
+				jsonObject,
+				"JSONObject/" +
+					_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
+				"JSONObject/metadata"));
+
+		jsonObject = HTTPTestUtil.invokeToJSONObject(
+			null,
+			StringBundler.concat(
+				_objectDefinition2.getRESTContextPath(),
+				"/by-external-reference-code/",
+				jsonObject.getString("externalReferenceCode"), "?nestedFields=",
+				_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
+				".metadata"),
+			Http.Method.GET);
+
+		JSONAssert.assertEquals(
+			JSONUtil.put(
+				"numberOfPages", 2
+			).toString(),
+			JSONUtil.getValueAsString(
+				jsonObject,
+				"JSONObject/" +
+					_OBJECT_FIELD_NAME_ATTACHMENT_DOCS_AND_MEDIA_SOURCE,
+				"JSONObject/metadata"),
+			JSONCompareMode.LENIENT);
 	}
 
 	@Test
@@ -14683,10 +14798,17 @@ public class ObjectEntryResourceTest {
 	}
 
 	private void _assertAttachmentJSONObject(
-		DLFileEntry dlFileEntry, String fileBase64, JSONObject jsonObject,
-		JSONObject scopeJSONObject) {
+			DLFileEntry dlFileEntry, String fileBase64, JSONObject jsonObject,
+			JSONObject scopeJSONObject)
+		throws Exception {
 
 		if (dlFileEntry != null) {
+			DLFileVersion dlFileVersion = dlFileEntry.getFileVersion();
+
+			Assert.assertEquals(
+				dlFileVersion.getDescription(),
+				jsonObject.getString("alternativeText"));
+
 			Assert.assertEquals(
 				dlFileEntry.getExternalReferenceCode(),
 				jsonObject.getString("externalReferenceCode"));
@@ -15178,10 +15300,14 @@ public class ObjectEntryResourceTest {
 		DLFileEntry dlFileEntry = _dlFileEntryLocalService.getDLFileEntry(
 			_testDLFileEntryModelListener.getLastFileEntryId());
 
+		DLFileVersion dlFileVersion = dlFileEntry.getFileVersion();
+
 		ObjectEntry objectEntry = _objectEntryLocalService.getObjectEntry(
 			_testObjectEntryModelListener.getLastObjectEntryId());
 
 		return JSONUtil.put(
+			"alternativeText", dlFileVersion.getDescription()
+		).put(
 			"externalReferenceCode", dlFileEntry::getExternalReferenceCode
 		).put(
 			"id", _testDLFileEntryModelListener.getLastFileEntryId()
