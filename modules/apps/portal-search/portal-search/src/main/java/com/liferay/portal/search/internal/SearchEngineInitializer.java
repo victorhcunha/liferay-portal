@@ -202,15 +202,13 @@ public class SearchEngineInitializer implements Runnable {
 
 				long startTime = System.nanoTime();
 
-						@Override
-						public Void call() throws Exception {
-							try (SafeCloseable safeCloseable1 =
-									BackgroundTaskThreadLocal.
-										setBackgroundTaskIdWithSafeCloseable(
-											backgroundTaskId);
-								SafeCloseable safeCloseable2 =
-									ReindexCacheThreadLocal.openReindexMode(
-										finalFullMode, sharedReindexCacheMap);
+				try (SafeCloseable safeCloseable1 =
+						BackgroundTaskThreadLocal.
+							setBackgroundTaskIdWithSafeCloseable(
+								backgroundTaskId);
+					SafeCloseable safeCloseable2 =
+						ReindexCacheThreadLocal.openReindexMode(
+							finalFullMode, sharedReindexCacheMap);
 								SafeCloseable safeCloseable3 =
 									SearchContext.openBatchMode(false)) {
 
