@@ -47,6 +47,8 @@ public class ReindexPortalBackgroundTaskExecutor
 			String className, long[] companyIds, String executionMode)
 		throws Exception {
 
+		long startTime = System.nanoTime();
+
 		for (long companyId : companyIds) {
 			ReindexStatusMessageSenderUtil.sendStatusMessage(
 				ReindexBackgroundTaskConstants.PORTAL_START, companyId,
@@ -84,6 +86,13 @@ public class ReindexPortalBackgroundTaskExecutor
 							" with execution mode ", executionMode));
 				}
 			}
+		}
+
+		if (_log.isInfoEnabled()) {
+			_log.info(
+				StringBundler.concat(
+					"Total execution time ",
+					(System.nanoTime() - startTime) / 1000000, "ms"));
 		}
 	}
 

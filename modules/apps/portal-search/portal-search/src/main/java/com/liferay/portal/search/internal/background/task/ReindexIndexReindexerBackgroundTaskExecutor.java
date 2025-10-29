@@ -42,6 +42,8 @@ public class ReindexIndexReindexerBackgroundTaskExecutor
 			String className, long[] companyIds, String executionMode)
 		throws Exception {
 
+		long startTime = System.nanoTime();
+
 		if (Validator.isBlank(className)) {
 			Collection<IndexReindexer> indexReindexers =
 				_indexReindexerRegistry.getIndexReindexers();
@@ -66,6 +68,13 @@ public class ReindexIndexReindexerBackgroundTaskExecutor
 				className, companyIds, executionMode, indexReindexer,
 				ReindexBackgroundTaskConstants.SINGLE_START,
 				ReindexBackgroundTaskConstants.SINGLE_END);
+		}
+
+		if (_log.isInfoEnabled()) {
+			_log.info(
+				StringBundler.concat(
+					"Total execution time ",
+					(System.nanoTime() - startTime) / 1000000, "ms"));
 		}
 	}
 
