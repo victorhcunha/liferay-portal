@@ -191,7 +191,7 @@ public class SearchEngineInitializer implements Runnable {
 			Collections.sort(
 				indexers, Comparator.comparing(Indexer::getClassName));
 
-			int count = 1;
+			int count = 0;
 
 			for (Indexer<?> indexer : indexers) {
 				indexerClassNames.add(indexer.getClassName());
@@ -211,12 +211,17 @@ public class SearchEngineInitializer implements Runnable {
 					reindex(indexer);
 				}
 
-				if (_log.isInfoEnabled()) {
+				long duration = (System.nanoTime() - startTime) / 1000000000;
+
+				++count;
+
+				if (_log.isInfoEnabled() &&
+					((duration > 4) || (count == indexers.size()))) {
+
 					_log.info(
 						StringBundler.concat(
-							"(", count++, "/", indexers.size(), ") Indexer ",
-							indexer.getClassName(), " took ",
-							(System.nanoTime() - startTime) / 1000000, "ms"));
+							"(", count, "/", indexers.size(), ") Indexer ",
+							indexer.getClassName(), " took ", duration, "s"));
 				}
 			}
 
