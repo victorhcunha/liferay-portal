@@ -12,6 +12,8 @@ import com.liferay.portal.kernel.util.PropsUtil;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
 
@@ -113,11 +115,44 @@ public class ReindexCacheThreadLocal {
 		return _reindexCacheMap.setWithSafeCloseable(sharedReindexCacheMap);
 	}
 
+	public static void recordTime(String name, long startTime) {
+		long deltaTime = System.nanoTime() - startTime;
+
+		Map<String, Object[]> reindexCacheMap = _recordMap.get();
+
+		if (reindexCacheMap == null) {
+			return;
+		}
+
+		Object[] objects = reindexCacheMap.get(name);
+
+		if (objects == null) {
+			objects = new Object[] {new LongAdder(), new AtomicInteger()};
+
+			reindexCacheMap.put(name, objects);
+		}
+
+		LongAdder longAdder = (LongAdder)objects[0];
+
+		longAdder.add(deltaTime);
+
+		AtomicInteger counter = (AtomicInteger)objects[1];
+
+		counter.incrementAndGet();
+	}
+
+	public static void setRecordMap(Map<String, Object[]> recordMap) {
+		_recordMap.set(recordMap);
+	}
+
 	private static final Object _NULL_HOLDER = new Object();
 
 	private static final int _SIZE_LIMIT = GetterUtil.getInteger(
 		PropsUtil.get("reindex.cache.size.limit"), 1000000);
 
+	private static final CentralizedThreadLocal<Map<String, Object[]>>
+		_recordMap = new CentralizedThreadLocal<>(
+			ReindexCacheThreadLocal.class + "._recordMap");
 	private static final CentralizedThreadLocal<Map<String, Object>>
 		_reindexCacheMap = new CentralizedThreadLocal<>(
 			ReindexCacheThreadLocal.class + "._reindexCacheMap");

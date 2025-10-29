@@ -13,6 +13,7 @@ import com.liferay.portal.kernel.search.DocumentContributor;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.IndexerPostProcessor;
 import com.liferay.portal.kernel.search.IndexerRegistryUtil;
+import com.liferay.portal.kernel.search.ReindexCacheThreadLocal;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.search.indexer.BaseModelDocumentFactory;
 import com.liferay.portal.search.indexer.IndexerDocumentBuilder;
@@ -20,6 +21,7 @@ import com.liferay.portal.search.permission.SearchPermissionDocumentContributor;
 import com.liferay.portal.search.spi.model.index.contributor.ModelDocumentContributor;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author Michael C. Han
@@ -39,6 +41,8 @@ public class IndexerDocumentBuilderImpl implements IndexerDocumentBuilder {
 		_className = className;
 		_searchPermissionDocumentContributor =
 			searchPermissionDocumentContributor;
+
+		_tracing = _tracingClassNames.contains(className);
 	}
 
 	@Override
@@ -49,9 +53,24 @@ public class IndexerDocumentBuilderImpl implements IndexerDocumentBuilder {
 			(DocumentContributor documentContributor) ->
 				documentContributor.contribute(document, baseModel));
 
-		_modelDocumentContributors.forEach(
-			(ModelDocumentContributor modelDocumentContributor) ->
-				modelDocumentContributor.contribute(document, baseModel));
+		if (_tracing) {
+			_modelDocumentContributors.forEach(
+				(ModelDocumentContributor modelDocumentContributor) -> {
+					long startTime = System.nanoTime();
+
+					modelDocumentContributor.contribute(document, baseModel);
+
+					Class<?> clazz = modelDocumentContributor.getClass();
+
+					ReindexCacheThreadLocal.recordTime(
+						clazz.getName(), startTime);
+				});
+		}
+		else {
+			_modelDocumentContributors.forEach(
+				(ModelDocumentContributor modelDocumentContributor) ->
+					modelDocumentContributor.contribute(document, baseModel));
+		}
 
 		_searchPermissionDocumentContributor.addPermissionFields(
 			GetterUtil.getLong(document.get(Field.COMPANY_ID)), document);
@@ -93,6 +112,10 @@ public class IndexerDocumentBuilderImpl implements IndexerDocumentBuilder {
 	private static final Log _log = LogFactoryUtil.getLog(
 		IndexerDocumentBuilderImpl.class);
 
+	private static final Set<String> _tracingClassNames = Set.of(
+		"com.liferay.document.library.kernel.model.DLFileEntry",
+		"com.liferay.notification.model.NotificationQueueEntry");
+
 	private final BaseModelDocumentFactory _baseModelDocumentFactory;
 	private final String _className;
 	private final Iterable<DocumentContributor<?>> _documentContributors;
@@ -100,5 +123,6 @@ public class IndexerDocumentBuilderImpl implements IndexerDocumentBuilder {
 		_modelDocumentContributors;
 	private final SearchPermissionDocumentContributor
 		_searchPermissionDocumentContributor;
+	private final boolean _tracing;
 
 }

@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.LongAdder;
 
 import org.apache.commons.lang.time.StopWatch;
 
@@ -182,6 +184,7 @@ public class SearchEngineInitializer implements Runnable {
 			Set<String> indexerClassNames = new HashSet<>();
 			Map<String, Object> sharedReindexCacheMap =
 				new ConcurrentHashMap<>();
+			Map<String, Object[]> recordMap = new ConcurrentHashMap<>();
 
 			List<Indexer<?>> indexers = _indexers.toList();
 
@@ -202,6 +205,8 @@ public class SearchEngineInitializer implements Runnable {
 					SafeCloseable safeCloseable2 =
 						ReindexCacheThreadLocal.openReindexMode(
 							sharedReindexCacheMap)) {
+
+					ReindexCacheThreadLocal.setRecordMap(recordMap);
 
 					reindex(indexer);
 				}
@@ -224,6 +229,21 @@ public class SearchEngineInitializer implements Runnable {
 			else if (_isExecuteSyncReindex()) {
 				_syncReindexManager.deleteStaleDocuments(
 					_companyId, date, indexerClassNames);
+			}
+
+			for (Map.Entry<String, Object[]> entry : recordMap.entrySet()) {
+				LongAdder longAdder = (LongAdder)entry.getValue()[0];
+				AtomicInteger counter = (AtomicInteger)entry.getValue()[1];
+
+				long time = longAdder.sum();
+
+				if (_log.isInfoEnabled()) {
+					_log.info(
+						StringBundler.concat(
+							"Tracing info ", entry.getKey(), " count : ",
+							counter.get(), ", time : ", time / 1000000, "ms (",
+							time, "ns)"));
+				}
 			}
 
 			if (_log.isInfoEnabled()) {
