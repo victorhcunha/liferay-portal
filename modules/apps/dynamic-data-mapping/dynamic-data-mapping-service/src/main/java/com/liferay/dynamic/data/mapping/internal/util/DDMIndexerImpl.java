@@ -128,15 +128,19 @@ public class DDMIndexerImpl implements DDMIndexer {
 
 				if (ddmFormField.isLocalizable()) {
 					for (Locale locale : locales) {
-						name = encodeName(
-							ddmStructure.getStructureId(),
-							ddmFormField.getFieldReference(), locale,
-							indexType);
 						value = _getValue(field, ddmFormField, locale);
+
+						if ((value != null) || legacyDDMIndexFieldsEnabled) {
+							name = encodeName(
+								ddmStructure.getStructureId(),
+								ddmFormField.getFieldReference(), locale,
+								indexType);
+						}
 
 						if (legacyDDMIndexFieldsEnabled) {
 							_addToDocument(
-								document, field, indexType, name, value);
+								document, indexType, name,
+								ddmFormField.getType(), value);
 						}
 						else if (value != null) {
 							fieldArray.addField(
@@ -147,14 +151,19 @@ public class DDMIndexerImpl implements DDMIndexer {
 					}
 				}
 				else {
-					name = encodeName(
-						ddmStructure.getStructureId(),
-						ddmFormField.getFieldReference(), null, indexType);
 					value = _getValue(
 						field, ddmFormField, ddmFormValues.getDefaultLocale());
 
+					if ((value != null) || legacyDDMIndexFieldsEnabled) {
+						name = encodeName(
+							ddmStructure.getStructureId(),
+							ddmFormField.getFieldReference(), null, indexType);
+					}
+
 					if (legacyDDMIndexFieldsEnabled) {
-						_addToDocument(document, field, indexType, name, value);
+						_addToDocument(
+							document, indexType, name, ddmFormField.getType(),
+							value);
 					}
 					else if (value != null) {
 						fieldArray.addField(
@@ -424,8 +433,9 @@ public class DDMIndexerImpl implements DDMIndexer {
 		String valueFieldName = getValueFieldName(indexType, locale);
 
 		_addToDocument(
-			document, ddmStructureField, indexType, valueFieldName,
-			_getSortableValue(ddmFormField, locale, value), value);
+			document, indexType, valueFieldName,
+			_getSortableValue(ddmFormField, locale, value),
+			ddmFormField.getType(), value);
 
 		Map<String, com.liferay.portal.kernel.search.Field> documentFields =
 			document.getFields();
@@ -628,16 +638,8 @@ public class DDMIndexerImpl implements DDMIndexer {
 	}
 
 	private void _addToDocument(
-			Document document, Field field, String indexType, String name,
-			Serializable value)
-		throws PortalException {
-
-		_addToDocument(document, field, indexType, name, value, value);
-	}
-
-	private void _addToDocument(
-			Document document, Field field, String indexType, String name,
-			Serializable sortableValue, Serializable value)
+			Document document, String indexType, String name,
+			Serializable sortableValue, String type, Serializable value)
 		throws PortalException {
 
 		if (value == null) {
@@ -700,8 +702,6 @@ public class DDMIndexerImpl implements DDMIndexer {
 
 			String[] truncatedValuesString = valuesString;
 
-			String type = field.getType();
-
 			if (type.equals(DDMFormFieldTypeConstants.DATE) ||
 				type.equals(DDMFormFieldTypeConstants.DATE_TIME)) {
 
@@ -757,8 +757,6 @@ public class DDMIndexerImpl implements DDMIndexer {
 				String.valueOf(sortableValue));
 			String valueString = String.valueOf(value);
 
-			String type = field.getType();
-
 			if (type.equals(DDMFormFieldTypeConstants.GEOLOCATION)) {
 				JSONObject jsonObject = _jsonFactory.createJSONObject(
 					valueString);
@@ -807,6 +805,14 @@ public class DDMIndexerImpl implements DDMIndexer {
 				}
 			}
 		}
+	}
+
+	private void _addToDocument(
+			Document document, String indexType, String name, String type,
+			Serializable value)
+		throws PortalException {
+
+		_addToDocument(document, indexType, name, value, type, value);
 	}
 
 	private void _createSortableTextField(
