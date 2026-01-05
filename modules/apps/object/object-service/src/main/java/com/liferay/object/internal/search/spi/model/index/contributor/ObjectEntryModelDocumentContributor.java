@@ -17,6 +17,7 @@ import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectEntryFolder;
 import com.liferay.object.model.ObjectField;
 import com.liferay.object.model.ObjectFolder;
+import com.liferay.object.model.bag.ObjectFieldBag;
 import com.liferay.object.rest.dto.v1_0.ListEntry;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectEntryFolderLocalService;
@@ -327,26 +328,21 @@ public class ObjectEntryModelDocumentContributor
 		document.addKeyword(
 			"objectDefinitionName", objectDefinition.getShortName());
 
-		Map<String, Serializable> values = null;
+		ObjectFieldBag objectFieldBag = objectDefinition.getObjectFieldBag();
 
 		List<ObjectField> objectFields = null;
 
 		if (objectDefinition.isModifiableAndSystem()) {
 			objectFields = ListUtil.filter(
-				_objectFieldLocalService.getObjectFields(
-					objectEntry.getObjectDefinitionId()),
-				objectField ->
-					!objectField.isMetadata() && objectField.isIndexed());
+				objectFieldBag.getIndexedObjectFields(),
+				objectField -> !objectField.isMetadata());
 		}
 		else {
-			objectFields =
-				objectFields = ListUtil.filter(
-					_objectFieldLocalService.getObjectFields(
-						objectEntry.getObjectDefinitionId(), false),
-					ObjectField::isIndexed);
+			objectFields = objectFieldBag.getNonsystemIndexedObjectFields();
 		}
 
 		ObjectContentHelper objectContentHelper = null;
+		Map<String, Serializable> values = null;
 
 		if (!objectFields.isEmpty()) {
 			values = objectEntry.getIndexedValues();

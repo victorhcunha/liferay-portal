@@ -225,6 +225,11 @@ public class SitePageResourceImpl
 				return true;
 			}
 
+			@Override
+			public boolean isStagingSupported() {
+				return true;
+			}
+
 		};
 	}
 
@@ -429,6 +434,11 @@ public class SitePageResourceImpl
 		if (sitePage.getPageSpecifications() != null) {
 			existingSitePage.setPageSpecifications(
 				sitePage::getPageSpecifications);
+		}
+
+		if (sitePage.getTaxonomyCategoryItemExternalReferences() != null) {
+			existingSitePage.setTaxonomyCategoryItemExternalReferences(
+				sitePage::getTaxonomyCategoryItemExternalReferences);
 		}
 	}
 

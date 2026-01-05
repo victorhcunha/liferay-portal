@@ -14,11 +14,11 @@ import com.liferay.asset.kernel.exception.AssetCategoryNameException;
 import com.liferay.asset.kernel.exception.DuplicateCategoryException;
 import com.liferay.asset.kernel.exception.DuplicateCategoryExternalReferenceCodeException;
 import com.liferay.asset.kernel.exception.NoSuchCategoryException;
+import com.liferay.asset.kernel.exception.NoSuchVocabularyException;
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetCategoryConstants;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
-import com.liferay.asset.kernel.service.AssetCategoryLocalServiceUtil;
 import com.liferay.asset.kernel.service.AssetVocabularyLocalService;
 import com.liferay.asset.test.util.AssetTestUtil;
 import com.liferay.journal.constants.JournalFolderConstants;
@@ -134,6 +134,41 @@ public class AssetCategoryLocalServiceTest {
 			"Expected title map length does not match", 1, titleMap.size());
 	}
 
+	@Test(expected = NoSuchVocabularyException.class)
+	public void testAddAssetCategoryInAssetVocabularyFromDifferentGroup()
+		throws Exception {
+
+		AssetVocabulary assetVocabulary = AssetTestUtil.addVocabulary(
+			_group.getGroupId());
+
+		Group group = GroupTestUtil.addGroup();
+
+		AssetTestUtil.addCategory(
+			group.getGroupId(), assetVocabulary.getVocabularyId(),
+			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID);
+	}
+
+	@Test(expected = NoSuchCategoryException.class)
+	public void testAddAssetCategoryInParentAssetCategoryFromDifferentGroup()
+		throws Exception {
+
+		AssetVocabulary assetVocabulary1 = AssetTestUtil.addVocabulary(
+			_group.getGroupId());
+
+		AssetCategory assetCategory = AssetTestUtil.addCategory(
+			_group.getGroupId(), assetVocabulary1.getVocabularyId(),
+			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID);
+
+		Group group = GroupTestUtil.addGroup();
+
+		AssetVocabulary assetVocabulary2 = AssetTestUtil.addVocabulary(
+			group.getGroupId());
+
+		AssetTestUtil.addCategory(
+			group.getGroupId(), assetVocabulary2.getVocabularyId(),
+			assetCategory.getCategoryId());
+	}
+
 	@Test(expected = DuplicateCategoryExternalReferenceCodeException.class)
 	public void testAddAssetCategoryWithExistingExternalReferenceCode()
 		throws Exception {
@@ -144,7 +179,7 @@ public class AssetCategoryLocalServiceTest {
 		String externalReferenceCode = StringUtil.randomString();
 		Locale locale = _portal.getSiteDefaultLocale(_group.getGroupId());
 
-		AssetCategoryLocalServiceUtil.addCategory(
+		_assetCategoryLocalService.addCategory(
 			externalReferenceCode, TestPropsValues.getUserId(),
 			_group.getGroupId(),
 			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID,
@@ -158,7 +193,7 @@ public class AssetCategoryLocalServiceTest {
 			ServiceContextTestUtil.getServiceContext(
 				_group.getGroupId(), TestPropsValues.getUserId()));
 
-		AssetCategoryLocalServiceUtil.addCategory(
+		_assetCategoryLocalService.addCategory(
 			externalReferenceCode, TestPropsValues.getUserId(),
 			_group.getGroupId(),
 			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID,
@@ -238,7 +273,7 @@ public class AssetCategoryLocalServiceTest {
 		String externalReferenceCode = StringUtil.randomString();
 		Locale locale = _portal.getSiteDefaultLocale(_group.getGroupId());
 
-		AssetCategory assetCategory = AssetCategoryLocalServiceUtil.addCategory(
+		AssetCategory assetCategory = _assetCategoryLocalService.addCategory(
 			externalReferenceCode, TestPropsValues.getUserId(),
 			_group.getGroupId(),
 			AssetCategoryConstants.DEFAULT_PARENT_CATEGORY_ID,
@@ -256,9 +291,8 @@ public class AssetCategoryLocalServiceTest {
 			externalReferenceCode, assetCategory.getExternalReferenceCode());
 
 		assetCategory =
-			AssetCategoryLocalServiceUtil.
-				getAssetCategoryByExternalReferenceCode(
-					externalReferenceCode, _group.getGroupId());
+			_assetCategoryLocalService.getAssetCategoryByExternalReferenceCode(
+				externalReferenceCode, _group.getGroupId());
 
 		Assert.assertEquals(
 			externalReferenceCode, assetCategory.getExternalReferenceCode());
@@ -278,9 +312,8 @@ public class AssetCategoryLocalServiceTest {
 		Assert.assertEquals(assetCategory1.getUuid(), externalReferenceCode);
 
 		AssetCategory assetCategory2 =
-			AssetCategoryLocalServiceUtil.
-				getAssetCategoryByExternalReferenceCode(
-					externalReferenceCode, _group.getGroupId());
+			_assetCategoryLocalService.getAssetCategoryByExternalReferenceCode(
+				externalReferenceCode, _group.getGroupId());
 
 		Assert.assertEquals(assetCategory1, assetCategory2);
 	}

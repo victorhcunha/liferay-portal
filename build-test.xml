@@ -7822,6 +7822,8 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 
 			<property name="docker.start.script" value="docker_start.sh" />
 
+			<echo>Starting Docker container for @{image} on host @{name} with run options: @{run.options}.</echo>
+
 			<if>
 				<or>
 					<contains string="@{name}" substring="amazonlinux2022" />
@@ -7902,7 +7904,7 @@ org.apache.catalina.startup.ClassLoaderFactory.level=INFO]]>
 					</not>
 				</or>
 				<then>
-					<fail>Unable to start docker container:
+					<fail>Unable to start Docker container:
 ${docker.start.error}</fail>
 				</then>
 			</if>

@@ -52,6 +52,7 @@ import com.liferay.headless.admin.site.client.dto.v1_0.FormContainerReference;
 import com.liferay.headless.admin.site.client.dto.v1_0.FormStepContainerPageElementDefinition;
 import com.liferay.headless.admin.site.client.dto.v1_0.FormStepPageElementDefinition;
 import com.liferay.headless.admin.site.client.dto.v1_0.FragmentEditableElement;
+import com.liferay.headless.admin.site.client.dto.v1_0.FragmentEditableElementValue;
 import com.liferay.headless.admin.site.client.dto.v1_0.FragmentEditableElementValueFragmentLink;
 import com.liferay.headless.admin.site.client.dto.v1_0.FragmentInlineValue;
 import com.liferay.headless.admin.site.client.dto.v1_0.FragmentInstancePageElementDefinition;
@@ -592,6 +593,9 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 				"data-lfr-editable-type=\"image\">",
 				"<img data-lfr-editable-id=\"element-image3\" ",
 				"data-lfr-editable-type=\"image\">",
+				RandomTestUtil.randomString(), "</div>",
+				"<div data-lfr-editable-id=\"element-rich-text\" ",
+				"data-lfr-editable-type=\"rich-text\">",
 				RandomTestUtil.randomString(), "</div>",
 				"<h1 data-lfr-editable-id=\"element-text\" ",
 				"data-lfr-editable-type=\"text\">",
@@ -3160,7 +3164,8 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 						null),
 					"element-background-image2"),
 			FragmentEditableElementTestUtil.getHTMLFragmentEditableElement(
-				null, null, HTMLFragmentValue.Type.INLINE),
+				null, FragmentEditableElementValue.Type.HTML, null,
+				HTMLFragmentValue.Type.INLINE, "element-html"),
 			FragmentEditableElementTestUtil.getImageFragmentEditableElement(
 				FragmentEditableElementTestUtil.getFragmentImage(
 					HashMapBuilder.put(
@@ -3221,6 +3226,9 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 						"tablet", "auto"
 					).build()),
 				"element-image3"),
+			FragmentEditableElementTestUtil.getHTMLFragmentEditableElement(
+				null, FragmentEditableElementValue.Type.RICH_TEXT, null,
+				HTMLFragmentValue.Type.INLINE, "element-rich-text"),
 			FragmentEditableElementTestUtil.getTextFragmentEditableElement(
 				FragmentEditableElementValueFragmentLink.Prefix.EMAIL,
 				_getFragmentLink(
@@ -3247,8 +3255,9 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 			FragmentEditableElementTestUtil.getHTMLFragmentEditableElement(
 				FragmentMappedValueItemContextReference.ContextSource.
 					COLLECTION_ITEM,
+				FragmentEditableElementValue.Type.HTML,
 				FragmentMappedValueItemReference.Type.CONTEXT_REFERENCE,
-				HTMLFragmentValue.Type.MAPPED),
+				HTMLFragmentValue.Type.MAPPED, "element-html"),
 			FragmentEditableElementTestUtil.getImageFragmentEditableElement(
 				FragmentEditableElementTestUtil.getFragmentImage(
 					HashMapBuilder.put(
@@ -3306,6 +3315,12 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 						"tablet", "auto"
 					).build()),
 				"element-image3"),
+			FragmentEditableElementTestUtil.getHTMLFragmentEditableElement(
+				FragmentMappedValueItemContextReference.ContextSource.
+					COLLECTION_ITEM,
+				FragmentEditableElementValue.Type.RICH_TEXT,
+				FragmentMappedValueItemReference.Type.CONTEXT_REFERENCE,
+				HTMLFragmentValue.Type.MAPPED, "element-rich-text"),
 			FragmentEditableElementTestUtil.getTextFragmentEditableElement(
 				null, null,
 				FragmentMappedValueItemContextReference.ContextSource.
@@ -3328,8 +3343,9 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 			FragmentEditableElementTestUtil.getHTMLFragmentEditableElement(
 				FragmentMappedValueItemContextReference.ContextSource.
 					DISPLAY_PAGE_ITEM,
+				FragmentEditableElementValue.Type.HTML,
 				FragmentMappedValueItemReference.Type.CONTEXT_REFERENCE,
-				HTMLFragmentValue.Type.MAPPED),
+				HTMLFragmentValue.Type.MAPPED, "element-html"),
 			FragmentEditableElementTestUtil.getImageFragmentEditableElement(
 				FragmentEditableElementTestUtil.getFragmentImage(
 					HashMapBuilder.put(
@@ -3348,6 +3364,12 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 						"tablet", "auto"
 					).build()),
 				"element-image1"),
+			FragmentEditableElementTestUtil.getHTMLFragmentEditableElement(
+				FragmentMappedValueItemContextReference.ContextSource.
+					DISPLAY_PAGE_ITEM,
+				FragmentEditableElementValue.Type.RICH_TEXT,
+				FragmentMappedValueItemReference.Type.CONTEXT_REFERENCE,
+				HTMLFragmentValue.Type.MAPPED, "element-rich-text"),
 			FragmentEditableElementTestUtil.getTextFragmentEditableElement(
 				FragmentEditableElementValueFragmentLink.Prefix.PHONE,
 				_getFragmentLink(
@@ -3362,7 +3384,7 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 			new FragmentEditableElement[0]);
 
 		_testMissingOptionalReference(
-			6,
+			7,
 			() ->
 				_testPutSitePageSpecificationPageExperiencePageElementWithFragmentPageElementWithFragmentEditableElements(
 					FragmentEditableElementTestUtil.
@@ -3381,10 +3403,10 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 							"element-background-image2"),
 					FragmentEditableElementTestUtil.
 						getHTMLFragmentEditableElement(
-							null,
+							null, FragmentEditableElementValue.Type.HTML,
 							FragmentMappedValueItemReference.Type.
 								ITEM_EXTERNAL_REFERENCE,
-							HTMLFragmentValue.Type.MAPPED),
+							HTMLFragmentValue.Type.MAPPED, "element-html"),
 					FragmentEditableElementTestUtil.
 						getImageFragmentEditableElement(
 							FragmentEditableElementTestUtil.getFragmentImage(
@@ -3419,6 +3441,12 @@ public class PageElementResourceTest extends BasePageElementResourceTestCase {
 									"desktop", "auto"
 								).build()),
 							"element-image2"),
+					FragmentEditableElementTestUtil.
+						getHTMLFragmentEditableElement(
+							null, FragmentEditableElementValue.Type.RICH_TEXT,
+							FragmentMappedValueItemReference.Type.
+								ITEM_EXTERNAL_REFERENCE,
+							HTMLFragmentValue.Type.MAPPED, "element-rich-text"),
 					FragmentEditableElementTestUtil.
 						getTextFragmentEditableElement(
 							null,

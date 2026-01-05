@@ -65,6 +65,10 @@ public interface ExportImportVulcanBatchEngineTaskItemDelegate<T>
 			return false;
 		}
 
+		public default boolean isStagingSupported() {
+			return false;
+		}
+
 	}
 
 	public enum Scope {

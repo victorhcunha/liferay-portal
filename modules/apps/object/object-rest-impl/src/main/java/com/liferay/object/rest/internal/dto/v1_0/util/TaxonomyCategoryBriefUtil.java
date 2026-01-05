@@ -6,6 +6,10 @@
 package com.liferay.object.rest.internal.dto.v1_0.util;
 
 import com.liferay.asset.kernel.model.AssetCategory;
+import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.service.AssetVocabularyLocalServiceUtil;
+import com.liferay.object.rest.dto.v1_0.ParentTaxonomyCategory;
+import com.liferay.object.rest.dto.v1_0.ParentTaxonomyVocabulary;
 import com.liferay.object.rest.dto.v1_0.TaxonomyCategoryBrief;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.vulcan.dto.converter.DTOConverter;
@@ -35,6 +39,37 @@ public class TaxonomyCategoryBriefUtil {
 				setEmbeddedTaxonomyCategory(
 					() -> _toTaxonomyCategory(
 						assetCategory.getCategoryId(), dtoConverterContext));
+				setParentTaxonomyCategory(
+					() -> {
+						AssetCategory parentAssetCategory =
+							assetCategory.getParentCategory();
+
+						if (parentAssetCategory == null) {
+							return null;
+						}
+
+						return new ParentTaxonomyCategory() {
+							{
+								setExternalReferenceCode(
+									parentAssetCategory::
+										getExternalReferenceCode);
+							}
+						};
+					});
+				setParentTaxonomyVocabulary(
+					() -> {
+						AssetVocabulary parentAssetVocabulary =
+							AssetVocabularyLocalServiceUtil.getAssetVocabulary(
+								assetCategory.getVocabularyId());
+
+						return new ParentTaxonomyVocabulary() {
+							{
+								setExternalReferenceCode(
+									parentAssetVocabulary::
+										getExternalReferenceCode);
+							}
+						};
+					});
 				setScope(
 					() -> Scope.of(
 						assetCategory.getGroupId(),

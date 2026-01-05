@@ -469,9 +469,9 @@ public class BatchEnginePortletDataHandlerTest {
 
 		Group group2 = GroupTestUtil.addGroup();
 
-		BundleContext bundleContext = FrameworkUtil.getBundle(
-			getClass()
-		).getBundleContext();
+		Bundle bundle = FrameworkUtil.getBundle(getClass());
+
+		BundleContext bundleContext = bundle.getBundleContext();
 
 		ServiceRegistration<?> serviceRegistration =
 			bundleContext.registerService(
@@ -911,6 +911,14 @@ public class BatchEnginePortletDataHandlerTest {
 		_assertNull(
 			objectDefinition.getObjectDefinitionId(), objectEntries[0],
 			objectEntries[1]);
+	}
+
+	@FeatureFlag("LPD-41367")
+	@Test
+	@TestInfo("LPD-70661")
+	public void testIsConfigurationEnabled() throws Exception {
+		_testIsConfigurationEnabled(false);
+		_testIsConfigurationEnabled(true);
 	}
 
 	@Test
@@ -1609,6 +1617,14 @@ public class BatchEnginePortletDataHandlerTest {
 			Function<Filter, Page<TestItem>> function, String portletId)
 		throws Exception {
 
+		return _register(function, portletId, false);
+	}
+
+	private SafeCloseable _register(
+			Function<Filter, Page<TestItem>> function, String portletId,
+			boolean stagingSupported)
+		throws Exception {
+
 		SafeCloseable safeCloseable1 = _registerServiceWithSafeCloseable(
 			Portlet.class,
 			new GenericPortlet() {
@@ -1617,7 +1633,7 @@ public class BatchEnginePortletDataHandlerTest {
 		SafeCloseable safeCloseable2 = _registerServiceWithSafeCloseable(
 			VulcanBatchEngineTaskItemDelegate.class,
 			new TestExportImportVulcanBatchEngineTaskItemDelegate(
-				function, portletId),
+				function, portletId, stagingSupported),
 			HashMapDictionaryBuilder.put(
 				"batch.engine.task.item.delegate", "true"
 			).put(
@@ -1944,6 +1960,25 @@ public class BatchEnginePortletDataHandlerTest {
 					portletDataHandler)));
 	}
 
+	private void _testIsConfigurationEnabled(boolean stagingSupported)
+		throws Exception {
+
+		String portletId = RandomTestUtil.randomString();
+
+		try (SafeCloseable safeCloseable = _register(
+				null, portletId, stagingSupported)) {
+
+			Thread.sleep(1000);
+
+			PortletDataHandler portletDataHandler =
+				_portletDataHandlerProvider.provide(
+					TestPropsValues.getCompanyId(), portletId);
+
+			Assert.assertEquals(
+				stagingSupported, portletDataHandler.isConfigurationEnabled());
+		}
+	}
+
 	/**
 	 * @see com.liferay.object.rest.internal.dto.v1_0.converter.ObjectEntryDTOConverter#_toSimplifiedObjectEntry(
 	 *      com.liferay.object.rest.dto.v1_0.ObjectEntry, ObjectDefinition,
@@ -2057,6 +2092,17 @@ public class BatchEnginePortletDataHandlerTest {
 
 			_function = function;
 			_portletId = portletId;
+
+			_stagingSupported = true;
+		}
+
+		public TestExportImportVulcanBatchEngineTaskItemDelegate(
+			Function<Filter, Page<TestItem>> function, String portletId,
+			boolean stagingSupported) {
+
+			_function = function;
+			_portletId = portletId;
+			_stagingSupported = stagingSupported;
 		}
 
 		@Override
@@ -2110,6 +2156,11 @@ public class BatchEnginePortletDataHandlerTest {
 				@Override
 				public Scope getScope() {
 					return Scope.COMPANY;
+				}
+
+				@Override
+				public boolean isStagingSupported() {
+					return _stagingSupported;
 				}
 
 			};
@@ -2192,12 +2243,11 @@ public class BatchEnginePortletDataHandlerTest {
 			};
 		}
 
-		private static String _modelClassName = RandomTestUtil.randomString();
-		private static String _resourceClassName =
-			RandomTestUtil.randomString();
-
 		private final Function<Filter, Page<TestItem>> _function;
+		private final String _modelClassName = RandomTestUtil.randomString();
 		private final String _portletId;
+		private final String _resourceClassName = RandomTestUtil.randomString();
+		private final boolean _stagingSupported;
 
 	}
 

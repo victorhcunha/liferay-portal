@@ -393,6 +393,35 @@ export class DataSetManagerApiHelpers extends ApiHelpers {
 		return this.delete(url);
 	}
 
+	async createDataSetSnapshot({
+		dataSetERC,
+		snapshotName,
+	}: {
+		dataSetERC: string;
+		snapshotName: string;
+	}) {
+		const url = '/o/data-set-admin/snapshots';
+
+		const data = {
+			fdsName: dataSetERC,
+			label: snapshotName,
+		};
+
+		return this.post(url, {data});
+	}
+
+	async getDataSetSnapshots({
+		creatorId,
+		dataSetERC,
+	}: {
+		creatorId?: number;
+		dataSetERC: string;
+	}) {
+		const url = `/o/data-set-admin/snapshots/?filter=fdsName eq '${dataSetERC}' and creatorId eq ${creatorId}`;
+
+		return this.get(url);
+	}
+
 	async updateDataSet({
 		additionalAPIURLParameters,
 		defaultItemsPerPage,

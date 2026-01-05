@@ -280,6 +280,8 @@ public class ObjectDefinitionResourceImpl
 				searchContext.addVulcanAggregation(aggregation);
 				searchContext.setAttribute(Field.NAME, search);
 				searchContext.setCompanyId(contextCompany.getCompanyId());
+				searchContext.setLocale(
+					contextAcceptLanguage.getPreferredLocale());
 			},
 			sorts,
 			document -> _toObjectDefinition(
@@ -1336,9 +1338,9 @@ public class ObjectDefinitionResourceImpl
 		}
 
 		ObjectFolder objectFolder =
-			_objectFolderLocalService.getObjectFolderByExternalReferenceCode(
+			_objectFolderLocalService.getOrAddEmptyObjectFolder(
 				objectFolderExternalReferenceCode,
-				contextCompany.getCompanyId());
+				contextCompany.getCompanyId(), contextUser.getUserId());
 
 		return objectFolder.getObjectFolderId();
 	}

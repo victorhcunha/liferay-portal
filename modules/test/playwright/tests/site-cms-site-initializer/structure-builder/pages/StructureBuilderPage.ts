@@ -464,7 +464,7 @@ export class StructureBuilderPage {
 			await this.publishButton.click();
 
 			await waitForAlert(this.page, 'published successfully', {
-				timeout: 5000,
+				timeout: 10000,
 			});
 		};
 
@@ -473,7 +473,7 @@ export class StructureBuilderPage {
 				(response) =>
 					response.url().includes('object-definitions') &&
 					response.status() === 200,
-				{timeout: 5000}
+				{timeout: 10000}
 			),
 			await publish(),
 		]);
@@ -591,6 +591,18 @@ export class StructureBuilderPage {
 				await row.getByLabel('Select Workflow').selectOption(workflow);
 			}
 		}
+	}
+
+	async switchLanguage(languageId: string) {
+		const trigger = this.page.getByLabel('Open Localizations');
+
+		await clickAndExpectToBeVisible({
+			autoClick: true,
+			target: this.page.locator('.dropdown-item', {hasText: languageId}),
+			trigger,
+		});
+
+		await expect(trigger).toHaveAttribute('title', languageId);
 	}
 
 	async switchTab(name: 'General' | 'Search' | 'Workflow') {

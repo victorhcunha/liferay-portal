@@ -58,10 +58,12 @@ import com.liferay.portal.kernel.model.LayoutStagingHandler;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.ModelWrapper;
 import com.liferay.portal.kernel.model.Portlet;
+import com.liferay.portal.kernel.model.Release;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.ResourcePermission;
 import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.role.RoleConstants;
+import com.liferay.portal.kernel.module.framework.ThrowableCollector;
 import com.liferay.portal.kernel.portlet.LiferayActionResponse;
 import com.liferay.portal.kernel.portlet.bridges.mvc.BaseMVCActionCommand;
 import com.liferay.portal.kernel.portlet.bridges.mvc.MVCActionCommand;
@@ -80,6 +82,7 @@ import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.LayoutRevisionLocalService;
 import com.liferay.portal.kernel.service.PortletPreferencesLocalService;
+import com.liferay.portal.kernel.service.ReleaseLocalService;
 import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.servlet.DirectServletRegistryUtil;
@@ -212,6 +215,12 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 		else if (cmd.equals("cleanUpAddToPagePermissions")) {
 			_cleanUpAddToPagePermissions(actionRequest);
 		}
+		else if (cmd.equals("cleanUpAllModuleData")) {
+			_executeDataCleanups(DataCleanupUtil.getModuleDataCleanups());
+		}
+		else if (cmd.equals("cleanUpAllSystemData")) {
+			_executeDataCleanups(DataCleanupUtil.getSystemDataCleanups());
+		}
 		else if (cmd.equals("cleanUpLayoutRevisionPortletPreferences")) {
 			_cleanUpLayoutRevisionPortletPreferences();
 		}
@@ -286,8 +295,8 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 			_verifyMembershipPolicies();
 		}
 		else {
-			_executeCleanup(cmd, DataCleanupUtil.getModuleDataCleanups());
-			_executeCleanup(cmd, DataCleanupUtil.getSystemDataCleanups());
+			_executeDataCleanup(cmd, DataCleanupUtil.getModuleDataCleanups());
+			_executeDataCleanup(cmd, DataCleanupUtil.getSystemDataCleanups());
 		}
 
 		sendRedirect(actionRequest, actionResponse, redirect);
@@ -614,7 +623,7 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 			});
 	}
 
-	private void _executeCleanup(String cmd, List<DataCleanup> dataCleanups)
+	private void _executeDataCleanup(String cmd, List<DataCleanup> dataCleanups)
 		throws Exception {
 
 		for (DataCleanup dataCleanup : dataCleanups) {
@@ -622,6 +631,28 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 				dataCleanup.cleanup();
 			}
 		}
+	}
+
+	private void _executeDataCleanups(List<DataCleanup> dataCleanups) {
+		ThrowableCollector throwableCollector = new ThrowableCollector();
+
+		for (DataCleanup dataCleanup : dataCleanups) {
+			try {
+				Release release = _releaseLocalService.fetchRelease(
+					dataCleanup.getServletContextName());
+
+				if (release != null) {
+					dataCleanup.cleanup();
+				}
+			}
+			catch (Exception exception) {
+				_log.error(exception);
+
+				throwableCollector.collect(exception);
+			}
+		}
+
+		throwableCollector.rethrow();
 	}
 
 	private void _gc() throws Exception {
@@ -930,6 +961,9 @@ public class EditServerMVCActionCommand extends BaseMVCActionCommand {
 
 	@Reference
 	private PrefsProps _prefsProps;
+
+	@Reference
+	private ReleaseLocalService _releaseLocalService;
 
 	@Reference
 	private ResourcePermissionLocalService _resourcePermissionLocalService;

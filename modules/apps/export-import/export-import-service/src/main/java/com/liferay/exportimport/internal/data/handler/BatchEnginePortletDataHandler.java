@@ -15,10 +15,12 @@ import com.liferay.batch.engine.model.BatchEngineExportTask;
 import com.liferay.batch.engine.model.BatchEngineImportTask;
 import com.liferay.batch.engine.service.BatchEngineExportTaskLocalService;
 import com.liferay.batch.engine.service.BatchEngineImportTaskService;
+import com.liferay.exportimport.internal.lar.PortletDataContextImpl;
 import com.liferay.exportimport.internal.lar.PortletDataContextThreadLocal;
 import com.liferay.exportimport.kernel.lar.BasePortletDataHandler;
 import com.liferay.exportimport.kernel.lar.DataLevel;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
+import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.kernel.lar.ManifestSummary;
 import com.liferay.exportimport.kernel.lar.PortletDataContext;
 import com.liferay.exportimport.kernel.lar.PortletDataException;
@@ -33,7 +35,9 @@ import com.liferay.petra.io.unsync.UnsyncByteArrayOutputStream;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -140,6 +144,24 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 	@Override
 	public boolean isBatch() {
 		return true;
+	}
+
+	@Override
+	public boolean isConfigurationEnabled() {
+		long companyId = CompanyThreadLocal.getCompanyId();
+
+		if (!FeatureFlagManagerUtil.isEnabled(companyId, "LPD-41367")) {
+			return false;
+		}
+
+		PortletDataContext portletDataContext = new PortletDataContextImpl(
+			null, false);
+
+		portletDataContext.setCompanyId(companyId);
+
+		return !_getActiveRegistrations(
+			portletDataContext, true
+		).isEmpty();
 	}
 
 	@Override
@@ -533,6 +555,13 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 	private List<Registration> _getActiveRegistrations(
 		PortletDataContext portletDataContext) {
 
+		return _getActiveRegistrations(
+			portletDataContext, ExportImportThreadLocal.isStagingInProcess());
+	}
+
+	private List<Registration> _getActiveRegistrations(
+		PortletDataContext portletDataContext, boolean stagingSupportedOnly) {
+
 		return ListUtil.filter(
 			_registrations,
 			registration -> {
@@ -540,7 +569,14 @@ public class BatchEnginePortletDataHandler extends BasePortletDataHandler {
 					ExportImportDescriptor exportImportDescriptor =
 						registration.getExportImportDescriptor();
 
-				return exportImportDescriptor.isActive(portletDataContext);
+				if (!exportImportDescriptor.isActive(portletDataContext) ||
+					(stagingSupportedOnly &&
+					 !exportImportDescriptor.isStagingSupported())) {
+
+					return false;
+				}
+
+				return true;
 			});
 	}
 

@@ -3,19 +3,17 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {
-	ObjectDefinitionAPI,
-	ObjectFieldAPI,
-} from '@liferay/object-admin-rest-client-js';
+import {ObjectFieldAPI} from '@liferay/object-admin-rest-client-js';
 import {expect, mergeTests} from '@playwright/test';
 
 import {applicationsMenuPageTest} from '../../../fixtures/applicationsMenuPageTest';
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {loginTest} from '../../../fixtures/loginTest';
+import {clickAndExpectToBeVisible} from '../../../utils/clickAndExpectToBeVisible';
+import {normalizeRestPath} from '../../../utils/normalizeRestPath';
 import {companyExportImportPageTest} from './fixtures/companyExportImportPagesTest';
 import {exportImportPagesTest} from './fixtures/exportImportPagesTest';
-import {objectDefitionRequestData} from './utils/objectDefitionRequestData';
 
 export const test = mergeTests(
 	applicationsMenuPageTest,
@@ -23,6 +21,7 @@ export const test = mergeTests(
 	exportImportPagesTest,
 	companyExportImportPageTest,
 	featureFlagsTest({
+		'LPD-35443': {enabled: true},
 		'LPD-35914': {enabled: true},
 	}),
 	loginTest()
@@ -34,25 +33,22 @@ test('Can see error report and details', async ({
 	companyExportImportPage,
 	exportImportPage,
 }) => {
-	const objectDefinitionAPIClient =
-		await apiHelpers.buildRestClient(ObjectDefinitionAPI);
-
-	const {body: objectDefinition} =
-		await objectDefinitionAPIClient.postObjectDefinition(
-			objectDefitionRequestData()
-		);
+	const objectDefinition =
+		await apiHelpers.objectAdmin.postRandomObjectDefinition({
+			status: {code: 0},
+		});
 
 	apiHelpers.data.push({id: objectDefinition.id, type: 'objectDefinition'});
 
 	const objectEntry = await apiHelpers.objectEntry.postObjectEntry(
-		{externalReferenceCode: '', name: 'test'},
-		'c/tests'
+		{externalReferenceCode: '', name: objectDefinition.name},
+		normalizeRestPath(`${objectDefinition.restContextPath}`)
 	);
 
 	await applicationsMenuPage.goToExport();
 
 	const exportFilePath = await exportImportPage.export({
-		portletLabels: ['Tests 1 Items'],
+		portletLabels: [`${objectDefinition.name} 1 Items`],
 	});
 
 	const objectFieldAPIClient =
@@ -79,6 +75,15 @@ test('Can see error report and details', async ({
 		exportFilePath.lastIndexOf('/') + 1
 	);
 
+	await clickAndExpectToBeVisible({
+		target: exportImportPage.clearMenuItem,
+		trigger: exportImportPage.taskActionsMenu(exportName),
+	});
+
+	await expect(exportImportPage.viewReportEntriesMenuItem).toBeVisible();
+
+	await expect(exportImportPage.exportReportEntriesMenuItem).toBeVisible();
+
 	await exportImportPage.goToImportDetails(exportName);
 
 	await expect(
@@ -87,7 +92,7 @@ test('Can see error report and details', async ({
 		})
 	).toBeVisible();
 
-	await exportImportPage.goToImportErrorDetails(
+	await exportImportPage.goToImportReportEntryDetails(
 		objectEntry.externalReferenceCode
 	);
 
@@ -106,4 +111,49 @@ test('Can see error report and details', async ({
 	await expect(
 		exportImportPage.page.getByText(objectEntry.externalReferenceCode)
 	).toBeVisible();
+});
+
+test('Report entries actions are not visible for a successful import', async ({
+	apiHelpers,
+	applicationsMenuPage,
+	companyExportImportPage,
+	exportImportPage,
+}) => {
+	const objectDefinition =
+		await apiHelpers.objectAdmin.postRandomObjectDefinition({
+			status: {code: 0},
+		});
+
+	apiHelpers.data.push({id: objectDefinition.id, type: 'objectDefinition'});
+
+	await apiHelpers.objectEntry.postObjectEntry(
+		{externalReferenceCode: '', name: objectDefinition.name},
+		normalizeRestPath(`${objectDefinition.restContextPath}`)
+	);
+
+	await applicationsMenuPage.goToExport();
+
+	const exportFilePath = await exportImportPage.export({
+		portletLabels: [`${objectDefinition.name} 1 Items`],
+	});
+
+	await companyExportImportPage.import({
+		filePath: exportFilePath,
+		includePermissions: true,
+	});
+
+	const exportName = exportFilePath.slice(
+		exportFilePath.lastIndexOf('/') + 1
+	);
+
+	await clickAndExpectToBeVisible({
+		target: exportImportPage.clearMenuItem,
+		trigger: exportImportPage.taskActionsMenu(exportName),
+	});
+
+	await expect(exportImportPage.viewReportEntriesMenuItem).not.toBeVisible();
+
+	await expect(
+		exportImportPage.exportReportEntriesMenuItem
+	).not.toBeVisible();
 });

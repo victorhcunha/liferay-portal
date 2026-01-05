@@ -302,6 +302,10 @@
 			<category name="Bug Prevention" />
 			<description name="Checks the version for dependencies in gradle build files." />
 		</check>
+		<check name="GradleEmptyLinesCheck">
+			<category name="Styling" />
+			<description name="Finds missing and unnecessary empty lines." />
+		</check>
 		<check name="GradleExportedPackageDependenciesCheck">
 			<category name="Bug Prevention" />
 			<description name="Validates dependencies in gradle build files." />
@@ -369,7 +373,7 @@
 			<category name="Upgrade" />
 			<description name="Remove and replaced dependencies in `build.gradle` that are already in `release.dxp.api` with `released.dxp.api` dependency." />
 		</check>
-		<check name="WhitespaceCheck">
+		<check name="GradleWhitespaceCheck">
 			<category name="Styling" />
 			<description name="Finds missing and unnecessary whitespace." />
 		</check>
@@ -544,6 +548,7 @@
 		<check name="JavaDocumentAddCallsOrderCheck">
 			<category name="Styling" />
 			<description name="Sorts `add*` calls for type `Document`." />
+			<property name="enabled" value="false" />
 		</check>
 		<check name="JavaDuplicateVariableCheck">
 			<category name="Miscellaneous" />
@@ -970,6 +975,7 @@
 		<check name="JavaUpgradeCompanyThreadLocalCheck">
 			<category name="Bug Prevention" />
 			<description name="Checks that we do not use `CompanyThreadLocal.setCompanyId*` in upgrade classes." />
+			<property name="enabled" value="false" />
 		</check>
 		<check name="JavaUpgradeConnectionCheck">
 			<category name="Bug Prevention" />

@@ -112,13 +112,18 @@ public class UserResourceTest extends BaseUserResourceTestCase {
 			204, userResource.deleteV2UserHttpResponse(user.getId()));
 
 		assertHttpResponseStatusCode(
-			404, userResource.getV2UserByIdHttpResponse(user.getId()));
+			200, userResource.getV2UserByIdHttpResponse(user.getId()));
 
 		com.liferay.portal.kernel.model.User portalUser =
 			_userLocalService.getUserByExternalReferenceCode(
 				user.getExternalId(), TestPropsValues.getCompanyId());
 
 		Assert.assertFalse(portalUser.isActive());
+
+		_userLocalService.deleteUser(portalUser);
+
+		assertHttpResponseStatusCode(
+			404, userResource.getV2UserByIdHttpResponse(user.getId()));
 
 		// Delete an existing user with no SCIM client ID
 
@@ -159,6 +164,14 @@ public class UserResourceTest extends BaseUserResourceTestCase {
 
 		assertHttpResponseStatusCode(200, httpResponse);
 		assertValid(User.toDTO(httpResponse.getContent()));
+
+		_userLocalService.updateStatus(
+			GetterUtil.getLong(user.getId()), WorkflowConstants.STATUS_INACTIVE,
+			new ServiceContext());
+
+		user = _getUser(user.getId());
+
+		Assert.assertFalse(user.getActive());
 
 		ConfigurationTestUtil.deleteConfiguration(_pid);
 
@@ -253,7 +266,9 @@ public class UserResourceTest extends BaseUserResourceTestCase {
 		_testPatchV2User(
 			"active", "false", user -> Assert.assertFalse(user.getActive()));
 
-		String emailAddress = RandomTestUtil.randomString() + "@liferay.com";
+		String emailAddress =
+			StringUtil.toLowerCase(RandomTestUtil.randomString()) +
+				"@liferay.com";
 
 		_testPatchV2User(
 			"emails[type eq \"work\" and primary eq \"true\"].value",
@@ -262,7 +277,7 @@ public class UserResourceTest extends BaseUserResourceTestCase {
 				JSONObject jsonObject = _jsonFactory.createJSONObject(
 					String.valueOf(user.getEmails()[0]));
 
-				Assert.assertNotEquals(
+				Assert.assertEquals(
 					emailAddress, jsonObject.getString("value"));
 			});
 

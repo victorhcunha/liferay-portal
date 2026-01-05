@@ -17,6 +17,8 @@ import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.document.library.util.DLURLHelper;
 import com.liferay.exportimport.attachment.ExportImportAttachmentManager;
 import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
+import com.liferay.headless.delivery.dto.v1_0.Comment;
+import com.liferay.headless.delivery.dto.v1_0.util.CommentUtil;
 import com.liferay.list.type.model.ListTypeEntry;
 import com.liferay.list.type.service.ListTypeEntryLocalService;
 import com.liferay.object.constants.ObjectActionKeys;
@@ -65,8 +67,11 @@ import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.function.transform.TransformUtil;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
+import com.liferay.portal.kernel.comment.CommentManager;
+import com.liferay.portal.kernel.comment.DiscussionPermission;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.exception.PortalException;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
@@ -80,6 +85,8 @@ import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.repository.model.FileVersion;
 import com.liferay.portal.kernel.security.auth.GuestOrUserUtil;
+import com.liferay.portal.kernel.security.permission.ActionKeys;
+import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.PermissionService;
 import com.liferay.portal.kernel.service.ResourceActionLocalService;
@@ -96,6 +103,7 @@ import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
+import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -283,6 +291,8 @@ public class ObjectEntryDTOConverter
 			() -> _toAuditEvents(
 				dtoConverterContext, objectDefinition,
 				serviceBuilderObjectEntry));
+		objectEntry.setComments(
+			() -> _toComments(objectDefinition, serviceBuilderObjectEntry));
 		objectEntry.setCreator(
 			() -> {
 				long userId = _getAttribute(
@@ -544,6 +554,15 @@ public class ObjectEntryDTOConverter
 									getSystemObjectDefinitionManager(
 										objectDefinition.getName());
 
+						if (!systemObjectDefinitionManager.
+								hasModelResourcePermission(
+									objectDefinition.getObjectDefinitionId(),
+									GuestOrUserUtil.getPermissionChecker(),
+									primaryKey, ActionKeys.VIEW)) {
+
+							return null;
+						}
+
 						BaseModel<?> baseModel =
 							systemObjectDefinitionManager.
 								getBaseModelByExternalReferenceCode(
@@ -590,6 +609,13 @@ public class ObjectEntryDTOConverter
 							(Serializable)values);
 					}
 					else {
+						if (!_objectEntryService.hasModelResourcePermission(
+								objectDefinition.getObjectDefinitionId(),
+								primaryKey, ActionKeys.VIEW)) {
+
+							return null;
+						}
+
 						com.liferay.object.model.ObjectEntry
 							serviceBuilderObjectEntry =
 								_objectEntryLocalService.getObjectEntry(
@@ -1348,6 +1374,39 @@ public class ObjectEntryDTOConverter
 			AuditFieldChange.class);
 	}
 
+	private Comment[] _toComments(
+			ObjectDefinition objectDefinition,
+			com.liferay.object.model.ObjectEntry objectEntry)
+		throws Exception {
+
+		return NestedFieldsSupplier.supply(
+			"comments",
+			nestedFieldNames -> {
+				if (!FeatureFlagManagerUtil.isEnabled(
+						objectDefinition.getCompanyId(), "LPD-69419") ||
+					!objectDefinition.isEnableComments() ||
+					!_discussionPermission.hasViewPermission(
+						PermissionThreadLocal.getPermissionChecker(),
+						objectDefinition.getCompanyId(),
+						objectEntry.getGroupId(),
+						objectDefinition.getClassName(),
+						objectEntry.getObjectEntryId())) {
+
+					return null;
+				}
+
+				return TransformUtil.transformToArray(
+					_commentManager.getComments(
+						objectDefinition.getClassName(),
+						objectEntry.getObjectEntryId(),
+						WorkflowConstants.STATUS_APPROVED, QueryUtil.ALL_POS,
+						QueryUtil.ALL_POS),
+					comment -> CommentUtil.toComment(
+						comment, _commentManager, PortalUtil.getPortal()),
+					Comment.class);
+			});
+	}
+
 	private ExtendedEntity _toExtendedEntity(
 			BaseModel<?> baseModel, DTOConverterContext dtoConverterContext,
 			ObjectDefinition objectDefinition,
@@ -1645,6 +1704,12 @@ public class ObjectEntryDTOConverter
 
 	@Reference
 	private AuditEventLocalService _auditEventLocalService;
+
+	@Reference
+	private CommentManager _commentManager;
+
+	@Reference
+	private DiscussionPermission _discussionPermission;
 
 	@Reference
 	private DLAppLocalService _dlAppLocalService;

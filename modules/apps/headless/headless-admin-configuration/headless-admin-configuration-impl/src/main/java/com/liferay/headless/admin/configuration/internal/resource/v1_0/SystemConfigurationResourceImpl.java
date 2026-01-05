@@ -17,6 +17,8 @@ import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.configuration.metatype.annotations.ExtendedObjectClassDefinition;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
+import com.liferay.portal.kernel.log.Log;
+import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.settings.SettingsLocatorHelper;
@@ -29,13 +31,12 @@ import com.liferay.portal.vulcan.pagination.Page;
 import jakarta.validation.ValidationException;
 
 import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.InternalServerErrorException;
 import jakarta.ws.rs.NotAuthorizedException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.ServerErrorException;
 import jakarta.ws.rs.core.Response;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -73,45 +74,12 @@ public class SystemConfigurationResourceImpl
 			systemConfigurationExternalReferenceCode);
 
 		if (configurationScreen != null) {
-			SystemConfiguration systemConfiguration = _toSystemConfiguration(
+			return _getConfigurationScreenSystemConfiguration(
 				configurationScreen);
-
-			if (systemConfiguration == null) {
-				throw new InternalServerErrorException(
-					"Export capability is not implemented for system " +
-						"configuration with external reference code " +
-							systemConfigurationExternalReferenceCode);
-			}
-
-			return systemConfiguration;
 		}
 
-		Configuration[] configurations = _configurationAdmin.listConfigurations(
-			ConfigurationFilterStringUtil.getSystemScopedFilterString(
-				systemConfigurationExternalReferenceCode));
-
-		if (ArrayUtil.isEmpty(configurations)) {
-			throw new NotFoundException(
-				"Unable to find system configuration with external reference " +
-					"code " + systemConfigurationExternalReferenceCode);
-		}
-
-		if (configurations.length > 1) {
-			List<String> pids = new ArrayList<>();
-
-			for (Configuration configuration : configurations) {
-				pids.add(configuration.getPid());
-			}
-
-			throw new BadRequestException(
-				StringBundler.concat(
-					systemConfigurationExternalReferenceCode,
-					" is a factory configuration. Specify one of these PIDs: ",
-					ListUtil.toString(pids, StringPool.BLANK, StringPool.COMMA),
-					"."));
-		}
-
-		return _toSystemConfiguration(configurations[0]);
+		return _getSystemConfiguration(
+			systemConfigurationExternalReferenceCode);
 	}
 
 	@Override
@@ -124,38 +92,11 @@ public class SystemConfigurationResourceImpl
 
 		_validateDefaultCompany();
 
-		Configuration[] configurations = _configurationAdmin.listConfigurations(
-			ConfigurationFilterStringUtil.getSystemScopedFilterString());
-
-		if (ArrayUtil.isEmpty(configurations)) {
-			return Page.of(Collections.emptyList());
-		}
-
 		List<SystemConfiguration> systemConfigurations = new ArrayList<>();
 
-		for (Configuration configuration : configurations) {
-			SystemConfiguration systemConfiguration = _toSystemConfiguration(
-				configuration);
+		_addSystemConfigurations(systemConfigurations);
 
-			if (systemConfiguration == null) {
-				continue;
-			}
-
-			systemConfigurations.add(systemConfiguration);
-		}
-
-		for (ConfigurationScreen configurationScreen :
-				_serviceTrackerMap.values()) {
-
-			SystemConfiguration systemConfiguration = _toSystemConfiguration(
-				configurationScreen);
-
-			if (systemConfiguration == null) {
-				continue;
-			}
-
-			systemConfigurations.add(systemConfiguration);
-		}
+		_addConfigurationScreenSystemConfigurations(systemConfigurations);
 
 		return Page.of(systemConfigurations);
 	}
@@ -186,49 +127,14 @@ public class SystemConfigurationResourceImpl
 			systemConfigurationExternalReferenceCode);
 
 		if (configurationScreen != null) {
-			try {
-				ConfigurationScreenUtil.importProperties(
-					_configurationExportImportProcessor, configurationScreen,
-					HashMapDictionaryBuilder.putAll(
-						systemConfiguration.getProperties()
-					).build(),
-					ExtendedObjectClassDefinition.Scope.SYSTEM, null);
-			}
-			catch (Exception exception) {
-				throw new BadRequestException(exception.getMessage());
-			}
-
-			return _toSystemConfiguration(configurationScreen);
+			return _putConfigurationScreenSystemConfiguration(
+				configurationScreen, systemConfiguration);
 		}
 
 		systemConfiguration.setExternalReferenceCode(
 			() -> systemConfigurationExternalReferenceCode);
 
-		String filterString =
-			ConfigurationFilterStringUtil.getSystemScopedFilterString(
-				systemConfiguration.getExternalReferenceCode());
-
-		try {
-			Configuration configuration =
-				ConfigurationUtil.addOrUpdateConfiguration(
-					null, _configurationAdmin,
-					systemConfiguration.getExternalReferenceCode(),
-					filterString, systemConfiguration.getProperties(),
-					ExtendedObjectClassDefinition.Scope.SYSTEM,
-					_settingsLocatorHelper);
-
-			if (configuration == null) {
-				throw new NotFoundException(
-					"Unable to find system configuration with external " +
-						"reference code " +
-							systemConfiguration.getExternalReferenceCode());
-			}
-
-			return _toSystemConfiguration(configuration);
-		}
-		catch (ValidationException validationException) {
-			throw new BadRequestException(validationException.getMessage());
-		}
+		return _putSystemConfiguration(systemConfiguration);
 	}
 
 	@Activate
@@ -240,6 +146,63 @@ public class SystemConfigurationResourceImpl
 	@Deactivate
 	protected void deactivate() {
 		_serviceTrackerMap.close();
+	}
+
+	private void _addConfigurationScreenSystemConfigurations(
+		List<SystemConfiguration> systemConfigurations) {
+
+		for (ConfigurationScreen configurationScreen :
+				_serviceTrackerMap.values()) {
+
+			try {
+				SystemConfiguration systemConfiguration =
+					_toSystemConfiguration(configurationScreen);
+
+				Map<String, Object> properties =
+					systemConfiguration.getProperties();
+
+				if (properties.isEmpty()) {
+					continue;
+				}
+
+				systemConfigurations.add(systemConfiguration);
+			}
+			catch (UnsupportedOperationException
+						unsupportedOperationException) {
+
+				if (_log.isDebugEnabled()) {
+					_log.debug(
+						StringBundler.concat(
+							"Skipping configuration ",
+							configurationScreen.getKey(),
+							" because it does not have export capability"),
+						unsupportedOperationException);
+				}
+			}
+		}
+	}
+
+	private void _addSystemConfigurations(
+			List<SystemConfiguration> systemConfigurations)
+		throws Exception {
+
+		Configuration[] configurations = _configurationAdmin.listConfigurations(
+			ConfigurationFilterStringUtil.getSystemScopedFilterString());
+
+		if (ArrayUtil.isEmpty(configurations)) {
+			return;
+		}
+
+		for (Configuration configuration : configurations) {
+			SystemConfiguration systemConfiguration = _toSystemConfiguration(
+				configuration);
+
+			if (systemConfiguration == null) {
+				continue;
+			}
+
+			systemConfigurations.add(systemConfiguration);
+		}
 	}
 
 	private void _checkFeatureFlag() {
@@ -256,6 +219,123 @@ public class SystemConfigurationResourceImpl
 
 		if (!permissionChecker.isOmniadmin()) {
 			throw new NotAuthorizedException(Response.Status.UNAUTHORIZED);
+		}
+	}
+
+	private SystemConfiguration _getConfigurationScreenSystemConfiguration(
+		ConfigurationScreen configurationScreen) {
+
+		try {
+			SystemConfiguration systemConfiguration = _toSystemConfiguration(
+				configurationScreen);
+
+			Map<String, Object> properties =
+				systemConfiguration.getProperties();
+
+			if (properties.isEmpty()) {
+				throw new NotFoundException(
+					StringBundler.concat(
+						"Unable to find entry for system configuration with ",
+						"external reference code: ",
+						configurationScreen.getKey()));
+			}
+
+			return systemConfiguration;
+		}
+		catch (UnsupportedOperationException unsupportedOperationException) {
+			throw new ServerErrorException(
+				unsupportedOperationException.getMessage(),
+				Response.Status.NOT_IMPLEMENTED);
+		}
+	}
+
+	private SystemConfiguration _getSystemConfiguration(
+			String systemConfigurationExternalReferenceCode)
+		throws Exception {
+
+		Configuration[] configurations = _configurationAdmin.listConfigurations(
+			ConfigurationFilterStringUtil.getSystemScopedFilterString(
+				systemConfigurationExternalReferenceCode));
+
+		if (ArrayUtil.isEmpty(configurations)) {
+			throw new NotFoundException(
+				StringBundler.concat(
+					"Unable to find entry for system configuration with ",
+					"external reference code: ",
+					systemConfigurationExternalReferenceCode));
+		}
+
+		if (configurations.length > 1) {
+			List<String> pids = new ArrayList<>();
+
+			for (Configuration configuration : configurations) {
+				pids.add(configuration.getPid());
+			}
+
+			throw new BadRequestException(
+				StringBundler.concat(
+					systemConfigurationExternalReferenceCode,
+					" is a factory configuration. Specify one of these PIDs: ",
+					ListUtil.toString(pids, StringPool.BLANK, StringPool.COMMA),
+					"."));
+		}
+
+		return _toSystemConfiguration(configurations[0]);
+	}
+
+	private SystemConfiguration _putConfigurationScreenSystemConfiguration(
+		ConfigurationScreen configurationScreen,
+		SystemConfiguration systemConfiguration) {
+
+		try {
+			ConfigurationScreenUtil.importProperties(
+				_configurationExportImportProcessor, configurationScreen,
+				HashMapDictionaryBuilder.putAll(
+					systemConfiguration.getProperties()
+				).build(),
+				ExtendedObjectClassDefinition.Scope.SYSTEM, null);
+
+			return _toSystemConfiguration(configurationScreen);
+		}
+		catch (UnsupportedOperationException unsupportedOperationException) {
+			throw new ServerErrorException(
+				unsupportedOperationException.getMessage(),
+				Response.Status.NOT_IMPLEMENTED);
+		}
+		catch (Exception exception) {
+			throw new BadRequestException(exception.getMessage());
+		}
+	}
+
+	private SystemConfiguration _putSystemConfiguration(
+			SystemConfiguration systemConfiguration)
+		throws Exception {
+
+		String filterString =
+			ConfigurationFilterStringUtil.getSystemScopedFilterString(
+				systemConfiguration.getExternalReferenceCode());
+
+		try {
+			Configuration configuration =
+				ConfigurationUtil.addOrUpdateConfiguration(
+					null, _configurationAdmin,
+					systemConfiguration.getExternalReferenceCode(),
+					filterString, systemConfiguration.getProperties(),
+					ExtendedObjectClassDefinition.Scope.SYSTEM,
+					_settingsLocatorHelper);
+
+			if (configuration == null) {
+				throw new NotFoundException(
+					StringBundler.concat(
+						"Unable to find system configuration with external ",
+						"reference code: ",
+						systemConfiguration.getExternalReferenceCode()));
+			}
+
+			return _toSystemConfiguration(configuration);
+		}
+		catch (ValidationException validationException) {
+			throw new BadRequestException(validationException.getMessage());
 		}
 	}
 
@@ -280,22 +360,16 @@ public class SystemConfigurationResourceImpl
 	}
 
 	private SystemConfiguration _toSystemConfiguration(
-			ConfigurationScreen configurationScreen)
-		throws Exception {
-
-		Map<String, Object> properties = ConfigurationScreenUtil.getProperties(
-			_configurationExportImportProcessor, configurationScreen,
-			ExtendedObjectClassDefinition.Scope.SYSTEM, null);
-
-		if (properties == null) {
-			return null;
-		}
+		ConfigurationScreen configurationScreen) {
 
 		SystemConfiguration systemConfiguration = new SystemConfiguration();
 
 		systemConfiguration.setExternalReferenceCode(
 			configurationScreen::getKey);
-		systemConfiguration.setProperties(() -> properties);
+		systemConfiguration.setProperties(
+			() -> ConfigurationScreenUtil.getProperties(
+				_configurationExportImportProcessor, configurationScreen,
+				ExtendedObjectClassDefinition.Scope.SYSTEM, null));
 
 		return systemConfiguration;
 	}
@@ -307,6 +381,9 @@ public class SystemConfigurationResourceImpl
 					"manage system configurations");
 		}
 	}
+
+	private static final Log _log = LogFactoryUtil.getLog(
+		SystemConfigurationResourceImpl.class);
 
 	@Reference
 	private ConfigurationAdmin _configurationAdmin;

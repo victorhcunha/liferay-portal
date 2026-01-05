@@ -10,6 +10,8 @@ import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
+import com.liferay.exportimport.test.rule.LazyReferencing;
+import com.liferay.exportimport.test.rule.LazyReferencingTestRule;
 import com.liferay.list.type.model.ListTypeDefinition;
 import com.liferay.list.type.service.ListTypeDefinitionLocalService;
 import com.liferay.object.admin.rest.client.dto.v1_0.ObjectAction;
@@ -108,13 +110,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -132,6 +137,11 @@ import org.skyscreamer.jsonassert.JSONCompareMode;
 @RunWith(Arquillian.class)
 public class ObjectDefinitionResourceTest
 	extends BaseObjectDefinitionResourceTestCase {
+
+	@ClassRule
+	@Rule
+	public static final LazyReferencingTestRule lazyReferencingTestRule =
+		LazyReferencingTestRule.INSTANCE;
 
 	@Before
 	@Override
@@ -287,6 +297,30 @@ public class ObjectDefinitionResourceTest
 
 		assertContains(
 			objectDefinition, (List<ObjectDefinition>)page.getItems());
+
+		randomObjectDefinition = randomObjectDefinition();
+
+		String objectDefinitionLabel1 = RandomTestUtil.randomString();
+		String objectDefinitionLabel2 = RandomTestUtil.randomString();
+
+		randomObjectDefinition.setLabel(
+			HashMapBuilder.put(
+				LocaleUtil.BRAZIL.toLanguageTag(), objectDefinitionLabel1
+			).put(
+				LocaleUtil.US.toLanguageTag(), objectDefinitionLabel2
+			).build());
+
+		objectDefinition = testGetObjectDefinitionsPage_addObjectDefinition(
+			randomObjectDefinition);
+
+		_testGetObjectDefinitionsPage(
+			objectDefinition, LocaleUtil.BRAZIL, objectDefinitionLabel1);
+		_testGetObjectDefinitionsPage(
+			objectDefinition, LocaleUtil.BRAZIL, objectDefinition.getName());
+		_testGetObjectDefinitionsPage(
+			objectDefinition, LocaleUtil.US, objectDefinitionLabel2);
+		_testGetObjectDefinitionsPage(
+			objectDefinition, LocaleUtil.US, objectDefinition.getName());
 	}
 
 	@Override
@@ -568,6 +602,7 @@ public class ObjectDefinitionResourceTest
 	}
 
 	@FeatureFlag("LPD-17564")
+	@LazyReferencing
 	@Override
 	@Test
 	@TestInfo("LPD-49994")
@@ -775,6 +810,24 @@ public class ObjectDefinitionResourceTest
 
 		assertEquals(postObjectDefinition, randomObjectDefinition);
 		assertValid(postObjectDefinition);
+
+		// Object folder
+
+		randomObjectDefinition = randomObjectDefinition();
+
+		randomObjectDefinition.setObjectFolderExternalReferenceCode(
+			RandomTestUtil::randomString);
+
+		postObjectDefinition = testPostObjectDefinition_addObjectDefinition(
+			randomObjectDefinition);
+
+		Assert.assertEquals(
+			postObjectDefinition.getObjectFolderExternalReferenceCode(),
+			randomObjectDefinition.getObjectFolderExternalReferenceCode());
+		Assert.assertNotNull(
+			_objectFolderLocalService.fetchObjectFolderByExternalReferenceCode(
+				postObjectDefinition.getObjectFolderExternalReferenceCode(),
+				TestPropsValues.getCompanyId()));
 
 		// Object relationship
 
@@ -2609,6 +2662,33 @@ public class ObjectDefinitionResourceTest
 		Assert.assertEquals(
 			"/o/c/" + objectDefinitionPluralName,
 			objectDefinition.getRestContextPath());
+	}
+
+	private void _testGetObjectDefinitionsPage(
+			ObjectDefinition expectedObjectDefinition, Locale locale,
+			String search)
+		throws Exception {
+
+		User user = testVulcanCRUDItemDelegate_getUser();
+
+		ObjectDefinitionResource objectDefinitionResource =
+			ObjectDefinitionResource.builder(
+			).authentication(
+				user.getEmailAddress(), PropsValues.DEFAULT_ADMIN_PASSWORD
+			).endpoint(
+				testCompany.getVirtualHostname(), 8080, "http"
+			).locale(
+				locale
+			).build();
+
+		Page<ObjectDefinition> page =
+			objectDefinitionResource.getObjectDefinitionsPage(
+				search, null, null, Pagination.of(1, 2), null);
+
+		Assert.assertTrue(
+			_contains(
+				expectedObjectDefinition,
+				(List<ObjectDefinition>)page.getItems()));
 	}
 
 	private void _testGetObjectDefinitionWithRootObjectDefinitionExternalReferenceCodes()

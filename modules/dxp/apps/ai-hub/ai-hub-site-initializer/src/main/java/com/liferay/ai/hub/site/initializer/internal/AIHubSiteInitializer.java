@@ -11,6 +11,7 @@ import com.liferay.object.admin.rest.resource.v1_0.ObjectDefinitionResource;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.Group;
@@ -111,7 +112,8 @@ public class AIHubSiteInitializer implements SiteInitializer {
 
 	private void _deployWorkflowDefinition(
 			Company company, String externalReferenceCode,
-			String workflowDefinitionName, String workflowNodeName,
+			String workflowDefinitionName, String workflowNodeInputVariables,
+			String workflowNodeName, String workflowNodeOutputVariables,
 			String workflowNodeSettingPrompt,
 			String workflowNodeSettingUserMessage)
 		throws Exception {
@@ -138,12 +140,15 @@ public class AIHubSiteInitializer implements SiteInitializer {
 				AIHubSiteInitializer.class.getResourceAsStream(
 					"dependencies/workflow-definition.json.tpl")),
 			new String[] {
-				"[$WORKFLOW_DEFINITION_NAME$]", "[$WORKFLOW_NODE_NAME$]",
+				"[$WORKFLOW_DEFINITION_NAME$]",
+				"[$WORKFLOW_NODE_INPUT_VARIABLES$]", "[$WORKFLOW_NODE_NAME$]",
+				"[$WORKFLOW_NODE_OUTPUT_VARIABLES$]",
 				"[$WORKFLOW_NODE_SETTING_PROMPT$]",
 				"[$WORKFLOW_NODE_SETTING_USER_MESSAGE$]"
 			},
 			new String[] {
-				workflowDefinitionName, workflowNodeName,
+				workflowDefinitionName, workflowNodeInputVariables,
+				workflowNodeName, workflowNodeOutputVariables,
 				workflowNodeSettingPrompt, workflowNodeSettingUserMessage
 			});
 
@@ -164,7 +169,29 @@ public class AIHubSiteInitializer implements SiteInitializer {
 		_deployWorkflowDefinition(
 			company,
 			WorkflowDefinitionConstants.EXTERNAL_REFERENCE_CODE_CHANGE_TONE,
-			WorkflowDefinitionConstants.NAME_CHANGE_TONE, "changeTone",
+			WorkflowDefinitionConstants.NAME_CHANGE_TONE,
+			_escape(
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"name", "text"
+					).put(
+						"type", "string"
+					),
+					JSONUtil.put(
+						"name", "tone"
+					).put(
+						"type", "string"
+					)
+				).toString()),
+			"changeTone",
+			_escape(
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"name", "rewrittenText"
+					).put(
+						"type", "string"
+					)
+				).toString()),
 			StringBundler.concat(
 				"You are an expert linguistic editor. Your sole task is to ",
 				"adjust the tone of the provided text to be more {{tone}}. ",
@@ -179,7 +206,33 @@ public class AIHubSiteInitializer implements SiteInitializer {
 			WorkflowDefinitionConstants.
 				EXTERNAL_REFERENCE_CODE_CHAT_MESSAGE_PIPELINE,
 			WorkflowDefinitionConstants.NAME_CHAT_MESSAGE_PIPELINE,
+			_escape(
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"name", "content"
+					).put(
+						"type", "string"
+					),
+					JSONUtil.put(
+						"name", "title"
+					).put(
+						"type", "string"
+					),
+					JSONUtil.put(
+						"name", "userMessage"
+					).put(
+						"type", "string"
+					)
+				).toString()),
 			"chatMessageHandler",
+			_escape(
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"name", "assistantResponse"
+					).put(
+						"type", "string"
+					)
+				).toString()),
 			StringBundler.concat(
 				"You are a highly helpful and context-aware chat assistant. ",
 				"The context you are aware is the content and the title, they ",
@@ -195,7 +248,23 @@ public class AIHubSiteInitializer implements SiteInitializer {
 			WorkflowDefinitionConstants.
 				EXTERNAL_REFERENCE_CODE_FIX_SPELLING_AND_GRAMMAR,
 			WorkflowDefinitionConstants.NAME_FIX_SPELLING_AND_GRAMMAR,
+			_escape(
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"name", "text"
+					).put(
+						"type", "string"
+					)
+				).toString()),
 			"fixSpellingAndGrammar",
+			_escape(
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"name", "rewrittenText"
+					).put(
+						"type", "string"
+					)
+				).toString()),
 			StringBundler.concat(
 				"You are an expert linguistic editor. Your sole task is to ",
 				"correct all grammatical, spelling, and punctuation errors in ",
@@ -209,7 +278,24 @@ public class AIHubSiteInitializer implements SiteInitializer {
 		_deployWorkflowDefinition(
 			company,
 			WorkflowDefinitionConstants.EXTERNAL_REFERENCE_CODE_IMPROVE_WRITING,
-			WorkflowDefinitionConstants.NAME_IMPROVE_WRITING, "improveWriting",
+			WorkflowDefinitionConstants.NAME_IMPROVE_WRITING,
+			_escape(
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"name", "text"
+					).put(
+						"type", "string"
+					)
+				).toString()),
+			"improveWriting",
+			_escape(
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"name", "rewrittenText"
+					).put(
+						"type", "string"
+					)
+				).toString()),
 			StringBundler.concat(
 				"You are a professional writing editor. Your sole task is to ",
 				"take the provided text and rewrite it to be significantly ",
@@ -222,7 +308,24 @@ public class AIHubSiteInitializer implements SiteInitializer {
 		_deployWorkflowDefinition(
 			company,
 			WorkflowDefinitionConstants.EXTERNAL_REFERENCE_CODE_MAKE_LONGER,
-			WorkflowDefinitionConstants.NAME_MAKE_LONGER, "makeLonger",
+			WorkflowDefinitionConstants.NAME_MAKE_LONGER,
+			_escape(
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"name", "text"
+					).put(
+						"type", "string"
+					)
+				).toString()),
+			"makeLonger",
+			_escape(
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"name", "rewrittenText"
+					).put(
+						"type", "string"
+					)
+				).toString()),
 			StringBundler.concat(
 				"You are an expert linguistic enhancer. Expand the provided ",
 				"text by adding relevant and natural details that clarify or ",
@@ -233,7 +336,24 @@ public class AIHubSiteInitializer implements SiteInitializer {
 		_deployWorkflowDefinition(
 			company,
 			WorkflowDefinitionConstants.EXTERNAL_REFERENCE_CODE_MAKE_SHORTER,
-			WorkflowDefinitionConstants.NAME_MAKE_SHORTER, "makeShorter",
+			WorkflowDefinitionConstants.NAME_MAKE_SHORTER,
+			_escape(
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"name", "text"
+					).put(
+						"type", "string"
+					)
+				).toString()),
+			"makeShorter",
+			_escape(
+				JSONUtil.putAll(
+					JSONUtil.put(
+						"name", "rewrittenText"
+					).put(
+						"type", "string"
+					)
+				).toString()),
 			StringBundler.concat(
 				"You are an expert linguistic editor. Your sole task is to ",
 				"reduce the length of the provided text while preserving all ",
@@ -244,6 +364,10 @@ public class AIHubSiteInitializer implements SiteInitializer {
 				"content, return it unchanged. Output only the shortened ",
 				"text, with no explanations or commentary."),
 			"This is the text to be shortened: {{text}}");
+	}
+
+	private String _escape(String json) {
+		return StringUtil.replace(json, "\"", "\\\"");
 	}
 
 	@Reference

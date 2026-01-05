@@ -23,6 +23,7 @@ export const test = mergeTests(
 	dataApiHelpersTest,
 	exportImportPagesTest,
 	featureFlagsTest({
+		'LPD-35443': {enabled: true},
 		'LPD-35914': {enabled: true},
 	}),
 	loginTest()
@@ -88,7 +89,7 @@ test('Can see error report and details', async ({
 		})
 	).toBeVisible();
 
-	await exportImportPage.goToImportErrorDetails(
+	await exportImportPage.goToImportReportEntryDetails(
 		objectEntry.externalReferenceCode
 	);
 

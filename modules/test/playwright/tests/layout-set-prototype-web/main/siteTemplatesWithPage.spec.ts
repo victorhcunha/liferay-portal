@@ -64,7 +64,7 @@ test(
 		const pageName: string = 'Page-' + getRandomString();
 
 		await productMenuPage.goToPages();
-		await pagesAdminPage.newButton.click();
+		await pagesAdminPage.clickNewButtonAndWaitForBlankTemplate();
 		await pagesAdminPage.addPage({
 			name: pageName,
 		});
@@ -219,7 +219,7 @@ test(
 		}).toPass();
 
 		const pageName = 'Test Page-' + getRandomString();
-		await pagesAdminPage.newButton.click();
+		await pagesAdminPage.clickNewButtonAndWaitForBlankTemplate();
 		await pagesAdminPage.addPage({
 			name: pageName,
 		});

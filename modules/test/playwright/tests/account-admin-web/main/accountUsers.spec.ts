@@ -30,6 +30,7 @@ export const test = mergeTests(
 	applicationsMenuPageTest,
 	dataApiHelpersTest,
 	featureFlagsTest({
+		'LPD-35443': {enabled: true},
 		'LPD-35914': {enabled: true},
 	}),
 	loginTest(),
@@ -946,7 +947,11 @@ test(
 		try {
 			await accountsPage.goto();
 
-			await accountsPage.accountsTable.newButton.click();
+			await expect(async () => {
+				await accountsPage.accountsTable.newButton.click();
+
+				await expect(editAccountPage.accountNameInput).toBeVisible();
+			}).toPass();
 
 			await editAccountPage.createAccount(apiHelpers, {
 				domains,
@@ -1094,7 +1099,11 @@ test(
 
 			await accountsPage.goto();
 
-			await accountsPage.accountsTable.newButton.click();
+			await expect(async () => {
+				await accountsPage.accountsTable.newButton.click();
+
+				await expect(editAccountPage.accountNameInput).toBeVisible();
+			}).toPass();
 
 			await editAccountPage.createAccount(apiHelpers, {
 				domains: [
@@ -1200,7 +1209,11 @@ test(
 		try {
 			await accountsPage.goto();
 
-			await accountsPage.accountsTable.newButton.click();
+			await expect(async () => {
+				await accountsPage.accountsTable.newButton.click();
+
+				await expect(editAccountPage.accountNameInput).toBeVisible();
+			}).toPass();
 
 			await editAccountPage.createAccount(apiHelpers, {
 				domains: ['liferay.com'],
@@ -1282,7 +1295,11 @@ test(
 		try {
 			await accountsPage.goto();
 
-			await accountsPage.accountsTable.newButton.click();
+			await expect(async () => {
+				await accountsPage.accountsTable.newButton.click();
+
+				await expect(editAccountPage.accountNameInput).toBeVisible();
+			}).toPass();
 
 			await editAccountPage.createAccount(apiHelpers, {
 				domains: ['liferay.com'],
@@ -1371,7 +1388,11 @@ test(
 		try {
 			await accountsPage.goto();
 
-			await accountsPage.accountsTable.newButton.click();
+			await expect(async () => {
+				await accountsPage.accountsTable.newButton.click();
+
+				await expect(editAccountPage.accountNameInput).toBeVisible();
+			}).toPass();
 
 			await editAccountPage.createAccount(apiHelpers, account);
 
@@ -1699,11 +1720,14 @@ test(
 
 		await accountUsersPage.goto();
 
-		await accountUsersPage.usersTable.newButton.click();
+		await expect(async () => {
+			await accountUsersPage.usersTable.newButton.click();
 
-		await expect(
-			accountUsersAccountSelectorPage.accountsTable.searchInput
-		).toBeEditable();
+			await expect(
+				accountUsersAccountSelectorPage.accountsTable.searchInput
+			).toBeEditable();
+		}).toPass();
+
 		await expect(
 			accountUsersAccountSelectorPage.accountsTable.cell(account.name)
 		).toBeVisible();
@@ -2160,14 +2184,20 @@ test(
 
 		await accountUsersPage.goto();
 
-		await accountUsersPage.usersTable.newButton.click();
+		await expect(async () => {
+			await accountUsersPage.usersTable.newButton.click();
 
-		await expect(
-			accountUsersAccountSelectorPage.accountsTable.cell(account1.name)
-		).toHaveCount(0);
-		await expect(
-			accountUsersAccountSelectorPage.accountsTable.cell(account2.name)
-		).toBeVisible();
+			await expect(
+				accountUsersAccountSelectorPage.accountsTable.cell(
+					account1.name
+				)
+			).toHaveCount(0);
+			await expect(
+				accountUsersAccountSelectorPage.accountsTable.cell(
+					account2.name
+				)
+			).toBeVisible();
+		}).toPass();
 	}
 );
 

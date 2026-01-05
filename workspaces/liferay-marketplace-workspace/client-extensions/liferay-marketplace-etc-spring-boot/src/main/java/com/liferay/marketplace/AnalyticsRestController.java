@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 
 import java.time.Duration;
 
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.Objects;
@@ -63,7 +64,13 @@ public class AnalyticsRestController extends BaseRestController {
 		throws Exception {
 
 		try {
-			_koroneikiService.getKoroneikiAccount(accountKey);
+			if (!_koroneikiService.hasEntitlement(
+					_koroneikiService.getKoroneikiAccount(accountKey),
+					MarketplaceConstants.KORONEIKI_DXP_ENTITLEMENTS)) {
+
+				throw new Exception(
+					"DXP entitlements not found for account " + accountKey);
+			}
 		}
 		catch (Exception exception) {
 			_log.error(exception);
@@ -73,7 +80,7 @@ public class AnalyticsRestController extends BaseRestController {
 			).body(
 				new JSONObject(
 				).put(
-					"error", "ACCOUNT_NOT_FOUND"
+					"error", "ACCOUNT_OR_ENTITLEMENT_NOT_FOUND"
 				).toString()
 			);
 		}
@@ -81,7 +88,7 @@ public class AnalyticsRestController extends BaseRestController {
 		ProductPurchaseResource productPurchaseResource =
 			_koroneikiService.getProductPurchaseResource();
 
-		Page<ProductPurchase> productPurchasePage =
+		Page<ProductPurchase> productPurchasesPage =
 			productPurchaseResource.getProductPurchasesPage(
 				"",
 				StringBundler.concat(
@@ -90,7 +97,7 @@ public class AnalyticsRestController extends BaseRestController {
 					"'Analytics Cloud Enterprise')"),
 				Pagination.of(1, 20), "");
 
-		if (productPurchasePage.getTotalCount() == 0) {
+		if (productPurchasesPage.getTotalCount() == 0) {
 			ProductResource productResource =
 				_koroneikiService.getProductResource();
 
@@ -106,7 +113,9 @@ public class AnalyticsRestController extends BaseRestController {
 				).toString());
 		}
 
-		for (ProductPurchase productPurchase : productPurchasePage.getItems()) {
+		for (ProductPurchase productPurchase :
+				productPurchasesPage.getItems()) {
+
 			ProductPurchase.Status status = productPurchase.getStatus();
 
 			if (!Objects.equals(status.getValue(), "Approved")) {
@@ -118,12 +127,12 @@ public class AnalyticsRestController extends BaseRestController {
 			if (productPurchase.getPerpetual() ||
 				((endDate != null) && endDate.after(new Date()))) {
 
+				Product product = productPurchase.getProduct();
+
 				ProductConsumption[] productConsumptions =
 					productPurchase.getProductConsumptions();
 
 				if (productConsumptions.length == 0) {
-					Product product = productPurchase.getProduct();
-
 					return ResponseEntity.ok(
 						new JSONObject(
 						).put(
@@ -141,6 +150,8 @@ public class AnalyticsRestController extends BaseRestController {
 					new JSONObject(
 					).put(
 						"error", "WORKSPACE_ALREADY_EXISTS"
+					).put(
+						"productName", product.getName()
 					).toString()
 				);
 			}
@@ -159,7 +170,7 @@ public class AnalyticsRestController extends BaseRestController {
 	@GetMapping("project/{projectId}")
 	public String getProject(@PathVariable String projectId) throws Exception {
 		return get(
-			"Basic " + _analyticsAuthBasic,
+			_getAuthorization(),
 			UriComponentsBuilder.fromUriString(
 				_analyticsAuthUrl
 			).path(
@@ -179,6 +190,10 @@ public class AnalyticsRestController extends BaseRestController {
 		Order order = _marketplaceService.getOrder(
 			commerceOrderJSONObject.getLong("id"));
 
+		if (_log.isInfoEnabled()) {
+			_log.info("Provisioning order " + order.getId());
+		}
+
 		Map<String, String> customFields =
 			(Map<String, String>)order.getCustomFields();
 
@@ -192,7 +207,7 @@ public class AnalyticsRestController extends BaseRestController {
 		).baseUrl(
 			_analyticsAuthUrl
 		).defaultHeader(
-			HttpHeaders.AUTHORIZATION, "Basic " + _analyticsAuthBasic
+			HttpHeaders.AUTHORIZATION, _getAuthorization()
 		).build(
 		).post(
 		).uri(
@@ -266,14 +281,23 @@ public class AnalyticsRestController extends BaseRestController {
 		);
 	}
 
+	private String _getAuthorization() {
+		Base64.Encoder encoder = Base64.getEncoder();
+
+		String authorization =
+			_analyticsAuthEmailAddress + ":" + _analyticsAuthPassword;
+
+		return "Basic " + encoder.encodeToString(authorization.getBytes());
+	}
+
 	private static final Log _log = LogFactory.getLog(
 		AnalyticsRestController.class);
 
-	@Value("${liferay.marketplace.analytics.auth.basic}")
-	private String _analyticsAuthBasic;
+	@Value("${liferay.marketplace.analytics.auth.email.address}")
+	private String _analyticsAuthEmailAddress;
 
-	@Value("${liferay.marketplace.analytics.auth.token}")
-	private String _analyticsAuthToken;
+	@Value("${liferay.marketplace.analytics.auth.password}")
+	private String _analyticsAuthPassword;
 
 	@Value("${liferay.marketplace.analytics.auth.url}")
 	private String _analyticsAuthUrl;
