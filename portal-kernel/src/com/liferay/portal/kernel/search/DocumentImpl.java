@@ -842,7 +842,7 @@ public class DocumentImpl implements Document {
 
 	@Override
 	public Field getField(String name) {
-		return doGetField(name, false);
+		return _fields.get(name);
 	}
 
 	@Override
@@ -915,7 +915,11 @@ public class DocumentImpl implements Document {
 	}
 
 	protected Field createField(String name) {
-		return doGetField(name, true);
+		Field field = new Field(name);
+
+		_fields.put(name, field);
+
+		return field;
 	}
 
 	protected Field createField(
@@ -1053,18 +1057,6 @@ public class DocumentImpl implements Document {
 
 	protected void createSortableTextField(String name, String[] values) {
 		_createSortableTextField(name, false, values);
-	}
-
-	protected Field doGetField(String name, boolean createIfNew) {
-		Field field = _fields.get(name);
-
-		if ((field == null) && createIfNew) {
-			field = new Field(name);
-
-			_fields.put(name, field);
-		}
-
-		return field;
 	}
 
 	protected void setSortableTextFields(Set<String> sortableTextFields) {
