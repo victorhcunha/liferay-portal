@@ -10,7 +10,6 @@ import co.elastic.clients.elasticsearch._types.LatLonGeoLocation;
 import co.elastic.clients.json.JsonData;
 
 import com.liferay.portal.kernel.util.ArrayUtil;
-import com.liferay.portal.kernel.util.FastDateFormatFactoryUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.document.Document;
@@ -22,11 +21,8 @@ import java.io.IOException;
 
 import java.math.BigDecimal;
 
-import java.text.Format;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -220,7 +216,7 @@ public class ElasticsearchDocumentFactory {
 			fieldValues.add(_translateGeoLocationPoint(geoLocationPoint));
 		}
 		else if (field.isDate()) {
-			fieldValues.addAll(_translateLegacyDates(field));
+			fieldValues.addAll(field.getValues());
 		}
 		else {
 			for (String value : values) {
@@ -292,31 +288,6 @@ public class ElasticsearchDocumentFactory {
 		LatLonGeoLocation latLonGeoLocation = geoLocation.latlon();
 
 		return new Double[] {latLonGeoLocation.lon(), latLonGeoLocation.lat()};
-	}
-
-	private List<Object> _translateLegacyDates(
-			com.liferay.portal.kernel.search.Field field)
-		throws IOException {
-
-		List<Object> values = new ArrayList<>();
-
-		for (Date date : field.getDates()) {
-			String value;
-
-			if (date.getTime() == Long.MAX_VALUE) {
-				value = "99950812133000";
-			}
-			else {
-				Format format = FastDateFormatFactoryUtil.getSimpleDateFormat(
-					"yyyyMMddHHmmss", null, null);
-
-				value = format.format(date);
-			}
-
-			values.add(value);
-		}
-
-		return values;
 	}
 
 	private Object _translateLegacyValue(
