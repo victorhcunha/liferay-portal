@@ -49,11 +49,7 @@ public class BaseModelDocumentFactoryImpl implements BaseModelDocumentFactory {
 
 		uidFactory.setUID(baseModel, documentBuilder);
 
-		Document document = documentBuilder.build();
-
-		_enforceStandardUID(document);
-
-		return _toLegacyDocument(document);
+		return _toLegacyDocument(documentBuilder.build());
 	}
 
 	@Reference
@@ -61,10 +57,6 @@ public class BaseModelDocumentFactoryImpl implements BaseModelDocumentFactory {
 
 	@Reference
 	protected UIDFactory uidFactory;
-
-	private void _enforceStandardUID(Document document) {
-		uidFactory.getUID(document);
-	}
 
 	private Tuple _getClassPKResourcePrimKey(BaseModel<?> baseModel) {
 		long classPK = 0;
