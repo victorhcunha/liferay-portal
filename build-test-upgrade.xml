@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+
+<project basedir="." default="test-upgrade" name="portal-test-upgrade">
+	<property file="test-upgrade.properties" />
+
+	<import file="build-test.xml" />
+
+	<target description="Sets up the DXP profile and builds the project." name="build">
+		<antcall inheritAll="false" target="setup-profile-dxp" />
+		<antcall inheritAll="false" target="all">
+			<param name="baseline.jar.report.level" value="off" />
+			<param name="gradle.execute.silent" value="false" />
+			<param name="jsp.precompile" value="off" />
+		</antcall>
+	</target>
+
+	<target depends="build, test-upgrade" description="Sets up the DXP profile, builds the project, and executes the upgrade tool to test the upgrade." name="build-and-test-upgrade" />
+
+	<target depends="run-simple-server" description="Executes the upgrade tool to test the upgrade." name="test-upgrade" />
+</project>
