@@ -1,6 +1,8 @@
 http.host: _local_
-indices.breaker.total.use_real_memory: false
+indexing_pressure.memory.limit: 20%
+indices.breaker.total.limit: 95%
+indices.breaker.total.use_real_memory: true
 monitor.jvm.gc.enabled: false
 thread_pool:
     write:
-        queue_size: 100
+        queue_size: 20000

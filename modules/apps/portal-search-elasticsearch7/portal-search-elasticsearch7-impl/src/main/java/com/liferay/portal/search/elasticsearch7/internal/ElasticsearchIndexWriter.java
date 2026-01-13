@@ -388,17 +388,28 @@ public class ElasticsearchIndexWriter extends BaseIndexWriter {
 				});
 		}
 
-		BulkDocumentResponse bulkDocumentResponse =
-			_searchEngineAdapter.execute(bulkDocumentRequest);
+		Thread thread = Thread.ofVirtual(
+		).name(
+			ElasticsearchIndexWriter.class.getName()
+		).unstarted(
+			() -> {
+				BulkDocumentResponse bulkDocumentResponse =
+					_searchEngineAdapter.execute(bulkDocumentRequest);
 
-		if (bulkDocumentResponse.hasErrors()) {
-			if (_elasticsearchConfigurationWrapper.logExceptionsOnly()) {
-				_log.error("Bulk update failed");
+				if (bulkDocumentResponse.hasErrors()) {
+					if (_elasticsearchConfigurationWrapper.
+							logExceptionsOnly()) {
+
+						_log.error("Bulk update failed");
+					}
+					else {
+						throw new SystemException("Bulk update failed");
+					}
+				}
 			}
-			else {
-				throw new SystemException("Bulk update failed");
-			}
-		}
+		);
+
+		thread.start();
 	}
 
 	@Override
