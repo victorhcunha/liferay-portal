@@ -6,11 +6,13 @@
 package com.liferay.portal.search.internal.background.task;
 
 import com.liferay.petra.executor.PortalExecutorManager;
+import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskExecutor;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.module.service.Snapshot;
+import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.background.task.ReindexBackgroundTaskConstants;
 import com.liferay.portal.kernel.search.background.task.ReindexStatusMessageSenderUtil;
 import com.liferay.portal.search.index.ConcurrentReindexManager;
@@ -61,7 +63,7 @@ public class ReindexPortalBackgroundTaskExecutor
 						" with execution mode ", executionMode));
 			}
 
-			try {
+			try (SafeCloseable safeCloseable = SearchContext.openBatchMode()) {
 				SearchEngineInitializer searchEngineInitializer =
 					new SearchEngineInitializer(
 						_bundleContext, companyId,
