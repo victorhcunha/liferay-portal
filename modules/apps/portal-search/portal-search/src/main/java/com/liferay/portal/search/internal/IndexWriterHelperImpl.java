@@ -123,8 +123,16 @@ public class IndexWriterHelperImpl implements IndexWriterHelper {
 			return;
 		}
 
+		SearchEngine searchEngine = _searchEngineHelper.getSearchEngine();
+
+		IndexWriter indexWriter = searchEngine.getIndexWriter();
+
+		SearchContext searchContext = new SearchContext();
+
 		for (Company company : _companyLocalService.getCompanies()) {
-			commit(company.getCompanyId());
+			searchContext.setCompanyId(company.getCompanyId());
+
+			indexWriter.commit(searchContext);
 		}
 	}
 
