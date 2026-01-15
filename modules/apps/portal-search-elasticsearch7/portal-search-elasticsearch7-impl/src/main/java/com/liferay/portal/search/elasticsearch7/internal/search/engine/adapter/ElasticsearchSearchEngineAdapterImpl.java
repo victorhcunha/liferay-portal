@@ -146,7 +146,7 @@ public class ElasticsearchSearchEngineAdapterImpl
 			}
 
 			try {
-				S documentResponse = documentRequest.accept(
+				S documentResponse = (S)bulkDocumentRequest.accept(
 					_documentRequestExecutor);
 
 				bulkableDocumentRequests.clear();
