@@ -383,10 +383,22 @@ public class ObjectEntryModelDocumentContributor
 				}
 			}
 
-			document.add(
-				new Field(
-					"objectEntryContent",
-					textEmbeddingContentHelper.getNonlocalizedContent()));
+			Map<String, String> localizedContentMap =
+				textEmbeddingContentHelper.getLocalizedContentMap();
+
+			for (Map.Entry<String, String> entry  : localizedContentMap.entrySet()) {
+				document.add(
+					new Field(
+						"objectEntryContent_" + entry.getKey(),
+						entry.getValue()));
+			}
+
+			if (localizedContentMap.isEmpty()) {
+				document.add(
+					new Field(
+						"objectEntryContent",
+						textEmbeddingContentHelper.getNonlocalizedContent()));
+			}
 		}
 
 		document.addKeyword("objectEntryId", objectEntry.getObjectEntryId());
