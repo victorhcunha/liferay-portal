@@ -8,6 +8,7 @@ package com.liferay.layout.set.prototype.exportimport.data.handler.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.exportimport.kernel.lar.ExportImportPathUtil;
 import com.liferay.exportimport.test.util.lar.BaseStagedModelDataHandlerTestCase;
+import com.liferay.layout.page.template.kernel.provider.util.LayoutPageTemplateEntryLayoutProviderUtil;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.model.Group;
@@ -364,7 +365,8 @@ public class LayoutSetPrototypeStagedModelDataHandlerTest
 		validatePrototypedLayouts(
 			LayoutPrototype.class, importedLayoutPrototype.getGroupId());
 
-		Assert.assertNotNull(layoutSetPrototypeLayout.getLayoutPrototypeUuid());
+		Assert.assertNotNull(
+			layoutSetPrototypeLayout.getPortletLayoutPageTemplateEntryERC());
 
 		Layout importedLayout =
 			LayoutLocalServiceUtil.fetchLayoutByUuidAndGroupId(
@@ -375,9 +377,17 @@ public class LayoutSetPrototypeStagedModelDataHandlerTest
 		Assert.assertEquals(
 			importedLayoutSetPrototype.getGroupId(),
 			importedLayout.getGroupId());
+
+		LayoutPrototype layoutPrototype =
+			LayoutPageTemplateEntryLayoutProviderUtil.
+				getLayoutPageTemplateEntryLayoutPrototype(
+					importedLayout.getCompanyId(),
+					importedLayout.getPortletLayoutPageTemplateEntryERC(),
+					importedLayout.getPortletLayoutPageTemplateEntryScopeERC(),
+					importedLayout.getGroupId());
+
 		Assert.assertEquals(
-			importedLayoutPrototype.getUuid(),
-			importedLayout.getLayoutPrototypeUuid());
+			importedLayoutPrototype.getUuid(), layoutPrototype.getUuid());
 	}
 
 	protected void validatePrototypedLayouts(Class<?> clazz, long groupId)
