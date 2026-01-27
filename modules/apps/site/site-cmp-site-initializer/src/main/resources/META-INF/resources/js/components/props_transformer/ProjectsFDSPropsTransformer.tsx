@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import ClayProgressBar from '@clayui/progress-bar';
 import {IInternalRenderer} from '@liferay/frontend-data-set-web';
 import {
 	ACTIONS,
@@ -10,15 +11,12 @@ import {
 	SimpleActionLinkRenderer,
 	addOnClickToCreationMenuItems,
 	deleteItemAction,
+	manageMembersAction,
 } from '@liferay/site-cms-site-initializer';
+import {fetch} from 'frontend-js-web';
 
-import StateLabel from '../../common/components/StateLabel';
-
-type action = {
-	data: {
-		id: string;
-	};
-};
+import StateLabel from '../StateLabel';
+import UserRelationshipRenderer from './cell_renderers/UserRelationshipRenderer';
 
 type Action = {
 	href: string;
@@ -57,7 +55,7 @@ interface ItemData {
 	title: string;
 }
 
-export default function TasksFDSPropsTransformer({
+export default function ProjectsFDSPropsTransformer({
 	additionalProps,
 	creationMenu,
 	itemsActions = [],
@@ -79,6 +77,11 @@ export default function TasksFDSPropsTransformer({
 		customRenderers: {
 			tableCell: [
 				{
+					component: ({value}) => ClayProgressBar({value}),
+					name: 'progressBarTableCellRenderer',
+					type: 'internal',
+				} as IInternalRenderer,
+				{
 					component: ({actions, itemData, options, value}) =>
 						SimpleActionLinkRenderer({
 							actions,
@@ -93,6 +96,11 @@ export default function TasksFDSPropsTransformer({
 				{
 					component: ({value}) => StateLabel(value),
 					name: 'stateTableCellRenderer',
+					type: 'internal',
+				} as IInternalRenderer,
+				{
+					component: UserRelationshipRenderer,
+					name: 'userRelationshipTableCellRenderer',
 					type: 'internal',
 				} as IInternalRenderer,
 			],
@@ -112,12 +120,33 @@ export default function TasksFDSPropsTransformer({
 			itemData,
 			loadData,
 		}: {
-			action: action;
+			action: any;
 			itemData: ItemData;
 			loadData: () => {};
 		}) {
 			if (action?.data?.id === 'delete') {
 				await deleteItemAction(itemData, loadData);
+			}
+			else if (action?.data?.id === 'view-members') {
+				const scopeExternalReferenceCode =
+					itemData.embedded.systemProperties?.scope
+						?.externalReferenceCode;
+
+				const response = await fetch(
+					`/o/headless-asset-library/v1.0/asset-libraries/${scopeExternalReferenceCode}`,
+					{
+						method: 'GET',
+					}
+				);
+
+				const {actions, creatorUserId} = await response.json();
+
+				manageMembersAction({
+					assetLibraryCreatorUserId: creatorUserId,
+					externalReferenceCode: scopeExternalReferenceCode,
+					hasAssignMembersPermission: 'assign-members' in actions,
+					title: Liferay.Language.get('all-members'),
+				});
 			}
 		},
 	};

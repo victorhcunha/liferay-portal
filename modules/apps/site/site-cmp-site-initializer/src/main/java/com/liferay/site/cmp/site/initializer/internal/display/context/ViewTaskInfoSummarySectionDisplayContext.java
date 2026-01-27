@@ -10,6 +10,7 @@ import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
+import com.liferay.site.cmp.site.initializer.internal.util.ObjectEntryValuesUtil;
 
 import java.util.Map;
 
@@ -33,6 +34,10 @@ public class ViewTaskInfoSummarySectionDisplayContext
 	@Override
 	public Map<String, Object> getProperties() throws Exception {
 		return HashMapBuilder.<String, Object>put(
+			"assignTo",
+			ObjectEntryValuesUtil.getAssigneeFieldValue(
+				objectEntry, themeDisplay)
+		).put(
 			"taskId", objectEntry.getObjectEntryId()
 		).putAll(
 			super.getProperties()

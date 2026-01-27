@@ -6,10 +6,11 @@
 import Label from '@clayui/label';
 import React from 'react';
 
-import InfoSummary from '../../../common/components/InfoSummary';
-import StateSelector, {State} from '../../../common/components/StateSelector';
-import {patchProjectById} from '../../../utils/api';
-import {DISPLAY_TYPES} from '../../../utils/constants';
+import {patchProjectById} from '../../utils/api';
+import {DISPLAY_TYPES} from '../../utils/constants';
+import {displayStateSuccessToast} from '../../utils/toastUtil';
+import InfoSummary from '../InfoSummary';
+import StateSelector, {State} from '../StateSelector';
 import User, {UserProps} from './User';
 
 interface ProjectInfoSummaryProps {
@@ -31,6 +32,10 @@ export default function ProjectInfoSummary({
 	states,
 	tags,
 }: ProjectInfoSummaryProps) {
+	const displayTypes = DISPLAY_TYPES.filter(
+		(displayType) => displayType !== 'unstyled'
+	);
+
 	return (
 		<InfoSummary
 			defaultOpen={true}
@@ -41,10 +46,14 @@ export default function ProjectInfoSummary({
 						<StateSelector
 							initialSelectedKey={initialState}
 							onChange={async (key: string) => {
-								await patchProjectById({
+								const response = await patchProjectById({
 									body: {state: key},
 									projectId,
 								});
+
+								if (response.ok) {
+									displayStateSuccessToast();
+								}
 							}}
 							states={states}
 						/>
@@ -59,7 +68,11 @@ export default function ProjectInfoSummary({
 						<div>
 							{tags.map((tag, index) => (
 								<Label
-									displayType={DISPLAY_TYPES[index % 6]}
+									displayType={
+										displayTypes[
+											index % displayTypes.length
+										]
+									}
 									key={tag}
 								>
 									{tag}
