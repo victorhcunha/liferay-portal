@@ -5,7 +5,6 @@
 
 package com.liferay.object.internal.search.spi.model.result.contributor;
 
-import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.search.Document;
@@ -16,7 +15,6 @@ import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.search.spi.model.result.contributor.ModelSummaryContributor;
 
 import java.util.Locale;
-import java.util.Map;
 
 /**
  * @author Bryan Engler
@@ -33,33 +31,12 @@ public class ObjectEntryModelSummaryContributor
 	}
 
 	private String _getContent(Document document, Locale locale) {
-		StringBundler sb = new StringBundler();
+		String languageId = LanguageUtil.getLanguageId(locale);
 
-		Map<String, Field> fields = document.getFields();
-
-		for (Map.Entry<String, Field> entry : fields.entrySet()) {
-			String fieldName = entry.getKey();
-
-			if (fieldName.startsWith("snippet_nestedFieldArray.value")) {
-				Field field = entry.getValue();
-
-				sb.append(
-					StringUtil.merge(
-						field.getValues(), StringPool.TRIPLE_PERIOD));
-
-				sb.append(StringPool.TRIPLE_PERIOD);
-			}
-		}
-
-		if (sb.index() > 0) {
-			sb.setIndex(sb.index() - 1);
-		}
-
-		String content = sb.toString();
+		String content = document.get(
+			"snippet_objectEntryContent_" + languageId);
 
 		if (Validator.isBlank(content)) {
-			String languageId = LanguageUtil.getLanguageId(locale);
-
 			String localizedContent = document.get(
 				"objectEntryContent_" + languageId);
 
@@ -70,9 +47,16 @@ public class ObjectEntryModelSummaryContributor
 		}
 
 		if (Validator.isBlank(content)) {
-			content = StringUtil.shorten(
-				document.get("objectEntryContent"), 300,
-				StringPool.TRIPLE_PERIOD);
+			content = document.get("snippet_objectEntryContent");
+		}
+
+		if (Validator.isBlank(content)) {
+			String nonlocalizedContent = document.get("objectEntryContent");
+
+			if (Validator.isNotNull(nonlocalizedContent)) {
+				content = StringUtil.shorten(
+					nonlocalizedContent, 300, StringPool.TRIPLE_PERIOD);
+			}
 		}
 
 		return content;

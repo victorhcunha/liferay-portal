@@ -33,7 +33,6 @@ import com.liferay.portal.kernel.search.generic.NestedQuery;
 import com.liferay.portal.kernel.search.generic.TermQueryImpl;
 import com.liferay.portal.kernel.search.generic.TermRangeQueryImpl;
 import com.liferay.portal.kernel.search.generic.WildcardQueryImpl;
-import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -132,33 +131,35 @@ public class ObjectEntryKeywordQueryContributor
 
 		queryConfig.addHighlightFieldNames(Field.ENTRY_CLASS_PK);
 
+		boolean hasLocalizedContent = _hasLocalizedContent(objectFields);
+
 		_addLocalizedHighlightFieldNames(
-			objectFields, queryConfig, searchContext);
+			hasLocalizedContent, queryConfig, searchContext);
+
+		String contentField = "objectEntryContent";
+
+		if (hasLocalizedContent) {
+			_addTerm(
+				booleanQuery,
+				Field.getLocalizedName(searchContext.getLocale(), contentField),
+				keywords);
+		}
+		else {
+			_addTerm(booleanQuery, contentField, keywords);
+		}
 
 		String titleField = "objectEntryTitle";
 
-		if (addObjectEntryTitle.get()) {
-			_addTerm(booleanQuery, titleField, keywords);
-			_addTermQueries(
-				booleanQuery,
-				_searchLocalizationHelper.getLocalizedFieldNames(
-					new String[] {titleField}, searchContext),
-				keywords);
-		}
-
-		_addTerm(booleanQuery, "objectEntryContent", keywords);
-		_addTermQueries(
-			booleanQuery,
-			_searchLocalizationHelper.getLocalizedFieldNames(
-				new String[] {"objectEntryContent"}, searchContext),
-			keywords);
+		String localizedTitleFieldName = Field.getLocalizedName(
+			searchContext.getLocale(), titleField);
 
 		if (StringUtil.startsWith(keywords, CharPool.QUOTE) &&
 			StringUtil.endsWith(keywords, CharPool.QUOTE)) {
 
-			try {
-				booleanQuery.addTerm(titleField, keywords, false);
+			_addTerm(booleanQuery, titleField, keywords);
+			_addTerm(booleanQuery, localizedTitleFieldName, keywords);
 
+			try {
 				for (ObjectField objectField : objectFields) {
 					_contribute(
 						objectField, keywords, booleanQuery, searchContext);
@@ -169,6 +170,11 @@ public class ObjectEntryKeywordQueryContributor
 			}
 		}
 		else {
+			if (addObjectEntryTitle.get()) {
+				_addTerm(booleanQuery, titleField, keywords);
+				_addTerm(booleanQuery, localizedTitleFieldName, keywords);
+			}
+
 			for (String token : _tokenizeKeywords(keywords)) {
 				if (addObjectEntryTitle.get() && !Validator.isBlank(token)) {
 					try {
@@ -200,19 +206,12 @@ public class ObjectEntryKeywordQueryContributor
 	}
 
 	private void _addLocalizedHighlightFieldNames(
-		List<ObjectField> objectFields, QueryConfig queryConfig,
+		boolean hasLocalizedContent, QueryConfig queryConfig,
 		SearchContext searchContext) {
 
 		Locale locale = searchContext.getLocale();
 
-		if (locale == null) {
-			queryConfig.addHighlightFieldNames("objectEntryContent");
-			queryConfig.addHighlightFieldNames("objectEntryTitle");
-
-			return;
-		}
-
-		if (_hasLocalizedContent(objectFields)) {
+		if (hasLocalizedContent) {
 			queryConfig.addHighlightFieldNames(
 				"objectEntryContent_" + LocaleUtil.toLanguageId(locale));
 		}
@@ -287,18 +286,6 @@ public class ObjectEntryKeywordQueryContributor
 		}
 		catch (ParseException parseException) {
 			throw new SystemException(parseException);
-		}
-	}
-
-	private void _addTermQueries(
-		BooleanQuery booleanQuery, String[] fieldNames, String value) {
-
-		if (ArrayUtil.isEmpty(fieldNames)) {
-			return;
-		}
-
-		for (String fieldName : fieldNames) {
-			_addTerm(booleanQuery, fieldName, value);
 		}
 	}
 
