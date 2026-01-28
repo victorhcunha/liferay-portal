@@ -33,6 +33,7 @@ import com.liferay.portal.kernel.search.generic.NestedQuery;
 import com.liferay.portal.kernel.search.generic.TermQueryImpl;
 import com.liferay.portal.kernel.search.generic.TermRangeQueryImpl;
 import com.liferay.portal.kernel.search.generic.WildcardQueryImpl;
+import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
@@ -135,6 +136,22 @@ public class ObjectEntryKeywordQueryContributor
 			objectFields, queryConfig, searchContext);
 
 		String titleField = "objectEntryTitle";
+
+		if (addObjectEntryTitle.get()) {
+			_addTerm(booleanQuery, titleField, keywords);
+			_addTermQueries(
+				booleanQuery,
+				_searchLocalizationHelper.getLocalizedFieldNames(
+					new String[] {titleField}, searchContext),
+				keywords);
+		}
+
+		_addTerm(booleanQuery, "objectEntryContent", keywords);
+		_addTermQueries(
+			booleanQuery,
+			_searchLocalizationHelper.getLocalizedFieldNames(
+				new String[] {"objectEntryContent"}, searchContext),
+			keywords);
 
 		if (StringUtil.startsWith(keywords, CharPool.QUOTE) &&
 			StringUtil.endsWith(keywords, CharPool.QUOTE)) {
@@ -256,6 +273,33 @@ public class ObjectEntryKeywordQueryContributor
 			BooleanClauseOccur.MUST);
 
 		return true;
+	}
+
+	private void _addTerm(
+		BooleanQuery booleanQuery, String fieldName, String value) {
+
+		if (Validator.isBlank(fieldName) || Validator.isBlank(value)) {
+			return;
+		}
+
+		try {
+			booleanQuery.addTerm(fieldName, value, false);
+		}
+		catch (ParseException parseException) {
+			throw new SystemException(parseException);
+		}
+	}
+
+	private void _addTermQueries(
+		BooleanQuery booleanQuery, String[] fieldNames, String value) {
+
+		if (ArrayUtil.isEmpty(fieldNames)) {
+			return;
+		}
+
+		for (String fieldName : fieldNames) {
+			_addTerm(booleanQuery, fieldName, value);
+		}
 	}
 
 	private void _contribute(
