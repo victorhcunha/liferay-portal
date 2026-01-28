@@ -14,6 +14,7 @@ import com.liferay.document.library.kernel.service.DLFileEntryLocalService;
 import com.liferay.document.library.kernel.service.DLFileEntryLocalServiceUtil;
 import com.liferay.object.constants.ObjectEntryFolderConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
+import com.liferay.object.entry.util.ObjectEntryValuesUtil;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
 import com.liferay.object.model.ObjectEntryFolder;
@@ -113,6 +114,44 @@ public class ObjectEntryModelDocumentContributor
 		field.addField(new Field(valueFieldName, value));
 
 		fieldArray.addField(field);
+	}
+
+	private void _addLocalizedTitleFields(
+		Document document, ObjectDefinition objectDefinition,
+		Map<String, Serializable> values) {
+
+		long titleObjectFieldId = objectDefinition.getTitleObjectFieldId();
+
+		ObjectFieldBag objectFieldBag = objectDefinition.getObjectFieldBag();
+
+		ObjectField titleObjectField = objectFieldBag.getObjectField(
+			titleObjectFieldId);
+
+		if ((titleObjectField == null) || !titleObjectField.isLocalized()) {
+			return;
+		}
+
+		Map<String, Object> localizedValues = (Map<String, Object>)values.get(
+			titleObjectField.getI18nObjectFieldName());
+
+		if (MapUtil.isEmpty(localizedValues)) {
+			return;
+		}
+
+		for (Map.Entry<String, Object> entry : localizedValues.entrySet()) {
+			String languageId = entry.getKey();
+
+			String titleValue = String.valueOf(
+				ObjectEntryValuesUtil.getValue(
+					languageId, titleObjectField, values));
+
+			if (Validator.isBlank(titleValue)) {
+				continue;
+			}
+
+			document.add(
+				new Field("objectEntryTitle_" + languageId, titleValue));
+		}
 	}
 
 	private void _appendToContent(
@@ -386,7 +425,9 @@ public class ObjectEntryModelDocumentContributor
 			Map<String, String> localizedContentMap =
 				textEmbeddingContentHelper.getLocalizedContentMap();
 
-			for (Map.Entry<String, String> entry  : localizedContentMap.entrySet()) {
+			for (Map.Entry<String, String> entry :
+					localizedContentMap.entrySet()) {
+
 				document.add(
 					new Field(
 						"objectEntryContent_" + entry.getKey(),
@@ -404,6 +445,12 @@ public class ObjectEntryModelDocumentContributor
 		document.addKeyword("objectEntryId", objectEntry.getObjectEntryId());
 		document.add(
 			new Field("objectEntryTitle", objectEntry.getTitleValue()));
+
+		if (values == null) {
+			values = objectEntry.getIndexedValues();
+		}
+
+		_addLocalizedTitleFields(document, objectDefinition, values);
 
 		ObjectFolder objectFolder = objectDefinition.getObjectFolder();
 
