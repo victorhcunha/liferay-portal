@@ -9,6 +9,9 @@ import com.liferay.dynamic.data.mapping.model.DDMForm;
 
 import java.lang.annotation.Annotation;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @author Marcellus Tavares
  */
@@ -20,13 +23,20 @@ public class DDMFormFactory {
 				"Unsupported class " + clazz.getName());
 		}
 
-		DDMFormFactoryHelper ddmFormFactoryHelper = new DDMFormFactoryHelper(
-			clazz);
+		return _ddmForms.computeIfAbsent(
+			clazz,
+			key -> {
+				DDMFormFactoryHelper ddmFormFactoryHelper =
+					new DDMFormFactoryHelper(clazz);
 
-		return ddmFormFactoryHelper.createDDMForm();
+				return ddmFormFactoryHelper.createDDMForm();
+			});
 	}
 
 	private static final Class<? extends Annotation> _DDM_FORM_ANNOTATION =
 		com.liferay.dynamic.data.mapping.annotations.DDMForm.class;
+
+	private static final Map<Class<?>, DDMForm> _ddmForms =
+		new ConcurrentHashMap<>();
 
 }
