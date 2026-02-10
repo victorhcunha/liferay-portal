@@ -117,8 +117,9 @@ public class ObjectEntryModelDocumentContributor
 	}
 
 	private void _addLocalizedTitleFields(
-		Document document, ObjectDefinition objectDefinition,
-		Map<String, Serializable> values) {
+			Document document, ObjectDefinition objectDefinition,
+			ObjectEntry objectEntry, Map<String, Serializable> values)
+		throws Exception {
 
 		long titleObjectFieldId = objectDefinition.getTitleObjectFieldId();
 
@@ -128,6 +129,9 @@ public class ObjectEntryModelDocumentContributor
 			titleObjectFieldId);
 
 		if ((titleObjectField == null) || !titleObjectField.isLocalized()) {
+			document.add(
+				new Field("objectEntryTitle", objectEntry.getTitleValue()));
+
 			return;
 		}
 
@@ -443,14 +447,13 @@ public class ObjectEntryModelDocumentContributor
 		}
 
 		document.addKeyword("objectEntryId", objectEntry.getObjectEntryId());
-		document.add(
-			new Field("objectEntryTitle", objectEntry.getTitleValue()));
 
 		if (values == null) {
 			values = objectEntry.getIndexedValues();
 		}
 
-		_addLocalizedTitleFields(document, objectDefinition, values);
+		_addLocalizedTitleFields(
+			document, objectDefinition, objectEntry, values);
 
 		ObjectFolder objectFolder = objectDefinition.getObjectFolder();
 
