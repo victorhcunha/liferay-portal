@@ -10,13 +10,18 @@ import com.liferay.asset.kernel.model.BaseJSPAssetRenderer;
 import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
+import com.liferay.document.library.kernel.service.DLAppLocalService;
+import com.liferay.document.library.util.DLURLHelper;
 import com.liferay.info.item.ClassPKInfoItemIdentifier;
 import com.liferay.info.item.InfoItemReference;
+import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectWebKeys;
 import com.liferay.object.display.context.ObjectEntryDisplayContextFactory;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.model.ObjectEntry;
+import com.liferay.object.model.ObjectField;
 import com.liferay.object.service.ObjectEntryService;
+import com.liferay.object.service.ObjectFieldLocalService;
 import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.exception.PortalException;
@@ -27,6 +32,7 @@ import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.portlet.LiferayPortletRequest;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
+import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
 import com.liferay.portal.kernel.service.GroupLocalServiceUtil;
@@ -35,6 +41,7 @@ import com.liferay.portal.kernel.trash.TrashRenderer;
 import com.liferay.portal.kernel.util.Constants;
 import com.liferay.portal.kernel.util.HtmlUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 
@@ -57,18 +64,23 @@ public class ObjectEntryAssetRenderer
 			AssetDisplayPageFriendlyURLProvider
 				assetDisplayPageFriendlyURLProvider,
 			DepotEntryLocalService depotEntryLocalService,
+			DLAppLocalService dlAppLocalService, DLURLHelper dlURLHelper,
 			ObjectDefinition objectDefinition, ObjectEntry objectEntry,
 			ObjectEntryDisplayContextFactory objectEntryDisplayContextFactory,
-			ObjectEntryService objectEntryService)
+			ObjectEntryService objectEntryService,
+			ObjectFieldLocalService objectFieldLocalService)
 		throws PortalException {
 
 		_assetDisplayPageFriendlyURLProvider =
 			assetDisplayPageFriendlyURLProvider;
 		_depotEntryLocalService = depotEntryLocalService;
+		_dlAppLocalService = dlAppLocalService;
+		_dlURLHelper = dlURLHelper;
 		_objectDefinition = objectDefinition;
 		_objectEntry = objectEntry;
 		_objectEntryDisplayContextFactory = objectEntryDisplayContextFactory;
 		_objectEntryService = objectEntryService;
+		_objectFieldLocalService = objectFieldLocalService;
 	}
 
 	@Override
@@ -146,6 +158,40 @@ public class ObjectEntryAssetRenderer
 	@Override
 	public String getType() {
 		return _objectDefinition.getName();
+	}
+
+	@Override
+	public String getURLDownload(ThemeDisplay themeDisplay) {
+		if (!_objectDefinition.isCMS()) {
+			return null;
+		}
+
+		ObjectField objectField = _objectFieldLocalService.fetchObjectField(
+			_objectDefinition.getObjectDefinitionId(), "file");
+
+		if ((objectField == null) ||
+			!objectField.compareBusinessType(
+				ObjectFieldConstants.BUSINESS_TYPE_ATTACHMENT)) {
+
+			return null;
+		}
+
+		try {
+			FileEntry fileEntry = _dlAppLocalService.getFileEntry(
+				MapUtil.getLong(
+					_objectEntry.getValues(), objectField.getName()));
+
+			return _dlURLHelper.getDownloadURL(
+				fileEntry, fileEntry.getFileVersion(), themeDisplay,
+				StringPool.BLANK);
+		}
+		catch (PortalException portalException) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(portalException);
+			}
+		}
+
+		return null;
 	}
 
 	@Override
@@ -342,10 +388,13 @@ public class ObjectEntryAssetRenderer
 	private final AssetDisplayPageFriendlyURLProvider
 		_assetDisplayPageFriendlyURLProvider;
 	private final DepotEntryLocalService _depotEntryLocalService;
+	private final DLAppLocalService _dlAppLocalService;
+	private final DLURLHelper _dlURLHelper;
 	private final ObjectDefinition _objectDefinition;
 	private final ObjectEntry _objectEntry;
 	private final ObjectEntryDisplayContextFactory
 		_objectEntryDisplayContextFactory;
 	private final ObjectEntryService _objectEntryService;
+	private final ObjectFieldLocalService _objectFieldLocalService;
 
 }

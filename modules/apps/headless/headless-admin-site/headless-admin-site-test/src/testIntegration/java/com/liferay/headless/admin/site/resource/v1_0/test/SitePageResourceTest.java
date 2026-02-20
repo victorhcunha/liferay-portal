@@ -404,7 +404,7 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 	@TestInfo(
 		{
 			"LPD-72013", "LPD-74331", "LPD-75450", "LPD-77124", "LPD-77505",
-			"LPD-77852"
+			"LPD-77852", "LPD-78667"
 		}
 	)
 	public void testPutSiteSitePage() throws Exception {
@@ -3435,11 +3435,17 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 			SitePage.Type.PAGE_SET_PAGE);
 		_testPutSiteSitePageWithPageSpecificationsWithCustomFields();
 		_testPutSiteSitePageWithPageSpecificationsWithWidgetPageSpecification(
+			RandomTestUtil.randomString(), RandomTestUtil.randomString());
+		_testPutSiteSitePageWithPageSpecificationsWithWidgetPageSpecification(
+			RandomTestUtil.randomString(), "1_2_1_columns_i");
+		_testPutSiteSitePageWithPageSpecificationsWithWidgetPageSpecification(
+			"1_2_1_columns_i", RandomTestUtil.randomString());
+		_testPutSiteSitePageWithPageSpecificationsWithWidgetPageSpecification(
+			"1_2_1_columns_i", "1_column");
+		_testPutSiteSitePageWithPageSpecificationsWithWidgetPageSpecification(
 			"1_column", "1_2_1_columns_i");
 		_testPutSiteSitePageWithPageSpecificationsWithWidgetPageSpecification(
 			"1_column", "2_columns_ii");
-		_testPutSiteSitePageWithPageSpecificationsWithWidgetPageSpecification(
-			"1_2_1_columns_i", "1_column");
 	}
 
 	private void _testPutSiteSitePageWithPageSpecifications(

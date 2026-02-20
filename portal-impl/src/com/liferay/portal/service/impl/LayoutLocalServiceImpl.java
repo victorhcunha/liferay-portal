@@ -3244,11 +3244,12 @@ public class LayoutLocalServiceImpl extends LayoutLocalServiceBaseImpl {
 			}
 		}
 
+		layout.setStatus(
+			EmptyModelManagerUtil.solveEmptyModel(
+				layout.getExternalReferenceCode(), layout.getModelClassName(),
+				layout.getCompanyId(), groupId, layout.getStatus(),
+				() -> WorkflowConstants.STATUS_APPROVED));
 		layout.setExpandoBridgeAttributes(serviceContext);
-
-		if (layout.getStatus() == WorkflowConstants.STATUS_EMPTY) {
-			layout.setStatus(WorkflowConstants.STATUS_APPROVED);
-		}
 
 		layout = layoutLocalService.updateLayout(layout);
 

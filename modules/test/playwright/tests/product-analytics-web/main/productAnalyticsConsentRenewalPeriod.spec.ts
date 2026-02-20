@@ -5,7 +5,6 @@
 
 import {expect, mergeTests} from '@playwright/test';
 
-import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {productAnalyticsPagesTest} from '../../../fixtures/productAnalyticsPagesTest';
 import {systemSettingsPageTest} from '../../../fixtures/systemSettingsPageTest';
@@ -23,9 +22,6 @@ const cookieKeys = [
 ];
 
 export const test = mergeTests(
-	featureFlagsTest({
-		'LPD-51356': {enabled: true},
-	}),
 	loginTest(),
 	productAnalyticsPagesTest,
 	systemSettingsPageTest
@@ -366,9 +362,7 @@ async function validateConsentRenewalPeriodValue(
 
 		page.reload();
 
-		await expect(
-			page.locator(productAnalyticsBannerPage.bannerLocator)
-		).toBeVisible();
+		await expect(productAnalyticsBannerPage.bannerLocator).toBeVisible();
 
 		await page.getByRole('button', {name: 'Accept All'}).click();
 	}

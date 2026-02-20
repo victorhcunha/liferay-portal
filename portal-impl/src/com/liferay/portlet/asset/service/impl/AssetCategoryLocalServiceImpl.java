@@ -723,10 +723,11 @@ public class AssetCategoryLocalServiceImpl
 		category.setName(name);
 		category.setTitleMap(trimmedTitleMap);
 		category.setDescriptionMap(descriptionMap);
-
-		if (category.getStatus() == WorkflowConstants.STATUS_EMPTY) {
-			category.setStatus(WorkflowConstants.STATUS_APPROVED);
-		}
+		category.setStatus(
+			EmptyModelManagerUtil.solveEmptyModel(
+				externalReferenceCode, category.getModelClassName(),
+				category.getCompanyId(), category.getGroupId(),
+				category.getStatus(), () -> WorkflowConstants.STATUS_APPROVED));
 
 		return _moveCategory(category, parentCategoryId, vocabularyId);
 	}

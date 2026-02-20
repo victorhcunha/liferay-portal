@@ -51,11 +51,14 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.CustomizedPages;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.model.LayoutConstants;
+import com.liferay.portal.kernel.model.LayoutTemplate;
 import com.liferay.portal.kernel.model.LayoutTypePortlet;
 import com.liferay.portal.kernel.model.LayoutTypePortletConstants;
+import com.liferay.portal.kernel.model.Theme;
 import com.liferay.portal.kernel.portlet.PortletIdCodec;
 import com.liferay.portal.kernel.service.LayoutLocalServiceUtil;
 import com.liferay.portal.kernel.service.LayoutServiceUtil;
+import com.liferay.portal.kernel.service.LayoutTemplateLocalServiceUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalServiceUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
@@ -1222,13 +1225,28 @@ public class LayoutUtil {
 				layout.getLayoutId(), unicodeProperties.toString());
 		}
 
+		LayoutTypePortlet layoutTypePortlet =
+			(LayoutTypePortlet)layout.getLayoutType();
+		Theme theme = layout.getTheme();
+
+		LayoutTemplate layoutTemplate =
+			LayoutTemplateLocalServiceUtil.getLayoutTemplate(
+				layoutTypePortlet.getLayoutTemplateId(), false,
+				theme.getThemeId());
+
+		if (layoutTemplate == null) {
+			LogUtil.logOptionalReference(
+				LayoutTemplate.class, layoutTypePortlet.getLayoutTemplateId(),
+				0);
+		}
+
 		WidgetPageSection[] widgetPageSections =
 			widgetPageSpecification.getWidgetPageSections();
 
-		LayoutTypePortlet layoutTypePortlet =
-			(LayoutTypePortlet)layout.getLayoutType();
+		if ((layoutTemplate != null) &&
+			(widgetPageSections.length !=
+				layoutTypePortlet.getNumOfColumns())) {
 
-		if (widgetPageSections.length != layoutTypePortlet.getNumOfColumns()) {
 			throw new UnsupportedOperationException();
 		}
 
@@ -1237,6 +1255,20 @@ public class LayoutUtil {
 
 		boolean layoutCustomizable = GetterUtil.getBoolean(
 			unicodeProperties.get(LayoutConstants.CUSTOMIZABLE_LAYOUT));
+		List<String> nestedColumnIds =
+			com.liferay.petra.string.StringUtil.split(
+				unicodeProperties.get(
+					com.liferay.layout.admin.kernel.model.
+						LayoutTypePortletConstants.NESTED_COLUMN_IDS));
+
+		for (String column : columns) {
+			if (nestedColumnIds.contains(column)) {
+				unicodeProperties.remove(column);
+			}
+			else {
+				unicodeProperties.put(column, StringPool.BLANK);
+			}
+		}
 
 		try (SafeCloseable safeCloseable =
 				UpdateLayoutModifiedDateThreadLocal.
