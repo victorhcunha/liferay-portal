@@ -93,6 +93,19 @@ public class ObjectEntrySearchHighlightTest {
 	}
 
 	@Test
+	public void testDefaultLocaleFallback() throws Exception {
+		SearchHit searchHit = _search(
+			LocaleUtil.HUNGARY, _localizedObjectDefinition,
+			_localizedObjectEntry);
+
+		Locale defaultLocale = LocaleUtil.fromLanguageId(
+			_localizedObjectDefinition.getDefaultLanguageId());
+
+		_assertHighlight(_getContentFieldName(defaultLocale), searchHit);
+		_assertHighlight(_getTitleFieldName(defaultLocale), searchHit);
+	}
+
+	@Test
 	public void testLocalizedContent() throws Exception {
 		SearchHit searchHit = _search(
 			LocaleUtil.US, _localizedObjectDefinition, _localizedObjectEntry);
