@@ -5912,7 +5912,7 @@ public class ObjectEntryLocalServiceTest {
 		// With keywords
 
 		_assertKeywords("@ liferay.com", 3);
-		_assertKeywords("@-liferay.com", 0);
+		_assertKeywords("@-liferay.com", 3);
 		_assertKeywords("@life", 3);
 		_assertKeywords("@liferay", 3);
 		_assertKeywords("@liferay.com", 3);
@@ -5921,7 +5921,7 @@ public class ObjectEntryLocalServiceTest {
 		_assertKeywords("john", 1);
 		_assertKeywords("life", 0);
 		_assertKeywords("liferay", 0);
-		_assertKeywords("liferay.com", 0);
+		_assertKeywords("liferay.com", 3);
 		_assertKeywords("listTypeEntryKey1", 1);
 		_assertKeywords("listTypeEntryKey2", 1);
 		_assertKeywords("listTypeEntryKey3", 1);
