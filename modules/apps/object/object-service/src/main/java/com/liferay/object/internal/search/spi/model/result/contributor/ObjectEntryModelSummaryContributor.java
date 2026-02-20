@@ -5,8 +5,8 @@
 
 package com.liferay.object.internal.search.spi.model.result.contributor;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.Summary;
@@ -18,6 +18,7 @@ import java.util.Locale;
 
 /**
  * @author Bryan Engler
+ * @author Joshua Cords
  */
 public class ObjectEntryModelSummaryContributor
 	implements ModelSummaryContributor {
@@ -26,19 +27,26 @@ public class ObjectEntryModelSummaryContributor
 	public Summary getSummary(
 		Document document, Locale locale, String snippet) {
 
+		String defaultLanguageId = document.get("defaultLanguageId");
+
 		return new Summary(
-			_getTitle(document, locale), _getContent(document, locale));
+			_getTitle(defaultLanguageId, document, locale),
+			_getContent(defaultLanguageId, document, locale));
 	}
 
-	private String _getContent(Document document, Locale locale) {
-		String languageId = LanguageUtil.getLanguageId(locale);
+	private String _getContent(
+		String defaultLanguageId, Document document, Locale locale) {
 
-		String content = document.get(
-			"snippet_objectEntryContent_" + languageId);
+		String localizedFieldName = Field.getLocalizedName(
+			locale, _OBJECT_ENTRY_CONTENT);
+
+		String localizedSnippetFieldName = StringBundler.concat(
+			Field.SNIPPET, StringPool.UNDERLINE, localizedFieldName);
+
+		String content = document.get(localizedSnippetFieldName);
 
 		if (Validator.isBlank(content)) {
-			String localizedContent = document.get(
-				"objectEntryContent_" + languageId);
+			String localizedContent = document.get(localizedFieldName);
 
 			if (Validator.isNotNull(localizedContent)) {
 				content = StringUtil.shorten(
@@ -46,12 +54,37 @@ public class ObjectEntryModelSummaryContributor
 			}
 		}
 
-		if (Validator.isBlank(content)) {
-			content = document.get("snippet_objectEntryContent");
+		if (Validator.isBlank(content) &&
+			!Validator.isBlank(defaultLanguageId)) {
+
+			String defaultLocalizedFieldName = Field.getLocalizedName(
+				defaultLanguageId, _OBJECT_ENTRY_CONTENT);
+
+			String defaultLocalizedSnippetFieldName = StringBundler.concat(
+				Field.SNIPPET, StringPool.UNDERLINE, defaultLocalizedFieldName);
+
+			content = document.get(defaultLocalizedSnippetFieldName);
+
+			if (Validator.isBlank(content)) {
+				String localizedContent = document.get(
+					defaultLocalizedFieldName);
+
+				if (Validator.isNotNull(localizedContent)) {
+					content = StringUtil.shorten(
+						localizedContent, 300, StringPool.TRIPLE_PERIOD);
+				}
+			}
 		}
 
 		if (Validator.isBlank(content)) {
-			String nonlocalizedContent = document.get("objectEntryContent");
+			content = document.get(
+				StringBundler.concat(
+					Field.SNIPPET, StringPool.UNDERLINE,
+					_OBJECT_ENTRY_CONTENT));
+		}
+
+		if (Validator.isBlank(content)) {
+			String nonlocalizedContent = document.get(_OBJECT_ENTRY_CONTENT);
 
 			if (Validator.isNotNull(nonlocalizedContent)) {
 				content = StringUtil.shorten(
@@ -62,25 +95,47 @@ public class ObjectEntryModelSummaryContributor
 		return content;
 	}
 
-	private String _getTitle(Document document, Locale locale) {
-		String title = document.get(
-			"snippet_objectEntryTitle_" + LanguageUtil.getLanguageId(locale));
+	private String _getTitle(
+		String defaultLanguageId, Document document, Locale locale) {
+
+		String localizedFieldName = Field.getLocalizedName(
+			locale, _OBJECT_ENTRY_TITLE);
+
+		String localizedSnippetFieldName = StringBundler.concat(
+			Field.SNIPPET, StringPool.UNDERLINE, localizedFieldName);
+
+		String title = document.get(localizedSnippetFieldName);
+
+		if (Validator.isBlank(title)) {
+			title = document.get(localizedFieldName);
+		}
+
+		if (Validator.isBlank(title) && !Validator.isBlank(defaultLanguageId)) {
+			String defaultLocalizedFieldName = Field.getLocalizedName(
+				defaultLanguageId, _OBJECT_ENTRY_TITLE);
+
+			String defaultLocalizedSnippetFieldName = StringBundler.concat(
+				Field.SNIPPET, StringPool.UNDERLINE, defaultLocalizedFieldName);
+
+			title = document.get(defaultLocalizedSnippetFieldName);
+
+			if (Validator.isBlank(title)) {
+				title = document.get(defaultLocalizedFieldName);
+			}
+		}
 
 		if (Validator.isBlank(title)) {
 			title = document.get(
-				"objectEntryTitle_" + LanguageUtil.getLanguageId(locale));
+				StringBundler.concat(
+					Field.SNIPPET, StringPool.UNDERLINE, _OBJECT_ENTRY_TITLE));
 		}
 
 		if (Validator.isBlank(title)) {
-			title = document.get("snippet_objectEntryTitle");
+			title = document.get(_OBJECT_ENTRY_TITLE);
 		}
 
 		if (Validator.isBlank(title)) {
-			title = document.get("objectEntryTitle");
-		}
-
-		if (Validator.isBlank(title)) {
-			title = document.get("snippet_" + Field.ENTRY_CLASS_PK);
+			title = document.get(Field.SNIPPET + Field.ENTRY_CLASS_PK);
 		}
 
 		if (Validator.isBlank(title)) {
@@ -89,5 +144,9 @@ public class ObjectEntryModelSummaryContributor
 
 		return title;
 	}
+
+	private static final String _OBJECT_ENTRY_CONTENT = "objectEntryContent";
+
+	private static final String _OBJECT_ENTRY_TITLE = "objectEntryTitle";
 
 }

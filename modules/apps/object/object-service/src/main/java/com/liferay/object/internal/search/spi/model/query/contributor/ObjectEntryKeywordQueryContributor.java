@@ -131,18 +131,32 @@ public class ObjectEntryKeywordQueryContributor
 
 		queryConfig.addHighlightFieldNames(Field.ENTRY_CLASS_PK);
 
-		boolean hasLocalizedContent = _hasLocalizedContent(objectFields);
+		boolean localized = _isLocalized(objectFields);
+
+		Locale defaultLocale = LocaleUtil.fromLanguageId(
+			_objectDefinition.getDefaultLanguageId());
+
+		if (Objects.equals(defaultLocale, searchContext.getLocale())) {
+			defaultLocale = null;
+		}
 
 		_addLocalizedHighlightFieldNames(
-			hasLocalizedContent, queryConfig, searchContext);
+			defaultLocale, localized, queryConfig, searchContext);
 
 		String contentField = "objectEntryContent";
 
-		if (hasLocalizedContent) {
+		if (localized) {
 			_addTerm(
 				booleanQuery,
 				Field.getLocalizedName(searchContext.getLocale(), contentField),
 				keywords);
+
+			if (defaultLocale != null) {
+				_addTerm(
+					booleanQuery,
+					Field.getLocalizedName(defaultLocale, contentField),
+					keywords);
+			}
 		}
 		else {
 			_addTerm(booleanQuery, contentField, keywords);
@@ -150,14 +164,21 @@ public class ObjectEntryKeywordQueryContributor
 
 		String titleField = "objectEntryTitle";
 
+		String defaultLocalizedTitleFieldName = Field.getLocalizedName(
+			defaultLocale, titleField);
 		String localizedTitleFieldName = Field.getLocalizedName(
 			searchContext.getLocale(), titleField);
 
 		if (StringUtil.startsWith(keywords, CharPool.QUOTE) &&
 			StringUtil.endsWith(keywords, CharPool.QUOTE)) {
 
-			_addTerm(booleanQuery, titleField, keywords);
+			if (defaultLocale != null) {
+				_addTerm(
+					booleanQuery, defaultLocalizedTitleFieldName, keywords);
+			}
+
 			_addTerm(booleanQuery, localizedTitleFieldName, keywords);
+			_addTerm(booleanQuery, titleField, keywords);
 
 			try {
 				for (ObjectField objectField : objectFields) {
@@ -171,8 +192,13 @@ public class ObjectEntryKeywordQueryContributor
 		}
 		else {
 			if (addObjectEntryTitle.get()) {
-				_addTerm(booleanQuery, titleField, keywords);
+				if (defaultLocale != null) {
+					_addTerm(
+						booleanQuery, defaultLocalizedTitleFieldName, keywords);
+				}
+
 				_addTerm(booleanQuery, localizedTitleFieldName, keywords);
+				_addTerm(booleanQuery, titleField, keywords);
 			}
 
 			for (String token : _tokenizeKeywords(keywords)) {
@@ -206,14 +232,20 @@ public class ObjectEntryKeywordQueryContributor
 	}
 
 	private void _addLocalizedHighlightFieldNames(
-		boolean hasLocalizedContent, QueryConfig queryConfig,
+		Locale defaultLocale, boolean localized, QueryConfig queryConfig,
 		SearchContext searchContext) {
 
 		Locale locale = searchContext.getLocale();
 
-		if (hasLocalizedContent) {
+		if (localized) {
 			queryConfig.addHighlightFieldNames(
-				"objectEntryContent_" + LocaleUtil.toLanguageId(locale));
+				Field.getLocalizedName(locale, "objectEntryContent"));
+
+			if (defaultLocale != null) {
+				queryConfig.addHighlightFieldNames(
+					Field.getLocalizedName(
+						defaultLocale, "objectEntryContent"));
+			}
 		}
 		else {
 			queryConfig.addHighlightFieldNames("objectEntryContent");
@@ -228,7 +260,12 @@ public class ObjectEntryKeywordQueryContributor
 
 		if ((titleObjectField != null) && titleObjectField.isLocalized()) {
 			queryConfig.addHighlightFieldNames(
-				"objectEntryTitle_" + LocaleUtil.toLanguageId(locale));
+				Field.getLocalizedName(locale, "objectEntryTitle"));
+
+			if (defaultLocale != null) {
+				queryConfig.addHighlightFieldNames(
+					Field.getLocalizedName(defaultLocale, "objectEntryTitle"));
+			}
 		}
 		else {
 			queryConfig.addHighlightFieldNames("objectEntryTitle");
@@ -504,7 +541,7 @@ public class ObjectEntryKeywordQueryContributor
 		return value;
 	}
 
-	private boolean _hasLocalizedContent(List<ObjectField> objectFields) {
+	private boolean _isLocalized(List<ObjectField> objectFields) {
 		if (ListUtil.isEmpty(objectFields)) {
 			return false;
 		}
