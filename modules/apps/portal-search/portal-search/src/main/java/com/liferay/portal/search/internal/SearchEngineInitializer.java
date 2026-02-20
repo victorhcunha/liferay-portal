@@ -17,22 +17,21 @@ import com.liferay.portal.kernel.model.CompanyConstants;
 import com.liferay.portal.kernel.search.IndexWriterHelperUtil;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.ReindexCacheThreadLocal;
+import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchEngineHelperUtil;
 import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.search.index.ConcurrentReindexManager;
 import com.liferay.portal.search.index.SyncReindexManager;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.FutureTask;
 
 import org.apache.commons.lang.time.StopWatch;
 
@@ -82,16 +81,16 @@ public class SearchEngineInitializer implements Runnable {
 
 		stopWatch.start();
 
-		if (_log.isInfoEnabled()) {
-			_log.info(
+		if (_log.isDebugEnabled()) {
+			_log.debug(
 				"Reindexing of " + indexer.getClassName() +
 					" entities started");
 		}
 
 		indexer.reindex(new String[] {String.valueOf(_companyId)});
 
-		if (_log.isInfoEnabled()) {
-			_log.info(
+		if (_log.isDebugEnabled()) {
+			_log.debug(
 				StringBundler.concat(
 					"Reindexing of ", indexer.getClassName(),
 					" entities completed in ",
@@ -144,10 +143,6 @@ public class SearchEngineInitializer implements Runnable {
 			}
 		}
 
-		ExecutorService executorService =
-			_portalExecutorManager.getPortalExecutor(
-				SearchEngineInitializer.class.getName());
-
 		StopWatch stopWatch = new StopWatch();
 
 		stopWatch.start();
@@ -179,7 +174,6 @@ public class SearchEngineInitializer implements Runnable {
 
 			long backgroundTaskId =
 				BackgroundTaskThreadLocal.getBackgroundTaskId();
-			List<FutureTask<Void>> futureTasks = new ArrayList<>();
 
 			if (_companyId == CompanyConstants.SYSTEM) {
 				_indexers = ServiceTrackerListFactory.open(
@@ -196,40 +190,41 @@ public class SearchEngineInitializer implements Runnable {
 			Map<String, Object> sharedReindexCacheMap =
 				new ConcurrentHashMap<>();
 
-			for (Indexer<?> indexer : _indexers) {
+			List<Indexer<?>> indexers = _indexers.toList();
+
+			Collections.sort(
+				indexers, Comparator.comparing(Indexer::getClassName));
+
+			int count = 1;
+
+			for (Indexer<?> indexer : indexers) {
 				indexerClassNames.add(indexer.getClassName());
 
-				FutureTask<Void> futureTask = new FutureTask<>(
-					new Callable<Void>() {
+				long startTime = System.nanoTime();
 
-						@Override
-						public Void call() throws Exception {
-							try (SafeCloseable safeCloseable1 =
-									BackgroundTaskThreadLocal.
-										setBackgroundTaskIdWithSafeCloseable(
-											backgroundTaskId);
-								SafeCloseable safeCloseable2 =
-									ReindexCacheThreadLocal.openReindexMode(
-										finalFullMode, sharedReindexCacheMap)) {
+				try (SafeCloseable safeCloseable1 =
+						BackgroundTaskThreadLocal.
+							setBackgroundTaskIdWithSafeCloseable(
+								backgroundTaskId);
+					SafeCloseable safeCloseable2 =
+						ReindexCacheThreadLocal.openReindexMode(
+							finalFullMode, sharedReindexCacheMap);
+								SafeCloseable safeCloseable3 =
+									SearchContext.openBatchMode(false)) {
 
-								reindex(indexer);
+					reindex(indexer);
+				}
 
-								return null;
-							}
-						}
-
-					});
-
-				executorService.submit(futureTask);
-
-				futureTasks.add(futureTask);
+				if (_log.isInfoEnabled()) {
+					_log.info(
+						StringBundler.concat(
+							"(", count++, "/", indexers.size(), ") Indexer ",
+							indexer.getClassName(), " took ",
+							(System.nanoTime() - startTime) / 1000000, "ms"));
+				}
 			}
 
 			_indexers.close();
-
-			for (FutureTask<Void> futureTask : futureTasks) {
-				futureTask.get();
-			}
 
 			if (_isExecuteConcurrentReindex()) {
 				_concurrentReindexManager.replaceCurrentIndexWithNextIndex(
