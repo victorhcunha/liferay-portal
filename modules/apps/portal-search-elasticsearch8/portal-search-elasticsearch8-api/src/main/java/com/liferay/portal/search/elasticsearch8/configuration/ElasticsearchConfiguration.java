@@ -61,6 +61,12 @@ public interface ElasticsearchConfiguration {
 	public String clusterName();
 
 	@Meta.AD(
+		deflt = "true", description = "compression-enabled-help",
+		name = "compression-enabled", required = false
+	)
+	public boolean compressionEnabled();
+
+	@Meta.AD(
 		deflt = "/https?:\\/\\/localhost(:[0-9]+)?/",
 		description = "http-cors-allow-origin-help",
 		name = "http-cors-allow-origin", required = false
@@ -258,7 +264,7 @@ public interface ElasticsearchConfiguration {
 	public String[] sidecarModuleNames();
 
 	@Meta.AD(
-		deflt = "10000", description = "sidecar-shutdown-timeout-help",
+		deflt = "60000", description = "sidecar-shutdown-timeout-help",
 		name = "sidecar-shutdown-timeout", required = false
 	)
 	public long sidecarShutdownTimeout();
