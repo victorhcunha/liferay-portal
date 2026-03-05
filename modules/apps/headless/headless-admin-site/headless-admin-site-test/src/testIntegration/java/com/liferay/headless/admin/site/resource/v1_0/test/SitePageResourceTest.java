@@ -24,7 +24,6 @@ import com.liferay.fragment.input.template.parser.FragmentEntryInputTemplateNode
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.fragment.model.FragmentEntryLink;
 import com.liferay.fragment.service.FragmentEntryLinkLocalService;
-import com.liferay.fragment.service.FragmentEntryLocalService;
 import com.liferay.headless.admin.site.client.custom.field.CustomField;
 import com.liferay.headless.admin.site.client.dto.v1_0.BasicFragmentInstancePageElementDefinition;
 import com.liferay.headless.admin.site.client.dto.v1_0.ContentPageSettings;
@@ -104,6 +103,7 @@ import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
 import com.liferay.portal.kernel.json.JSONUtil;
+import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.language.LanguageUtil;
 import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
 import com.liferay.portal.kernel.model.Company;
@@ -405,7 +405,7 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 	@TestInfo(
 		{
 			"LPD-72013", "LPD-74331", "LPD-75450", "LPD-77124", "LPD-77505",
-			"LPD-77852", "LPD-78667"
+			"LPD-77576", "LPD-77852", "LPD-78667"
 		}
 	)
 	public void testPutSiteSitePage() throws Exception {
@@ -424,6 +424,8 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 		_testPutSiteSitePage(true, serviceContext, SitePage.Type.WIDGET_PAGE);
 
 		_testPutSiteSitePageWithEmptyLayout(serviceContext);
+		_testPutSiteSitePageWithExportedPageSetSitePageAsFirstPage(
+			serviceContext);
 
 		_testPutSiteSitePageWithExportedSitePage();
 		_testPutSiteSitePageWithExportedSitePageWithLayoutIdFriendlyURL();
@@ -2969,6 +2971,41 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 		unsafeBiConsumer.accept(layout, putSitePage);
 	}
 
+	private void _testPutSiteSitePageWithExportedPageSetSitePageAsFirstPage(
+			ServiceContext serviceContext)
+		throws Exception {
+
+		LayoutTestUtil.addTypePortletLayout(irrelevantGroup);
+
+		Layout layout = _layoutLocalService.addLayout(
+			null, TestPropsValues.getUserId(), irrelevantGroup.getGroupId(),
+			false, LayoutConstants.DEFAULT_PARENT_LAYOUT_ID,
+			RandomTestUtil.randomString(), StringPool.BLANK, StringPool.BLANK,
+			LayoutConstants.TYPE_NODE, false, StringPool.BLANK, serviceContext);
+
+		SitePage sitePage = sitePageResource.getSiteSitePage(
+			irrelevantGroup.getExternalReferenceCode(),
+			layout.getExternalReferenceCode());
+
+		_assertSitePage(layout, sitePage);
+
+		PageSettings pageSettings = sitePage.getPageSettings();
+
+		pageSettings.setPriority(0);
+
+		_assertProblemException(
+			"CONFLICT",
+			_language.format(
+				LocaleUtil.getDefault(), "the-first-page-cannot-be-of-type-x",
+				_language.get(
+					LocaleUtil.getDefault(),
+					"layout.types." + LayoutConstants.TYPE_NODE)),
+			() -> sitePageResource.putSiteSitePage(
+				testGroup.getExternalReferenceCode(),
+				sitePage.getExternalReferenceCode(), layout.isPrivateLayout(),
+				sitePage));
+	}
+
 	private void _testPutSiteSitePageWithExportedSitePage() throws Exception {
 		String languageId = LocaleUtil.toLanguageId(LocaleUtil.getDefault());
 		Layout layout = LayoutTestUtil.addTypeContentLayout(irrelevantGroup);
@@ -3894,9 +3931,6 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 	private FragmentEntryLinkLocalService _fragmentEntryLinkLocalService;
 
 	@Inject
-	private FragmentEntryLocalService _fragmentEntryLocalService;
-
-	@Inject
 	private GroupLocalService _groupLocalService;
 
 	@Inject
@@ -3904,6 +3938,9 @@ public class SitePageResourceTest extends BaseSitePageResourceTestCase {
 
 	@Inject
 	private JSONFactory _jsonFactory;
+
+	@Inject
+	private Language _language;
 
 	@Inject
 	private LayoutLocalService _layoutLocalService;

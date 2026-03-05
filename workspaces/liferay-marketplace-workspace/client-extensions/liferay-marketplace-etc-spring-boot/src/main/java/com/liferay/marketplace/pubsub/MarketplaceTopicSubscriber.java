@@ -14,6 +14,8 @@ import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.cloud.pubsub.v1.Subscriber;
 import com.google.cloud.pubsub.v1.SubscriptionAdminClient;
 import com.google.cloud.pubsub.v1.SubscriptionAdminSettings;
+import com.google.protobuf.Duration;
+import com.google.pubsub.v1.RetryPolicy;
 import com.google.pubsub.v1.Subscription;
 import com.google.pubsub.v1.SubscriptionName;
 import com.google.pubsub.v1.TopicName;
@@ -120,6 +122,19 @@ public class MarketplaceTopicSubscriber {
 					30
 				).setName(
 					subscriptionName
+				).setRetryPolicy(
+					RetryPolicy.newBuilder(
+					).setMaximumBackoff(
+						Duration.newBuilder(
+						).setSeconds(
+							1800
+						).build()
+					).setMinimumBackoff(
+						Duration.newBuilder(
+						).setSeconds(
+							600
+						).build()
+					).build()
 				).setTopic(
 					String.valueOf(
 						TopicName.ofProjectTopicName(_projectId, topicName))

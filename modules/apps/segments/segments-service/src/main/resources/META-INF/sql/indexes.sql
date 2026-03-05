@@ -1,5 +1,4 @@
 create index IX_F6225631 on SegmentsEntry (active_);
-create index IX_175FC150 on SegmentsEntry (companyId);
 create index IX_2E0C3F77 on SegmentsEntry (groupId, active_);
 create unique index IX_3319A90D on SegmentsEntry (groupId, ctCollectionId, externalReferenceCode[$COLUMN_LENGTH:75$]);
 create unique index IX_7DDC7831 on SegmentsEntry (groupId, ctCollectionId, segmentsEntryKey[$COLUMN_LENGTH:75$]);
@@ -15,7 +14,6 @@ create index IX_AB286250 on SegmentsEntryRel (segmentsEntryId);
 create index IX_65648B53 on SegmentsEntryRole (roleId);
 create unique index IX_2876B1F2 on SegmentsEntryRole (segmentsEntryId, roleId, ctCollectionId);
 
-create index IX_FF91202F on SegmentsExperience (groupId, active_);
 create unique index IX_3C2677C5 on SegmentsExperience (groupId, ctCollectionId, externalReferenceCode[$COLUMN_LENGTH:75$]);
 create unique index IX_6C24C43C on SegmentsExperience (groupId, ctCollectionId, uuid_[$COLUMN_LENGTH:75$]);
 create index IX_EBCFE1C4 on SegmentsExperience (groupId, plid, active_);

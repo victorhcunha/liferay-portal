@@ -17,17 +17,22 @@ import {AssetLibrary} from '../../common/types/AssetLibrary';
 import {OBJECT_ENTRY_FOLDER_CLASS_NAME} from '../../common/utils/constants';
 import {openCMSModal} from '../../common/utils/openCMSModal';
 import {displayErrorToast} from '../../common/utils/toastUtil';
+import {triggerAssetBulkAction} from '../props_transformer/actions/triggerAssetBulkAction';
 import DuplicatedAssetFolderNamesModalContent, {
 	Option,
 } from './DuplicatedAssetFolderNamesModalContent';
 
 export type TFolderItemSelectorModalContent = {
 	action: Action;
+	apiURL?: string;
 	assetLibraries: AssetLibrary[];
+	dataSetId?: string;
+	isBulk?: boolean;
 	itemData: ItemData;
 	loadData: () => {};
 	objectEntryFolderExternalReferenceCode: string | undefined;
 	rootObjectEntryFolderExternalReferenceCode: string;
+	selectedData?: any;
 };
 
 export type Action = 'copy' | 'move';
@@ -119,6 +124,34 @@ const displayToast = (
 	}
 };
 
+function executeBulkCopyAction({
+	apiURL,
+	dataSetId,
+	folder,
+	onClose,
+	selectedData,
+}: {
+	apiURL: string | undefined;
+	dataSetId?: string;
+	folder: Folder;
+	onClose: () => void;
+	selectedData: any;
+}) {
+	triggerAssetBulkAction({
+		additionalData: {
+			targetName: folder.title,
+		},
+		apiURL,
+		dataSetId,
+		keyValues: {
+			objectEntryFolderId: folder.id,
+		},
+		onCreateSuccess: onClose,
+		selectedData,
+		type: 'CopyBulkAction',
+	});
+}
+
 function executeFolderAction(
 	action: Action,
 	folder: Folder,
@@ -204,11 +237,15 @@ function openDuplicatedAssetFolderNamesModal(
 
 function FolderItemSelectorModalContent({
 	action,
+	apiURL,
 	assetLibraries,
+	dataSetId,
+	isBulk = false,
 	itemData,
 	loadData,
 	objectEntryFolderExternalReferenceCode,
 	rootObjectEntryFolderExternalReferenceCode,
+	selectedData,
 }: TFolderItemSelectorModalContent) {
 	const [selectedItemType, setSelectedItemType] = useState<
 		'folder' | 'space'
@@ -269,7 +306,16 @@ function FolderItemSelectorModalContent({
 	};
 
 	const handleOnItemsChange = (folder: Folder) => {
-		if (itemData.entryClassName === OBJECT_ENTRY_FOLDER_CLASS_NAME) {
+		if (isBulk) {
+			executeBulkCopyAction({
+				apiURL,
+				dataSetId,
+				folder,
+				onClose: () => onOpenChange(false),
+				selectedData,
+			});
+		}
+		else if (itemData.entryClassName === OBJECT_ENTRY_FOLDER_CLASS_NAME) {
 			FolderService.searchFolder(
 				itemData.embedded.scopeId,
 				itemData.title,

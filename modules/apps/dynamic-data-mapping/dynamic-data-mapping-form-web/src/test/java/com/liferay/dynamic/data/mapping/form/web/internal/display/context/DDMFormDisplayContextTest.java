@@ -554,6 +554,20 @@ public class DDMFormDisplayContextTest {
 	}
 
 	@Test
+	public void testGetRedirectURL() throws Exception {
+		String redirectURL = "http://localhost:8080/page";
+
+		_mockDDMFormInstance(_mockDDMFormInstanceSettings(redirectURL));
+
+		DDMFormDisplayContext ddmFormDisplayContext = Mockito.spy(
+			_createDDMFormDisplayContext());
+
+		Assert.assertEquals(
+			redirectURL + "?doAsUserId=1234",
+			ddmFormDisplayContext.getRedirectURL());
+	}
+
+	@Test
 	public void testGetSubmitLabel() throws Exception {
 		_mockDDMFormInstance(Mockito.mock(DDMFormInstanceSettings.class));
 
@@ -763,16 +777,9 @@ public class DDMFormDisplayContextTest {
 
 	@Test
 	public void testIsShowSuccessPageWithRedirectURL() throws Exception {
-		DDMFormInstanceSettings ddmFormInstanceSettings = Mockito.mock(
-			DDMFormInstanceSettings.class);
-
-		Mockito.when(
-			ddmFormInstanceSettings.redirectURL()
-		).thenReturn(
-			"http://localhost:8080/web/forms/shared/-/form/123"
-		);
-
-		_mockDDMFormInstance(ddmFormInstanceSettings);
+		_mockDDMFormInstance(
+			_mockDDMFormInstanceSettings(
+				"http://localhost:8080/web/forms/shared/-/form/123"));
 
 		RenderRequest renderRequest = _mockRenderRequest();
 
@@ -965,6 +972,21 @@ public class DDMFormDisplayContextTest {
 		);
 
 		return ddmFormInstance;
+	}
+
+	private DDMFormInstanceSettings _mockDDMFormInstanceSettings(
+		String redirectURL) {
+
+		DDMFormInstanceSettings ddmFormInstanceSettings = Mockito.mock(
+			DDMFormInstanceSettings.class);
+
+		Mockito.when(
+			ddmFormInstanceSettings.redirectURL()
+		).thenReturn(
+			redirectURL
+		);
+
+		return ddmFormInstanceSettings;
 	}
 
 	private DDMFormInstanceSettings
@@ -1185,6 +1207,13 @@ public class DDMFormDisplayContextTest {
 		Portal portal = Mockito.mock(Portal.class);
 
 		portalUtil.setPortal(portal);
+
+		Mockito.when(
+			portal.addPreservedParameters(
+				Mockito.any(ThemeDisplay.class), Mockito.anyString())
+		).thenAnswer(
+			invocation -> invocation.getArgument(1) + "?doAsUserId=1234"
+		);
 
 		Mockito.when(
 			portal.getHttpServletRequest(Mockito.any(RenderRequest.class))

@@ -3,18 +3,14 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-package com.liferay.headless.admin.site.internal.jaxrs.exception.mapper;
+package com.liferay.headless.admin.site.internal.vulcan.problem;
 
 import com.liferay.portal.kernel.exception.LayoutTypeException;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
-import com.liferay.portal.vulcan.jaxrs.exception.mapper.BaseExceptionMapper;
-import com.liferay.portal.vulcan.jaxrs.exception.mapper.Problem;
-
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.ext.ExceptionMapper;
-import jakarta.ws.rs.ext.Provider;
+import com.liferay.portal.vulcan.problem.Problem;
+import com.liferay.portal.vulcan.problem.ProblemMapper;
 
 import java.util.Locale;
 
@@ -24,26 +20,18 @@ import org.osgi.service.component.annotations.Reference;
 /**
  * @author Lourdes Fernández Besada
  */
-@Component(
-	property = {
-		"osgi.jaxrs.application.select=(osgi.jaxrs.name=Liferay.Headless.Admin.Site)",
-		"osgi.jaxrs.extension=true",
-		"osgi.jaxrs.name=Liferay.Headless.Admin.Site.SitePageLayoutTypeExceptionMapper"
-	},
-	service = ExceptionMapper.class
-)
-@Provider
-public class SitePageLayoutTypeExceptionMapper
-	extends BaseExceptionMapper<LayoutTypeException> {
+@Component(service = ProblemMapper.class)
+public class SitePageLayoutTypeExceptionProblemMapper
+	implements ProblemMapper<LayoutTypeException> {
 
 	@Override
-	protected Problem getProblem(LayoutTypeException layoutTypeException) {
-		return new Problem(
-			Response.Status.CONFLICT,
+	public Problem getProblem(LayoutTypeException layoutTypeException) {
+		return ProblemUtil.getProblem(
 			_getLayoutTypeExceptionMessage(
 				layoutTypeException.getMessage(), layoutTypeException.getType(),
 				GetterUtil.getString(layoutTypeException.getLayoutType()),
-				LocaleUtil.getMostRelevantLocale()));
+				LocaleUtil.getMostRelevantLocale()),
+			Problem.Status.CONFLICT, layoutTypeException);
 	}
 
 	private String _getLayoutTypeExceptionMessage(

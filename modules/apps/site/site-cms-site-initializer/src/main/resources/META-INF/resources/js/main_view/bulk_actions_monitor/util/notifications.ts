@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
+import {sub} from 'frontend-js-web';
+
 import {
 	IBulkActionFDSData,
 	IBulkActionTaskType,
@@ -11,6 +13,7 @@ import {
 	BULK_ACTION_ASSIGN_DEFAULT_WORKFLOW,
 	BULK_ACTION_ASSIGN_TO,
 	BULK_ACTION_CATEGORIES,
+	BULK_ACTION_COPY,
 	BULK_ACTION_DEFAULT_PERMISSIONS,
 	BULK_ACTION_DELETE,
 	BULK_ACTION_DELETE_ASSET_VERSION,
@@ -23,6 +26,8 @@ import {
 	BULK_ACTION_STATUS,
 	BULK_ACTION_TAGS,
 } from './constants';
+
+type MessageType = 'danger' | 'info' | 'success' | 'warning';
 
 type BulkActionMessage = {
 	[actionType in keyof IBulkActionTaskType]: {
@@ -72,6 +77,22 @@ const BULK_ACTION_MESSAGES: BulkActionMessage = {
 			singular: Liferay.Language.get(
 				'categories-update-action-started-for-one-asset'
 			),
+		},
+	},
+	[BULK_ACTION_COPY]: {
+		info: {
+			all: Liferay.Language.get('copying-all-assets-to-x'),
+			plural: Liferay.Language.get('copying-x-assets-to-x'),
+			singular: Liferay.Language.get('copying-x-to-x'),
+		},
+		success: {
+			all: Liferay.Language.get(
+				'all-items-were-successfully-copied-to-x'
+			),
+			plural: Liferay.Language.get(
+				'x-assets-were-successfully-copied-to-x'
+			),
+			singular: Liferay.Language.get('x-was-successfully-copied-to-x'),
 		},
 	},
 	[BULK_ACTION_DEFAULT_PERMISSIONS]: {
@@ -205,12 +226,44 @@ const BULK_ACTION_MESSAGES: BulkActionMessage = {
 
 export function getBulkActionTaskMessage(
 	actionType: keyof IBulkActionTaskType,
-	messageType: 'danger' | 'info' | 'success' | 'warning' = 'info',
-	{items = [], selectAll = false}: IBulkActionFDSData
+	messageType: MessageType = 'info',
+	selectedData: IBulkActionFDSData,
+	additionalData?: {assetName?: string; targetName?: string}
 ): string {
-	return (
-		BULK_ACTION_MESSAGES?.[actionType]?.[messageType]?.[
-			selectAll ? 'all' : items.length === 1 ? 'singular' : 'plural'
-		] || ''
-	);
+	const {items = [], selectAll = false} = selectedData;
+	const messageKey = selectAll
+		? 'all'
+		: items.length === 1
+			? 'singular'
+			: 'plural';
+
+	const message =
+		BULK_ACTION_MESSAGES?.[actionType]?.[messageType]?.[messageKey];
+
+	if (!message) {
+		return '';
+	}
+
+	const args: (string | number)[] = [];
+
+	if (messageKey === 'singular') {
+		const assetName = additionalData?.assetName || items[0]?.title;
+
+		if (assetName) {
+			args.push(Liferay.Util.escapeHTML(assetName));
+		}
+	}
+	else if (messageKey === 'plural') {
+		args.push(items.length);
+	}
+
+	if (additionalData?.targetName) {
+		args.push(
+			`<strong>${Liferay.Util.escapeHTML(
+				additionalData.targetName
+			)}</strong>`
+		);
+	}
+
+	return sub(message, args);
 }

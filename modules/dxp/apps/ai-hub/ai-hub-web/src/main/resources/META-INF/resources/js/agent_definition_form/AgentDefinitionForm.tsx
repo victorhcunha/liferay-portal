@@ -28,11 +28,13 @@ import {AgentDefinition} from './types/AgentDefinition';
 import {WorkflowDefinition} from './types/WorkflowDefinition';
 
 export default function AgentDefinitionForm({
+	accountEntryExternalReferenceCode,
 	backURL,
 	externalReferenceCode,
 	readonly,
 	workflowDefinitionURL,
 }: {
+	accountEntryExternalReferenceCode: string;
 	backURL: string;
 	externalReferenceCode: string;
 	readonly: boolean;
@@ -96,8 +98,20 @@ export default function AgentDefinitionForm({
 	};
 
 	useEffect(() => {
-		async function _setFormData() {
+		async function fetchFormData() {
 			if (!externalReferenceCode) {
+				setFormData({
+					active: false,
+					description: '',
+					externalReferenceCode: '',
+					inputVariables: '',
+					outputVariable: '',
+					r_accountToAIHubAgentDefinitions_accountEntryERC:
+						accountEntryExternalReferenceCode,
+					title_i18n: {},
+					workflowDefinitionName: '',
+				});
+
 				return;
 			}
 
@@ -128,7 +142,7 @@ export default function AgentDefinitionForm({
 			}
 		}
 
-		async function _setWorkflowDefinitions() {
+		async function fetchWorkflowDefinitions() {
 			try {
 				const response = await getWorkflowDefinitions();
 
@@ -146,10 +160,9 @@ export default function AgentDefinitionForm({
 			}
 		}
 
-		_setFormData();
-
-		_setWorkflowDefinitions();
-	}, [externalReferenceCode]);
+		fetchFormData();
+		fetchWorkflowDefinitions();
+	}, [accountEntryExternalReferenceCode, externalReferenceCode]);
 
 	return (
 		<>
@@ -378,7 +391,8 @@ export default function AgentDefinitionForm({
 											)}
 											required={true}
 											selectedKey={
-												formData.workflowDefinitionName
+												formData.workflowDefinitionName ??
+												null
 											}
 										>
 											{({label, value}) => (
@@ -387,31 +401,6 @@ export default function AgentDefinitionForm({
 												</Option>
 											)}
 										</Picker>
-									</ClayForm.Group>
-
-									<ClayForm.Group>
-										<label htmlFor="accountEntryERC">
-											{Liferay.Language.get('account')}
-
-											<span className="ml-1 reference-mark text-warning">
-												<Icon symbol="asterisk" />
-											</span>
-										</label>
-
-										<ClayInput
-											disabled={readonly}
-											id="account-entry-external-reference-code"
-											name="r_accountToAIHubAgentDefinitions_accountEntryERC"
-											onChange={handleInputChange}
-											placeholder={Liferay.Language.get(
-												'account'
-											)}
-											required={true}
-											type="text"
-											value={
-												formData.r_accountToAIHubAgentDefinitions_accountEntryERC
-											}
-										/>
 									</ClayForm.Group>
 								</ClayPanel.Body>
 							</ClayPanel>

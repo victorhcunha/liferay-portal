@@ -46,9 +46,6 @@
 		<finder name="GroupId" return-type="Collection">
 			<finder-column arrayable-operator="OR" name="groupId" />
 		</finder>
-		<finder name="CompanyId" return-type="Collection">
-			<finder-column arrayable-operator="OR" name="companyId" />
-		</finder>
 		<finder name="Active" return-type="Collection">
 			<finder-column name="active" />
 		</finder>
@@ -188,10 +185,6 @@
 		<finder name="G_P" return-type="Collection">
 			<finder-column name="groupId" />
 			<finder-column name="plid" />
-		</finder>
-		<finder name="G_A" return-type="Collection">
-			<finder-column arrayable-operator="OR" name="groupId" />
-			<finder-column name="active" />
 		</finder>
 		<finder name="SEERC_SESERC" return-type="Collection">
 			<finder-column name="segmentsEntryERC" />

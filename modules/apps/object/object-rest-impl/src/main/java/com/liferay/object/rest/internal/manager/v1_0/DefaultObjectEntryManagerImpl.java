@@ -17,7 +17,6 @@ import com.liferay.object.action.engine.ObjectActionEngine;
 import com.liferay.object.comment.ObjectEntryComment;
 import com.liferay.object.constants.ObjectActionTriggerConstants;
 import com.liferay.object.constants.ObjectDefinitionConstants;
-import com.liferay.object.constants.ObjectEntryFolderConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
 import com.liferay.object.constants.ObjectFieldSettingConstants;
 import com.liferay.object.constants.ObjectRelationshipConstants;
@@ -63,6 +62,7 @@ import com.liferay.object.scope.ObjectScopeProviderRegistry;
 import com.liferay.object.service.ObjectActionLocalService;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.object.service.ObjectDefinitionSettingLocalService;
+import com.liferay.object.service.ObjectEntryFolderLocalService;
 import com.liferay.object.service.ObjectEntryFolderService;
 import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.service.ObjectEntryService;
@@ -2371,8 +2371,9 @@ public class DefaultObjectEntryManagerImpl
 	}
 
 	private long _getObjectEntryFolderId(
-		long companyId, long groupId, ObjectEntry objectEntry,
-		ServiceContext serviceContext) {
+			long companyId, long groupId, ObjectEntry objectEntry,
+			ServiceContext serviceContext)
+		throws Exception {
 
 		String objectEntryFolderExternalReferenceCode =
 			objectEntry.getObjectEntryFolderExternalReferenceCode();
@@ -2381,21 +2382,19 @@ public class DefaultObjectEntryManagerImpl
 			return GetterUtil.getLong(objectEntry.getObjectEntryFolderId());
 		}
 
-		try {
-			ObjectEntryFolder objectEntryFolder =
+		ObjectEntryFolder objectEntryFolder =
+			_objectEntryFolderLocalService.
+				fetchObjectEntryFolderByExternalReferenceCode(
+					objectEntryFolderExternalReferenceCode, groupId, companyId);
+
+		if (objectEntryFolder == null) {
+			objectEntryFolder =
 				_objectEntryFolderService.getOrAddEmptyObjectEntryFolder(
 					objectEntryFolderExternalReferenceCode, groupId, companyId,
 					serviceContext);
-
-			return objectEntryFolder.getObjectEntryFolderId();
-		}
-		catch (Exception exception) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(exception);
-			}
 		}
 
-		return ObjectEntryFolderConstants.PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT;
+		return objectEntryFolder.getObjectEntryFolderId();
 	}
 
 	private DTOConverterContext _getObjectEntryVersionDTOConverterContext(
@@ -3875,6 +3874,9 @@ public class DefaultObjectEntryManagerImpl
 	)
 	private DTOConverter<com.liferay.object.model.ObjectEntry, ObjectEntry>
 		_objectEntryDTOConverter;
+
+	@Reference
+	private ObjectEntryFolderLocalService _objectEntryFolderLocalService;
 
 	@Reference
 	private ObjectEntryFolderService _objectEntryFolderService;

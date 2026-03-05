@@ -44,6 +44,7 @@ import com.liferay.exportimport.report.constants.ExportImportReportEntryConstant
 import com.liferay.exportimport.report.exception.NoSuchExportImportReportEntryException;
 import com.liferay.exportimport.report.model.ExportImportReportEntry;
 import com.liferay.exportimport.report.service.ExportImportReportEntryLocalService;
+import com.liferay.exportimport.test.util.ExportImportConfigurationTemporarySwapper;
 import com.liferay.list.type.entry.util.ListTypeEntryUtil;
 import com.liferay.list.type.model.ListTypeDefinition;
 import com.liferay.list.type.model.ListTypeEntry;
@@ -9154,6 +9155,58 @@ public class DefaultObjectEntryManagerImplTest
 	}
 
 	@Test
+	public void testUpdateObjectEntryWithObjectEntryFolder() throws Exception {
+		ObjectEntryFolder objectEntryFolder =
+			_objectEntryFolderLocalService.addObjectEntryFolder(
+				null, _group.getGroupId(), TestPropsValues.getUserId(),
+				ObjectEntryFolderConstants.
+					PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT,
+				StringUtil.randomString(),
+				HashMapBuilder.put(
+					LocaleUtil.getDefault(), StringUtil.randomString()
+				).build(),
+				StringUtil.randomString(),
+				ServiceContextTestUtil.getServiceContext());
+
+		ObjectEntry objectEntry = _defaultObjectEntryManager.addObjectEntry(
+			_simpleDTOConverterContext, _objectDefinition4,
+			new ObjectEntry() {
+				{
+					objectEntryFolderExternalReferenceCode =
+						objectEntryFolder.getExternalReferenceCode();
+					objectEntryFolderId =
+						objectEntryFolder.getObjectEntryFolderId();
+					properties = Collections.emptyMap();
+				}
+			},
+			_group.getGroupKey());
+
+		RoleTestUtil.removeResourcePermission(
+			RoleConstants.USER, ObjectEntryFolder.class.getName(),
+			ResourceConstants.SCOPE_GROUP, String.valueOf(_group.getGroupId()),
+			ActionKeys.VIEW);
+		RoleTestUtil.addResourcePermission(
+			RoleConstants.USER, _objectDefinition4.getClassName(),
+			ResourceConstants.SCOPE_GROUP, String.valueOf(_group.getGroupId()),
+			ActionKeys.UPDATE);
+		RoleTestUtil.addResourcePermission(
+			RoleConstants.USER, _objectDefinition4.getClassName(),
+			ResourceConstants.SCOPE_GROUP, String.valueOf(_group.getGroupId()),
+			ActionKeys.VIEW);
+
+		_user = _addUser();
+
+		ObjectEntry updatedObjectEntry =
+			_defaultObjectEntryManager.updateObjectEntry(
+				_simpleDTOConverterContext, _objectDefinition4,
+				objectEntry.getId(), objectEntry);
+
+		Assert.assertEquals(
+			Long.valueOf(objectEntryFolder.getObjectEntryFolderId()),
+			updatedObjectEntry.getObjectEntryFolderId());
+	}
+
+	@Test
 	public void testUpdateObjectEntryWithPortletImportInProcess()
 		throws Exception {
 
@@ -10944,12 +10997,9 @@ public class DefaultObjectEntryManagerImplTest
 
 		long exportImportConfigurationId = RandomTestUtil.randomLong();
 
-		try (SafeCloseable safeCloseable =
-				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
-
-			ExportImportThreadLocal.setPortletImportInProcess(true);
-			ExportImportThreadLocal.setExportImportConfigurationId(
-				exportImportConfigurationId);
+		try (AutoCloseable autoCloseable =
+				new ExportImportConfigurationTemporarySwapper(
+					exportImportConfigurationId)) {
 
 			_addObjectEntry(
 				childObjectDefinition,
@@ -10960,10 +11010,6 @@ public class DefaultObjectEntryManagerImplTest
 					}
 				},
 				scopeKey);
-		}
-		finally {
-			ExportImportThreadLocal.setPortletImportInProcess(false);
-			ExportImportThreadLocal.setExportImportConfigurationId(0);
 		}
 
 		ObjectEntry objectEntry = _defaultObjectEntryManager.getObjectEntry(
@@ -11845,12 +11891,9 @@ public class DefaultObjectEntryManagerImplTest
 		ObjectDefinition objectDefinition =
 			ObjectDefinitionTestUtil.publishObjectDefinition();
 
-		try (SafeCloseable safeCloseable =
-				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
-
-			ExportImportThreadLocal.setExportImportConfigurationId(
-				RandomTestUtil.randomLong());
-			ExportImportThreadLocal.setPortletImportInProcess(true);
+		try (AutoCloseable autoCloseable =
+				new ExportImportConfigurationTemporarySwapper(
+					RandomTestUtil.randomLong())) {
 
 			com.liferay.object.model.ObjectEntry serviceBuilderObjectEntry =
 				_objectEntryLocalService.getOrAddEmptyObjectEntry(
@@ -11900,10 +11943,6 @@ public class DefaultObjectEntryManagerImplTest
 								});
 						}
 					}));
-		}
-		finally {
-			ExportImportThreadLocal.setExportImportConfigurationId(0);
-			ExportImportThreadLocal.setPortletImportInProcess(false);
 		}
 	}
 

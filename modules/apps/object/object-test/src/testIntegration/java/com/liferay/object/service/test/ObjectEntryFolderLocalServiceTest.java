@@ -10,10 +10,10 @@ import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.constants.DepotRolesConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
-import com.liferay.exportimport.kernel.lar.ExportImportThreadLocal;
 import com.liferay.exportimport.report.constants.ExportImportReportEntryConstants;
 import com.liferay.exportimport.report.model.ExportImportReportEntry;
 import com.liferay.exportimport.report.service.ExportImportReportEntryLocalService;
+import com.liferay.exportimport.test.util.ExportImportConfigurationTemporarySwapper;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectEntryFolderConstants;
 import com.liferay.object.constants.ObjectFieldConstants;
@@ -35,7 +35,6 @@ import com.liferay.object.service.ObjectEntryLocalService;
 import com.liferay.object.test.util.ObjectEntryFolderTestUtil;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
 import com.liferay.portal.kernel.model.BaseModelListener;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.ModelListener;
@@ -412,15 +411,11 @@ public class ObjectEntryFolderLocalServiceTest {
 
 		// Lazy referencing enabled
 
-		try (SafeCloseable safeCloseable =
-				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
+		long exportImportConfigurationId = RandomTestUtil.randomLong();
 
-			long exportImportConfigurationId = RandomTestUtil.randomLong();
-
-			ExportImportThreadLocal.setExportImportConfigurationId(
-				exportImportConfigurationId);
-
-			ExportImportThreadLocal.setPortletImportInProcess(true);
+		try (AutoCloseable autoCloseable =
+				new ExportImportConfigurationTemporarySwapper(
+					exportImportConfigurationId)) {
 
 			ObjectEntryFolder objectEntryFolder =
 				_objectEntryFolderLocalService.getOrAddEmptyObjectEntryFolder(
@@ -464,10 +459,6 @@ public class ObjectEntryFolderLocalServiceTest {
 			Assert.assertEquals(
 				WorkflowConstants.STATUS_APPROVED,
 				objectEntryFolder.getStatus());
-		}
-		finally {
-			ExportImportThreadLocal.setExportImportConfigurationId(0);
-			ExportImportThreadLocal.setPortletImportInProcess(false);
 		}
 	}
 
@@ -552,6 +543,21 @@ public class ObjectEntryFolderLocalServiceTest {
 		_assertObjectEntryStatus(
 			WorkflowConstants.STATUS_IN_TRASH, objectEntry3.getObjectEntryId());
 
+		objectEntryFolder1 =
+			_objectEntryFolderLocalService.moveObjectEntryFolderToTrash(
+				TestPropsValues.getUserId(),
+				_updateObjectEntryFolder(
+					objectEntryFolder2.getName(), objectEntryFolder1),
+				ServiceContextTestUtil.getServiceContext());
+
+		Assert.assertEquals(
+			objectEntryFolder1.getParentObjectEntryFolderId(),
+			objectEntryFolder2.getParentObjectEntryFolderId());
+		Assert.assertEquals(
+			objectEntryFolder1.getName(), objectEntryFolder2.getName());
+		Assert.assertEquals(
+			objectEntryFolder1.getStatus(), objectEntryFolder2.getStatus());
+
 		_objectEntryFolderLocalService.deleteObjectEntryFolder(
 			objectEntryFolder2.getObjectEntryFolderId());
 
@@ -608,6 +614,10 @@ public class ObjectEntryFolderLocalServiceTest {
 		_objectEntryFolderLocalService.deleteObjectEntryFolder(
 			objectEntryFolder1.getObjectEntryFolderId());
 
+		ObjectEntryFolder objectEntryFolder3 = _updateObjectEntryFolder(
+			objectEntryFolder2.getName(),
+			ObjectEntryFolderTestUtil.addObjectEntryFolder(group.getGroupId()));
+
 		objectEntryFolder2 =
 			_objectEntryFolderLocalService.restoreObjectEntryFolderFromTrash(
 				TestPropsValues.getUserId(), objectEntryFolder2,
@@ -616,6 +626,9 @@ public class ObjectEntryFolderLocalServiceTest {
 		Assert.assertEquals(
 			ObjectEntryFolderConstants.PARENT_OBJECT_ENTRY_FOLDER_ID_DEFAULT,
 			objectEntryFolder2.getParentObjectEntryFolderId());
+		Assert.assertEquals(
+			objectEntryFolder3.getName() + " (Copy)",
+			objectEntryFolder2.getName());
 
 		Assert.assertNull(
 			_trashEntryLocalService.fetchEntry(
@@ -1119,6 +1132,15 @@ public class ObjectEntryFolderLocalServiceTest {
 			1,
 			_objectEntryLocalService.getObjectEntryFolderObjectEntriesCount(
 				groupId, objectEntryFolder1.getObjectEntryFolderId()));
+	}
+
+	private ObjectEntryFolder _updateObjectEntryFolder(
+		String name, ObjectEntryFolder objectEntryFolder) {
+
+		objectEntryFolder.setName(name);
+
+		return _objectEntryFolderLocalService.updateObjectEntryFolder(
+			objectEntryFolder);
 	}
 
 	@Inject
