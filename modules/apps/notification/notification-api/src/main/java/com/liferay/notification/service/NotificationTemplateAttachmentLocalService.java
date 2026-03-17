@@ -274,3 +274,4 @@ public interface NotificationTemplateAttachmentLocalService
 		NotificationTemplateAttachment notificationTemplateAttachment);
 
 }
+// SB-Hash:-1317053044

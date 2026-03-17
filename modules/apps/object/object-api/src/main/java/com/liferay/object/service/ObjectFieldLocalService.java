@@ -473,3 +473,4 @@ public interface ObjectFieldLocalService
 		throws PortalException;
 
 }
+// SB-Hash:525989612

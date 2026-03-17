@@ -99,3 +99,4 @@ public interface CPConfigurationEntryService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:1490632669

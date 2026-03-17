@@ -268,3 +268,4 @@ public interface ManyColumnsEntryLocalService
 		ManyColumnsEntry manyColumnsEntry);
 
 }
+// SB-Hash:-1260985234

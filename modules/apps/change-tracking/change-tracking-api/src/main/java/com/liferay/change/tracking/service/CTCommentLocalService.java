@@ -272,3 +272,4 @@ public interface CTCommentLocalService
 		throws PortalException;
 
 }
+// SB-Hash:602434259

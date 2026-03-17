@@ -87,3 +87,4 @@ public interface EntryService extends BaseService {
 	public void unscheduleEntry(long entryId) throws PortalException;
 
 }
+// SB-Hash:1166540504

@@ -152,3 +152,4 @@ public interface CPDefinitionLinkService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:2073321076

@@ -376,3 +376,4 @@ public interface WorkflowMetricsSLADefinitionLocalService
 		WorkflowMetricsSLADefinition workflowMetricsSLADefinition);
 
 }
+// SB-Hash:889910731

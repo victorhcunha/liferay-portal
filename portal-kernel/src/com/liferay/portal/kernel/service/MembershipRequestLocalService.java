@@ -302,3 +302,4 @@ public interface MembershipRequestLocalService
 		throws PortalException;
 
 }
+// SB-Hash:-1243990477

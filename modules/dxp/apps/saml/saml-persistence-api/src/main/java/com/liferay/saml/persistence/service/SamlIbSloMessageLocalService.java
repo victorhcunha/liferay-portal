@@ -271,3 +271,4 @@ public interface SamlIbSloMessageLocalService
 		SamlIbSloMessage samlIbSloMessage);
 
 }
+// SB-Hash:315550065

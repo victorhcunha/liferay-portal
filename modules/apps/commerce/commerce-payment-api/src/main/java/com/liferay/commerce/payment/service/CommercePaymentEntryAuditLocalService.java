@@ -297,3 +297,4 @@ public interface CommercePaymentEntryAuditLocalService
 		CommercePaymentEntryAudit commercePaymentEntryAudit);
 
 }
+// SB-Hash:1030465011

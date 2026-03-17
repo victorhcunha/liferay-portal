@@ -362,3 +362,4 @@ public interface MBThreadFlagLocalService
 		throws E;
 
 }
+// SB-Hash:653608400

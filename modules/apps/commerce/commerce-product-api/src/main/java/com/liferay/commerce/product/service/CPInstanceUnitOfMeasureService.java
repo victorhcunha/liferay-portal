@@ -129,3 +129,4 @@ public interface CPInstanceUnitOfMeasureService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:669943317

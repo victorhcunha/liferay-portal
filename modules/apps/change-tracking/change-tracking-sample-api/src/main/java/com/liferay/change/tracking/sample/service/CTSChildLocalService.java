@@ -302,3 +302,4 @@ public interface CTSChildLocalService
 		throws E;
 
 }
+// SB-Hash:48407121

@@ -745,3 +745,4 @@ public interface DDMTemplateService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:838253869

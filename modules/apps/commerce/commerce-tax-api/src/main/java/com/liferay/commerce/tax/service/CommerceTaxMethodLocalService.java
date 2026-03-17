@@ -306,3 +306,4 @@ public interface CommerceTaxMethodLocalService
 		throws PortalException;
 
 }
+// SB-Hash:2072478951

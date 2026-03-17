@@ -318,3 +318,4 @@ public interface CTSContentLocalService
 		throws E;
 
 }
+// SB-Hash:1224306647

@@ -398,3 +398,4 @@ public interface CPDefinitionGroupedEntryLocalService
 		throws PortalException;
 
 }
+// SB-Hash:1004389991

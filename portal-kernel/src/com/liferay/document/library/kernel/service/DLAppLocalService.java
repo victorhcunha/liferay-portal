@@ -815,3 +815,4 @@ public interface DLAppLocalService extends BaseLocalService {
 		throws PortalException;
 
 }
+// SB-Hash:545664307

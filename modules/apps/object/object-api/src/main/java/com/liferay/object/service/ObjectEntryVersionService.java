@@ -85,3 +85,4 @@ public interface ObjectEntryVersionService extends BaseService {
 	public String getOSGiServiceIdentifier();
 
 }
+// SB-Hash:327621922

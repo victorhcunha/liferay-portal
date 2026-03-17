@@ -304,3 +304,4 @@ public interface DepotAppCustomizationLocalService
 		throws E;
 
 }
+// SB-Hash:1142635032

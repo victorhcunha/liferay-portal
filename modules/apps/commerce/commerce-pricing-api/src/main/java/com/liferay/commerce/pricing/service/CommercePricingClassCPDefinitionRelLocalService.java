@@ -353,3 +353,4 @@ public interface CommercePricingClassCPDefinitionRelLocalService
 		throws E;
 
 }
+// SB-Hash:1170484989

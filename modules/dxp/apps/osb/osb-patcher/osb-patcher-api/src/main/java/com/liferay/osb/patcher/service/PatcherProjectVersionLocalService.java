@@ -311,3 +311,4 @@ public interface PatcherProjectVersionLocalService
 		PatcherProjectVersion patcherProjectVersion);
 
 }
+// SB-Hash:-1383354774

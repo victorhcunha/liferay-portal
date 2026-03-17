@@ -118,3 +118,4 @@ public interface CommercePricingClassCPDefinitionRelService
 		throws PortalException;
 
 }
+// SB-Hash:1888287487

@@ -318,3 +318,4 @@ public interface ObjectFieldSettingLocalService
 		ObjectFieldSetting objectFieldSetting);
 
 }
+// SB-Hash:-714987450
