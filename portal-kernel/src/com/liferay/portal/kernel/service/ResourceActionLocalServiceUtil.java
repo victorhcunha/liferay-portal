@@ -349,4 +349,3 @@ public class ResourceActionLocalServiceUtil {
 	private static volatile ResourceActionLocalService _service;
 
 }
-// SB-Hash:1650648669

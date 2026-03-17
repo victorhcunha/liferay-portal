@@ -1124,4 +1124,3 @@ public class ResourcePermissionLocalServiceUtil {
 	private static volatile ResourcePermissionLocalService _service;
 
 }
-// SB-Hash:-573507335

@@ -48,4 +48,3 @@ public class AnnouncementsFlagTable extends BaseTable<AnnouncementsFlagTable> {
 	}
 
 }
-// SB-Hash:-1654737896

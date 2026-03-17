@@ -185,4 +185,3 @@ public class SocialActivitySettingCacheModel
 	public String value;
 
 }
-// SB-Hash:954813830

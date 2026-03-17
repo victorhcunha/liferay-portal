@@ -69,4 +69,3 @@ public class SocialActivityCounterFinderUtil {
 	private static SocialActivityCounterFinder _finder;
 
 }
-// SB-Hash:894312589

@@ -53,4 +53,3 @@ public class AnnouncementsDeliveryTable
 	}
 
 }
-// SB-Hash:838799566

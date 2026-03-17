@@ -65,4 +65,3 @@ public class ServiceComponentFinderBaseImpl
 		ServiceComponentFinderBaseImpl.class);
 
 }
-// SB-Hash:-1024976263

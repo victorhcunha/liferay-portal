@@ -118,4 +118,3 @@ public class LayoutTemplateLocalServiceUtil {
 	private static volatile LayoutTemplateLocalService _service;
 
 }
-// SB-Hash:-1891632745

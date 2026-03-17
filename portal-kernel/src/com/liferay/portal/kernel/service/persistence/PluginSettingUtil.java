@@ -521,4 +521,3 @@ public class PluginSettingUtil {
 	private static volatile PluginSettingPersistence _persistence;
 
 }
-// SB-Hash:546632916

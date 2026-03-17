@@ -485,4 +485,3 @@ public class UserNotificationEventWrapper
 	}
 
 }
-// SB-Hash:935040950

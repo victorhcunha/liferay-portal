@@ -231,4 +231,3 @@ public abstract class DLFolderServiceBaseImpl
 		DLFolderServiceBaseImpl.class);
 
 }
-// SB-Hash:1175931867

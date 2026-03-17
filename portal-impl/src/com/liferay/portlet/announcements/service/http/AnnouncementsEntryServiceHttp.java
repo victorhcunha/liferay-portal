@@ -227,4 +227,3 @@ public class AnnouncementsEntryServiceHttp {
 	};
 
 }
-// SB-Hash:2123714202

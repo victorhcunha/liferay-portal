@@ -209,4 +209,3 @@ public abstract class AnnouncementsFlagServiceBaseImpl
 		AnnouncementsFlagServiceBaseImpl.class);
 
 }
-// SB-Hash:1186630096

@@ -3569,4 +3569,3 @@ public interface UserNotificationEventPersistence
 	public int countAll();
 
 }
-// SB-Hash:-2006193120

@@ -62,4 +62,3 @@ public interface AssetEntry extends AssetEntryModel, PersistedModel {
 	public long getViewCount();
 
 }
-// SB-Hash:976641581

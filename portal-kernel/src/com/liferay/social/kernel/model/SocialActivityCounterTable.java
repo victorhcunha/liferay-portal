@@ -71,4 +71,3 @@ public class SocialActivityCounterTable
 	}
 
 }
-// SB-Hash:1602266895

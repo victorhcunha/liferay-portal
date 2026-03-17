@@ -844,4 +844,3 @@ public interface AssetVocabularyGroupRelPersistence
 	public int countAll();
 
 }
-// SB-Hash:1712648980

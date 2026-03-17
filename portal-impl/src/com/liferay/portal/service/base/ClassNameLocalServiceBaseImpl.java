@@ -499,4 +499,3 @@ public abstract class ClassNameLocalServiceBaseImpl
 		ClassNameLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:-1626088272

@@ -211,4 +211,3 @@ public class ResourcePermissionCacheModel
 	public boolean viewActionId;
 
 }
-// SB-Hash:-855719449

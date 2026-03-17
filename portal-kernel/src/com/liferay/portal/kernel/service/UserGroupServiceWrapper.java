@@ -403,4 +403,3 @@ public class UserGroupServiceWrapper
 	private UserGroupService _userGroupService;
 
 }
-// SB-Hash:838364179

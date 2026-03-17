@@ -651,4 +651,3 @@ public abstract class RatingsEntryLocalServiceBaseImpl
 		RatingsEntryLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:-888476084

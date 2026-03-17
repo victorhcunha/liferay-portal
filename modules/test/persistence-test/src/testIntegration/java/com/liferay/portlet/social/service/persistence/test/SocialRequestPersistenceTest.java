@@ -664,4 +664,3 @@ public class SocialRequestPersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// SB-Hash:989258346

@@ -233,4 +233,3 @@ public abstract class AnnouncementsEntryServiceBaseImpl
 		AnnouncementsEntryServiceBaseImpl.class);
 
 }
-// SB-Hash:-549331881

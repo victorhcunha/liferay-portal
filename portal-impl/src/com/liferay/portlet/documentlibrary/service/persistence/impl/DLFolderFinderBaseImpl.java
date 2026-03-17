@@ -65,4 +65,3 @@ public class DLFolderFinderBaseImpl extends BasePersistenceImpl<DLFolder> {
 		DLFolderFinderBaseImpl.class);
 
 }
-// SB-Hash:1741460007

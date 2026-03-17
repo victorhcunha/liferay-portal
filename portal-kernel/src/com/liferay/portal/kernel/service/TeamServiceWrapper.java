@@ -132,4 +132,3 @@ public class TeamServiceWrapper
 	private TeamService _teamService;
 
 }
-// SB-Hash:1325233000

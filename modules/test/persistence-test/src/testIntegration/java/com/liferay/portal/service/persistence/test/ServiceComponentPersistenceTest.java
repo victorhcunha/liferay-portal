@@ -501,4 +501,3 @@ public class ServiceComponentPersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// SB-Hash:-1768664837

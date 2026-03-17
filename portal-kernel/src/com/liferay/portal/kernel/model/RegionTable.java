@@ -61,4 +61,3 @@ public class RegionTable extends BaseTable<RegionTable> {
 	}
 
 }
-// SB-Hash:-1883526518

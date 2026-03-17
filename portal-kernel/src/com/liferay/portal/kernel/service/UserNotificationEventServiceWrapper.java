@@ -70,4 +70,3 @@ public class UserNotificationEventServiceWrapper
 	private UserNotificationEventService _userNotificationEventService;
 
 }
-// SB-Hash:-1875344221

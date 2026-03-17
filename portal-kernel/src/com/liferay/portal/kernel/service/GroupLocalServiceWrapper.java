@@ -2892,4 +2892,3 @@ public class GroupLocalServiceWrapper
 	private GroupLocalService _groupLocalService;
 
 }
-// SB-Hash:-1179209848

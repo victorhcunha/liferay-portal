@@ -488,4 +488,3 @@ public class RegionLocalizationPersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// SB-Hash:-333817586

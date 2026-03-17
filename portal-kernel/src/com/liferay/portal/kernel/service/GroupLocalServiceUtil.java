@@ -2648,4 +2648,3 @@ public class GroupLocalServiceUtil {
 	private static volatile GroupLocalService _service;
 
 }
-// SB-Hash:1902906618

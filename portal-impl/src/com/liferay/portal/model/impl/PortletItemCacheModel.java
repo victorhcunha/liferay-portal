@@ -221,4 +221,3 @@ public class PortletItemCacheModel
 	public long classNameId;
 
 }
-// SB-Hash:978294318

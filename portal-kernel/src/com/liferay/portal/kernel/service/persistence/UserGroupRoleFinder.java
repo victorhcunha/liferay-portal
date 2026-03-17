@@ -21,4 +21,3 @@ public interface UserGroupRoleFinder {
 		findByUserUserGroupGroupRole(long userId, long groupId);
 
 }
-// SB-Hash:-344165969

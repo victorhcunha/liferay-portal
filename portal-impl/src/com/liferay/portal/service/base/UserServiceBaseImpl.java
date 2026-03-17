@@ -243,4 +243,3 @@ public abstract class UserServiceBaseImpl
 		UserServiceBaseImpl.class);
 
 }
-// SB-Hash:1409896604

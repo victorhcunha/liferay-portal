@@ -760,4 +760,3 @@ public interface MembershipRequestPersistence
 	public int countAll();
 
 }
-// SB-Hash:1913675518

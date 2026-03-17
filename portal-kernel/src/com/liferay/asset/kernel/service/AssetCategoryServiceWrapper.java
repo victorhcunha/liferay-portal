@@ -487,4 +487,3 @@ public class AssetCategoryServiceWrapper
 	private AssetCategoryService _assetCategoryService;
 
 }
-// SB-Hash:1230983580

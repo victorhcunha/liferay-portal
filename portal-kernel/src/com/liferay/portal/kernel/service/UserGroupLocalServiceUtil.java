@@ -1003,4 +1003,3 @@ public class UserGroupLocalServiceUtil {
 	private static volatile UserGroupLocalService _service;
 
 }
-// SB-Hash:-1044884799

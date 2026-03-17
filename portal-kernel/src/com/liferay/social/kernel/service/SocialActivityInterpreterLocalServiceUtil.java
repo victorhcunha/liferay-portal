@@ -107,4 +107,3 @@ public class SocialActivityInterpreterLocalServiceUtil {
 	private static volatile SocialActivityInterpreterLocalService _service;
 
 }
-// SB-Hash:-594324293

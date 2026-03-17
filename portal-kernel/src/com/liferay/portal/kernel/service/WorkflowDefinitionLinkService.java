@@ -75,4 +75,3 @@ public interface WorkflowDefinitionLinkService extends BaseService {
 		throws PortalException;
 
 }
-// SB-Hash:1316669378

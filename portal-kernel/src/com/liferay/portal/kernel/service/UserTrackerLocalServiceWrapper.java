@@ -360,4 +360,3 @@ public class UserTrackerLocalServiceWrapper
 	private UserTrackerLocalService _userTrackerLocalService;
 
 }
-// SB-Hash:1135089435

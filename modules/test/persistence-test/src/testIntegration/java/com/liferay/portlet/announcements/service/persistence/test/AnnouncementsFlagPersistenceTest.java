@@ -524,4 +524,3 @@ public class AnnouncementsFlagPersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// SB-Hash:1174176683

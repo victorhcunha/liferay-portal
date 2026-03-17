@@ -272,4 +272,3 @@ public class ListTypeServiceHttp {
 	};
 
 }
-// SB-Hash:859136583

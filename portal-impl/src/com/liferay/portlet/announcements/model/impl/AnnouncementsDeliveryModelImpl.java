@@ -885,4 +885,3 @@ public class AnnouncementsDeliveryModelImpl
 	private AnnouncementsDelivery _escapedModel;
 
 }
-// SB-Hash:109306986

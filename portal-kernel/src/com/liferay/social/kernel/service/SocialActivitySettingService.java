@@ -87,4 +87,3 @@ public interface SocialActivitySettingService extends BaseService {
 		throws PortalException;
 
 }
-// SB-Hash:-2020384711

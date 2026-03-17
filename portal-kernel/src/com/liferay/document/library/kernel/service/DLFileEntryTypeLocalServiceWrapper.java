@@ -827,4 +827,3 @@ public class DLFileEntryTypeLocalServiceWrapper
 	private DLFileEntryTypeLocalService _dlFileEntryTypeLocalService;
 
 }
-// SB-Hash:1584263654

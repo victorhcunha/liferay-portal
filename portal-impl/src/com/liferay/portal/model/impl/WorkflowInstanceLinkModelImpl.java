@@ -1020,4 +1020,3 @@ public class WorkflowInstanceLinkModelImpl
 	private WorkflowInstanceLink _escapedModel;
 
 }
-// SB-Hash:791093996

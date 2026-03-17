@@ -696,4 +696,3 @@ public class AnnouncementsDeliveryUtil {
 	private static volatile AnnouncementsDeliveryPersistence _persistence;
 
 }
-// SB-Hash:65311258

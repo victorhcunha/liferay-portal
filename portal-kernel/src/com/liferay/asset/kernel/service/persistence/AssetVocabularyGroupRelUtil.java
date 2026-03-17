@@ -1140,4 +1140,3 @@ public class AssetVocabularyGroupRelUtil {
 	private static volatile AssetVocabularyGroupRelPersistence _persistence;
 
 }
-// SB-Hash:440645675

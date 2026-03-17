@@ -18,4 +18,3 @@ public interface ServiceComponentFinder {
 		findByMaxBuildNumber();
 
 }
-// SB-Hash:-235658902

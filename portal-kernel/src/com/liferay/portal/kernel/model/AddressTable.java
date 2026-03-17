@@ -91,4 +91,3 @@ public class AddressTable extends BaseTable<AddressTable> {
 	}
 
 }
-// SB-Hash:61083401

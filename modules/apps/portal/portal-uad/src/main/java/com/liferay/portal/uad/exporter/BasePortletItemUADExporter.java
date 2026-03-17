@@ -66,4 +66,3 @@ public abstract class BasePortletItemUADExporter
 	protected PortletItemLocalService portletItemLocalService;
 
 }
-// SB-Hash:-1322108940

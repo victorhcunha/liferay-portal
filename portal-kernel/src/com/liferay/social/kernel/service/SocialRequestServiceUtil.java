@@ -56,4 +56,3 @@ public class SocialRequestServiceUtil {
 	private static volatile SocialRequestService _service;
 
 }
-// SB-Hash:200522903

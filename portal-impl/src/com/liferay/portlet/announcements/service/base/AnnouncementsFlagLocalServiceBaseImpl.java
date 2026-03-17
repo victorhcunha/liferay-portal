@@ -530,4 +530,3 @@ public abstract class AnnouncementsFlagLocalServiceBaseImpl
 		AnnouncementsFlagLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:381347477

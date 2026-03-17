@@ -538,4 +538,3 @@ public class ListTypePersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// SB-Hash:1129794038

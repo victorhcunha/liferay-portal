@@ -97,4 +97,3 @@ public interface ThemeLocalService extends BaseLocalService {
 	public void uninstallThemes(List<Theme> themes);
 
 }
-// SB-Hash:1783073449

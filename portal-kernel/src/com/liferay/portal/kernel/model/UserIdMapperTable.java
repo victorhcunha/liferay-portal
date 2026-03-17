@@ -42,4 +42,3 @@ public class UserIdMapperTable extends BaseTable<UserIdMapperTable> {
 	}
 
 }
-// SB-Hash:1102060372

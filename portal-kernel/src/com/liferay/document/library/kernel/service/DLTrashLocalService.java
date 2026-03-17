@@ -61,4 +61,3 @@ public interface DLTrashLocalService extends BaseLocalService {
 		throws PortalException;
 
 }
-// SB-Hash:301944698

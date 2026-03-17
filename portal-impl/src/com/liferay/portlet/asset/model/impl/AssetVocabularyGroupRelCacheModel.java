@@ -161,4 +161,3 @@ public class AssetVocabularyGroupRelCacheModel
 	public long vocabularyId;
 
 }
-// SB-Hash:282957432

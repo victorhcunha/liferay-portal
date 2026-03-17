@@ -497,4 +497,3 @@ public abstract class CompanyLocalServiceBaseImpl
 		CompanyLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:1854152498

@@ -386,4 +386,3 @@ public class RatingsStatsLocalServiceWrapper
 	private RatingsStatsLocalService _ratingsStatsLocalService;
 
 }
-// SB-Hash:-1290369778

@@ -62,4 +62,3 @@ public interface AssetTagGroupRelService extends BaseService {
 		throws PortalException;
 
 }
-// SB-Hash:630001659

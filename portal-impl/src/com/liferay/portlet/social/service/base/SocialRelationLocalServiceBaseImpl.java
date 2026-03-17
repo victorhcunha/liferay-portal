@@ -553,4 +553,3 @@ public abstract class SocialRelationLocalServiceBaseImpl
 		SocialRelationLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:47123566

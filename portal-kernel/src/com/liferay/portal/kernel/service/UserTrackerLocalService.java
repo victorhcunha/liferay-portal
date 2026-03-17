@@ -271,4 +271,3 @@ public interface UserTrackerLocalService
 	public UserTracker updateUserTracker(UserTracker userTracker);
 
 }
-// SB-Hash:1523210769

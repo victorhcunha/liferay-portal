@@ -501,4 +501,3 @@ public class AssetVocabularyGroupRelLocalServiceWrapper
 		_assetVocabularyGroupRelLocalService;
 
 }
-// SB-Hash:172502299

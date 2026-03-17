@@ -1937,4 +1937,3 @@ public interface DLFileShortcutPersistence
 	public int countAll();
 
 }
-// SB-Hash:83569335

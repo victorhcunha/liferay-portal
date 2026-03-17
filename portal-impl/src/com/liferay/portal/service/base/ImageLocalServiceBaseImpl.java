@@ -507,4 +507,3 @@ public abstract class ImageLocalServiceBaseImpl
 		ImageLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:358088997

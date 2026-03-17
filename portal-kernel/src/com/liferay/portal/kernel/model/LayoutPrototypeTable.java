@@ -59,4 +59,3 @@ public class LayoutPrototypeTable extends BaseTable<LayoutPrototypeTable> {
 	}
 
 }
-// SB-Hash:-613521296

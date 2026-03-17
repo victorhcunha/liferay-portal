@@ -44,4 +44,3 @@ public class AssetEntryFinderBaseImpl extends BasePersistenceImpl<AssetEntry> {
 	protected AssetEntryPersistence assetEntryPersistence;
 
 }
-// SB-Hash:-1250382208

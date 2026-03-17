@@ -39,4 +39,3 @@ public abstract class ResourcePermissionBaseImpl
 	}
 
 }
-// SB-Hash:940233461

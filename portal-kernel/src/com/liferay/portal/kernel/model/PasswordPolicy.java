@@ -47,4 +47,3 @@ public interface PasswordPolicy extends PasswordPolicyModel, PersistedModel {
 		};
 
 }
-// SB-Hash:-1865132913

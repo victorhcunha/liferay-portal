@@ -14,4 +14,3 @@ public class RolesUADConstants {
 	public static final String[] USER_ID_FIELD_NAMES_ROLE = {"userId"};
 
 }
-// SB-Hash:-408678263

@@ -1238,4 +1238,3 @@ public interface TeamPersistence
 		java.util.List<com.liferay.portal.kernel.model.UserGroup> userGroups);
 
 }
-// SB-Hash:-357326973

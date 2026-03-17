@@ -41,4 +41,3 @@ public abstract class SocialActivityCounterBaseImpl
 	}
 
 }
-// SB-Hash:-2061704037

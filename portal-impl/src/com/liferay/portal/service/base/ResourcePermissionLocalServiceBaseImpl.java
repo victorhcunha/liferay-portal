@@ -565,4 +565,3 @@ public abstract class ResourcePermissionLocalServiceBaseImpl
 		ResourcePermissionLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:670916034

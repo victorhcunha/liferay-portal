@@ -670,4 +670,3 @@ public class AnnouncementsEntryWrapper
 	}
 
 }
-// SB-Hash:-467606707

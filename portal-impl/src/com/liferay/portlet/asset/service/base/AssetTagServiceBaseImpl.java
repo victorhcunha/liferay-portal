@@ -231,4 +231,3 @@ public abstract class AssetTagServiceBaseImpl
 		AssetTagServiceBaseImpl.class);
 
 }
-// SB-Hash:-795110629

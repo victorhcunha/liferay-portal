@@ -61,4 +61,3 @@ public class WebsiteTable extends BaseTable<WebsiteTable> {
 	}
 
 }
-// SB-Hash:-262934237

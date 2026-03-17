@@ -964,4 +964,3 @@ public class VirtualHostUtil {
 	private static volatile VirtualHostPersistence _persistence;
 
 }
-// SB-Hash:1304743081

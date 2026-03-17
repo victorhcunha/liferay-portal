@@ -824,4 +824,3 @@ public abstract class AssetTagLocalServiceBaseImpl
 		AssetTagLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:2127374162

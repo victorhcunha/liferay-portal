@@ -45,4 +45,3 @@ public class AssetTagFinderUtil {
 	private static AssetTagFinder _finder;
 
 }
-// SB-Hash:-1488182395

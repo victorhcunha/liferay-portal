@@ -99,4 +99,3 @@ public abstract class BaseAnnouncementsEntryUADAnonymizer
 	protected AnnouncementsEntryLocalService announcementsEntryLocalService;
 
 }
-// SB-Hash:-1027079921

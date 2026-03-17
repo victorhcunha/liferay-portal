@@ -1089,4 +1089,3 @@ public class AssetTagModelImpl
 	private AssetTag _escapedModel;
 
 }
-// SB-Hash:2056847965

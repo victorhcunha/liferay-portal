@@ -241,4 +241,3 @@ public class UserGroupRoleServiceHttp {
 		new Class[] {long.class, long.class, long[].class, long[].class};
 
 }
-// SB-Hash:-1814189434

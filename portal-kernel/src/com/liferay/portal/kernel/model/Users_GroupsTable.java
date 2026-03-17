@@ -38,4 +38,3 @@ public class Users_GroupsTable extends BaseTable<Users_GroupsTable> {
 	}
 
 }
-// SB-Hash:2143552417

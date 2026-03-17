@@ -95,4 +95,3 @@ public abstract class BaseAnnouncementsFlagUADAnonymizer
 	protected AnnouncementsFlagLocalService announcementsFlagLocalService;
 
 }
-// SB-Hash:1975836528

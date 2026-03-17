@@ -64,4 +64,3 @@ public class RoleFinderBaseImpl extends BasePersistenceImpl<Role> {
 		RoleFinderBaseImpl.class);
 
 }
-// SB-Hash:1173672971

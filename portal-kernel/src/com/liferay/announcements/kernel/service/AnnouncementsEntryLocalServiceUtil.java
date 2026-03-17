@@ -512,4 +512,3 @@ public class AnnouncementsEntryLocalServiceUtil {
 	private static volatile AnnouncementsEntryLocalService _service;
 
 }
-// SB-Hash:-1296821060

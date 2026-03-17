@@ -217,4 +217,3 @@ public abstract class AnnouncementsDeliveryServiceBaseImpl
 		AnnouncementsDeliveryServiceBaseImpl.class);
 
 }
-// SB-Hash:1392766584

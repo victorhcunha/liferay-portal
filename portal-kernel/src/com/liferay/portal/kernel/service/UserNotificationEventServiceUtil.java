@@ -63,4 +63,3 @@ public class UserNotificationEventServiceUtil {
 	private static volatile UserNotificationEventService _service;
 
 }
-// SB-Hash:525772599

@@ -728,4 +728,3 @@ public class SocialRequestLocalServiceWrapper
 	private SocialRequestLocalService _socialRequestLocalService;
 
 }
-// SB-Hash:2083407479

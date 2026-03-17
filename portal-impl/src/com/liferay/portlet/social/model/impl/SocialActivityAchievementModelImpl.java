@@ -872,4 +872,3 @@ public class SocialActivityAchievementModelImpl
 	private SocialActivityAchievement _escapedModel;
 
 }
-// SB-Hash:-925403540

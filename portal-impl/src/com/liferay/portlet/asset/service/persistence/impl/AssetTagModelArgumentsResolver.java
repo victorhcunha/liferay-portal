@@ -129,4 +129,3 @@ public class AssetTagModelArgumentsResolver implements ArgumentsResolver {
 	}
 
 }
-// SB-Hash:589682221

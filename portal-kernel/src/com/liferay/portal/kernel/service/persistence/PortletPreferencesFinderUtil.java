@@ -69,4 +69,3 @@ public class PortletPreferencesFinderUtil {
 	private static PortletPreferencesFinder _finder;
 
 }
-// SB-Hash:1320750448

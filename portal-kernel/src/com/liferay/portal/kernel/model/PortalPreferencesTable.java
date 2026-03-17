@@ -42,4 +42,3 @@ public class PortalPreferencesTable extends BaseTable<PortalPreferencesTable> {
 	}
 
 }
-// SB-Hash:1842928456

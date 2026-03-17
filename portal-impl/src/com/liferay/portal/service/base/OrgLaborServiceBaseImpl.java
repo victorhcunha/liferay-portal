@@ -205,4 +205,3 @@ public abstract class OrgLaborServiceBaseImpl
 		OrgLaborServiceBaseImpl.class);
 
 }
-// SB-Hash:-107313710

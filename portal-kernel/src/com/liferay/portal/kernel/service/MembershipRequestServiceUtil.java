@@ -77,4 +77,3 @@ public class MembershipRequestServiceUtil {
 	private static volatile MembershipRequestService _service;
 
 }
-// SB-Hash:-457767635

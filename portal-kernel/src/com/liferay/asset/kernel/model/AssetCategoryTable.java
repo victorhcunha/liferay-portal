@@ -73,4 +73,3 @@ public class AssetCategoryTable extends BaseTable<AssetCategoryTable> {
 	}
 
 }
-// SB-Hash:-226998557

@@ -1999,4 +1999,3 @@ public class DLFolderServiceHttp {
 		new Class[] {long.class, String.class};
 
 }
-// SB-Hash:795587537

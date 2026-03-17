@@ -231,4 +231,3 @@ public abstract class SocialActivityServiceBaseImpl
 		SocialActivityServiceBaseImpl.class);
 
 }
-// SB-Hash:-863638802

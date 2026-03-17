@@ -295,4 +295,3 @@ public interface UserNotificationDeliveryLocalService
 		UserNotificationDelivery userNotificationDelivery);
 
 }
-// SB-Hash:859015600

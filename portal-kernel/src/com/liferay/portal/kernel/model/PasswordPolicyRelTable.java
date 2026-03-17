@@ -45,4 +45,3 @@ public class PasswordPolicyRelTable extends BaseTable<PasswordPolicyRelTable> {
 	}
 
 }
-// SB-Hash:-1443551435

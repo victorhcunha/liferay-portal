@@ -107,4 +107,3 @@ public class LayoutPrototypeServiceWrapper
 	private LayoutPrototypeService _layoutPrototypeService;
 
 }
-// SB-Hash:638260499

@@ -654,4 +654,3 @@ public class PortletPreferencesLocalServiceWrapper
 	private PortletPreferencesLocalService _portletPreferencesLocalService;
 
 }
-// SB-Hash:925825021

@@ -297,4 +297,3 @@ public class CompanyInfoLocalServiceUtil {
 	private static volatile CompanyInfoLocalService _service;
 
 }
-// SB-Hash:301529492

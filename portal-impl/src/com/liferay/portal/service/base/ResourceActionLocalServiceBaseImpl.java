@@ -505,4 +505,3 @@ public abstract class ResourceActionLocalServiceBaseImpl
 		ResourceActionLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:-548005883

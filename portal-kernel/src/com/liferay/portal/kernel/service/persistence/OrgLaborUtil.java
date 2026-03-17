@@ -437,4 +437,3 @@ public class OrgLaborUtil {
 	private static volatile OrgLaborPersistence _persistence;
 
 }
-// SB-Hash:1288855406

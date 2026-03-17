@@ -20,4 +20,3 @@ public interface AssetEntryFinder {
 		findEntries(AssetEntryQuery entryQuery);
 
 }
-// SB-Hash:1043647529

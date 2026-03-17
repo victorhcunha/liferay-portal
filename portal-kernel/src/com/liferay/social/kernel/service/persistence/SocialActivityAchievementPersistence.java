@@ -995,4 +995,3 @@ public interface SocialActivityAchievementPersistence
 	public int countAll();
 
 }
-// SB-Hash:-599455709

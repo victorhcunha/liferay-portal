@@ -383,4 +383,3 @@ public class SocialActivitySettingLocalServiceUtil {
 	private static volatile SocialActivitySettingLocalService _service;
 
 }
-// SB-Hash:1247549823

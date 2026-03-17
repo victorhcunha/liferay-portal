@@ -38,4 +38,3 @@ public abstract class RoleBaseImpl extends RoleModelImpl implements Role {
 	}
 
 }
-// SB-Hash:350178266

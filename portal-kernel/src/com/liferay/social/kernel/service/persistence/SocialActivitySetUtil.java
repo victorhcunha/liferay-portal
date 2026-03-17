@@ -1442,4 +1442,3 @@ public class SocialActivitySetUtil {
 	private static volatile SocialActivitySetPersistence _persistence;
 
 }
-// SB-Hash:66183888

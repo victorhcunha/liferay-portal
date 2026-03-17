@@ -568,4 +568,3 @@ public class DLFileShortcutLocalServiceUtil {
 	private static volatile DLFileShortcutLocalService _service;
 
 }
-// SB-Hash:209962351

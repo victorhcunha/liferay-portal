@@ -117,4 +117,3 @@ public class SocialActivitySettingModelArgumentsResolver
 		new ConcurrentHashMap<>();
 
 }
-// SB-Hash:-97766251

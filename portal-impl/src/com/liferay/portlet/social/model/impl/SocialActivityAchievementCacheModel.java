@@ -179,4 +179,3 @@ public class SocialActivityAchievementCacheModel
 	public boolean firstInGroup;
 
 }
-// SB-Hash:673266316

@@ -584,4 +584,3 @@ public abstract class SocialRequestLocalServiceBaseImpl
 		SocialRequestLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:1492024797

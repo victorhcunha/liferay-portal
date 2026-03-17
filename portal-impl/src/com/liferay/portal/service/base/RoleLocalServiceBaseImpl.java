@@ -955,4 +955,3 @@ public abstract class RoleLocalServiceBaseImpl
 		RoleLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:-1370914186

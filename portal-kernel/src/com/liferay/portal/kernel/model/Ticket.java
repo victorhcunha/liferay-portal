@@ -49,4 +49,3 @@ public interface Ticket extends PersistedModel, TicketModel {
 	public boolean isExpired();
 
 }
-// SB-Hash:170180618

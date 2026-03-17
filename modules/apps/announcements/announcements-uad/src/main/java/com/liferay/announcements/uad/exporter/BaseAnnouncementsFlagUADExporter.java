@@ -61,4 +61,3 @@ public abstract class BaseAnnouncementsFlagUADExporter
 	protected AnnouncementsFlagLocalService announcementsFlagLocalService;
 
 }
-// SB-Hash:-1530242332

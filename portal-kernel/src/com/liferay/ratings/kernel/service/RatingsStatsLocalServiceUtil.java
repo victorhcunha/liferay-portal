@@ -322,4 +322,3 @@ public class RatingsStatsLocalServiceUtil {
 	private static volatile RatingsStatsLocalService _service;
 
 }
-// SB-Hash:2144988377

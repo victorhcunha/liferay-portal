@@ -262,4 +262,3 @@ public class LayoutSetPrototypeCacheModel
 	public boolean active;
 
 }
-// SB-Hash:1971433753

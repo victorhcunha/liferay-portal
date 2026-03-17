@@ -84,4 +84,3 @@ public class SocialActivitySetFinderUtil {
 	private static SocialActivitySetFinder _finder;
 
 }
-// SB-Hash:-733932497

@@ -50,4 +50,3 @@ public class ExpandoColumnTable extends BaseTable<ExpandoColumnTable> {
 	}
 
 }
-// SB-Hash:-334201059

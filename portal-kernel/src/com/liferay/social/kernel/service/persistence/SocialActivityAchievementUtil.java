@@ -1313,4 +1313,3 @@ public class SocialActivityAchievementUtil {
 	private static volatile SocialActivityAchievementPersistence _persistence;
 
 }
-// SB-Hash:-1258918247

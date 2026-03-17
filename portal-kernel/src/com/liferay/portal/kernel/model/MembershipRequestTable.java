@@ -57,4 +57,3 @@ public class MembershipRequestTable extends BaseTable<MembershipRequestTable> {
 	}
 
 }
-// SB-Hash:116664683

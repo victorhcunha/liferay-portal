@@ -293,4 +293,3 @@ public interface OrgLaborPersistence extends BasePersistence<OrgLabor> {
 	public int countAll();
 
 }
-// SB-Hash:2135867116

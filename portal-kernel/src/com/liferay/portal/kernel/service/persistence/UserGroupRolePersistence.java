@@ -945,4 +945,3 @@ public interface UserGroupRolePersistence
 	public int countAll();
 
 }
-// SB-Hash:-36966780

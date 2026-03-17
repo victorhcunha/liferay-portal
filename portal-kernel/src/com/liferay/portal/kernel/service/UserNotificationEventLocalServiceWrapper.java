@@ -970,4 +970,3 @@ public class UserNotificationEventLocalServiceWrapper
 		_userNotificationEventLocalService;
 
 }
-// SB-Hash:-2073399637

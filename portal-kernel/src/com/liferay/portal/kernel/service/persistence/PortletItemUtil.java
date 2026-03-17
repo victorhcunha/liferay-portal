@@ -741,4 +741,3 @@ public class PortletItemUtil {
 	private static volatile PortletItemPersistence _persistence;
 
 }
-// SB-Hash:785034851

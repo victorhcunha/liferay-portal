@@ -535,4 +535,3 @@ public class UserGroupRolePersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// SB-Hash:1535518689

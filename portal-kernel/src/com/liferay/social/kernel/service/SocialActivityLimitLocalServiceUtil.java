@@ -325,4 +325,3 @@ public class SocialActivityLimitLocalServiceUtil {
 	private static volatile SocialActivityLimitLocalService _service;
 
 }
-// SB-Hash:1958659758

@@ -560,4 +560,3 @@ public class UserIdMapperUtil {
 	private static volatile UserIdMapperPersistence _persistence;
 
 }
-// SB-Hash:1597355601

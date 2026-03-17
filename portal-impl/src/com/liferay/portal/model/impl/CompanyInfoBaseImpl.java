@@ -39,4 +39,3 @@ public abstract class CompanyInfoBaseImpl
 	}
 
 }
-// SB-Hash:-1905807349

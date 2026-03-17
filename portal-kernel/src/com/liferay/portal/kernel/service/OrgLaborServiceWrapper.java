@@ -96,4 +96,3 @@ public class OrgLaborServiceWrapper
 	private OrgLaborService _orgLaborService;
 
 }
-// SB-Hash:2113407026

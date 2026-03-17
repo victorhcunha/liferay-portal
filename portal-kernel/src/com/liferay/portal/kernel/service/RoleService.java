@@ -286,4 +286,3 @@ public interface RoleService extends BaseService {
 		throws PortalException;
 
 }
-// SB-Hash:1204091822

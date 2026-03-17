@@ -336,4 +336,3 @@ public interface SocialActivitySettingLocalService
 		throws E;
 
 }
-// SB-Hash:-1885789490

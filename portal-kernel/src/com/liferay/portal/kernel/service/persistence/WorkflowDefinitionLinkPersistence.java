@@ -1755,4 +1755,3 @@ public interface WorkflowDefinitionLinkPersistence
 	public int countAll();
 
 }
-// SB-Hash:1779145854

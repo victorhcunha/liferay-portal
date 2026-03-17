@@ -677,4 +677,3 @@ public class GroupServiceUtil {
 	private static volatile GroupService _service;
 
 }
-// SB-Hash:1477720194

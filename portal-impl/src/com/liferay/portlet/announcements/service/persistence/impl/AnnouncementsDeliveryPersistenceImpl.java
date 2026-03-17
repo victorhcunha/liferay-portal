@@ -2247,4 +2247,3 @@ public class AnnouncementsDeliveryPersistenceImpl
 	}
 
 }
-// SB-Hash:1796259802

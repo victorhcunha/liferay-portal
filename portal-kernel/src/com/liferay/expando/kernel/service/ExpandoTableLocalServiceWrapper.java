@@ -501,4 +501,3 @@ public class ExpandoTableLocalServiceWrapper
 	private ExpandoTableLocalService _expandoTableLocalService;
 
 }
-// SB-Hash:867980182

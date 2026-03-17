@@ -58,4 +58,3 @@ public class PluginSettingServiceWrapper
 	private PluginSettingService _pluginSettingService;
 
 }
-// SB-Hash:-635532305

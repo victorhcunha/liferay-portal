@@ -85,4 +85,3 @@ public class ContactTable extends BaseTable<ContactTable> {
 	}
 
 }
-// SB-Hash:668123959

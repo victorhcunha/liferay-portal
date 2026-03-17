@@ -1018,4 +1018,3 @@ public interface LayoutPrototypePersistence
 	public int countAll();
 
 }
-// SB-Hash:185160755

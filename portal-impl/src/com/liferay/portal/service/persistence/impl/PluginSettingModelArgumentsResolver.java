@@ -113,4 +113,3 @@ public class PluginSettingModelArgumentsResolver implements ArgumentsResolver {
 		new ConcurrentHashMap<>();
 
 }
-// SB-Hash:887296482

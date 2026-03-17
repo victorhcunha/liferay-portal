@@ -345,4 +345,3 @@ public interface ResourceActionPersistence
 	public int countAll();
 
 }
-// SB-Hash:-1360430017

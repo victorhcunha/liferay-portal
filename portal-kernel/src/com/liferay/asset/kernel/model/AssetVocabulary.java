@@ -92,4 +92,3 @@ public interface AssetVocabulary extends AssetVocabularyModel, PersistedModel {
 	public boolean isRequired(long classNameId, long classTypePK, long groupId);
 
 }
-// SB-Hash:-1452275424

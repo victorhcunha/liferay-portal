@@ -39,4 +39,3 @@ public abstract class PluginSettingBaseImpl
 	}
 
 }
-// SB-Hash:-1159364829

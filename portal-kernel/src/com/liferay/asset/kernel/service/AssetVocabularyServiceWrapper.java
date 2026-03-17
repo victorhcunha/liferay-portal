@@ -381,4 +381,3 @@ public class AssetVocabularyServiceWrapper
 	private AssetVocabularyService _assetVocabularyService;
 
 }
-// SB-Hash:1536973871

@@ -446,4 +446,3 @@ public class RegionLocalServiceUtil {
 	private static volatile RegionLocalService _service;
 
 }
-// SB-Hash:270221003

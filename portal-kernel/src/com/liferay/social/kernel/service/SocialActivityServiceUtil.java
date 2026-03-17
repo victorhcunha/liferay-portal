@@ -628,4 +628,3 @@ public class SocialActivityServiceUtil {
 	private static volatile SocialActivityService _service;
 
 }
-// SB-Hash:2138420487

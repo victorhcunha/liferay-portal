@@ -65,4 +65,3 @@ public class SocialActivitySetFinderBaseImpl
 		SocialActivitySetFinderBaseImpl.class);
 
 }
-// SB-Hash:1147534014

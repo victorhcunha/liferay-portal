@@ -390,4 +390,3 @@ public class RatingsEntryLocalServiceUtil {
 	private static volatile RatingsEntryLocalService _service;
 
 }
-// SB-Hash:-1767854303

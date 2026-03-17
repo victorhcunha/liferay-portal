@@ -78,4 +78,3 @@ public class CounterLocalServiceUtil {
 	private static volatile CounterLocalService _service;
 
 }
-// SB-Hash:-1549212617

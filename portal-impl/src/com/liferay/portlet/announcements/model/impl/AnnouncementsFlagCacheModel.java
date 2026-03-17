@@ -163,4 +163,3 @@ public class AnnouncementsFlagCacheModel
 	public int value;
 
 }
-// SB-Hash:-1252950974

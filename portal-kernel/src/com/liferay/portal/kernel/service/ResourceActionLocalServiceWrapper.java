@@ -410,4 +410,3 @@ public class ResourceActionLocalServiceWrapper
 	private ResourceActionLocalService _resourceActionLocalService;
 
 }
-// SB-Hash:831804535

@@ -1056,4 +1056,3 @@ public class DLFolderLocalServiceWrapper
 	private DLFolderLocalService _dlFolderLocalService;
 
 }
-// SB-Hash:502399817

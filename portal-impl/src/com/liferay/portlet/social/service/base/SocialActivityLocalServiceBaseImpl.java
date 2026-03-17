@@ -545,4 +545,3 @@ public abstract class SocialActivityLocalServiceBaseImpl
 		SocialActivityLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:-148740406

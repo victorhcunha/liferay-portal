@@ -205,4 +205,3 @@ public abstract class ListTypeServiceBaseImpl
 		ListTypeServiceBaseImpl.class);
 
 }
-// SB-Hash:-497250742

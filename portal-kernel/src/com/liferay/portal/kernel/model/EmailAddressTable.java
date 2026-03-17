@@ -61,4 +61,3 @@ public class EmailAddressTable extends BaseTable<EmailAddressTable> {
 	}
 
 }
-// SB-Hash:-1217844397

@@ -394,4 +394,3 @@ public class AnnouncementsFlagLocalServiceWrapper
 	private AnnouncementsFlagLocalService _announcementsFlagLocalService;
 
 }
-// SB-Hash:-6372204

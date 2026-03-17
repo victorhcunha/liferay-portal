@@ -55,4 +55,3 @@ public interface DLFileEntryMetadata
 		throws com.liferay.portal.kernel.exception.PortalException;
 
 }
-// SB-Hash:-1089771780

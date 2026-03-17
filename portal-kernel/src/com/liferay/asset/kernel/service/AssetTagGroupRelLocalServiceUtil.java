@@ -399,4 +399,3 @@ public class AssetTagGroupRelLocalServiceUtil {
 	private static volatile AssetTagGroupRelLocalService _service;
 
 }
-// SB-Hash:2046644749

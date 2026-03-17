@@ -178,4 +178,3 @@ public class RegionServiceWrapper
 	private RegionService _regionService;
 
 }
-// SB-Hash:1098319806

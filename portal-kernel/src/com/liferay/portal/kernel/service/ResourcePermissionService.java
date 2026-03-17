@@ -192,4 +192,3 @@ public interface ResourcePermissionService extends BaseService {
 		throws PortalException;
 
 }
-// SB-Hash:1962259090

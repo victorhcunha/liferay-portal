@@ -278,4 +278,3 @@ public interface UserIdMapperLocalService
 	public UserIdMapper updateUserIdMapper(UserIdMapper userIdMapper);
 
 }
-// SB-Hash:1224728680

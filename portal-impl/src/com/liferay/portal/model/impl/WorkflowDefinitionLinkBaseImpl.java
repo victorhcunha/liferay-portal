@@ -41,4 +41,3 @@ public abstract class WorkflowDefinitionLinkBaseImpl
 	}
 
 }
-// SB-Hash:-599653677

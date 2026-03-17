@@ -399,4 +399,3 @@ public interface ResourceLocalService extends BaseLocalService {
 		String newPrimKey);
 
 }
-// SB-Hash:1572205115

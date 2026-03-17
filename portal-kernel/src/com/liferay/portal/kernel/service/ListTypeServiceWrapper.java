@@ -89,4 +89,3 @@ public class ListTypeServiceWrapper
 	private ListTypeService _listTypeService;
 
 }
-// SB-Hash:1315426182

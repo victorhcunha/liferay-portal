@@ -486,4 +486,3 @@ public class CompanyUtil {
 	private static volatile CompanyPersistence _persistence;
 
 }
-// SB-Hash:-761285749

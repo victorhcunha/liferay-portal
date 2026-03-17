@@ -3036,4 +3036,3 @@ public interface AssetCategoryPersistence
 	public int countAll();
 
 }
-// SB-Hash:-698879908

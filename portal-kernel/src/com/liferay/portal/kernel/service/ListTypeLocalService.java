@@ -309,4 +309,3 @@ public interface ListTypeLocalService
 	public void validate(long listTypeId, String type) throws PortalException;
 
 }
-// SB-Hash:-1016427937

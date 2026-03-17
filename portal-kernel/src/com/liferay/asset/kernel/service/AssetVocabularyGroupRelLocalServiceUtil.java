@@ -416,4 +416,3 @@ public class AssetVocabularyGroupRelLocalServiceUtil {
 	private static volatile AssetVocabularyGroupRelLocalService _service;
 
 }
-// SB-Hash:1427114649

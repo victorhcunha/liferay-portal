@@ -363,4 +363,3 @@ public class ListTypeLocalServiceUtil {
 	private static volatile ListTypeLocalService _service;
 
 }
-// SB-Hash:-75455825

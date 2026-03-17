@@ -84,4 +84,3 @@ public interface UserGroup extends PersistedModel, UserGroupModel {
 		throws com.liferay.portal.kernel.exception.PortalException;
 
 }
-// SB-Hash:944613222

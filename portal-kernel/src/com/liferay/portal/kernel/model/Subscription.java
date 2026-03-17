@@ -49,4 +49,3 @@ public interface Subscription extends PersistedModel, SubscriptionModel {
 		};
 
 }
-// SB-Hash:-1292526859

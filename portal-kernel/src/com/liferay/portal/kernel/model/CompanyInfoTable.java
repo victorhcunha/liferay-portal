@@ -36,4 +36,3 @@ public class CompanyInfoTable extends BaseTable<CompanyInfoTable> {
 	}
 
 }
-// SB-Hash:-1707422040

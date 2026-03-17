@@ -287,4 +287,3 @@ public class RegionCacheModel
 	public long lastPublishDate;
 
 }
-// SB-Hash:49238038

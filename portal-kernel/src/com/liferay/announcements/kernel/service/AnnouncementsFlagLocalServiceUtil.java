@@ -326,4 +326,3 @@ public class AnnouncementsFlagLocalServiceUtil {
 	private static volatile AnnouncementsFlagLocalService _service;
 
 }
-// SB-Hash:-937989712

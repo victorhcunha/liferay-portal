@@ -292,4 +292,3 @@ public interface ResourceActionLocalService
 	public ResourceAction updateResourceAction(ResourceAction resourceAction);
 
 }
-// SB-Hash:963179260

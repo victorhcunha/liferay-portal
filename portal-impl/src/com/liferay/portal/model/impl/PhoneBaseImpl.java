@@ -38,4 +38,3 @@ public abstract class PhoneBaseImpl extends PhoneModelImpl implements Phone {
 	}
 
 }
-// SB-Hash:475336797

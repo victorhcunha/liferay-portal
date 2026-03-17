@@ -45,4 +45,3 @@ public class VirtualHostTable extends BaseTable<VirtualHostTable> {
 	}
 
 }
-// SB-Hash:740810212

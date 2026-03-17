@@ -74,4 +74,3 @@ public abstract class BaseAnnouncementsEntryUADExporter
 	protected AnnouncementsEntryLocalService announcementsEntryLocalService;
 
 }
-// SB-Hash:1165826424

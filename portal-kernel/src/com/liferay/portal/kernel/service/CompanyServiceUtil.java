@@ -379,4 +379,3 @@ public class CompanyServiceUtil {
 	private static volatile CompanyService _service;
 
 }
-// SB-Hash:87255821

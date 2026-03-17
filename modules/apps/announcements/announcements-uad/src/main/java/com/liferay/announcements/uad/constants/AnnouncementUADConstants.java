@@ -20,4 +20,3 @@ public class AnnouncementUADConstants {
 	};
 
 }
-// SB-Hash:1079044467

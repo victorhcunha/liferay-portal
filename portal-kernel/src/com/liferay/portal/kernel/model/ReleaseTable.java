@@ -53,4 +53,3 @@ public class ReleaseTable extends BaseTable<ReleaseTable> {
 	}
 
 }
-// SB-Hash:-869631349

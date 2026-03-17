@@ -926,4 +926,3 @@ public class ListTypeModelImpl
 	private ListType _escapedModel;
 
 }
-// SB-Hash:1398335883

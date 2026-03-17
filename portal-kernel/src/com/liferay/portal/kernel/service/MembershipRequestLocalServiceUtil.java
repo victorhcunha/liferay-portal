@@ -368,4 +368,3 @@ public class MembershipRequestLocalServiceUtil {
 	private static volatile MembershipRequestLocalService _service;
 
 }
-// SB-Hash:1829242665

@@ -31,4 +31,3 @@ public class CounterTable extends BaseTable<CounterTable> {
 	}
 
 }
-// SB-Hash:1991042301

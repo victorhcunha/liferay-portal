@@ -813,4 +813,3 @@ public class SocialActivityCounterLocalServiceWrapper
 		_socialActivityCounterLocalService;
 
 }
-// SB-Hash:-1833444269

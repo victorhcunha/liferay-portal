@@ -144,4 +144,3 @@ public abstract class DLAppLocalServiceBaseImpl
 		DLAppLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:34020602

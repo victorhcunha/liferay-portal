@@ -44,4 +44,3 @@ public class RegionLocalizationCTServiceImpl
 	private RegionLocalizationPersistence _regionLocalizationPersistence;
 
 }
-// SB-Hash:-451797780

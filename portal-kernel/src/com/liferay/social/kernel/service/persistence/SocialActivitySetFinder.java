@@ -40,4 +40,3 @@ public interface SocialActivitySetFinder {
 		findByUserGroups(long userId, int start, int end);
 
 }
-// SB-Hash:319723592

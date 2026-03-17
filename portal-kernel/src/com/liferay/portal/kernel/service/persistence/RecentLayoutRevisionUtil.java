@@ -886,4 +886,3 @@ public class RecentLayoutRevisionUtil {
 	private static volatile RecentLayoutRevisionPersistence _persistence;
 
 }
-// SB-Hash:1867197959

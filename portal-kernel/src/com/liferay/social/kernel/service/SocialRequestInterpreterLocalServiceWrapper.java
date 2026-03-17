@@ -130,4 +130,3 @@ public class SocialRequestInterpreterLocalServiceWrapper
 		_socialRequestInterpreterLocalService;
 
 }
-// SB-Hash:-1596915978

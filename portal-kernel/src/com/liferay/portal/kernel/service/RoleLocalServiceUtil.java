@@ -1268,4 +1268,3 @@ public class RoleLocalServiceUtil {
 	private static volatile RoleLocalService _service;
 
 }
-// SB-Hash:1136166111

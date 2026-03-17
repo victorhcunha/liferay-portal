@@ -830,4 +830,3 @@ public class CompanyLocalServiceWrapper
 	private CompanyLocalService _companyLocalService;
 
 }
-// SB-Hash:1976886724

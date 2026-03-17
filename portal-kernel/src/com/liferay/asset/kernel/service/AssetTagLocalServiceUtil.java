@@ -891,4 +891,3 @@ public class AssetTagLocalServiceUtil {
 	private static volatile AssetTagLocalService _service;
 
 }
-// SB-Hash:-62798395

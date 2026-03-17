@@ -332,4 +332,3 @@ public class WebDAVPropsUtil {
 	private static volatile WebDAVPropsPersistence _persistence;
 
 }
-// SB-Hash:254826298

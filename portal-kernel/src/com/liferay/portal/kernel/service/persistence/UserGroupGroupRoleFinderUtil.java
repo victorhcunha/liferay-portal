@@ -50,4 +50,3 @@ public class UserGroupGroupRoleFinderUtil {
 	private static UserGroupGroupRoleFinder _finder;
 
 }
-// SB-Hash:-1835409549

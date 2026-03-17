@@ -50,4 +50,3 @@ public interface SocialRequest extends PersistedModel, SocialRequestModel {
 		};
 
 }
-// SB-Hash:-708588457

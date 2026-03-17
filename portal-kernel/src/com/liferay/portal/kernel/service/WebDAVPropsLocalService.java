@@ -270,4 +270,3 @@ public interface WebDAVPropsLocalService
 	public WebDAVProps updateWebDAVProps(WebDAVProps webDAVProps);
 
 }
-// SB-Hash:1494215678

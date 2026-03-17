@@ -500,4 +500,3 @@ public class PortletUtil {
 	private static volatile PortletPersistence _persistence;
 
 }
-// SB-Hash:1900201043

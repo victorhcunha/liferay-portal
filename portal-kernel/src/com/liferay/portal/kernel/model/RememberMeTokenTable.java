@@ -46,4 +46,3 @@ public class RememberMeTokenTable extends BaseTable<RememberMeTokenTable> {
 	}
 
 }
-// SB-Hash:1075978189

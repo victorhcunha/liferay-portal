@@ -61,4 +61,3 @@ public class UserGroupTable extends BaseTable<UserGroupTable> {
 	}
 
 }
-// SB-Hash:1961244830

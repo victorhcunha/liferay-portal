@@ -50,4 +50,3 @@ public class LayoutBranchTable extends BaseTable<LayoutBranchTable> {
 	}
 
 }
-// SB-Hash:1199307496

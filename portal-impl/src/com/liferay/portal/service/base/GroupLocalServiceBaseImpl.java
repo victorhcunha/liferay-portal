@@ -1104,4 +1104,3 @@ public abstract class GroupLocalServiceBaseImpl
 		GroupLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:-1728160708

@@ -842,4 +842,3 @@ public class AnnouncementsFlagModelImpl
 	private AnnouncementsFlag _escapedModel;
 
 }
-// SB-Hash:1437653865

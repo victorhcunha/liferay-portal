@@ -80,4 +80,3 @@ public interface GroupFinder {
 		long companyId);
 
 }
-// SB-Hash:382135008

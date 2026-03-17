@@ -139,4 +139,3 @@ public class LayoutTemplateLocalServiceWrapper
 	private LayoutTemplateLocalService _layoutTemplateLocalService;
 
 }
-// SB-Hash:1879964768

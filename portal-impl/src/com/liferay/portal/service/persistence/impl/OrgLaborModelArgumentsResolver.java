@@ -132,4 +132,3 @@ public class OrgLaborModelArgumentsResolver implements ArgumentsResolver {
 	}
 
 }
-// SB-Hash:-1307322955

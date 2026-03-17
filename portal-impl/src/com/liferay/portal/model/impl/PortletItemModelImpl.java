@@ -957,4 +957,3 @@ public class PortletItemModelImpl
 	private PortletItem _escapedModel;
 
 }
-// SB-Hash:1977507413

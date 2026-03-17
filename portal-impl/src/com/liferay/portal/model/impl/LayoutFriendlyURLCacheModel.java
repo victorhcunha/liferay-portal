@@ -271,4 +271,3 @@ public class LayoutFriendlyURLCacheModel
 	public long lastPublishDate;
 
 }
-// SB-Hash:984446637

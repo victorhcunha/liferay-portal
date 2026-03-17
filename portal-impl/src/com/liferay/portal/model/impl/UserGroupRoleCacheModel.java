@@ -147,4 +147,3 @@ public class UserGroupRoleCacheModel
 	public long roleId;
 
 }
-// SB-Hash:300888057

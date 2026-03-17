@@ -884,4 +884,3 @@ public class RatingsStatsModelImpl
 	private RatingsStats _escapedModel;
 
 }
-// SB-Hash:-1695950033

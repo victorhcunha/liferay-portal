@@ -125,4 +125,3 @@ public class ImageModelArgumentsResolver implements ArgumentsResolver {
 	}
 
 }
-// SB-Hash:-1731572079

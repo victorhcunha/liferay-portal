@@ -39,4 +39,3 @@ public abstract class WebDAVPropsBaseImpl
 	}
 
 }
-// SB-Hash:-1376709313

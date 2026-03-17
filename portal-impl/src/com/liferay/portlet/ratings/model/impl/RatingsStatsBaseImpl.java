@@ -39,4 +39,3 @@ public abstract class RatingsStatsBaseImpl
 	}
 
 }
-// SB-Hash:-2104282867

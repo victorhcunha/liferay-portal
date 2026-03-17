@@ -345,4 +345,3 @@ public class UserGroupRoleWrapper
 	}
 
 }
-// SB-Hash:556491311

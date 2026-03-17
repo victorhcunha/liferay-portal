@@ -66,4 +66,3 @@ public abstract class BaseRoleUADExporter
 	protected RoleLocalService roleLocalService;
 
 }
-// SB-Hash:1415246246

@@ -655,4 +655,3 @@ public abstract class AddressLocalServiceBaseImpl
 		AddressLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:1213844685

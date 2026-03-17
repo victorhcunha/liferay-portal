@@ -524,4 +524,3 @@ public class VirtualHostPersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// SB-Hash:-35242195

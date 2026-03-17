@@ -60,4 +60,3 @@ public class PortletPreferenceValueTable
 	}
 
 }
-// SB-Hash:403350410

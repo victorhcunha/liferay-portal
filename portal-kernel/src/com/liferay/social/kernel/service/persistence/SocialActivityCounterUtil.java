@@ -1076,4 +1076,3 @@ public class SocialActivityCounterUtil {
 	private static volatile SocialActivityCounterPersistence _persistence;
 
 }
-// SB-Hash:-1341408017

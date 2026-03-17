@@ -53,4 +53,3 @@ public class SocialActivitySettingTable
 	}
 
 }
-// SB-Hash:1813836734

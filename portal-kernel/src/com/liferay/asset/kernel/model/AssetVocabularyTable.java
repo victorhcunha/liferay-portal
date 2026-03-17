@@ -74,4 +74,3 @@ public class AssetVocabularyTable extends BaseTable<AssetVocabularyTable> {
 	}
 
 }
-// SB-Hash:1079201385

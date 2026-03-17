@@ -496,4 +496,3 @@ public abstract class ContactLocalServiceBaseImpl
 		ContactLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:-595016859

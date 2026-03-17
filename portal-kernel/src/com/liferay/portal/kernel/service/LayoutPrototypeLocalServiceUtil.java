@@ -408,4 +408,3 @@ public class LayoutPrototypeLocalServiceUtil {
 	private static volatile LayoutPrototypeLocalService _service;
 
 }
-// SB-Hash:1972190276

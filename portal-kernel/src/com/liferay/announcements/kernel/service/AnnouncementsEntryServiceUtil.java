@@ -79,4 +79,3 @@ public class AnnouncementsEntryServiceUtil {
 	private static volatile AnnouncementsEntryService _service;
 
 }
-// SB-Hash:-504846830

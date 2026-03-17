@@ -775,4 +775,3 @@ public abstract class RegionLocalServiceBaseImpl
 		RegionLocalServiceBaseImpl.class);
 
 }
-// SB-Hash:-1265801374

@@ -2595,4 +2595,3 @@ public class ResourcePermissionUtil {
 	private static volatile ResourcePermissionPersistence _persistence;
 
 }
-// SB-Hash:-753659690

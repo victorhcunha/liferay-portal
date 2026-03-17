@@ -207,4 +207,3 @@ public class SocialActivitySetCacheModel
 	public int activityCount;
 
 }
-// SB-Hash:2053070303

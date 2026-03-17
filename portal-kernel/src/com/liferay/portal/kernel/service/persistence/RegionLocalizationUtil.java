@@ -533,4 +533,3 @@ public class RegionLocalizationUtil {
 	private static volatile RegionLocalizationPersistence _persistence;
 
 }
-// SB-Hash:1044494177

@@ -39,4 +39,3 @@ public abstract class UserGroupBaseImpl
 	}
 
 }
-// SB-Hash:-1509798377

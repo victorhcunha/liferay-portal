@@ -242,4 +242,3 @@ public class OrgLaborCacheModel
 	public int satClose;
 
 }
-// SB-Hash:1272530361

@@ -47,4 +47,3 @@ public class UserTrackerTable extends BaseTable<UserTrackerTable> {
 	}
 
 }
-// SB-Hash:-1773045300
