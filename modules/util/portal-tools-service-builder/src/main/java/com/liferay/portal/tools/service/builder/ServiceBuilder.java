@@ -3680,7 +3680,7 @@ public class ServiceBuilder {
 	private void _createService(Entity entity, int sessionType)
 		throws Exception {
 
-		Set<String> imports = new HashSet<>();
+		Set<String> imports = new TreeSet<>();
 
 		JavaClass javaClass = _getJavaClass(
 			StringBundler.concat(
