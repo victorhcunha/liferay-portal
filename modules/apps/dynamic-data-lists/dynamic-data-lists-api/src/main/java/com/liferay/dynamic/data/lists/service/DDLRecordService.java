@@ -180,3 +180,4 @@ public interface DDLRecordService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:-778382149

@@ -359,3 +359,4 @@ public interface OAuth2ScopeGrantLocalService
 		OAuth2ScopeGrant oAuth2ScopeGrant);
 
 }
+// SB-Hash:1827375040

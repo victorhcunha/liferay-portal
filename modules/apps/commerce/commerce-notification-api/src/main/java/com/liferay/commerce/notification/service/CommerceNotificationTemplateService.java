@@ -112,3 +112,4 @@ public interface CommerceNotificationTemplateService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:1021410634

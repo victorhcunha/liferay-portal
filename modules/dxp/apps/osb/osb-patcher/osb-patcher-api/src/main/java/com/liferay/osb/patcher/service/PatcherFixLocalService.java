@@ -469,3 +469,4 @@ public interface PatcherFixLocalService
 		throws PortalException;
 
 }
+// SB-Hash:1739905232

@@ -110,3 +110,4 @@ public interface CommerceChannelAccountEntryRelService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:550231007

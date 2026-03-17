@@ -289,3 +289,4 @@ public interface BatchPlannerMappingLocalService
 		throws PortalException;
 
 }
+// SB-Hash:472528282

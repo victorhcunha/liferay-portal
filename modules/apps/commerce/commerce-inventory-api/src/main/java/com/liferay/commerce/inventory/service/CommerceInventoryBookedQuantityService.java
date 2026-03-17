@@ -75,3 +75,4 @@ public interface CommerceInventoryBookedQuantityService extends BaseService {
 	public String getOSGiServiceIdentifier();
 
 }
+// SB-Hash:1644175939

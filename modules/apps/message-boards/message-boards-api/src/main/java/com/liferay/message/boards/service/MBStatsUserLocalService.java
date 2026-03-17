@@ -74,3 +74,4 @@ public interface MBStatsUserLocalService extends BaseLocalService {
 		throws PortalException;
 
 }
+// SB-Hash:1730193773

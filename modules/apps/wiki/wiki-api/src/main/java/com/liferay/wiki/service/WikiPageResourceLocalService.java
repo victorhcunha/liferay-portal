@@ -355,3 +355,4 @@ public interface WikiPageResourceLocalService
 		throws E;
 
 }
+// SB-Hash:-645540676

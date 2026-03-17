@@ -233,3 +233,4 @@ public interface BlogsEntryService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:963035156

@@ -301,3 +301,4 @@ public interface AnnouncementsFlagLocalService
 		throws E;
 
 }
+// SB-Hash:2092218807

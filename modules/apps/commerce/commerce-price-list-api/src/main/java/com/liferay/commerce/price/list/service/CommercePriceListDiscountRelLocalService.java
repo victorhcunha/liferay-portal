@@ -349,3 +349,4 @@ public interface CommercePriceListDiscountRelLocalService
 		throws E;
 
 }
+// SB-Hash:770526352

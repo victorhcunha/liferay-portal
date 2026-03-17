@@ -439,3 +439,4 @@ public interface KBFolderLocalService
 		throws E;
 
 }
+// SB-Hash:-183352537

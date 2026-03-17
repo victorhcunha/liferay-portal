@@ -404,3 +404,4 @@ public interface DepotEntryGroupRelLocalService
 		throws E;
 
 }
+// SB-Hash:1115237236

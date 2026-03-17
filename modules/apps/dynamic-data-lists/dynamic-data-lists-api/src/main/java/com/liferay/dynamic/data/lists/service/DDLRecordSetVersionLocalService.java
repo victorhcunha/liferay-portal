@@ -313,3 +313,4 @@ public interface DDLRecordSetVersionLocalService
 		throws E;
 
 }
+// SB-Hash:890164709

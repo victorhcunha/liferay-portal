@@ -279,3 +279,4 @@ public interface BatchEngineImportTaskErrorLocalService
 		BatchEngineImportTaskError batchEngineImportTaskError);
 
 }
+// SB-Hash:1673763879

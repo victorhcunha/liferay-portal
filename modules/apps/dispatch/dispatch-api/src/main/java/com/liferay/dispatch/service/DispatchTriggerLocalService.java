@@ -375,3 +375,4 @@ public interface DispatchTriggerLocalService
 		throws PortalException;
 
 }
+// SB-Hash:65005302

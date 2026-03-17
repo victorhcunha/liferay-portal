@@ -354,3 +354,4 @@ public interface VersionedEntryLocalService
 		throws PortalException;
 
 }
+// SB-Hash:1845436484

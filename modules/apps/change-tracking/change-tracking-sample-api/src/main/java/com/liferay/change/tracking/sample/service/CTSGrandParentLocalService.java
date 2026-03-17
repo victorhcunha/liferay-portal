@@ -272,3 +272,4 @@ public interface CTSGrandParentLocalService
 		throws PortalException;
 
 }
+// SB-Hash:78339368

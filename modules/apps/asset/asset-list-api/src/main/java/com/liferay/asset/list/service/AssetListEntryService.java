@@ -210,3 +210,4 @@ public interface AssetListEntryService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:1791060059

@@ -359,3 +359,4 @@ public interface CPConfigurationListRelLocalService
 		throws E;
 
 }
+// SB-Hash:890266710

@@ -442,3 +442,4 @@ public interface CPDefinitionLinkLocalService
 		throws E;
 
 }
+// SB-Hash:1134524382
