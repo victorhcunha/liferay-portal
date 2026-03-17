@@ -309,3 +309,4 @@ public interface ObjectViewFilterColumnLocalService
 		ObjectViewFilterColumn objectViewFilterColumn);
 
 }
+// SB-Hash:-1542289698

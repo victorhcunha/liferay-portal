@@ -320,3 +320,4 @@ public interface COREntryRelLocalService
 	public COREntryRel updateCOREntryRel(COREntryRel corEntryRel);
 
 }
+// SB-Hash:1111274105

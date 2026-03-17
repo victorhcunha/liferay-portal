@@ -189,3 +189,4 @@ public interface CommerceShipmentService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:51011820

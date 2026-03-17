@@ -401,3 +401,4 @@ public interface ClientExtensionEntryRelLocalService
 		throws E;
 
 }
+// SB-Hash:317817385

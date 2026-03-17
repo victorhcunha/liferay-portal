@@ -65,3 +65,4 @@ public interface DDMStructureLinkService extends BaseService {
 		String resourceClassName);
 
 }
+// SB-Hash:24700598

@@ -68,3 +68,4 @@ public interface CommerceVirtualOrderItemFileEntryService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:273426451

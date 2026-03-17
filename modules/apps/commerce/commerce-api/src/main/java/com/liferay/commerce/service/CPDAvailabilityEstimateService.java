@@ -58,3 +58,4 @@ public interface CPDAvailabilityEstimateService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:942380397

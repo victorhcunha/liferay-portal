@@ -63,3 +63,4 @@ public interface BlogsStatsUserLocalService extends BaseLocalService {
 		throws PortalException;
 
 }
+// SB-Hash:-1219921875

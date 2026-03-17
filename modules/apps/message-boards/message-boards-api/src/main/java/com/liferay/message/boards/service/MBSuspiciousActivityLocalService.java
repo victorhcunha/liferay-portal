@@ -373,3 +373,4 @@ public interface MBSuspiciousActivityLocalService
 		throws E;
 
 }
+// SB-Hash:1053415016

@@ -348,3 +348,4 @@ public interface CTEntryLocalService
 		long ctEntryId, long modelMvccVersion);
 
 }
+// SB-Hash:1099880815

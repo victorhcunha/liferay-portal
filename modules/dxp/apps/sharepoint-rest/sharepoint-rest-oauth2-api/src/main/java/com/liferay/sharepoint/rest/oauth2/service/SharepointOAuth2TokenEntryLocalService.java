@@ -290,3 +290,4 @@ public interface SharepointOAuth2TokenEntryLocalService
 		SharepointOAuth2TokenEntry sharepointOAuth2TokenEntry);
 
 }
+// SB-Hash:1965526317

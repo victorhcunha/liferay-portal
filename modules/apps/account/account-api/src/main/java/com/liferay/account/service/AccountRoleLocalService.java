@@ -335,3 +335,4 @@ public interface AccountRoleLocalService
 	public AccountRole updateAccountRole(AccountRole accountRole);
 
 }
+// SB-Hash:-1388975938

@@ -298,3 +298,4 @@ public interface ObjectFilterLocalService
 	public ObjectFilter updateObjectFilter(ObjectFilter objectFilter);
 
 }
+// SB-Hash:-1513687560

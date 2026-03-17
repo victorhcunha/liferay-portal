@@ -331,3 +331,4 @@ public interface CPSpecificationOptionListTypeDefinitionRelLocalService
 		throws E;
 
 }
+// SB-Hash:623462715

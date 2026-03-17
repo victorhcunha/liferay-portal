@@ -356,3 +356,4 @@ public interface ListTypeEntryLocalService
 		throws PortalException;
 
 }
+// SB-Hash:-599748215

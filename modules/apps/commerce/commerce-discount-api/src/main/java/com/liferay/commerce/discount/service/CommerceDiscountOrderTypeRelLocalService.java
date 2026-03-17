@@ -331,3 +331,4 @@ public interface CommerceDiscountOrderTypeRelLocalService
 		CommerceDiscountOrderTypeRel commerceDiscountOrderTypeRel);
 
 }
+// SB-Hash:790427613

@@ -363,3 +363,4 @@ public interface CPDVirtualSettingFileEntryLocalService
 		throws PortalException;
 
 }
+// SB-Hash:659488073

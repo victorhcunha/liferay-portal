@@ -78,3 +78,4 @@ public interface CPDefinitionInventoryService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:-683661660

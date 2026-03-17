@@ -341,3 +341,4 @@ public interface CommerceNotificationQueueEntryLocalService
 		throws PortalException;
 
 }
+// SB-Hash:1348073961

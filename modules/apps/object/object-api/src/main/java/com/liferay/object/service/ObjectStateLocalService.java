@@ -312,3 +312,4 @@ public interface ObjectStateLocalService
 	public ObjectState updateObjectState(ObjectState objectState);
 
 }
+// SB-Hash:178037427

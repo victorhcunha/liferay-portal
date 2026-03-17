@@ -71,3 +71,4 @@ public interface DDMStructureVersionService extends BaseService {
 		throws PortalException;
 
 }
+// SB-Hash:168421151

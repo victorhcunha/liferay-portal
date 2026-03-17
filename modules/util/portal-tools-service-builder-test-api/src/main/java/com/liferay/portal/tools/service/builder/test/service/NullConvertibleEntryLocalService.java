@@ -278,3 +278,4 @@ public interface NullConvertibleEntryLocalService
 		NullConvertibleEntry nullConvertibleEntry);
 
 }
+// SB-Hash:674990963

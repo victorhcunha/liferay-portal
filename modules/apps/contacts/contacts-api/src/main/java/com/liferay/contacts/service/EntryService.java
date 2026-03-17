@@ -51,3 +51,4 @@ public interface EntryService extends BaseService {
 	public String getOSGiServiceIdentifier();
 
 }
+// SB-Hash:-1574254002

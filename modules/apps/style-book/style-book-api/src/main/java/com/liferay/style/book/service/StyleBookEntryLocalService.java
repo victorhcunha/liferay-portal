@@ -475,3 +475,4 @@ public interface StyleBookEntryLocalService
 		throws E;
 
 }
+// SB-Hash:554997634
