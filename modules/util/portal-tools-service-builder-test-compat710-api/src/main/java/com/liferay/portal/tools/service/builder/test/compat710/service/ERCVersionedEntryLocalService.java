@@ -315,3 +315,4 @@ public interface ERCVersionedEntryLocalService
 		ERCVersionedEntry ercVersionedEntry);
 
 }
+// SB-Hash:-972013405

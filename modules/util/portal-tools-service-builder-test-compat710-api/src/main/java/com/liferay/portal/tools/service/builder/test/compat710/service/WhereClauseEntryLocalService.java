@@ -249,3 +249,4 @@ public interface WhereClauseEntryLocalService
 		WhereClauseEntry whereClauseEntry);
 
 }
+// SB-Hash:1989165992

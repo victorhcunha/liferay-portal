@@ -259,3 +259,4 @@ public interface ArrayableEntryLocalService
 	public ArrayableEntry updateArrayableEntry(ArrayableEntry arrayableEntry);
 
 }
+// SB-Hash:-92391268

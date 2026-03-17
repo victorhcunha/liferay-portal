@@ -318,3 +318,4 @@ public interface ERCGroupEntryLocalService
 	public ERCGroupEntry updateERCGroupEntry(ERCGroupEntry ercGroupEntry);
 
 }
+// SB-Hash:399929315

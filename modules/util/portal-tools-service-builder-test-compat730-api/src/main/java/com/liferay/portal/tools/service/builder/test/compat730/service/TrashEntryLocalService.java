@@ -251,3 +251,4 @@ public interface TrashEntryLocalService
 	public TrashEntry updateTrashEntry(TrashEntry trashEntry);
 
 }
+// SB-Hash:-781498541

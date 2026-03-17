@@ -288,3 +288,4 @@ public interface ERCCompanyEntryLocalService
 		ERCCompanyEntry ercCompanyEntry);
 
 }
+// SB-Hash:119755809

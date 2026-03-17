@@ -300,3 +300,4 @@ public interface LazyBlobEntryLocalService
 	public LazyBlobEntry updateLazyBlobEntry(LazyBlobEntry lazyBlobEntry);
 
 }
+// SB-Hash:1345863513
