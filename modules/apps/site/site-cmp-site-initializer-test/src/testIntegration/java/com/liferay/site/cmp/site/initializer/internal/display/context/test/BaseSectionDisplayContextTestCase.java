@@ -12,8 +12,8 @@ import com.liferay.frontend.taglib.clay.servlet.taglib.util.CreationMenu;
 import com.liferay.frontend.taglib.clay.servlet.taglib.util.DropdownItem;
 import com.liferay.object.model.ObjectDefinition;
 import com.liferay.object.service.ObjectDefinitionLocalService;
+import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.service.CompanyLocalService;
-import com.liferay.portal.kernel.test.AssertUtils;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -27,7 +27,6 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -41,7 +40,8 @@ public abstract class BaseSectionDisplayContextTestCase {
 
 	@Before
 	public void setUp() throws Exception {
-		CMPTestUtil.getOrAddGroup(BaseSectionDisplayContextTestCase.class);
+		Group group = CMPTestUtil.getOrAddGroup(
+			BaseSectionDisplayContextTestCase.class);
 
 		objectDefinition =
 			objectDefinitionLocalService.
@@ -54,41 +54,11 @@ public abstract class BaseSectionDisplayContextTestCase {
 					_companyLocalService.getCompany(
 						TestPropsValues.getCompanyId()));
 				setLocale(LocaleUtil.getDefault());
+				setScopeGroupId(group.getGroupId());
 				setURLCurrent("http://localhost:8080/currentURL");
 				setUser(TestPropsValues.getUser());
 			}
 		};
-	}
-
-	protected void assertFDSActionDropdownItem(
-		String expectedIcon, String expectedId, String expectedLabel,
-		String expectedMethod, FDSActionDropdownItem fdsActionDropdownItem) {
-
-		Map<String, String> data =
-			(Map<String, String>)fdsActionDropdownItem.get("data");
-
-		Assert.assertEquals(expectedId, data.get("id"));
-		Assert.assertEquals(expectedMethod, data.get("method"));
-
-		Assert.assertEquals(expectedIcon, fdsActionDropdownItem.get("icon"));
-		Assert.assertEquals(expectedLabel, fdsActionDropdownItem.get("label"));
-	}
-
-	protected void assertFDSActionDropdownItem(
-		String expectedIcon, String expectedId, String expectedLabel,
-		String expectedMethod, Map<String, Object> expectedVisibilityFilters,
-		FDSActionDropdownItem fdsActionDropdownItem) {
-
-		assertFDSActionDropdownItem(
-			expectedIcon, expectedId, expectedLabel, expectedMethod,
-			fdsActionDropdownItem);
-
-		Map<String, Object> data =
-			(Map<String, Object>)fdsActionDropdownItem.get("data");
-
-		AssertUtils.assertEquals(
-			expectedVisibilityFilters,
-			(Map<String, Object>)data.get("visibilityFilters"));
 	}
 
 	protected void assertFDSFilter(

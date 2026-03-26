@@ -32,7 +32,7 @@ const expandGroupForSideMenu = (group) => {
 			displayName: productName
 		}));
 	}
-	
+
 	return [group];
 };
 
@@ -42,9 +42,7 @@ const SideMenu = () => {
 			hasExperienceSubscription,
 			hasLegacySubscription,
 			hasPlanSubscription,
-			project,
 			subscriptionGroups,
-			subscriptions,
 		},
 	] = useAppContext();
 	const [isOpenedProductsMenu, setIsOpenedProductsMenu] = useState(false);
@@ -80,15 +78,6 @@ const SideMenu = () => {
 		[menuItemActiveStatus]
 	);
 
-	const hasSaasSubscription = useMemo(
-        () =>
-            subscriptionGroups?.some(
-                (subscription) =>
-                    subscription.activationProductName?.includes(PRODUCT_TYPES.liferayExperienceCloud)
-            ),
-        [subscriptionGroups]
-    );
-
 	const hasSLASubscription = useMemo(
 		() =>
 			koroneikiAccount?.slaCurrent ||
@@ -96,6 +85,15 @@ const SideMenu = () => {
 			koroneikiAccount?.slaFuture,
 		[koroneikiAccount]
 	);
+
+  	const isProjectUsageEnabled =
+		(hasPlanSubscription || hasLegacySubscription) &&
+		  (featureFlags.includes('LRSD-6322') ||
+		  	loggedUserAccount?.isLiferayStaff ||
+		  	loggedUserAccount?.isPartner) ||
+		hasExperienceSubscription &&
+		  (featureFlags.includes('LRSD-12003') ||
+			  loggedUserAccount?.isLiferayStaff);
 
 	useEffect(() => {
 		const expandedHeightProducts = isOpenedProductsMenu
@@ -233,18 +231,16 @@ const SideMenu = () => {
 					</li>
 				)}
 
-				{featureFlags.includes('ISSD-119') && (
-					<div className="d-flex">
-						<MenuItem
-							iconKey="attachments"
-							to={getKebabCase(MENU_TYPES.attachments)}
-						>
-							{i18n.translate(
-								getKebabCase(MENU_TYPES.attachments)
-							)}
-						</MenuItem>
-					</div>
-				)}
+				<div className="d-flex">
+					<MenuItem
+						iconKey="attachments"
+						to={getKebabCase(MENU_TYPES.attachments)}
+					>
+						{i18n.translate(
+							getKebabCase(MENU_TYPES.attachments)
+						)}
+					</MenuItem>
+				</div>
 
 				<div className="d-flex">
 					<MenuItem
@@ -266,10 +262,7 @@ const SideMenu = () => {
 					</div>
 				)}
 
-				{(((loggedUserAccount?.isLiferayStaff || loggedUserAccount?.isPartner) &&
-					(hasPlanSubscription || hasLegacySubscription)) ||
-					(featureFlags.includes('LRSD-12003') &&
-						hasExperienceSubscription)) && (
+				{isProjectUsageEnabled && (
 					<div className="d-flex">
 						<MenuItem
 							iconKey="projectUsage"

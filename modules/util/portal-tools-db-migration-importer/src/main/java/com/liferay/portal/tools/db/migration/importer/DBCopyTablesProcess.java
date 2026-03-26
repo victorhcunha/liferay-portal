@@ -59,6 +59,14 @@ public class DBCopyTablesProcess {
 	public DBCopyTablesProcess(
 		DataSource sourceDataSource, DataSource targetDataSource) {
 
+		this(null, sourceDataSource, targetDataSource);
+	}
+
+	public DBCopyTablesProcess(
+		String partitionName, DataSource sourceDataSource,
+		DataSource targetDataSource) {
+
+		_partitionName = partitionName;
 		_sourceDataSource = sourceDataSource;
 		_targetDataSource = targetDataSource;
 	}
@@ -77,14 +85,7 @@ public class DBCopyTablesProcess {
 		List<String> targetColumnNames = _targetColumnNamesMap.get(
 			targetTableName);
 
-		if (sourceColumnNames.size() > targetColumnNames.size()) {
-			throw new IllegalStateException(
-				StringBundler.concat(
-					"Source table ", targetTableName, " has ",
-					sourceColumnNames.size(), " but target table name has ",
-					targetColumnNames.size(), " columns"));
-		}
-		else if (sourceColumnNames.size() < targetColumnNames.size()) {
+		if (sourceColumnNames.size() < targetColumnNames.size()) {
 			Set<String> sourceColumnNamesSet = new TreeSet<String>(
 				String.CASE_INSENSITIVE_ORDER) {
 
@@ -151,6 +152,8 @@ public class DBCopyTablesProcess {
 		sourceTableNames.retainAll(targetTableNames);
 
 		targetTableNames.retainAll(sourceTableNames);
+
+		_validateTables(sourceTableNames, targetTableNames);
 
 		Iterator<String> sourceIterator = sourceTableNames.iterator();
 		Iterator<String> targetIterator = targetTableNames.iterator();
@@ -543,8 +546,50 @@ public class DBCopyTablesProcess {
 		}
 	}
 
+	private void _validateTables(
+		Set<String> sourceTableNames, Set<String> targetTableNames) {
+
+		StringBundler sb = new StringBundler();
+
+		Iterator<String> sourceIterator = sourceTableNames.iterator();
+		Iterator<String> targetIterator = targetTableNames.iterator();
+
+		while (sourceIterator.hasNext()) {
+			String sourceTableName = sourceIterator.next();
+			String targetTableName = targetIterator.next();
+
+			List<String> sourceColumnNames = _sourceColumnNamesMap.get(
+				sourceTableName);
+			List<String> targetColumnNames = _targetColumnNamesMap.get(
+				targetTableName);
+
+			if (sourceColumnNames.size() > targetColumnNames.size()) {
+				sb.append("Source table ");
+				sb.append(sourceTableName);
+				sb.append(" has ");
+				sb.append(sourceColumnNames.size());
+				sb.append(" columns, but target table ");
+				sb.append(targetTableName);
+				sb.append(" has only ");
+				sb.append(targetColumnNames.size());
+
+				if (_partitionName != null) {
+					sb.append(" in partition ");
+					sb.append(_partitionName);
+				}
+
+				sb.append(StringPool.NEW_LINE);
+			}
+		}
+
+		if (sb.length() > 0) {
+			throw new IllegalArgumentException(sb.toString());
+		}
+	}
+
 	private static final int _SQL_TYPE_ORACLE_BINARY_DOUBLE = 101;
 
+	private final String _partitionName;
 	private final Map<String, List<String>> _sourceColumnNamesMap =
 		new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 	private final Map<String, Integer> _sourceColumnsType = new HashMap<>();

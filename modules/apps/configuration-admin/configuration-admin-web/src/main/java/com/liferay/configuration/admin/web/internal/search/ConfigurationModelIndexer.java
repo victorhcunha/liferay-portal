@@ -366,7 +366,7 @@ public class ConfigurationModelIndexer
 	}
 
 	@Override
-	protected void doReindex(String[] ids) throws Exception {
+	protected void doReindexCompany(long companyId) throws Exception {
 		Set<Document> documents = new HashSet<>();
 
 		Map<String, ConfigurationModel> configurationModels =

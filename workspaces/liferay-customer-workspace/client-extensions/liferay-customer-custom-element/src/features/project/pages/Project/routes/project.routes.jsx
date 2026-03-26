@@ -88,23 +88,13 @@ const ProjectRoutes = () => {
 		subscriptions === undefined;
 
 	const isProjectUsageEnabled =
-		((loggedUserAccount?.isLiferayStaff || loggedUserAccount?.isPartner) &&
-			(hasPlanSubscription || hasLegacySubscription)) ||
-		(featureFlags.includes('LRSD-12003') && hasExperienceSubscription);
-
-	const hasSaasSubscription = useMemo(
-		() => {
-			const allowedERCs = [
-				`${project?.externalReferenceCode}_liferay-cloud`,
-				`${project?.externalReferenceCode}_liferay-saas`
-			];
-
-			return subscriptionGroups?.some(({externalReferenceCode}) =>
-				allowedERCs.includes(externalReferenceCode)
-			);
-		},
-		[project?.externalReferenceCode, subscriptionGroups]
-	);
+		(hasPlanSubscription || hasLegacySubscription) &&
+		  (featureFlags.includes('LRSD-6322') ||
+		  	loggedUserAccount?.isLiferayStaff ||
+		  	loggedUserAccount?.isPartner) ||
+		hasExperienceSubscription &&
+		  (featureFlags.includes('LRSD-12003') ||
+			  loggedUserAccount?.isLiferayStaff);
 
 	const hasSLASubscription = useMemo(
 		() =>
@@ -168,17 +158,15 @@ const ProjectRoutes = () => {
 								path="new"
 							/>
 
-							{featureFlags.includes('LPS-186175') && (
-								<Route
-									element={
-										<DeactivateKeysTable
-											initialFilter="startswith(productName,'Portal')"
-											productName={PRODUCT_TYPES.portal}
-										/>
-									}
-									path="deactivate"
-								/>
-							)}
+							<Route
+								element={
+									<DeactivateKeysTable
+										initialFilter="startswith(productName,'Portal')"
+										productName={PRODUCT_TYPES.portal}
+									/>
+								}
+								path="deactivate"
+							/>
 
 							<Route
 								element={
@@ -328,9 +316,7 @@ const ProjectRoutes = () => {
 						</Route>
 					</Route>
 
-					{featureFlags.includes('ISSD-119') && (
-						<Route element={<Attachments />} path="attachments" />
-					)}
+					<Route element={<Attachments />} path="attachments" />
 
 					<Route element={<TeamMembers />} path="team-members" />
 

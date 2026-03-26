@@ -275,13 +275,6 @@ public class WikiPageIndexer extends BaseIndexer<WikiPage> {
 	}
 
 	@Override
-	protected void doReindex(String[] ids) throws Exception {
-		long companyId = GetterUtil.getLong(ids[0]);
-
-		_reindexNodes(companyId);
-	}
-
-	@Override
 	protected void doReindex(WikiPage wikiPage) throws Exception {
 		if (!wikiPage.isHead() ||
 			(!wikiPage.isApproved() && !wikiPage.isInTrash())) {
@@ -297,6 +290,11 @@ public class WikiPageIndexer extends BaseIndexer<WikiPage> {
 			wikiPage.getCompanyId(), getDocument(wikiPage));
 
 		_reindexAttachments(wikiPage);
+	}
+
+	@Override
+	protected void doReindexCompany(long companyId) throws Exception {
+		_reindexNodes(companyId);
 	}
 
 	@Reference

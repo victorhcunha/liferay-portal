@@ -255,10 +255,6 @@ export interface IHeader {
 	title?: string;
 }
 
-export interface IListTitleRenderer {
-	component: ({itemData}: {itemData: any}) => JSX.Element;
-}
-
 export interface IListSchema {
 	accessibleNameField?: string;
 	description: string;
@@ -266,7 +262,7 @@ export interface IListSchema {
 	sticker?: string;
 	symbol?: string;
 	title: string;
-	titleRenderer: IListTitleRenderer;
+	titleRendererName: string;
 	tooltip?: string;
 }
 
@@ -296,9 +292,23 @@ export interface IFileDropSettings {
 	onFileDrop?: TOnFileDrop;
 }
 
+export type ILoadDataArgs = {
+	additionalAPIURLParameters?: string;
+	apiURL: string;
+	currentURL?: string;
+	delta?: number;
+	odataFiltersStrings?: Array<string>;
+	page?: number;
+	searchParam?: string;
+	sorts?: TSort[];
+};
+
 export interface IFrontendDataSetProps {
 	actionParameterName?: string;
 	additionalAPIURLParameters?: string;
+	additionalAPIURLParametersTransformer?: (
+		loadDataArgs: ILoadDataArgs
+	) => string | undefined;
 	apiURL?: string;
 	appURL?: string;
 	atom?: Atom<IFDSState>;
@@ -312,6 +322,7 @@ export interface IFrontendDataSetProps {
 	currentURL?: string;
 	customDataRenderers?: any;
 	customRenderers?: {
+		listSection?: Array<IInternalRenderer>;
 		tableCell?: Array<TRenderer>;
 	};
 	defaultSelectedItems?: any[];

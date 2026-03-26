@@ -11,6 +11,7 @@ import {
 	IDataSetData,
 	IFDSState,
 	IInlineEditingSettings,
+	IInternalRenderer,
 	IItemsActions,
 	TRenderer,
 	TSort,
@@ -25,6 +26,7 @@ export interface IFrontendDataSetContext {
 	createInlineItem: Function;
 	customDataRenderers?: Array<any>;
 	customRenderers?: {
+		listSection?: Array<IInternalRenderer>;
 		tableCell?: Array<TRenderer>;
 	};
 	executeAsyncItemAction: ({

@@ -185,9 +185,7 @@ public class CommercePriceEntryIndexer extends BaseIndexer<CommercePriceEntry> {
 	}
 
 	@Override
-	protected void doReindex(String[] ids) throws Exception {
-		long companyId = GetterUtil.getLong(ids[0]);
-
+	protected void doReindexCompany(long companyId) throws Exception {
 		_reindexCommercePriceEntries(companyId);
 	}
 

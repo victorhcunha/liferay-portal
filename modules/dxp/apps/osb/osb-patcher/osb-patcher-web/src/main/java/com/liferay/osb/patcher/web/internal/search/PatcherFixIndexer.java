@@ -191,9 +191,7 @@ public class PatcherFixIndexer extends BaseIndexer<PatcherFix> {
 	}
 
 	@Override
-	protected void doReindex(String[] ids) throws Exception {
-		long companyId = GetterUtil.getLong(ids[0]);
-
+	protected void doReindexCompany(long companyId) throws Exception {
 		IndexableActionableDynamicQuery indexableActionableDynamicQuery =
 			_patcherFixLocalService.getIndexableActionableDynamicQuery();
 

@@ -263,11 +263,6 @@ public class DefaultIndexer<T extends BaseModel<?>> implements Indexer<T> {
 	}
 
 	@Override
-	public void reindex(String[] ids) throws SearchException {
-		_indexerWriter.reindex(ids);
-	}
-
-	@Override
 	public void reindex(T baseModel) throws SearchException {
 		_indexerWriter.reindex(baseModel);
 	}
@@ -275,6 +270,11 @@ public class DefaultIndexer<T extends BaseModel<?>> implements Indexer<T> {
 	@Override
 	public void reindex(T baseModel, boolean notify) throws SearchException {
 		_indexerWriter.reindex(baseModel, notify);
+	}
+
+	@Override
+	public void reindexCompany(long companyId) throws SearchException {
+		_indexerWriter.reindexCompany(companyId);
 	}
 
 	@Override
