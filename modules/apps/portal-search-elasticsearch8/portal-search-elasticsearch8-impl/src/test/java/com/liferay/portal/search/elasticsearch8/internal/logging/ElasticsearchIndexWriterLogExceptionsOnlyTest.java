@@ -67,13 +67,17 @@ public class ElasticsearchIndexWriterLogExceptionsOnlyTest
 		}
 	}
 
-	@ExpectedLog(
-		expectedClass = ElasticsearchIndexWriter.class,
-		expectedLevel = ExpectedLog.Level.WARNING,
-		expectedLog = "Bulk add failed"
-	)
+	// @ExpectedLog(
+	// 	expectedClass = ElasticsearchIndexWriter.class,
+	// 	expectedLevel = ExpectedLog.Level.WARNING,
+	// 	expectedLog = "Bulk add failed"
+	// )
 	@Test
-	public void testAddDocuments() {
+	public void testAddDocuments() throws Exception {
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				ElasticsearchIndexWriter.class.getName(),
+				LoggerTestUtil.ERROR)) {
+
 		List<Document> documents = new ArrayList<>();
 
 		Document document = new DocumentImpl();
@@ -84,13 +88,12 @@ public class ElasticsearchIndexWriterLogExceptionsOnlyTest
 
 		IndexWriter indexWriter = getIndexWriter();
 
-		try {
-			indexWriter.addDocuments(createSearchContext(), documents);
-		}
-		catch (SearchException searchException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(searchException);
-			}
+		indexWriter.addDocuments(createSearchContext(), documents);
+		
+		_assertLogCapture(
+				logCapture,
+				"Bulk add failed",
+				LoggerTestUtil.ERROR);
 		}
 	}
 
@@ -434,10 +437,10 @@ public class ElasticsearchIndexWriterLogExceptionsOnlyTest
 
 		Assert.assertEquals(logLevel, logEntry.getPriority());
 
-		Throwable throwable = logEntry.getThrowable();
+		System.out.println(logEntry.getMessage());
 
 		Assert.assertTrue(
-			throwable.getMessage(
+			logEntry.getMessage(
 			).contains(
 				expectedMessage
 			));
