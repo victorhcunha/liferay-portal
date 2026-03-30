@@ -310,12 +310,18 @@ public class CommercePriceListIndexer extends BaseIndexer<CommercePriceList> {
 	}
 
 	@Override
-	protected void doReindex(String[] ids) throws Exception {
-		long companyId = GetterUtil.getLong(ids[0]);
-
-		_reindexCommercePriceLists(companyId);
+	protected void doReindexCompany(long companyId) throws Exception {
+		super.doReindexCompany(companyId);
 
 		_commercePriceListLocalService.cleanPriceListCache();
+	}
+
+	@Override
+	protected IndexableActionableDynamicQuery
+		getIndexableActionableDynamicQuery() {
+
+		return _commercePriceListLocalService.
+			getIndexableActionableDynamicQuery();
 	}
 
 	private long _getCatalogId(CommercePriceList commercePriceList)
@@ -330,17 +336,6 @@ public class CommercePriceListIndexer extends BaseIndexer<CommercePriceList> {
 		}
 
 		return commerceCatalog.getCommerceCatalogId();
-	}
-
-	private void _reindexCommercePriceLists(long companyId) throws Exception {
-		IndexableActionableDynamicQuery indexableActionableDynamicQuery =
-			_commercePriceListLocalService.getIndexableActionableDynamicQuery();
-
-		indexableActionableDynamicQuery.setCompanyId(companyId);
-		indexableActionableDynamicQuery.setPerformActionMethod(
-			this::safeGetDocument);
-
-		indexableActionableDynamicQuery.performActions();
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(

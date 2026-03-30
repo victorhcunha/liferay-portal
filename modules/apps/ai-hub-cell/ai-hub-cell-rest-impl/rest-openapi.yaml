@@ -1,6 +1,6 @@
 components:
     schemas:
-        Token:
+        AuthorizationToken:
             properties:
                 accessToken:
                     readOnly: true
@@ -26,16 +26,16 @@ info:
     version: v1.0
 openapi: 3.0.1
 paths:
-    "/tokens":
+    "/authorization-tokens":
         post:
-            operationId: postToken
+            operationId: postAuthorizationToken
             responses:
                 200:
                     content:
                         application/json:
                             schema:
-                                $ref: "#/components/schemas/Token"
+                                $ref: "#/components/schemas/AuthorizationToken"
                         application/xml:
                             schema:
-                                $ref: "#/components/schemas/Token"
-            tags: ["Token"]
+                                $ref: "#/components/schemas/AuthorizationToken"
+            tags: ["AuthorizationToken"]

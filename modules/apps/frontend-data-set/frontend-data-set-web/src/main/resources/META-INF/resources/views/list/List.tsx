@@ -15,39 +15,96 @@ import React, {forwardRef, useContext} from 'react';
 
 import FrontendDataSetContext from '../../FrontendDataSetContext';
 import Actions from '../../actions/Actions';
-import ImageRenderer from '../../cell_renderers/ImageRenderer';
 import FDSDndProvider from '../../dnd/FDSDndProvider';
 import useFDSDrop from '../../dnd/useFDSDrop';
-import {getLocalizedValue} from '../../utils/getLocalizedValue';
+import ImageRenderer from '../../renderers/ImageRenderer';
+import {
+	ILocalizedItemDetails,
+	getLocalizedValue,
+} from '../../utils/getLocalizedValue';
 import {
 	IHeader,
+	IInternalRenderer,
+	IItemsActions,
 	IListSchema,
-	IListTitleRenderer,
 	IView,
+	TRenderer,
 } from '../../utils/types';
 import ViewsContext from '../ViewsContext';
 
-const Title = ({
-	item,
-	title,
-	titleRenderer,
+const getListSectionRenderer = ({
+	customRenderers,
+	rendererName,
 }: {
-	item: any;
-	title: string;
-	titleRenderer: IListTitleRenderer;
+	customRenderers:
+		| {
+				listSection?: Array<IInternalRenderer>;
+				tableCell?: Array<TRenderer>;
+		  }
+		| undefined;
+	rendererName: string;
 }) => {
-	const TitleRendererComponent = titleRenderer?.component;
+	const listSectionRenderer = customRenderers?.listSection?.find(
+		(renderer: TRenderer) => renderer.name === rendererName
+	);
 
-	if (TitleRendererComponent) {
-		return <TitleRendererComponent itemData={item} />;
+	if (
+		listSectionRenderer?.type === 'internal' &&
+		listSectionRenderer.component
+	) {
+		return listSectionRenderer.component;
 	}
 
+	return null;
+};
+
+const Title = ({
+	actions,
+	item,
+	itemId,
+	title,
+	titleRendererName,
+}: {
+	actions: IItemsActions[] | undefined;
+	item: any;
+	itemId: any;
+	title: string;
+	titleRendererName: string;
+}) => {
+	const {customRenderers, loadData, onItemsChange, openSidePanel} =
+		useContext(FrontendDataSetContext);
+
+	const localizedValue: ILocalizedItemDetails | null = getLocalizedValue(
+		item,
+		title
+	);
+
 	if (title) {
-		return (
-			<ClayList.ItemTitle>
-				{getLocalizedValue(item, title)?.value}
-			</ClayList.ItemTitle>
-		);
+		const TitleRendererComponent = getListSectionRenderer({
+			customRenderers,
+			rendererName: titleRendererName,
+		});
+
+		if (TitleRendererComponent) {
+			return (
+				<ClayList.ItemTitle>
+					<TitleRendererComponent
+						actions={actions}
+						itemData={item}
+						itemId={itemId}
+						loadData={loadData}
+						onItemsChange={onItemsChange}
+						openSidePanel={openSidePanel}
+						options={null}
+						rootPropertyName={localizedValue?.rootPropertyName}
+						value={localizedValue?.value}
+						valuePath={localizedValue?.valuePath}
+					/>
+				</ClayList.ItemTitle>
+			);
+		}
+
+		return <ClayList.ItemTitle>{localizedValue?.value}</ClayList.ItemTitle>;
 	}
 
 	return null;
@@ -87,7 +144,7 @@ const ListItem = forwardRef<HTMLLIElement, any>(
 			sticker,
 			symbol,
 			title,
-			titleRenderer,
+			titleRendererName,
 			tooltip,
 		} = schema;
 
@@ -177,9 +234,11 @@ const ListItem = forwardRef<HTMLLIElement, any>(
 					}}
 				>
 					<Title
+						actions={itemsActions}
 						item={item}
+						itemId={itemId}
 						title={title}
-						titleRenderer={titleRenderer}
+						titleRendererName={titleRendererName}
 					/>
 
 					{description && (

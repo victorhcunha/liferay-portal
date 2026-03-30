@@ -40,7 +40,6 @@ import com.liferay.osgi.service.tracker.collections.list.ServiceTrackerListFacto
 import com.liferay.petra.function.UnsafeFunction;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringBundler;
-import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProvider;
 import com.liferay.portal.kernel.backgroundtask.BackgroundTaskStatusMessageSender;
 import com.liferay.portal.kernel.change.tracking.CTCollectionThreadLocal;
@@ -58,7 +57,6 @@ import com.liferay.portal.kernel.transaction.TransactionInvokerUtil;
 import com.liferay.portal.kernel.util.FileUtil;
 import com.liferay.portal.kernel.util.ListUtil;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -317,7 +315,7 @@ public class BatchEngineImportTaskExecutorImpl
 			).fieldNames(
 				ListUtil.fromCollection(fieldNameMapping.keySet())
 			).inputStream(
-				_processInputStream(batchEngineTaskContentType, inputStream)
+				ZipInputStreamUtil.asZipInputStream(inputStream)
 			).parameters(
 				parameters
 			).build();
@@ -557,30 +555,36 @@ public class BatchEngineImportTaskExecutorImpl
 		}
 	}
 
-	private InputStream _processInputStream(
-			BatchEngineTaskContentType batchEngineTaskContentType,
-			InputStream zipInputStream)
-		throws Exception {
+	private Map<String, Object> _processFieldNameValueMap(
+		Map<String, Object> map) {
 
-		InputStream inputStream = ZipInputStreamUtil.asZipInputStream(
-			zipInputStream);
-
-		if (_batchEngineContentProcessors.isEmpty() ||
-			(batchEngineTaskContentType != BatchEngineTaskContentType.JSON) ||
-			!ExportImportThreadLocal.isImportInProcess()) {
-
-			return inputStream;
+		for (Map.Entry<String, Object> entry : map.entrySet()) {
+			entry.setValue(_processValue(entry.getValue()));
 		}
 
-		String content = StringUtil.read(inputStream);
+		return map;
+	}
 
-		for (BatchEngineContentProcessor batchEngineContentProcessor :
-				_batchEngineContentProcessors) {
+	private Object _processValue(Object value) {
+		if (value instanceof List) {
+			List<Object> list = (List<Object>)value;
 
-			content = batchEngineContentProcessor.process(content);
+			list.replaceAll(this::_processValue);
+		}
+		else if (value instanceof Map) {
+			_processFieldNameValueMap((Map<String, Object>)value);
+		}
+		else if (value instanceof String valueString) {
+			for (BatchEngineContentProcessor batchEngineContentProcessor :
+					_batchEngineContentProcessors) {
+
+				valueString = batchEngineContentProcessor.process(valueString);
+			}
+
+			return valueString;
 		}
 
-		return new ByteArrayInputStream(content.getBytes());
+		return value;
 	}
 
 	private <T> T _readItem(
@@ -594,6 +598,12 @@ public class BatchEngineImportTaskExecutorImpl
 
 		if (fieldNameValueMap == null) {
 			return null;
+		}
+
+		if (!_batchEngineContentProcessors.isEmpty() &&
+			ExportImportThreadLocal.isImportInProcess()) {
+
+			_processFieldNameValueMap(fieldNameValueMap);
 		}
 
 		return (T)BatchEngineImportTaskItemReaderUtil.convertValue(

@@ -16,7 +16,6 @@ import com.liferay.portal.kernel.search.IndexWriterHelper;
 import com.liferay.portal.kernel.search.Indexer;
 import com.liferay.portal.kernel.search.IndexerRegistry;
 import com.liferay.portal.kernel.search.Summary;
-import com.liferay.portal.kernel.util.GetterUtil;
 
 import jakarta.portlet.PortletRequest;
 import jakarta.portlet.PortletResponse;
@@ -82,26 +81,15 @@ public class DDMFormInstanceIndexer extends BaseIndexer<DDMFormInstance> {
 	}
 
 	@Override
-	protected void doReindex(String[] ids) throws Exception {
-		long companyId = GetterUtil.getLong(ids[0]);
+	protected IndexableActionableDynamicQuery
+		getIndexableActionableDynamicQuery() {
 
-		_reindexFormInstances(companyId);
+		return ddmFormInstanceLocalService.getIndexableActionableDynamicQuery();
 	}
 
 	protected DDMFormInstanceLocalService ddmFormInstanceLocalService;
 	protected IndexerRegistry indexerRegistry;
 	protected IndexWriterHelper indexWriterHelper;
-
-	private void _reindexFormInstances(long companyId) throws Exception {
-		IndexableActionableDynamicQuery indexableActionableDynamicQuery =
-			ddmFormInstanceLocalService.getIndexableActionableDynamicQuery();
-
-		indexableActionableDynamicQuery.setCompanyId(companyId);
-		indexableActionableDynamicQuery.setPerformActionMethod(
-			this::safeGetDocument);
-
-		indexableActionableDynamicQuery.performActions();
-	}
 
 	private void _reindexRecords(DDMFormInstance ddmFormInstance)
 		throws Exception {

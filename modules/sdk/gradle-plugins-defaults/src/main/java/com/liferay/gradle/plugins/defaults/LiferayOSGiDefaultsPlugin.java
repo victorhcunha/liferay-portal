@@ -226,7 +226,6 @@ import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModel;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
 import org.gradle.process.ExecSpec;
-import org.gradle.util.CollectionUtils;
 import org.gradle.util.GUtil;
 
 import org.w3c.dom.Document;
@@ -4352,7 +4351,16 @@ public class LiferayOSGiDefaultsPlugin implements Plugin<Project> {
 
 		_configureConfigurationNoCache(configuration);
 
-		File file = CollectionUtils.single(configuration.resolve());
+		Set<File> files = configuration.resolve();
+
+		if (files.size() != 1) {
+			throw new GradleException(
+				"Expected 1 file, but got " + files.size());
+		}
+
+		Iterator<File> iterator = files.iterator();
+
+		File file = iterator.next();
 
 		if (GradleUtil.isFromMavenLocal(project, file)) {
 			throw new GradleException(

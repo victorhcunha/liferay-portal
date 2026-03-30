@@ -11,21 +11,21 @@ import {EActionType} from './types';
 const AI_HUB_ENDPOINT = '/o/ai-hub/v1.0';
 
 export async function createEventSource() {
-	const token = await postToken();
+	const authorizationToken = await postAuthorizationToken();
 
-	if (!token) {
+	if (!authorizationToken) {
 		return;
 	}
 
 	return new EventSource(
-		`${token.serviceURL}${AI_HUB_ENDPOINT}/tasks/subscribe`,
+		`${authorizationToken.serviceURL}${AI_HUB_ENDPOINT}/tasks/subscribe`,
 		{
 			fetch: (input, init) =>
 				fetch(input as RequestInfo, {
 					...init,
 					headers: new Headers({
 						Accept: 'text/event-stream',
-						Authorization: `Bearer ${token.accessToken}`,
+						Authorization: `Bearer ${authorizationToken.accessToken}`,
 					}),
 				}),
 			withCredentials: true,
@@ -33,20 +33,25 @@ export async function createEventSource() {
 	);
 }
 
-async function postToken() {
+async function postAuthorizationToken() {
 	try {
-		const response = await fetch('/o/ai-hub-cell/v1.0/tokens', {
-			method: 'POST',
-		});
+		const response = await fetch(
+			'/o/ai-hub-cell/v1.0/authorization-tokens',
+			{
+				method: 'POST',
+			}
+		);
 
 		if (!response.ok) {
-			throw new Error(`Unable to generate token: ${response.statusText}`);
+			throw new Error(
+				`Unable to generate authorization token: ${response.statusText}`
+			);
 		}
 
 		const data = await response.json();
 
 		if (!data?.accessToken) {
-			throw new Error('Unable to generate token.');
+			throw new Error('Unable to generate authorization token.');
 		}
 
 		if (!data?.userToken) {
@@ -64,18 +69,18 @@ async function postToken() {
 	}
 }
 
-export async function postTask(
+export async function postAgentInstance(
 	content: string,
 	eventSourceReference: string,
 	type: EActionType
 ) {
-	const token = await postToken();
+	const authorizationToken = await postAuthorizationToken();
 
-	if (!token) {
+	if (!authorizationToken) {
 		return;
 	}
 
-	await fetch(`${token.serviceURL}${AI_HUB_ENDPOINT}/tasks`, {
+	await fetch(`${authorizationToken.serviceURL}${AI_HUB_ENDPOINT}/tasks`, {
 		body: JSON.stringify({
 			context: {
 				text: content,
@@ -85,9 +90,9 @@ export async function postTask(
 		}),
 		headers: new Headers({
 			'Accept': 'application/json',
-			'Authorization': `Bearer ${token.accessToken}`,
+			'Authorization': `Bearer ${authorizationToken.accessToken}`,
 			'Content-Type': 'application/json',
-			'Liferay-AI-Hub-Cell-On-Behalf-Of': token.userToken,
+			'Liferay-AI-Hub-Cell-On-Behalf-Of': authorizationToken.userToken,
 		}),
 		method: 'POST',
 	});

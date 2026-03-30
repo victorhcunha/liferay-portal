@@ -254,17 +254,10 @@ public class PatcherBuildIndexer extends BaseIndexer<PatcherBuild> {
 	}
 
 	@Override
-	protected void doReindex(String[] ids) throws Exception {
-		long companyId = GetterUtil.getLong(ids[0]);
+	protected IndexableActionableDynamicQuery
+		getIndexableActionableDynamicQuery() {
 
-		IndexableActionableDynamicQuery indexableActionableDynamicQuery =
-			_patcherBuildLocalService.getIndexableActionableDynamicQuery();
-
-		indexableActionableDynamicQuery.setCompanyId(companyId);
-		indexableActionableDynamicQuery.setPerformActionMethod(
-			this::safeGetDocument);
-
-		indexableActionableDynamicQuery.performActions();
+		return _patcherBuildLocalService.getIndexableActionableDynamicQuery();
 	}
 
 	@Reference

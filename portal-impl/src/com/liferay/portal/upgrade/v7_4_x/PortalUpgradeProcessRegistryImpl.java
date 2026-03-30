@@ -700,9 +700,6 @@ public class PortalUpgradeProcessRegistryImpl
 			new Version(36, 0, 1), new ClassNameUpgradeProcess());
 
 		upgradeVersionTreeMap.put(
-			new Version(36, 0, 2), new DummyUpgradeProcess());
-
-		upgradeVersionTreeMap.put(
 			new Version(37, 0, 0),
 			UpgradeProcessFactory.addColumns(
 				"Layout", "faviconFileEntryERC VARCHAR(75) null",
@@ -750,11 +747,6 @@ public class PortalUpgradeProcessRegistryImpl
 			UpgradeModulesFactory.create(
 				new String[] {"com.liferay.portal.search.elasticsearch8.impl"},
 				null));
-
-		upgradeVersionTreeMap.put(
-			new Version(38, 2, 3),
-			UpgradeModulesFactory.create(
-				new String[] {"com.liferay.portal.vulcan.impl"}, null));
 	}
 
 }

@@ -163,17 +163,10 @@ public class PatcherFixPackIndexer extends BaseIndexer<PatcherFixPack> {
 	}
 
 	@Override
-	protected void doReindex(String[] ids) throws Exception {
-		long companyId = GetterUtil.getLong(ids[0]);
+	protected IndexableActionableDynamicQuery
+		getIndexableActionableDynamicQuery() {
 
-		IndexableActionableDynamicQuery indexableActionableDynamicQuery =
-			_patcherFixPackLocalService.getIndexableActionableDynamicQuery();
-
-		indexableActionableDynamicQuery.setCompanyId(companyId);
-		indexableActionableDynamicQuery.setPerformActionMethod(
-			this::safeGetDocument);
-
-		indexableActionableDynamicQuery.performActions();
+		return _patcherFixPackLocalService.getIndexableActionableDynamicQuery();
 	}
 
 	@Reference

@@ -29,7 +29,6 @@ import com.liferay.layout.page.template.model.LayoutPageTemplateEntry;
 import com.liferay.layout.page.template.model.LayoutPageTemplateStructure;
 import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateCollectionService;
-import com.liferay.layout.page.template.service.LayoutPageTemplateEntryLocalService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateEntryService;
 import com.liferay.layout.page.template.service.LayoutPageTemplateStructureLocalService;
 import com.liferay.layout.util.structure.LayoutStructure;
@@ -81,7 +80,7 @@ public class LayoutsExporterImpl implements LayoutsExporter {
 			TransformUtil.transformToList(
 				layoutPageTemplateCollectionIds,
 				layoutPageTemplateCollectionId ->
-					_layoutPageTemplateCollectionLocalService.
+					_layoutPageTemplateCollectionService.
 						fetchLayoutPageTemplateCollection(
 							layoutPageTemplateCollectionId)),
 			_getPageDefinitionDTOConverter(), StringPool.BLANK, zipWriter);
@@ -169,7 +168,7 @@ public class LayoutsExporterImpl implements LayoutsExporter {
 
 		for (long layoutPageTemplateEntryId : layoutPageTemplateEntryIds) {
 			LayoutPageTemplateEntry layoutPageTemplateEntry =
-				_layoutPageTemplateEntryLocalService.getLayoutPageTemplateEntry(
+				_layoutPageTemplateEntryService.getLayoutPageTemplateEntry(
 					layoutPageTemplateEntryId);
 
 			if (layoutPageTemplateEntry.isDraft() ||
@@ -188,7 +187,7 @@ public class LayoutsExporterImpl implements LayoutsExporter {
 			TransformUtil.transformToList(
 				layoutPageTemplateCollectionIds,
 				layoutPageTemplateCollectionId ->
-					_layoutPageTemplateCollectionLocalService.
+					_layoutPageTemplateCollectionService.
 						fetchLayoutPageTemplateCollection(
 							layoutPageTemplateCollectionId)),
 			_getPageDefinitionDTOConverter(), StringPool.BLANK, zipWriter);
@@ -275,7 +274,7 @@ public class LayoutsExporterImpl implements LayoutsExporter {
 
 		for (long layoutPageTemplateEntryId : layoutPageTemplateEntryIds) {
 			LayoutPageTemplateEntry layoutPageTemplateEntry =
-				_layoutPageTemplateEntryLocalService.getLayoutPageTemplateEntry(
+				_layoutPageTemplateEntryService.getLayoutPageTemplateEntry(
 					layoutPageTemplateEntryId);
 
 			if (layoutPageTemplateEntry.isDraft() ||
@@ -673,10 +672,6 @@ public class LayoutsExporterImpl implements LayoutsExporter {
 	@Reference
 	private LayoutPageTemplateCollectionService
 		_layoutPageTemplateCollectionService;
-
-	@Reference
-	private LayoutPageTemplateEntryLocalService
-		_layoutPageTemplateEntryLocalService;
 
 	@Reference
 	private LayoutPageTemplateEntryService _layoutPageTemplateEntryService;

@@ -4,6 +4,7 @@
  */
 
 import {Locator, expect, mergeTests} from '@playwright/test';
+import path from 'path';
 
 import {accountSettingsPagesTest} from '../../../fixtures/accountSettingsPagesTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
@@ -276,6 +277,112 @@ test(
 );
 
 test(
+	'Verify Custom Floating Icon can be selected',
+	{tag: '@LPD-81552'},
+	async ({page, systemSettingsPage}) => {
+		await systemSettingsPage.goToSystemSetting(
+			'Privacy',
+			'Consent Manager'
+		);
+
+		const acceptAllButton = systemSettingsPage.page.getByRole('button', {
+			name: 'Accept All',
+		});
+
+		await acceptAllButton.click();
+
+		await expect(acceptAllButton).not.toBeVisible();
+		await systemSettingsPage.page
+			.getByText('Custom', {exact: true})
+			.click();
+
+		const fileChooserPromise = page.waitForEvent('filechooser');
+
+		await systemSettingsPage.page
+			.getByRole('button', {name: 'Change Custom Icon'})
+			.click();
+
+		const uploadImageFrame = await systemSettingsPage.page.frameLocator(
+			'iframe[title="Upload Custom Icon"]'
+		);
+
+		await uploadImageFrame
+			.getByRole('button', {name: 'Select Image'})
+			.click();
+
+		const fileChooser = await fileChooserPromise;
+
+		await fileChooser.setFiles(
+			path.join(__dirname, '/dependencies/liferay.png')
+		);
+
+		await uploadImageFrame
+			.getByRole('button', {
+				name: 'Done',
+			})
+			.click();
+
+		await systemSettingsPage.page
+			.getByRole('button', {name: 'Update'})
+			.click();
+
+		await waitForAlert(
+			systemSettingsPage.page,
+			`Success:Your request completed successfully.`
+		);
+		const imageButton = await systemSettingsPage.page.locator(
+			'#_com_liferay_cookies_banner_web_portlet_CookiesBannerPortlet_floatingIconButton'
+		);
+
+		await expect(imageButton).toBeVisible();
+
+		const imageSrc = await imageButton.getAttribute('src');
+
+		await expect(imageSrc.includes('/image/floating_icon?')).toBeTruthy();
+	}
+);
+
+test(
+	'Verify Custom Floating Icon selector only is visible when Custom is selected',
+	{tag: '@LPD-81552'},
+	async ({page, systemSettingsPage}) => {
+		await systemSettingsPage.goToSystemSetting(
+			'Privacy',
+			'Consent Manager'
+		);
+
+		const acceptAllButton = systemSettingsPage.page.getByRole('button', {
+			name: 'Accept All',
+		});
+
+		await acceptAllButton.click();
+
+		await expect(acceptAllButton).not.toBeVisible();
+
+		const changeCustomIconButton = systemSettingsPage.page.getByRole(
+			'button',
+			{name: 'Change Custom Icon'}
+		);
+
+		await expect(changeCustomIconButton).not.toBeVisible();
+
+		await systemSettingsPage.page
+			.getByText('Custom', {exact: true})
+			.click();
+
+		await expect(changeCustomIconButton).toBeVisible();
+
+		const controlPanelIcon = page.locator(
+			'label:has(svg.lexicon-icon-control-panel)'
+		);
+
+		await controlPanelIcon.click();
+
+		await expect(changeCustomIconButton).not.toBeVisible();
+	}
+);
+
+test(
 	'Verify Floating Icon can be selected',
 	{tag: '@LPD-78592'},
 	async ({page, systemSettingsPage}) => {
@@ -340,6 +447,60 @@ test(
 			.click();
 
 		await expect(floatingIconButton).not.toBeChecked();
+	}
+);
+
+test(
+	'Verify Floating Icon options can be only edited when Consent Manager is enabled',
+	{tag: '@LPD-81552'},
+	async ({page, systemSettingsPage}) => {
+		await systemSettingsPage.goToSystemSetting(
+			'Privacy',
+			'Consent Manager'
+		);
+
+		const acceptAllButton = systemSettingsPage.page.getByRole('button', {
+			name: 'Accept All',
+		});
+
+		await acceptAllButton.click();
+
+		await expect(acceptAllButton).not.toBeVisible();
+
+		const enabledButton = await systemSettingsPage.page.getByLabel(
+			'Enabled',
+			{exact: true}
+		);
+
+		await enabledButton.setChecked(false);
+
+		const floatingIconEnabled = await systemSettingsPage.page.getByLabel(
+			'Floating Icon Enabled'
+		);
+
+		const controlPanelIconInput = page.locator(
+			'input[id$="control-panel"]'
+		);
+		const cookieIconInput = page.locator('input[id$="cookie"]');
+		const customIconInput = page.locator('input[id$="custom"]');
+
+		await expect(floatingIconEnabled).not.toBeEnabled();
+
+		await expect(controlPanelIconInput).not.toBeEnabled();
+
+		await expect(cookieIconInput).not.toBeEnabled();
+
+		await expect(customIconInput).not.toBeEnabled();
+
+		await enabledButton.setChecked(true);
+
+		await expect(floatingIconEnabled).toBeEnabled();
+
+		await expect(controlPanelIconInput).toBeEnabled();
+
+		await expect(cookieIconInput).toBeEnabled();
+
+		await expect(customIconInput).toBeEnabled();
 	}
 );
 

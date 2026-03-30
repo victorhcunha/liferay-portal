@@ -8,11 +8,9 @@ package com.liferay.portal.license.test;
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.license.util.LicenseManagerUtil;
-import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.Time;
 
 import java.io.File;
-import java.io.InputStream;
 
 import net.bytebuddy.agent.builder.ResettableClassFileTransformer;
 
@@ -48,33 +46,8 @@ public class CMPModuleLicenseTest extends BaseLicenseTestCase {
 	}
 
 	@Test
-	public void testEmptyCMPFile() throws Exception {
-		ClassLoader classLoader = PortalClassLoaderUtil.getClassLoader();
-
-		PortalClassLoaderUtil.setClassLoader(
-			new WrapperClassLoader(classLoader) {
-
-				@Override
-				public InputStream getResourceAsStream(String name) {
-					if (name.equals(_getCMPFilePath())) {
-						return InputStream.nullInputStream();
-					}
-
-					return classLoader.getResourceAsStream(name);
-				}
-
-			});
-
-		try {
-			assertPortalLicenseNotRegistered();
-
-			deployEnterprisePortalLicense(Time.HOUR);
-
-			assertPortalLicenseInvalid();
-		}
-		finally {
-			PortalClassLoaderUtil.setClassLoader(classLoader);
-		}
+	public void testBrokenCMPFile() throws Exception {
+		assertPortalInvalidatedWithBrokenFile(getProperty("cmp.file.path"));
 	}
 
 	@Test
@@ -153,40 +126,6 @@ public class CMPModuleLicenseTest extends BaseLicenseTestCase {
 		assertPortalLicenseRegistered();
 
 		assertBundlesNotExisted(_getCMPSymbolicNames());
-	}
-
-	@Test
-	public void testMissingCMPFile() throws Exception {
-		ClassLoader classLoader = PortalClassLoaderUtil.getClassLoader();
-
-		PortalClassLoaderUtil.setClassLoader(
-			new WrapperClassLoader(classLoader) {
-
-				@Override
-				public InputStream getResourceAsStream(String name) {
-					if (name.equals(_getCMPFilePath())) {
-						return null;
-					}
-
-					return classLoader.getResourceAsStream(name);
-				}
-
-			});
-
-		try {
-			assertPortalLicenseNotRegistered();
-
-			deployEnterprisePortalLicense(Time.HOUR);
-
-			assertPortalLicenseInvalid();
-		}
-		finally {
-			PortalClassLoaderUtil.setClassLoader(classLoader);
-		}
-	}
-
-	private String _getCMPFilePath() {
-		return getProperty("cmp.file.path");
 	}
 
 	private String[] _getCMPSymbolicNames() {

@@ -24,6 +24,7 @@ import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.util.CompanyTestUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
@@ -77,14 +78,20 @@ public class DepotRolesPortalInstanceLifecycleListenerTest {
 				DepotRolesConstants.ASSET_LIBRARY_OWNER, "space-owner");
 
 			_assertRoleResourcePermissions(
-				company.getCompanyId(),
+				company.getCompanyId(), DepotEntry.class.getName(),
 				DepotRolesConstants.ASSET_LIBRARY_ADMINISTRATOR,
 				ResourceActionsUtil.getResourceActions(
 					DepotEntry.class.getName()));
 			_assertRoleResourcePermissions(
-				company.getCompanyId(),
+				company.getCompanyId(), DepotEntry.class.getName(),
 				DepotRolesConstants.ASSET_LIBRARY_MEMBER,
 				List.of(ActionKeys.VIEW));
+
+			for (String name : DepotRolesConstants.DEPOT_ROLE_NAMES) {
+				_assertRoleResourcePermissions(
+					company.getCompanyId(), Role.class.getName(), name,
+					List.of(ActionKeys.VIEW));
+			}
 		}
 		finally {
 			if (company != null) {
@@ -104,7 +111,7 @@ public class DepotRolesPortalInstanceLifecycleListenerTest {
 				RoleConstants.toSystemRoleExternalReferenceCode(name),
 				role.getExternalReferenceCode());
 			Assert.assertEquals(
-				1,
+				2,
 				_resourcePermissionLocalService.getResourcePermissionsCount(
 					companyId, Role.class.getName(),
 					ResourceConstants.SCOPE_INDIVIDUAL,
@@ -130,17 +137,30 @@ public class DepotRolesPortalInstanceLifecycleListenerTest {
 	}
 
 	private void _assertRoleResourcePermissions(
-			long companyId, String roleName, List<String> actionIds)
+			long companyId, String resourceName, String roleName,
+			List<String> actionIds)
 		throws PortalException {
 
+		Role administratorRole = _roleLocalService.getRole(
+			companyId, DepotRolesConstants.ASSET_LIBRARY_ADMINISTRATOR);
 		Role role = _roleLocalService.getRole(companyId, roleName);
 
 		for (String actionId : actionIds) {
+			if (StringUtil.equals(resourceName, DepotEntry.class.getName())) {
+				Assert.assertTrue(
+					_resourcePermissionLocalService.hasResourcePermission(
+						companyId, resourceName,
+						ResourceConstants.SCOPE_COMPANY,
+						String.valueOf(companyId), role.getRoleId(), actionId));
+
+				continue;
+			}
+
 			Assert.assertTrue(
 				_resourcePermissionLocalService.hasResourcePermission(
-					companyId, DepotEntry.class.getName(),
-					ResourceConstants.SCOPE_COMPANY, String.valueOf(companyId),
-					role.getRoleId(), actionId));
+					companyId, resourceName, ResourceConstants.SCOPE_INDIVIDUAL,
+					String.valueOf(role.getRoleId()),
+					administratorRole.getRoleId(), actionId));
 		}
 	}
 

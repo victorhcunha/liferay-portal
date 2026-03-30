@@ -81,6 +81,9 @@ public class FragmentExportImportTest extends BasePortletExportImportTestCase {
 			"fieldSets",
 			JSONUtil.put(
 				JSONUtil.put(
+					"customComponentModule",
+					"{SimpleInputField} from @liferay/fragment-impl/api"
+				).put(
 					"fields",
 					JSONUtil.put(
 						JSONUtil.put(
@@ -262,6 +265,8 @@ public class FragmentExportImportTest extends BasePortletExportImportTestCase {
 				_fragmentEntryLocalService.getFragmentEntryByUuidAndGroupId(
 					fragmentEntry.getUuid(), importedGroup.getGroupId());
 
+			Assert.assertEquals(
+				_configuration, importedGroupFragmentEntry.getConfiguration());
 			_assertContains(
 				"Original HTML Fragment", importedGroupFragmentEntry.getHtml());
 

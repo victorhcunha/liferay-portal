@@ -10,11 +10,14 @@ import com.liferay.depot.constants.DepotRolesConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.exportimport.kernel.staging.StagingUtil;
 import com.liferay.petra.function.UnsafeFunction;
+import com.liferay.portal.kernel.bean.BeanPropertiesUtil;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.Role;
+import com.liferay.portal.kernel.model.User;
+import com.liferay.portal.kernel.model.UserGroupRole;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.PermissionChecker;
@@ -29,6 +32,8 @@ import com.liferay.portal.security.permission.PermissionCacheUtil;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -37,15 +42,17 @@ import java.util.Set;
 public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 
 	public DepotPermissionCheckerWrapper(
-		PermissionChecker permissionChecker,
+		GroupLocalService groupLocalService,
 		ModelResourcePermission<DepotEntry> depotEntryModelResourcePermission,
-		GroupLocalService groupLocalService, RoleLocalService roleLocalService,
+		ModelResourcePermission<Role> roleModelResourcePermission,
+		PermissionChecker permissionChecker, RoleLocalService roleLocalService,
 		UserGroupRoleLocalService userGroupRoleLocalService) {
 
 		super(permissionChecker);
 
-		_depotEntryModelResourcePermission = depotEntryModelResourcePermission;
 		_groupLocalService = groupLocalService;
+		_depotEntryModelResourcePermission = depotEntryModelResourcePermission;
+		_roleModelResourcePermission = roleModelResourcePermission;
 		_roleLocalService = roleLocalService;
 		_userGroupRoleLocalService = userGroupRoleLocalService;
 	}
@@ -58,7 +65,9 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 			return true;
 		}
 
-		Boolean hasPermission = _hasPermission(name, primKey, actionId);
+		Boolean hasPermission = _hasPermission(
+			BeanPropertiesUtil.getLong(group, "groupId"), name, primKey,
+			actionId);
 
 		if (hasPermission != null) {
 			return hasPermission;
@@ -76,7 +85,8 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 		}
 
 		Boolean hasPermission = _hasPermission(
-			name, GetterUtil.getLong(primKey), actionId);
+			BeanPropertiesUtil.getLong(group, "groupId"), name,
+			GetterUtil.getLong(primKey), actionId);
 
 		if (hasPermission != null) {
 			return hasPermission;
@@ -93,7 +103,8 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 			return true;
 		}
 
-		Boolean hasPermission = _hasPermission(name, primKey, actionId);
+		Boolean hasPermission = _hasPermission(
+			groupId, name, primKey, actionId);
 
 		if (hasPermission != null) {
 			return hasPermission;
@@ -112,7 +123,7 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 		}
 
 		Boolean hasPermission = _hasPermission(
-			name, GetterUtil.getLong(primKey), actionId);
+			groupId, name, GetterUtil.getLong(primKey), actionId);
 
 		if (hasPermission != null) {
 			return hasPermission;
@@ -217,7 +228,26 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 		}
 	}
 
-	private Boolean _hasPermission(String name, long primKey, String actionId) {
+	private boolean _hasCMSAdministratorRole(long companyId)
+		throws PortalException {
+
+		Boolean value = PermissionCacheUtil.getUserPrimaryKeyRole(
+			getUserId(), companyId, RoleConstants.CMS_ADMINISTRATOR);
+
+		if (value == null) {
+			value = _roleLocalService.hasUserRole(
+				getUserId(), companyId, RoleConstants.CMS_ADMINISTRATOR, true);
+
+			PermissionCacheUtil.putUserPrimaryKeyRole(
+				getUserId(), companyId, RoleConstants.CMS_ADMINISTRATOR, value);
+		}
+
+		return value;
+	}
+
+	private Boolean _hasPermission(
+		long groupId, String name, long primKey, String actionId) {
+
 		if (StringUtil.equals(name, Group.class.getName())) {
 			Group group = _groupLocalService.fetchGroup(primKey);
 
@@ -227,7 +257,11 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 						return false;
 					}
 
-					if (_isCMSAdministrator(group) || _isGroupAdmin(group)) {
+					if (_isCMSAdministrator(group) ||
+						(_isGroupAdmin(group) &&
+						 !StringUtil.equals(
+							 actionId, ActionKeys.ASSIGN_USER_ROLES))) {
+
 						return true;
 					}
 
@@ -239,6 +273,47 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 
 					return false;
 				}
+			}
+		}
+		else if (StringUtil.equals(name, Role.class.getName())) {
+			Role role = _roleLocalService.fetchRole(primKey);
+
+			if ((role != null) &&
+				(role.getType() == RoleConstants.TYPE_DEPOT)) {
+
+				try {
+					if (_hasCMSAdministratorRole(getCompanyId())) {
+						return true;
+					}
+
+					if (_isDepotGroupAdmin(groupId)) {
+						if (StringUtil.equals(
+								actionId, ActionKeys.ASSIGN_MEMBERS) &&
+							Objects.equals(
+								DepotRolesConstants.ASSET_LIBRARY_ADMINISTRATOR,
+								role.getName())) {
+
+							return null;
+						}
+
+						return true;
+					}
+				}
+				catch (PortalException portalException) {
+					_log.error(portalException);
+
+					return false;
+				}
+			}
+		}
+		else if (StringUtil.equals(name, User.class.getName())) {
+			try {
+				return _isDepotGroupAdmin(groupId);
+			}
+			catch (PortalException portalException) {
+				_log.error(portalException);
+
+				return false;
 			}
 		}
 
@@ -272,20 +347,7 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 			return false;
 		}
 
-		Boolean value = PermissionCacheUtil.getUserPrimaryKeyRole(
-			getUserId(), group.getCompanyId(), RoleConstants.CMS_ADMINISTRATOR);
-
-		if (value == null) {
-			value = _roleLocalService.hasUserRole(
-				getUserId(), group.getCompanyId(),
-				RoleConstants.CMS_ADMINISTRATOR, true);
-
-			PermissionCacheUtil.putUserPrimaryKeyRole(
-				getUserId(), group.getCompanyId(),
-				RoleConstants.CMS_ADMINISTRATOR, value);
-		}
-
-		return value;
+		return _hasCMSAdministratorRole(group.getCompanyId());
 	}
 
 	private boolean _isContentReviewer(Group group) throws PortalException {
@@ -298,6 +360,28 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 		return _userGroupRoleLocalService.hasUserGroupRole(
 			getUserId(), liveGroup.getGroupId(),
 			DepotRolesConstants.ASSET_LIBRARY_CONTENT_REVIEWER, true);
+	}
+
+	private boolean _isDepotGroupAdmin(long groupId) throws PortalException {
+		if (groupId != 0) {
+			return isGroupAdmin(groupId);
+		}
+
+		List<UserGroupRole> userGroupRoles =
+			_userGroupRoleLocalService.getUserGroupRoles(getUserId());
+
+		for (UserGroupRole userGroupRole : userGroupRoles) {
+			Group group = _groupLocalService.fetchGroup(
+				userGroupRole.getGroupId());
+
+			if ((group != null) && group.isDepot() &&
+				isGroupAdmin(group.getGroupId())) {
+
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private boolean _isDepotGroupOwner(Group group) {
@@ -416,6 +500,7 @@ public class DepotPermissionCheckerWrapper extends PermissionCheckerWrapper {
 		_depotEntryModelResourcePermission;
 	private final GroupLocalService _groupLocalService;
 	private final RoleLocalService _roleLocalService;
+	private final ModelResourcePermission<Role> _roleModelResourcePermission;
 	private final UserGroupRoleLocalService _userGroupRoleLocalService;
 
 }

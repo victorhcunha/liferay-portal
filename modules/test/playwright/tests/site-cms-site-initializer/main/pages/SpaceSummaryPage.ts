@@ -67,16 +67,44 @@ export class SpaceSummaryPage {
 			.waitFor();
 	}
 
+	async addRoleToSpaceMember(roleName: string, userName: string) {
+		await this.viewAllMembersLink.click();
+
+		await this.page.getByRole('dialog').waitFor();
+
+		const userRow = this.page
+			.getByRole('listitem')
+			.filter({hasText: userName});
+
+		await userRow.getByRole('button', {name: 'Space Member'}).click();
+
+		await this.page
+			.getByRole('checkbox', {
+				name: roleName,
+			})
+			.check();
+
+		await this.closeButton.click();
+	}
+
 	async addUserOrUserGroup(name: string, type: UserOrUserGroupType) {
 		await this.viewAllMembersLink.click();
 
-		this.page.getByRole('dialog').waitFor();
-		await this.page
+		await this.page.getByRole('dialog').waitFor({state: 'visible'});
+
+		const dialog = this.page.getByRole('dialog');
+
+		await dialog
 			.getByLabel('Add People to Collaborate', {exact: true})
 			.selectOption(type);
-		await this.page
-			.getByPlaceholder('Enter name or email.', {exact: true})
-			.click();
+
+		const input = dialog.getByPlaceholder('Enter name or email.', {
+			exact: true,
+		});
+
+		await input.waitFor({state: 'visible'});
+		await input.click();
+
 		await this.page.getByRole('option', {name}).click();
 
 		await waitForAlert(
@@ -87,6 +115,8 @@ export class SpaceSummaryPage {
 		);
 
 		await this.closeButton.click();
+
+		await this.page.getByRole('dialog').waitFor({state: 'detached'});
 	}
 
 	async removeUserOrUserGroup(name: string, type: UserOrUserGroupType) {

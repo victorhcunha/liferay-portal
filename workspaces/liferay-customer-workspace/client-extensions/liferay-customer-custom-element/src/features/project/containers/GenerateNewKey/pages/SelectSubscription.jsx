@@ -44,7 +44,7 @@ const SelectSubscription = ({
 	urlPreviousPage,
 }) => {
 	const [{subscriptionGroups}] = useAppContext();
-	const {articleDeactivateKey, client, featureFlags, provisioningServerAPI} =
+	const {articleDeactivateKey, client, provisioningServerAPI} =
 		useAppPropertiesContext();
 
 	const [generateFormValues, setGenerateFormValues] = useState();
@@ -94,31 +94,27 @@ const SelectSubscription = ({
 		selectedKeyType?.includes('OEM') ||
 		selectedKeyType?.includes('Enterprise');
 
-	const typesProduct = generateFormValues?.versions[0]?.types;
-
-	const handleProduct = useCallback(() => {
-		const filteredTypes = typesProduct?.find(
-			(type) =>
-				type.licenseEntryDisplayName ===
-				productGroupName + ' ' + selectedKeyType
-		);
-
-		return filteredTypes?.productKey;
-	}, [typesProduct, productGroupName, selectedKeyType]);
-
+	const productTypes = generateFormValues?.versions
+		?.find((version) => version.label === selectedVersion)?.types;
 	const isRenew = state?.id === 'renew';
 	const keyCount = state?.activationKeys?.length;
 	const renewKeySubtitle = getRenewKeySubtitle(state);
 	const isSingleComplimentaryKey = hasComplimentaryKey && keyCount === 1;
 
 	const mockedValuesForComplimentaryKeys = useMemo(() => {
+		const productKey = productTypes?.find(
+			(type) =>
+				type.licenseEntryDisplayName ===
+				`${productGroupName} ${selectedKeyType}`
+		)?.productKey;
+
 		return {
 			instanceSize: 4,
-			productKey: handleProduct(),
+			productKey,
 			provisionedCount: 0,
 			quantity: 5,
 		};
-	}, [handleProduct]);
+	}, [productGroupName, selectedKeyType, productTypes]);
 
 	const parseVersion = (label = '') => {
 		const quarterly = label.match(/^(\d{4})\.Q(\d)$/);
@@ -249,7 +245,7 @@ const SelectSubscription = ({
 		', '
 	);
 
-	const productKey = typesProduct?.find(
+	const productKey = productTypes?.find(
 		(item) =>
 			item.licenseEntryName.toLowerCase().replace(/[- ]+/g, '-') ===
 			uniqueSelectedProductName
@@ -887,8 +883,7 @@ const SelectSubscription = ({
 							})}
 					</div>
 
-					{featureFlags.includes('LPS-148342') &&
-						allowComplimentary && (
+					{allowComplimentary && (
 							<Radio
 								hasCustomAlert={
 									hasComplimentaryKey && (

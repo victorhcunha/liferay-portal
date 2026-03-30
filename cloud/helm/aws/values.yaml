@@ -1,4 +1,10 @@
 liferay-default:
+    annotations:
+        instrumentation.opentelemetry.io/inject-dotnet: "false"
+        instrumentation.opentelemetry.io/inject-java: "false"
+        instrumentation.opentelemetry.io/inject-nodejs: "false"
+        instrumentation.opentelemetry.io/inject-python: "false"
+        sidecar.opentelemetry.io/inject: "false"
     configmap:
         data:
             com.liferay.portal.search.opensearch2.configuration.OpenSearchConfiguration.config: |
@@ -77,17 +83,45 @@ liferay-default:
                                 then
                                     echo "Unable to download OpenSearch modules for product version ${product_version}." >&2
 
-                                    exit 1
+                                    rm --force --verbose /temp/liferay/deploy/com.liferay.portal.search.opensearch2.${1}.jar
+
+                                    exit 0
+                                fi
+                            }
+
+                            function install_existing_opensearch_modules {
+                                if ls /opt/liferay/deploy/com.liferay.portal.search.opensearch2* 1> /dev/null 2>&1
+                                then
+                                    echo "Found existing OpenSearch modules."
+
+                                    cp --verbose /opt/liferay/deploy/com.liferay.portal.search.opensearch2* /temp/liferay/deploy
+
+                                    echo "Install successful. Skipping download."
+
+                                    return 0
+                                else
+                                    echo "No existing OpenSearch modules found in folder /opt/liferay/deploy."
+
+                                    return 1
                                 fi
                             }
 
                             function main {
                                 mkdir --parents /temp/liferay/deploy
 
-                                rm --force --verbose "/temp/osgi/modules/com.liferay.portal.search.opensearch2"*
+                                install_existing_opensearch_modules
 
-                                download_module "api"
-                                download_module "impl"
+                                local exit_code=$?
+
+                                if [ "${exit_code}" -ne 0 ]
+                                then
+                                    echo "Downloading OpenSearch modules."
+
+                                    download_module "api"
+                                    download_module "impl"
+                                fi
+
+                                rm --force --verbose "/temp/osgi/modules/com.liferay.portal.search.opensearch2"*
                             }
 
                             main
@@ -122,16 +156,11 @@ liferay-default:
         timeouts:
             backendRequest: 300s
             request: 300s
-    podSecurityContext:
-        fsGroup: 1000
-        runAsNonRoot: true
-        seccompProfile:
-        type: RuntimeDefault
     portalBundleDenyList:
         -   com.liferay.portal.search.elasticsearch.cross.cluster.replication.impl
         -   com.liferay.portal.search.elasticsearch.monitoring.web
-        -   com.liferay.portal.search.elasticsearch8.api
-        -   com.liferay.portal.search.elasticsearch8.impl
+        -   com.liferay.portal.search.elasticsearch7.api
+        -   com.liferay.portal.search.elasticsearch7.impl
         -   com.liferay.portal.search.learning.to.rank.api
         -   com.liferay.portal.search.learning.to.rank.impl
     resources:
@@ -141,15 +170,6 @@ liferay-default:
         requests:
             cpu: 2000m
             memory: 4Gi
-    securityContext:
-        allowPrivilegeEscalation: false
-        capabilities:
-            drop:
-                -   ALL
-        runAsNonRoot: true
-        runAsUser: 1000
-        seccompProfile:
-            type: RuntimeDefault
     volumeClaimTemplates:
         -   metadata:
                 name: liferay-persistent-volume

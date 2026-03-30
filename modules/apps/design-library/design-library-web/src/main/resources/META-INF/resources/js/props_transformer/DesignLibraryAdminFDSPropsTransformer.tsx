@@ -4,22 +4,48 @@
  */
 
 import {IFrontendDataSetProps} from '@liferay/frontend-data-set-web';
+import {openModal} from 'frontend-js-components-web';
+import {navigate, sub} from 'frontend-js-web';
 import React from 'react';
 
+import {TableCellContentType} from '../constants';
+import CreateDesignLibraryModal from '../modal/CreateDesignLibraryModal';
+import confirmAndDeleteEntryAction from './actions/confirmAndDeleteEntryAction';
 import {
 	FromNowDateTimeRenderer,
 	LinkRenderer,
 	createSetItemComponentProps,
 } from './cell_renderers';
-import {TableCellContentType} from './constants';
 
-export default function DesignLibraryAdminFDSPropsTransformer(
-	props: IFrontendDataSetProps
-): IFrontendDataSetProps {
+export default function DesignLibraryAdminFDSPropsTransformer({
+	additionalProps: {entryIdKey, redirectURL},
+	id,
+	...props
+}: {
+	additionalProps: {
+		entryIdKey: string;
+		redirectURL: string;
+	};
+
+	id: string;
+	props: Record<string, unknown>;
+}): IFrontendDataSetProps {
 	const creationMenu = {
 		primaryItems: [
 			{
 				label: Liferay.Language.get('new-design-library'),
+				onClick: () => {
+					openModal({
+						contentComponent: ({closeModal}) =>
+							CreateDesignLibraryModal({
+								dataSetId: id,
+								entryIdKey,
+								onClose: closeModal,
+								redirectURL,
+							}),
+						size: 'md',
+					});
+				},
 			},
 		],
 	};
@@ -48,6 +74,49 @@ export default function DesignLibraryAdminFDSPropsTransformer(
 			],
 		},
 		hideManagementBarInEmptyState: true,
+		id,
+		onActionDropdownItemClick: ({
+			action,
+			event,
+			itemData,
+		}: {
+			action: {
+				data: {
+					id: string;
+				};
+			};
+			event: Event;
+			itemData: {
+				actions: {
+					delete: {href: string; method: string};
+				};
+				name: string;
+			};
+		}) => {
+			if (action.data.id === 'delete') {
+				event?.preventDefault();
+
+				confirmAndDeleteEntryAction({
+					bodyHTML: Liferay.Language.get(
+						'delete-design-library-confirmation-body'
+					),
+					deleteAction: itemData.actions.delete,
+					loadData: () => {
+						navigate(window.location.href);
+					},
+					successMessage: sub(
+						Liferay.Language.get('x-was-successfully-deleted'),
+						`<strong>${Liferay.Util.escapeHTML(itemData.name)}</strong>`
+					),
+					title: sub(
+						Liferay.Language.get(
+							'delete-design-library-confirmation-title'
+						),
+						itemData.name
+					),
+				});
+			}
+		},
 		views: [
 			{
 				contentRenderer: 'table',

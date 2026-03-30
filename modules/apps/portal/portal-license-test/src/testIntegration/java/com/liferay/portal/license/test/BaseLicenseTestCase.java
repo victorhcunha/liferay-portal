@@ -11,6 +11,7 @@ import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.license.util.LicenseManagerUtil;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.log4j.Log4JUtil;
 import com.liferay.portal.kernel.module.util.SystemBundleUtil;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
 import com.liferay.portal.kernel.util.FileUtil;
@@ -21,11 +22,13 @@ import com.liferay.portal.kernel.util.PortalClassLoaderUtil;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.SetUtil;
 import com.liferay.portal.kernel.util.StringUtil;
+import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.module.framework.ModuleFrameworkUtil;
 import com.liferay.portal.util.LicenseUtil;
 
 import java.io.File;
+import java.io.InputStream;
 
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
@@ -282,66 +285,104 @@ public abstract class BaseLicenseTestCase {
 	}
 
 	public void resetLifecycleAction() throws Exception {
-		Object lifecycleAction = ReflectionsHolder._lifecycleActionField.get(
-			null);
+		String originalPriority = Log4JUtil.getPriority(
+			_BUNDLE_START_STOP_LOGGER);
 
-		Class<?> lifecycleActionClass = lifecycleAction.getClass();
+		if (!Objects.equals(originalPriority, "OFF")) {
+			Log4JUtil.setLevel(_BUNDLE_START_STOP_LOGGER, "OFF", false);
+		}
 
-		for (Method method : lifecycleActionClass.getDeclaredMethods()) {
-			if (Arrays.equals(
-					method.getParameterTypes(),
-					new Class<?>[] {
-						BundleContext.class, Map.class, Framework.class
-					})) {
+		try {
+			Object lifecycleAction =
+				ReflectionsHolder._lifecycleActionField.get(null);
 
-				method.setAccessible(true);
+			Class<?> lifecycleActionClass = lifecycleAction.getClass();
 
-				for (Field field : lifecycleActionClass.getDeclaredFields()) {
-					if (Map.class.isAssignableFrom(field.getType())) {
-						field.setAccessible(true);
+			for (Method method : lifecycleActionClass.getDeclaredMethods()) {
+				if (Arrays.equals(
+						method.getParameterTypes(),
+						new Class<?>[] {
+							BundleContext.class, Map.class, Framework.class
+						})) {
 
-						Object bundleData = field.get(lifecycleAction);
+					method.setAccessible(true);
 
-						if (bundleData != null) {
-							method.invoke(
-								lifecycleAction,
-								SystemBundleUtil.getBundleContext(), bundleData,
-								ModuleFrameworkUtil.getFramework());
+					for (Field field :
+							lifecycleActionClass.getDeclaredFields()) {
+
+						if (Map.class.isAssignableFrom(field.getType())) {
+							field.setAccessible(true);
+
+							Object bundleData = field.get(lifecycleAction);
+
+							if (bundleData != null) {
+								method.invoke(
+									lifecycleAction,
+									SystemBundleUtil.getBundleContext(),
+									bundleData,
+									ModuleFrameworkUtil.getFramework());
+							}
 						}
 					}
-				}
 
-				break;
-			}
-		}
-
-		for (Field field : lifecycleActionClass.getDeclaredFields()) {
-			if (!Modifier.isFinal(field.getModifiers())) {
-				field.setAccessible(true);
-
-				if (Objects.equals(field.getType(), long.class)) {
-					field.set(lifecycleAction, 0L);
-				}
-				else if (Objects.equals(field.getType(), boolean.class)) {
-					field.set(lifecycleAction, false);
-				}
-				else {
-					field.set(lifecycleAction, null);
+					break;
 				}
 			}
+
+			for (Field field : lifecycleActionClass.getDeclaredFields()) {
+				if (!Modifier.isFinal(field.getModifiers())) {
+					field.setAccessible(true);
+
+					if (Objects.equals(field.getType(), long.class)) {
+						field.set(lifecycleAction, 0L);
+					}
+					else if (Objects.equals(field.getType(), boolean.class)) {
+						field.set(lifecycleAction, false);
+					}
+					else {
+						field.set(lifecycleAction, null);
+					}
+				}
+			}
 		}
+		finally {
+			if (!Objects.equals(
+					originalPriority,
+					Log4JUtil.getPriority(_BUNDLE_START_STOP_LOGGER))) {
+
+				Log4JUtil.setLevel(
+					_BUNDLE_START_STOP_LOGGER, originalPriority, false);
+			}
+		}
+	}
+
+	protected static String getProperty(String propertyKey) {
+		String value = _licenseTestProperties.getProperty(propertyKey);
+
+		if (Validator.isNull(value)) {
+			throw new IllegalStateException(
+				StringBundler.concat(
+					"Property ", _PROPERTY_PREFIX, propertyKey, " is not set"));
+		}
+
+		return value;
+	}
+
+	protected void assertPortalInvalidatedWithBrokenFile(String filePath)
+		throws Exception {
+
+		_assertPortalInvalidatedWithBrokenFile(filePath, null);
+
+		_assertPortalInvalidatedWithBrokenFile(
+			filePath, InputStream.nullInputStream());
 	}
 
 	protected String getCMPProductId() {
-		return _licenseTestProperties.getProperty("product.id.cmp");
+		return getProperty("product.id.cmp");
 	}
 
 	protected String getPortalProductId() {
-		return _licenseTestProperties.getProperty("product.id.portal");
-	}
-
-	protected String getProperty(String propertyKey) {
-		return _licenseTestProperties.getProperty(propertyKey);
+		return getProperty("product.id.portal");
 	}
 
 	private static Field _findField(ClassLoader classLoader, String fieldString)
@@ -409,6 +450,53 @@ public abstract class BaseLicenseTestCase {
 		);
 	}
 
+	private void _assertPortalInvalidatedWithBrokenFile(
+			String filePath, InputStream inputStream)
+		throws Exception {
+
+		ClassLoader classLoader = PortalClassLoaderUtil.getClassLoader();
+
+		PortalClassLoaderUtil.setClassLoader(
+			new ClassLoader(classLoader) {
+
+				@Override
+				public boolean equals(Object object) {
+					return classLoader.equals(object);
+				}
+
+				@Override
+				public InputStream getResourceAsStream(String name) {
+					if (name.equals(filePath)) {
+						return inputStream;
+					}
+
+					return classLoader.getResourceAsStream(name);
+				}
+
+				@Override
+				public int hashCode() {
+					return classLoader.hashCode();
+				}
+
+			});
+
+		try {
+			assertPortalLicenseNotRegistered();
+
+			deployFreeTierPortalLicense(Time.HOUR);
+
+			assertLicensePropertiesExisted(getPortalProductId());
+
+			assertPortalLicenseInvalid();
+		}
+		finally {
+			PortalClassLoaderUtil.setClassLoader(classLoader);
+
+			resetLicenseData();
+			resetLifecycleAction();
+		}
+	}
+
 	private File _buildBinaryFile(
 		String productId, String accountName, String productEntryName,
 		String licenseType) {
@@ -450,6 +538,9 @@ public abstract class BaseLicenseTestCase {
 		return HttpUtil.URLtoString(options);
 	}
 
+	private static final String _BUNDLE_START_STOP_LOGGER =
+		"com.liferay.portal.bootstrap.log.BundleStartStopLogger";
+
 	private static final String _CMP_LICENSE_TYPE = "production";
 
 	private static final String _CMP_PRODUCT_NAME =
@@ -483,6 +574,8 @@ public abstract class BaseLicenseTestCase {
 	private static final String _NOT_REGISTERED_LICENSE_KEY =
 		"This instance is not registered.";
 
+	private static final String _PROPERTY_PREFIX = "license.test.";
+
 	private static Properties _licenseTestProperties;
 
 	private static class ReflectionsHolder {
@@ -511,7 +604,7 @@ public abstract class BaseLicenseTestCase {
 
 			if (_licenseManagerHelperClass != null) {
 				_licenseTestProperties = PropsUtil.getProperties(
-					"license.test.", true);
+					_PROPERTY_PREFIX, true);
 
 				if (_licenseTestProperties.isEmpty()) {
 					throw new IllegalArgumentException(
@@ -520,15 +613,11 @@ public abstract class BaseLicenseTestCase {
 
 				try {
 					_lifecycleActionField = _findField(
-						classLoader,
-						_licenseTestProperties.getProperty(
-							"lifecycle.action.field"));
+						classLoader, getProperty("lifecycle.action.field"));
 					_validateMethod = _findMethod(
-						classLoader,
-						_licenseTestProperties.getProperty("validate.method"));
+						classLoader, getProperty("validate.method"));
 					_versionMethod = _findMethod(
-						classLoader,
-						_licenseTestProperties.getProperty("version.method"));
+						classLoader, getProperty("version.method"));
 
 					ByteBuddyAgent.install();
 

@@ -27,6 +27,9 @@ spec:
         metadata:
             annotations:
                 checksum/config: {{ include (print .root.Template.BasePath "/configmap.yaml") .root | sha256sum }}
+                {{- with .statefulset.annotations }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
             labels:
                 app: {{ include "liferay.name" .root }}{{ $suffix }}
                 {{- include "liferay.labels" .root | nindent 16 }}
@@ -173,6 +176,27 @@ spec:
     {{- end }}
 {{- if and .statefulset.network .statefulset.network.enabled }}
 ---
+apiVersion: gateway.envoyproxy.io/v1alpha1
+kind: BackendTrafficPolicy
+metadata:
+    labels:
+        app: {{ include "liferay.name" .root }}{{ $suffix }}
+        {{- include "liferay.labels" .root | nindent 8 }}
+    name: {{ include "liferay.name" .root }}-hash-policy
+    namespace: {{ include "liferay.namespace" .root }}
+spec:
+    loadBalancer:
+        consistentHash:
+            cookie:
+                name:
+                    JSESSIONID
+            type: Cookie
+        type: ConsistentHash
+    targetRefs:
+        -   group: gateway.networking.k8s.io
+            kind: HTTPRoute
+            name: {{ include "liferay.name" .root }}-httproute
+---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -242,27 +266,6 @@ spec:
                 type: RequestRedirect
 {{- end }}
 {{- end }}
----
-apiVersion: gateway.envoyproxy.io/v1alpha1
-kind: BackendTrafficPolicy
-metadata:
-    labels:
-        app: {{ include "liferay.name" .root }}{{ $suffix }}
-        {{- include "liferay.labels" .root | nindent 8 }}
-    name: {{ include "liferay.name" .root }}-hash-policy
-    namespace: {{ include "liferay.namespace" .root }}
-spec:
-    hashPolicies:
-        -   cookie:
-                name: JSESSIONID
-    loadBalancer:
-        ringHash:
-            minimumRingSize: 4096
-        type: RingHash
-    targetRefs:
-        -   group: ""
-            kind: Service
-            name: {{ include "liferay.name" .root }}{{ $suffix }}
 ---
 apiVersion: v1
 kind: Service

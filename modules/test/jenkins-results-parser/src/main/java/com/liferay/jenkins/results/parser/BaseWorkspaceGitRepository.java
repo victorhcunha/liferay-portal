@@ -658,35 +658,42 @@ public abstract class BaseWorkspaceGitRepository
 
 		sb.setLength(0);
 
-		sb.append("git clone --depth ");
+		if (_isFullDotGitDirArchiveRequired()) {
+			sb.append("cd ");
+			sb.append(workingDirectory);
+		}
+		else {
+			sb.append("git clone --depth ");
 
-		LocalGitBranch localGitBranch = getLocalGitBranch();
+			LocalGitBranch localGitBranch = getLocalGitBranch();
 
-		int commitCount = gitWorkingDirectory.getCommitCountBetweenBranches(
-			localGitBranch.getUpstreamBranchName(), localGitBranch.getName());
+			int commitCount = gitWorkingDirectory.getCommitCountBetweenBranches(
+				localGitBranch.getUpstreamBranchName(),
+				localGitBranch.getName());
 
-		sb.append(commitCount + 1);
+			sb.append(commitCount + 1);
 
-		sb.append(" --no-checkout file://");
-		sb.append(workingDirectory);
-		sb.append(" ");
-		sb.append(clonedWorkingDirectory);
+			sb.append(" --no-checkout file://");
+			sb.append(workingDirectory);
+			sb.append(" ");
+			sb.append(clonedWorkingDirectory);
 
-		commands.add(sb.toString());
+			commands.add(sb.toString());
 
-		sb.setLength(0);
+			sb.setLength(0);
 
-		sb.append("cp ");
-		sb.append(new File(workingDirectory, ".git/config"));
-		sb.append(" ");
-		sb.append(new File(clonedWorkingDirectory, ".git/config"));
+			sb.append("cp ");
+			sb.append(new File(workingDirectory, ".git/config"));
+			sb.append(" ");
+			sb.append(new File(clonedWorkingDirectory, ".git/config"));
 
-		commands.add(sb.toString());
+			commands.add(sb.toString());
 
-		sb.setLength(0);
+			sb.setLength(0);
 
-		sb.append("cd ");
-		sb.append(clonedWorkingDirectory);
+			sb.append("cd ");
+			sb.append(clonedWorkingDirectory);
+		}
 
 		commands.add(sb.toString());
 
@@ -1038,6 +1045,17 @@ public abstract class BaseWorkspaceGitRepository
 
 		String jobVariant = System.getenv("JOB_VARIANT");
 
+		if (directoryName.contains("liferay-plugins")) {
+			if (!_snapshot ||
+				(!JenkinsResultsParserUtil.isNullOrEmpty(jobVariant) &&
+				 jobVariant.startsWith("plugins-compile"))) {
+
+				return true;
+			}
+
+			return false;
+		}
+
 		if (directoryName.contains("liferay-portal")) {
 			if (!_snapshot) {
 				return true;
@@ -1051,6 +1069,7 @@ public abstract class BaseWorkspaceGitRepository
 				jobName.equals("test-portal-source-format") ||
 				jobName.contains("validation") ||
 				jobVariant.contains("modules-unit") ||
+				jobVariant.contains("plugins-compile") ||
 				jobVariant.contains("rest-builder") ||
 				jobVariant.contains("service-builder")) {
 
@@ -1076,6 +1095,16 @@ public abstract class BaseWorkspaceGitRepository
 		}
 
 		return false;
+	}
+
+	private boolean _isFullDotGitDirArchiveRequired() {
+		GitWorkingDirectory gitWorkingDirectory = getGitWorkingDirectory();
+
+		File workingDirectory = gitWorkingDirectory.getWorkingDirectory();
+
+		String workingDirectoryName = workingDirectory.getName();
+
+		return workingDirectoryName.contains("ee-6.2.x");
 	}
 
 	private boolean _isPullRequest() {

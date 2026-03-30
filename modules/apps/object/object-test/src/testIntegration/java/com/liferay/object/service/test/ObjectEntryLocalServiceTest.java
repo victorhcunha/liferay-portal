@@ -1686,7 +1686,9 @@ public class ObjectEntryLocalServiceTest {
 			try (ResultSet resultSet = preparedStatement.executeQuery()) {
 				resultSet.next();
 
-				Assert.assertEquals(200, resultSet.getLong(1));
+				Assert.assertEquals(
+					200,
+					resultSet.getLong(objectField.getSortableDBColumnName()));
 			}
 		}
 
@@ -1750,6 +1752,47 @@ public class ObjectEntryLocalServiceTest {
 			0,
 			_counterLocalService.getCurrentId(
 				ObjectFieldUtil.getCounterName(objectField)));
+	}
+
+	@Test
+	public void testAddObjectEntryWithCopyAttribute() throws Exception {
+		FileEntry fileEntry = _addTempFileEntry(RandomTestUtil.randomString());
+
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext();
+
+		ObjectEntry objectEntry = _addObjectEntry(
+			_objectDefinition,
+			HashMapBuilder.<String, Serializable>put(
+				"attachment", fileEntry.getFileEntryId()
+			).put(
+				"emailAddressRequired", "peter@liferay.com"
+			).put(
+				"listTypeEntryKeyRequired", "listTypeEntryKey1"
+			).build(),
+			serviceContext);
+
+		Assert.assertNull(
+			_dlAppLocalService.fetchFileEntry(fileEntry.getFileEntryId()));
+
+		serviceContext.setAttribute(Constants.ACTION, Constants.COPY);
+
+		long persistedFileEntryId = MapUtil.getLong(
+			objectEntry.getValues(), "attachment");
+
+		_addObjectEntry(
+			_objectDefinition,
+			HashMapBuilder.<String, Serializable>put(
+				"attachment", persistedFileEntryId
+			).put(
+				"emailAddressRequired", "peter@liferay.com"
+			).put(
+				"listTypeEntryKeyRequired", "listTypeEntryKey1"
+			).build(),
+			serviceContext);
+
+		Assert.assertNotNull(
+			_dlAppLocalService.fetchFileEntry(persistedFileEntryId));
 	}
 
 	@FeatureFlag("LPD-17564")
@@ -1935,7 +1978,7 @@ public class ObjectEntryLocalServiceTest {
 				Assert.assertEquals(
 					_encryptor.encrypt(
 						new SecretKeySpec(Base64.decode(key), "AES"), "test"),
-					resultSet.getString(1));
+					resultSet.getString(objectField.getDBColumnName()));
 			}
 		}
 
@@ -3962,6 +4005,53 @@ public class ObjectEntryLocalServiceTest {
 
 			Assert.assertFalse(_containsObjectEntryValuesSQLQuery(logCapture));
 		}
+	}
+
+	@Test
+	public void testCopyObjectEntry() throws Exception {
+		ServiceContext serviceContext =
+			ServiceContextTestUtil.getServiceContext();
+
+		ObjectEntry objectEntry = _addObjectEntry(
+			_objectDefinition,
+			HashMapBuilder.<String, Serializable>put(
+				"attachment",
+				() -> {
+					FileEntry fileEntry = _addTempFileEntry(
+						RandomTestUtil.randomString());
+
+					return fileEntry.getFileEntryId();
+				}
+			).put(
+				"emailAddressRequired", "peter@liferay.com"
+			).put(
+				"listTypeEntryKeyRequired", "listTypeEntryKey1"
+			).build(),
+			serviceContext);
+
+		Map<String, Serializable> objectEntryValues = objectEntry.getValues();
+
+		ObjectEntry copyObjectEntry = _objectEntryLocalService.copyObjectEntry(
+			TestPropsValues.getUserId(), objectEntry.getObjectEntryId(),
+			objectEntry.getObjectEntryFolderId(), objectEntryValues,
+			serviceContext);
+
+		Assert.assertNotEquals(
+			objectEntry.getObjectEntryId(), copyObjectEntry.getObjectEntryId());
+
+		Map<String, Serializable> copyObjectEntryValues =
+			copyObjectEntry.getValues();
+
+		Assert.assertEquals(
+			MapUtil.getLong(objectEntryValues, "attachment"),
+			MapUtil.getLong(copyObjectEntryValues, "attachment"));
+		Assert.assertEquals(
+			MapUtil.getString(objectEntryValues, "emailAddressRequired"),
+			MapUtil.getString(copyObjectEntryValues, "emailAddressRequired"));
+		Assert.assertEquals(
+			MapUtil.getString(objectEntryValues, "listTypeEntryKeyRequired"),
+			MapUtil.getString(
+				copyObjectEntryValues, "listTypeEntryKeyRequired"));
 	}
 
 	@Test
@@ -7736,13 +7826,14 @@ public class ObjectEntryLocalServiceTest {
 		try (Connection connection = DataAccess.getConnection();
 
 			PreparedStatement preparedStatement = connection.prepareStatement(
-				"select count(*) from " + _objectDefinition.getDBTableName());
+				"select count(*) as count from " +
+					_objectDefinition.getDBTableName());
 
 			ResultSet resultSet = preparedStatement.executeQuery()) {
 
 			resultSet.next();
 
-			return resultSet.getInt(1);
+			return resultSet.getInt("count");
 		}
 	}
 

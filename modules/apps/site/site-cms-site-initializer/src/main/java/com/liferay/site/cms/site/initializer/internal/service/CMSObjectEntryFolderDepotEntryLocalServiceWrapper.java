@@ -60,10 +60,10 @@ public class CMSObjectEntryFolderDepotEntryLocalServiceWrapper
 				depotEntry.getCompanyId(), "LPD-17564") &&
 			(depotEntry.getType() == DepotConstants.TYPE_SPACE)) {
 
+			_addCMSDefaultPermissions(group);
+
 			ObjectEntryFolderUtil.addObjectEntryFolders(
 				depotEntry, _attachmentManager);
-
-			_addCMSDefaultPermissions(group);
 		}
 
 		return depotEntry;
@@ -82,10 +82,10 @@ public class CMSObjectEntryFolderDepotEntryLocalServiceWrapper
 				depotEntry.getCompanyId(), "LPD-17564") &&
 			(depotEntry.getType() == DepotConstants.TYPE_SPACE)) {
 
+			_addCMSDefaultPermissions(depotEntry.getGroup());
+
 			ObjectEntryFolderUtil.addObjectEntryFolders(
 				depotEntry, _attachmentManager);
-
-			_addCMSDefaultPermissions(depotEntry.getGroup());
 		}
 
 		return depotEntry;
@@ -236,7 +236,10 @@ public class CMSObjectEntryFolderDepotEntryLocalServiceWrapper
 			}
 		).put(
 			DepotRolesConstants.ASSET_LIBRARY_MEMBER,
-			new String[] {ActionKeys.ADD_DISCUSSION, ActionKeys.VIEW}
+			new String[] {
+				ActionKeys.ADD_DISCUSSION,
+				ObjectActionKeys.OBJECT_ENTRY_HISTORY, ActionKeys.VIEW
+			}
 		).put(
 			RoleConstants.CMS_ADMINISTRATOR, actionIds
 		).put(

@@ -10,6 +10,7 @@ import com.liferay.depot.constants.DepotConstants;
 import com.liferay.depot.model.DepotEntry;
 import com.liferay.depot.service.DepotEntryLocalService;
 import com.liferay.exportimport.kernel.service.StagingLocalService;
+import com.liferay.exportimport.test.util.LazyReferencingTestUtil;
 import com.liferay.headless.admin.site.client.dto.v1_0.ContentPageSpecification;
 import com.liferay.headless.admin.site.client.dto.v1_0.ContentPageTemplate;
 import com.liferay.headless.admin.site.client.dto.v1_0.ContentPageTemplateSettings;
@@ -45,7 +46,6 @@ import com.liferay.petra.function.UnsafeRunnable;
 import com.liferay.petra.function.UnsafeSupplier;
 import com.liferay.petra.lang.SafeCloseable;
 import com.liferay.petra.string.StringPool;
-import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Company;
@@ -76,7 +76,6 @@ import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
-import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -84,12 +83,10 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -109,33 +106,6 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
 			PermissionCheckerMethodTestRule.INSTANCE);
-
-	@Before
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
-
-		_pageTemplateResource.setContextAcceptLanguage(
-			new AcceptLanguage() {
-
-				@Override
-				public List<Locale> getLocales() {
-					return Arrays.asList(LocaleUtil.getDefault());
-				}
-
-				@Override
-				public String getPreferredLanguageId() {
-					return LocaleUtil.toLanguageId(LocaleUtil.getDefault());
-				}
-
-				@Override
-				public Locale getPreferredLocale() {
-					return LocaleUtil.getDefault();
-				}
-
-			});
-		_pageTemplateResource.setContextUser(TestPropsValues.getUser());
-	}
 
 	@Ignore
 	@Override
@@ -677,27 +647,6 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 			pageTemplateSet.getExternalReferenceCode(), pageTemplate);
 	}
 
-	private static com.liferay.headless.admin.site.dto.v1_0.PageTemplate
-		_toPageTemplate(PageTemplate pageTemplate) {
-
-		if (pageTemplate == null) {
-			return null;
-		}
-
-		return com.liferay.headless.admin.site.dto.v1_0.PageTemplate.toDTO(
-			pageTemplate.toString());
-	}
-
-	private static PageTemplate _toPageTemplate(
-		com.liferay.headless.admin.site.dto.v1_0.PageTemplate pageTemplate) {
-
-		if (pageTemplate == null) {
-			return null;
-		}
-
-		return PageTemplate.toDTO(pageTemplate.toString());
-	}
-
 	private FileEntry _addPortletFileEntry(long folderId) throws Exception {
 		Class<?> clazz = getClass();
 
@@ -1090,10 +1039,15 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 
 			Assert.fail();
 		}
-		catch (UnsupportedOperationException unsupportedOperationException) {
+		catch (Problem.ProblemException problemException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(unsupportedOperationException);
+				_log.debug(problemException);
 			}
+
+			Problem problem = problemException.getProblem();
+
+			Assert.assertEquals(
+				"UnsupportedOperationException", problem.getType());
 		}
 
 		Assert.assertNull(
@@ -1103,7 +1057,8 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 					testGroup.getGroupId()));
 
 		try (SafeCloseable safeCloseable =
-				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
+				LazyReferencingTestUtil.setLazyReferencingWithSafeCloseable(
+					true)) {
 
 			PageTemplate pageTemplate = unsafeFunction.apply(pageTemplateSet);
 
@@ -1477,11 +1432,9 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 			pageTemplateSet -> {
 				patchPageTemplate.setPageTemplateSet(pageTemplateSet);
 
-				return _toPageTemplate(
-					_pageTemplateResource.patchSitePageTemplate(
-						testGroup.getExternalReferenceCode(),
-						pageTemplate.getExternalReferenceCode(),
-						_toPageTemplate(patchPageTemplate)));
+				return pageTemplateResource.patchSitePageTemplate(
+					testGroup.getExternalReferenceCode(),
+					pageTemplate.getExternalReferenceCode(), patchPageTemplate);
 			});
 	}
 
@@ -1732,10 +1685,8 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 			pageTemplateSet -> {
 				pageTemplate.setPageTemplateSet(pageTemplateSet);
 
-				return _toPageTemplate(
-					_pageTemplateResource.postSitePageTemplate(
-						testGroup.getExternalReferenceCode(),
-						_toPageTemplate(pageTemplate)));
+				return pageTemplateResource.postSitePageTemplate(
+					testGroup.getExternalReferenceCode(), pageTemplate);
 			});
 	}
 
@@ -1977,11 +1928,9 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 			pageTemplateSet -> {
 				pageTemplate.setPageTemplateSet(pageTemplateSet);
 
-				return _toPageTemplate(
-					_pageTemplateResource.putSitePageTemplate(
-						testGroup.getExternalReferenceCode(),
-						pageTemplate.getExternalReferenceCode(),
-						_toPageTemplate(pageTemplate)));
+				return pageTemplateResource.putSitePageTemplate(
+					testGroup.getExternalReferenceCode(),
+					pageTemplate.getExternalReferenceCode(), pageTemplate);
 			});
 	}
 
@@ -2139,10 +2088,6 @@ public class PageTemplateResourceTest extends BasePageTemplateResourceTestCase {
 
 	@Inject
 	private LayoutPageTemplateEntryService _layoutPageTemplateEntryService;
-
-	@Inject
-	private com.liferay.headless.admin.site.resource.v1_0.PageTemplateResource
-		_pageTemplateResource;
 
 	@Inject
 	private PortletFileRepository _portletFileRepository;

@@ -10,6 +10,7 @@ import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.dynamic.data.mapping.model.DDMStructure;
 import com.liferay.dynamic.data.mapping.test.util.DDMStructureTestUtil;
 import com.liferay.exportimport.kernel.service.StagingLocalService;
+import com.liferay.exportimport.test.util.LazyReferencingTestUtil;
 import com.liferay.fragment.model.FragmentEntry;
 import com.liferay.headless.admin.site.client.dto.v1_0.ClassSubtypeReference;
 import com.liferay.headless.admin.site.client.dto.v1_0.ContentPageSpecification;
@@ -65,7 +66,6 @@ import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.json.JSONArray;
 import com.liferay.portal.kernel.json.JSONFactory;
 import com.liferay.portal.kernel.json.JSONObject;
-import com.liferay.portal.kernel.lazy.referencing.LazyReferencingThreadLocal;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.model.Layout;
@@ -100,7 +100,6 @@ import com.liferay.portal.test.rule.FeatureFlag;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
-import com.liferay.portal.vulcan.accept.language.AcceptLanguage;
 import com.liferay.portal.vulcan.util.LocalizedMapUtil;
 import com.liferay.segments.service.SegmentsExperienceLocalService;
 
@@ -108,7 +107,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -117,7 +115,6 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -139,33 +136,6 @@ public class DisplayPageTemplateResourceTest
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
 			PermissionCheckerMethodTestRule.INSTANCE);
-
-	@Before
-	@Override
-	public void setUp() throws Exception {
-		super.setUp();
-
-		_displayPageTemplateResource.setContextAcceptLanguage(
-			new AcceptLanguage() {
-
-				@Override
-				public List<Locale> getLocales() {
-					return Arrays.asList(LocaleUtil.getDefault());
-				}
-
-				@Override
-				public String getPreferredLanguageId() {
-					return LocaleUtil.toLanguageId(LocaleUtil.getDefault());
-				}
-
-				@Override
-				public Locale getPreferredLocale() {
-					return LocaleUtil.getDefault();
-				}
-
-			});
-		_displayPageTemplateResource.setContextUser(TestPropsValues.getUser());
-	}
 
 	@Ignore
 	@Override
@@ -606,28 +576,6 @@ public class DisplayPageTemplateResourceTest
 
 		return testGetSiteDisplayPageTemplatesPage_addDisplayPageTemplate(
 			testGroup.getExternalReferenceCode(), displayPageTemplate);
-	}
-
-	private static com.liferay.headless.admin.site.dto.v1_0.DisplayPageTemplate
-		_toDisplayPageTemplate(DisplayPageTemplate displayPageTemplate) {
-
-		if (displayPageTemplate == null) {
-			return null;
-		}
-
-		return com.liferay.headless.admin.site.dto.v1_0.DisplayPageTemplate.
-			toDTO(displayPageTemplate.toString());
-	}
-
-	private static DisplayPageTemplate _toDisplayPageTemplate(
-		com.liferay.headless.admin.site.dto.v1_0.DisplayPageTemplate
-			displayPageTemplate) {
-
-		if (displayPageTemplate == null) {
-			return null;
-		}
-
-		return DisplayPageTemplate.toDTO(displayPageTemplate.toString());
 	}
 
 	private FileEntry _addPortletFileEntry(long folderId) throws Exception {
@@ -1111,10 +1059,15 @@ public class DisplayPageTemplateResourceTest
 
 			Assert.fail();
 		}
-		catch (UnsupportedOperationException unsupportedOperationException) {
+		catch (Problem.ProblemException problemException) {
 			if (_log.isDebugEnabled()) {
-				_log.debug(unsupportedOperationException);
+				_log.debug(problemException);
 			}
+
+			Problem problem = problemException.getProblem();
+
+			Assert.assertEquals(
+				"UnsupportedOperationException", problem.getType());
 		}
 
 		Assert.assertNull(
@@ -1129,7 +1082,8 @@ public class DisplayPageTemplateResourceTest
 					testGroup.getGroupId()));
 
 		try (SafeCloseable safeCloseable =
-				LazyReferencingThreadLocal.setEnabledWithSafeCloseable(true)) {
+				LazyReferencingTestUtil.setLazyReferencingWithSafeCloseable(
+					true)) {
 
 			DisplayPageTemplate displayPageTemplate = unsafeFunction.apply(
 				displayPageTemplateFolder);
@@ -1834,10 +1788,9 @@ public class DisplayPageTemplateResourceTest
 				randomDisplayPageTemplate.setParentFolder(
 					nonexistingDisplayPageTemplateFolder);
 
-				return _toDisplayPageTemplate(
-					_displayPageTemplateResource.postSiteDisplayPageTemplate(
-						testGroup.getExternalReferenceCode(),
-						_toDisplayPageTemplate(randomDisplayPageTemplate)));
+				return displayPageTemplateResource.postSiteDisplayPageTemplate(
+					testGroup.getExternalReferenceCode(),
+					randomDisplayPageTemplate);
 			});
 	}
 
@@ -1960,11 +1913,10 @@ public class DisplayPageTemplateResourceTest
 				postDisplayPageTemplate.setParentFolder(
 					nonexistingDisplayPageTemplateFolder);
 
-				return _toDisplayPageTemplate(
-					_displayPageTemplateResource.putSiteDisplayPageTemplate(
-						testGroup.getExternalReferenceCode(),
-						postDisplayPageTemplate.getExternalReferenceCode(),
-						_toDisplayPageTemplate(postDisplayPageTemplate)));
+				return displayPageTemplateResource.putSiteDisplayPageTemplate(
+					testGroup.getExternalReferenceCode(),
+					postDisplayPageTemplate.getExternalReferenceCode(),
+					postDisplayPageTemplate);
 			});
 	}
 
@@ -2363,11 +2315,6 @@ public class DisplayPageTemplateResourceTest
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		DisplayPageTemplateResourceTest.class);
-
-	@Inject
-	private
-		com.liferay.headless.admin.site.resource.v1_0.
-			DisplayPageTemplateResource _displayPageTemplateResource;
 
 	@Inject
 	private InfoItemServiceRegistry _infoItemServiceRegistry;

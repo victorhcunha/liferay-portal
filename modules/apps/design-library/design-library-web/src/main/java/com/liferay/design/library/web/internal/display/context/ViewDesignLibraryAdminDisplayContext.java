@@ -71,7 +71,24 @@ public class ViewDesignLibraryAdminDisplayContext {
 					DesignLibraryConstants.DESIGN_LIBRARY_ENTRY_ID_KEY, "{id}"
 				).buildString(),
 				"pencil", "edit", LanguageUtil.get(_httpServletRequest, "edit"),
-				null, null, "link"));
+				null, null, "link"),
+			new FDSActionDropdownItem(
+				"{actions.delete.href}", "trash", "delete",
+				LanguageUtil.get(_httpServletRequest, "delete"), "delete",
+				"delete", null));
+	}
+
+	public Map<String, Object> getFDSAdditionalProps() {
+		return HashMapBuilder.<String, Object>put(
+			"entryIdKey", DesignLibraryConstants.DESIGN_LIBRARY_ENTRY_ID_KEY
+		).put(
+			"redirectURL",
+			PortletURLBuilder.createRenderURL(
+				_liferayPortletResponse
+			).setMVCRenderCommandName(
+				"/design_library/design_library_resources"
+			).buildString()
+		).build();
 	}
 
 	private JSONArray _getActionItemsJSONArray() {

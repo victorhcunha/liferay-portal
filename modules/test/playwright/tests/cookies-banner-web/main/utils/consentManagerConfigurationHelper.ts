@@ -141,19 +141,31 @@ export async function updateConsentManagerConfiguration(
 		);
 	}
 
+	const consentRenewalPeriodField = page
+		.getByLabel('Consent Renewal Period')
+		.first();
 	const enabledCheckbox = page.getByLabel('Enabled', {exact: true});
 
 	await enabledCheckbox.waitFor({state: 'visible'});
 
-	let dialog = await enabledCheckbox.isChecked();
+	let dialog = false;
 
-	if (enabled === true) {
-		await enabledCheckbox.setChecked(true);
-	}
-	else if (enabled === false) {
-		dialog = false;
-
+	if (enabled === false) {
 		await enabledCheckbox.setChecked(false);
+	}
+	else {
+		if (
+			enabledCheckbox.isChecked() &&
+			consentRenewalPeriod &&
+			consentRenewalPeriod !==
+				consentRenewalPeriodField.getAttribute('value')
+		) {
+			dialog = true;
+		}
+
+		if (enabled === true) {
+			await enabledCheckbox.setChecked(true);
+		}
 	}
 
 	if (await enabledCheckbox.isChecked()) {
@@ -172,14 +184,17 @@ export async function updateConsentManagerConfiguration(
 		}
 
 		if (consentRenewalPeriod) {
-			await page
-				.getByLabel('Consent Renewal Period')
-				.first()
-				.fill(consentRenewalPeriod);
+			await consentRenewalPeriodField.fill(consentRenewalPeriod);
 		}
 
 		if (storeConsent !== undefined) {
-			await page.getByLabel('Store Consent').setChecked(storeConsent);
+			const systemSettingsPageLocator = await page.locator(
+				'[id="_com_liferay_configuration_admin_web_portlet_SystemSettingsPortlet_fm"]'
+			);
+
+			await systemSettingsPageLocator
+				.getByLabel('Store Consent')
+				.setChecked(storeConsent);
 		}
 	}
 

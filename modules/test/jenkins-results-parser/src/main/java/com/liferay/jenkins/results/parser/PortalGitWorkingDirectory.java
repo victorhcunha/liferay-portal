@@ -62,7 +62,13 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 	}
 
 	public List<File> getModifiedModuleDirsList() throws IOException {
-		return getModifiedModuleDirsList(null, null);
+		if (_modifiedModuleDirs != null) {
+			return _modifiedModuleDirs;
+		}
+
+		_modifiedModuleDirs = getModifiedModuleDirsList(null, null);
+
+		return _modifiedModuleDirs;
 	}
 
 	public List<File> getModifiedModuleDirsList(
@@ -70,9 +76,22 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 			List<PathMatcher> includesPathMatchers)
 		throws IOException {
 
-		return JenkinsResultsParserUtil.getDirectoriesContainingFiles(
-			getModuleDirsList(excludesPathMatchers, includesPathMatchers),
-			getModifiedFilesList());
+		if ((excludesPathMatchers == null) && (includesPathMatchers == null) &&
+			(_modifiedModuleDirs != null)) {
+
+			return _modifiedModuleDirs;
+		}
+
+		List<File> modifiedModuleDirsList =
+			JenkinsResultsParserUtil.getDirectoriesContainingFiles(
+				getModuleDirsList(excludesPathMatchers, includesPathMatchers),
+				getModifiedFilesList());
+
+		if ((excludesPathMatchers == null) && (includesPathMatchers == null)) {
+			_modifiedModuleDirs = modifiedModuleDirsList;
+		}
+
+		return modifiedModuleDirsList;
 	}
 
 	public List<File> getModifiedNonposhiModules() throws IOException {
@@ -283,12 +302,21 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 	}
 
 	public PluginsGitWorkingDirectory getPluginsGitWorkingDirectory() {
-		String lpPluginsDir = JenkinsResultsParserUtil.getProperty(
-			getReleaseProperties(), "lp.plugins.dir");
+		Properties buildProperties = null;
+
+		try {
+			buildProperties = JenkinsResultsParserUtil.getBuildProperties();
+		}
+		catch (IOException ioException) {
+			throw new RuntimeException(ioException);
+		}
+
+		String pluginsDir = JenkinsResultsParserUtil.getProperty(
+			buildProperties, "plugins.dir", getUpstreamBranchName());
 
 		GitWorkingDirectory pluginsGitWorkingDirectory =
 			GitWorkingDirectoryFactory.newGitWorkingDirectory(
-				getUpstreamBranchName(), new File(lpPluginsDir),
+				getUpstreamBranchName(), new File(pluginsDir),
 				"liferay-plugins-ee");
 
 		if (pluginsGitWorkingDirectory instanceof PluginsGitWorkingDirectory) {
@@ -537,6 +565,7 @@ public class PortalGitWorkingDirectory extends GitWorkingDirectory {
 
 	private Properties _appServerProperties;
 	private List<File> _jsUnitFiles;
+	private List<File> _modifiedModuleDirs;
 	private Properties _releaseProperties;
 	private Properties _testProperties;
 

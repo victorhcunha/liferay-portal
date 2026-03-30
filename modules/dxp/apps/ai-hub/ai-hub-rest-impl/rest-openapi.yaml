@@ -37,6 +37,20 @@ components:
                 workflowDefinitionName:
                     type: string
             type: object
+        AgentInstance:
+            properties:
+                context:
+                    additionalProperties: true
+                    type: object
+                    writeOnly: true
+                externalReferenceCode:
+                    readOnly: true
+                    type: string
+                sseEventSinkKey:
+                    type: string
+                type:
+                    type: string
+            type: object
         Chat:
             properties:
                 externalReferenceCode:
@@ -53,6 +67,12 @@ components:
                 text:
                     type: string
             type: object
+        Site:
+            properties:
+                externalReferenceCode:
+                    readOnly: true
+                    type: string
+            type: object
         Status:
             properties:
                 code:
@@ -61,20 +81,6 @@ components:
                 label:
                     type: string
                 label_i18n:
-                    type: string
-            type: object
-        Task:
-            properties:
-                context:
-                    additionalProperties: true
-                    type: object
-                    writeOnly: true
-                externalReferenceCode:
-                    readOnly: true
-                    type: string
-                sseEventSinkKey:
-                    type: string
-                type:
                     type: string
             type: object
         Variable:
@@ -191,6 +197,40 @@ paths:
                             schema:
                                 $ref: "#/components/schemas/AgentDefinition"
             tags: ["AgentDefinition"]
+    "/agent-instances":
+        post:
+            operationId: postAgentInstance
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: "#/components/schemas/AgentInstance"
+                    application/xml:
+                        schema:
+                            $ref: "#/components/schemas/AgentInstance"
+            responses:
+                200:
+                    content:
+                        application/json:
+                            schema:
+                                $ref: "#/components/schemas/AgentInstance"
+                        application/xml:
+                            schema:
+                                $ref: "#/components/schemas/AgentInstance"
+            tags: ["AgentInstance"]
+    "/agent-instances/subscribe":
+        get:
+            operationId: getAgentInstanceSubscribe
+            parameters:
+                -   in: context
+                    name: sseEventSink
+                    schema:
+                        type: sseEventSink
+            responses:
+                200:
+                    content:
+                        text/event-stream: {}
+            tags: ["AgentInstance"]
     "/chats/by-external-reference-code/{externalReferenceCode}/messages":
         post:
             operationId: postChatByExternalReferenceCodeMessage
@@ -231,37 +271,18 @@ paths:
                     content:
                         text/event-stream: {}
             tags: ["Chat"]
-    "/tasks":
-        post:
-            operationId: postTask
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: "#/components/schemas/Task"
-                    application/xml:
-                        schema:
-                            $ref: "#/components/schemas/Task"
-            responses:
-                200:
-                    content:
-                        application/json:
-                            schema:
-                                $ref: "#/components/schemas/Task"
-                        application/xml:
-                            schema:
-                                $ref: "#/components/schemas/Task"
-            tags: ["Task"]
-    "/tasks/subscribe":
-        get:
-            operationId: getTaskSubscribe
+    "/sites/by-external-reference-code/{externalReferenceCode}/site-initializer":
+        put:
+            operationId: putSiteByExternalReferenceCodeSiteInitializer
             parameters:
-                -   in: context
-                    name: sseEventSink
+                -   in: path
+                    name: externalReferenceCode
+                    required: true
                     schema:
-                        type: sseEventSink
+                        type: string
             responses:
-                200:
+                204:
                     content:
-                        text/event-stream: {}
-            tags: ["Task"]
+                        application/json: {}
+                        application/xml: {}
+            tags: ["Site"]

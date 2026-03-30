@@ -11,6 +11,7 @@ import com.liferay.asset.category.property.service.AssetCategoryPropertyLocalSer
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetCategoryConstants;
 import com.liferay.asset.kernel.model.AssetVocabulary;
+import com.liferay.asset.kernel.model.AssetVocabularyGroupRel;
 import com.liferay.asset.kernel.service.AssetCategoryLocalService;
 import com.liferay.asset.kernel.service.AssetCategoryService;
 import com.liferay.asset.kernel.service.AssetVocabularyGroupRelLocalService;
@@ -45,8 +46,10 @@ import com.liferay.portal.kernel.search.Sort;
 import com.liferay.portal.kernel.search.filter.BooleanFilter;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.search.filter.TermFilter;
+import com.liferay.portal.kernel.search.filter.TermsFilter;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.service.GroupLocalService;
+import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -70,6 +73,7 @@ import jakarta.ws.rs.core.MultivaluedMap;
 
 import java.sql.Timestamp;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -335,7 +339,7 @@ public class TaxonomyCategoryResourceImpl
 			Filter filter, Pagination pagination, Sort[] sorts)
 		throws Exception {
 
-		DepotEntry depotEntry = _depotEntryService.fetchGroupDepotEntry(
+		DepotEntry depotEntry = _depotEntryService.getGroupDepotEntry(
 			assetLibraryId);
 
 		return SearchUtil.search(
@@ -362,14 +366,21 @@ public class TaxonomyCategoryResourceImpl
 					AssetCategoriesPermission.RESOURCE_NAME, assetLibraryId)
 			).build(),
 			booleanQuery -> {
-				if ((depotEntry != null) &&
-					(depotEntry.getType() == DepotConstants.TYPE_SPACE)) {
+				BooleanFilter booleanFilter =
+					booleanQuery.getPreBooleanFilter();
+
+				if (depotEntry.getType() == DepotConstants.TYPE_SPACE) {
+					TermsFilter assetVocabularyIdTermsFilter = new TermsFilter(
+						Field.ASSET_VOCABULARY_ID);
+
+					assetVocabularyIdTermsFilter.addValues(
+						_getAssetVocabularyIds(depotEntry.getGroupId()));
+
+					booleanFilter.add(
+						assetVocabularyIdTermsFilter, BooleanClauseOccur.MUST);
 
 					return;
 				}
-
-				BooleanFilter booleanFilter =
-					booleanQuery.getPreBooleanFilter();
 
 				booleanFilter.add(
 					new TermFilter(
@@ -384,15 +395,8 @@ public class TaxonomyCategoryResourceImpl
 				searchContext.setCompanyId(contextCompany.getCompanyId());
 
 				if ((depotEntry != null) &&
-					(depotEntry.getType() == DepotConstants.TYPE_SPACE)) {
+					(depotEntry.getType() != DepotConstants.TYPE_SPACE)) {
 
-					searchContext.setAttribute(
-						"groupIds",
-						new long[] {
-							assetLibraryId, GroupConstants.ANY_PARENT_GROUP_ID
-						});
-				}
-				else {
 					searchContext.setGroupIds(new long[] {assetLibraryId});
 				}
 
@@ -704,10 +708,7 @@ public class TaxonomyCategoryResourceImpl
 				titleMap, descriptionMap, taxonomyVocabularyId,
 				_toStringArray(
 					taxonomyCategory.getTaxonomyCategoryProperties()),
-				ServiceContextBuilder.create(
-					groupId, contextHttpServletRequest,
-					taxonomyCategory.getViewableByAsString()
-				).build()));
+				_getServiceContext(groupId, taxonomyCategory)));
 	}
 
 	private AssetCategory _getAssetCategory(String taxonomyCategoryId)
@@ -737,6 +738,25 @@ public class TaxonomyCategoryResourceImpl
 		}
 
 		return assetCategory.getVocabularyId();
+	}
+
+	private String[] _getAssetVocabularyIds(long groupId) {
+		List<AssetVocabularyGroupRel> assetVocabularyGroupRels =
+			new ArrayList<>();
+
+		assetVocabularyGroupRels.addAll(
+			_assetVocabularyGroupRelLocalService.
+				getAssetVocabularyGroupRelsByGroupId(groupId));
+		assetVocabularyGroupRels.addAll(
+			_assetVocabularyGroupRelLocalService.
+				getAssetVocabularyGroupRelsByGroupId(
+					GroupConstants.GROUP_ID_ALL));
+
+		return transformToArray(
+			assetVocabularyGroupRels,
+			assetVocabularyGroupRel -> String.valueOf(
+				assetVocabularyGroupRel.getVocabularyId()),
+			String.class);
 	}
 
 	private Page<TaxonomyCategory> _getCategoriesPage(
@@ -885,6 +905,19 @@ public class TaxonomyCategoryResourceImpl
 		projectionList.add(ProjectionFactoryUtil.property("vocabularyId"));
 
 		return projectionList;
+	}
+
+	private ServiceContext _getServiceContext(
+		long groupId, TaxonomyCategory taxonomyCategory) {
+
+		ServiceContext serviceContext = ServiceContextBuilder.create(
+			groupId, contextHttpServletRequest,
+			taxonomyCategory.getViewableByAsString()
+		).build();
+
+		serviceContext.setUuid(taxonomyCategory.getUuid());
+
+		return serviceContext;
 	}
 
 	private Long _getTaxonomyVocabularyId(

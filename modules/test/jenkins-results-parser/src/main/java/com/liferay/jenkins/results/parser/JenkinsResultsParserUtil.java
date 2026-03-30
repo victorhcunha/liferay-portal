@@ -3870,6 +3870,34 @@ public class JenkinsResultsParserUtil {
 		}
 	}
 
+	public static boolean isBuildCachingEnabled(
+		String jobName, String testSuiteName) {
+
+		if (!isCloudCINode()) {
+			return false;
+		}
+
+		String buildCachingEnabled = System.getenv("BUILD_CACHING_ENABLED");
+
+		if (!isNullOrEmpty(buildCachingEnabled)) {
+			return Objects.equals(buildCachingEnabled, "true");
+		}
+
+		try {
+			buildCachingEnabled = getBuildProperty(
+				"build.caching.enabled", jobName, testSuiteName);
+
+			if (Objects.equals(buildCachingEnabled, "true")) {
+				return true;
+			}
+		}
+		catch (IOException ioException) {
+			return false;
+		}
+
+		return false;
+	}
+
 	public static boolean isCINode() {
 		if (_ciNode == null) {
 			if (isNullOrEmpty(System.getenv("JENKINS_URL")) &&
@@ -4863,7 +4891,7 @@ public class JenkinsResultsParserUtil {
 
 			int returnCode = remoteExecutor.execute(
 				1, new String[] {destinationHostName},
-				new String[] {"mkdir -p " + destinationDirPath});
+				new String[] {"mkdir -p " + escapeForBash(destinationDirPath)});
 
 			if (returnCode != 0) {
 				throw new RuntimeException("Unable to create target directory");
@@ -4882,8 +4910,10 @@ public class JenkinsResultsParserUtil {
 			public Process execute() {
 				String command = _combineCommandArgs(
 					"time", "timeout", "1200", "rsync", argumentString,
-					_getRyncPath(sourceHostName, sourceFilePath),
-					_getRyncPath(destinationHostName, destinationDirPath));
+					_getRyncPath(sourceHostName, escapeForBash(sourceFilePath)),
+					_getRyncPath(
+						destinationHostName,
+						escapeForBash(destinationDirPath)));
 
 				try {
 					return executeBashCommands(command);

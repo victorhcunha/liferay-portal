@@ -866,19 +866,21 @@ public class JavaSourceProcessorTest extends BaseSourceProcessorTestCase {
 	}
 
 	@Test
-	public void testResultCountSet() throws Exception {
-		test(
-			"ResultSetCount.testjava", "Use resultSet.getInt(1) for count", 26);
-	}
-
-	@Test
 	public void testResultSetGetCall() throws Exception {
 		test(
-			"ResultSetGetCall.testjava",
-			"Do not use \"TableName.ColumnName\" as the parameter when " +
-				"calling method \"resultSet.get*\", use column index or " +
-					"column name instead",
-			43);
+			SourceProcessorTestParameters.create(
+				"ResultSetGetCall.testjava"
+			).addExpectedMessage(
+				"Use the simple column name instead of \"TableName.ColumnName" +
+					"\" when calling method \"resultSet.get*\"",
+				43
+			).addExpectedMessage(
+				"Use the simple column name instead of column index when " +
+					"calling method \"resultSet.get*\"",
+				60
+			).addExpectedMessage(
+				"Use \"resultSet.getInt\" for count", 74
+			));
 	}
 
 	@Test
