@@ -24,12 +24,16 @@ import com.liferay.portal.search.test.util.indexing.BaseIndexingTestCase;
 import com.liferay.portal.search.test.util.indexing.DocumentCreationHelpers;
 import com.liferay.portal.search.test.util.indexing.IndexingFixture;
 import com.liferay.portal.search.test.util.logging.ExpectedLog;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LogEntry;
+import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,16 +50,21 @@ public class ElasticsearchIndexWriterLogExceptionsOnlyTest
 		new AggregateTestRule(
 			ExpectedLogMethodTestRule.INSTANCE, LiferayUnitTestRule.INSTANCE);
 
-	@ExpectedLog(
-		expectedClass = ElasticsearchIndexWriter.class,
-		expectedLevel = ExpectedLog.Level.WARNING,
-		expectedLog = "failed to parse field [expirationDate] of type [date]"
-	)
 	@Test
 	public void testAddDocument() throws Exception {
-		addDocument(
-			DocumentCreationHelpers.singleKeyword(
-				Field.EXPIRATION_DATE, "text"));
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				ElasticsearchIndexWriter.class.getName(),
+				LoggerTestUtil.ERROR)) {
+
+			addDocument(
+				DocumentCreationHelpers.singleKeyword(
+					Field.EXPIRATION_DATE, "text"));
+
+			_assertLogCapture(
+				logCapture,
+				"failed to parse field [expirationDate] of type [date]",
+				LoggerTestUtil.ERROR);
+		}
 	}
 
 	@ExpectedLog(
@@ -412,6 +421,26 @@ public class ElasticsearchIndexWriterLogExceptionsOnlyTest
 		).elasticsearchFixture(
 			new ElasticsearchFixture(createElasticsearchConnectionFixture())
 		).build();
+	}
+
+	private void _assertLogCapture(
+		LogCapture logCapture, String expectedMessage, String logLevel) {
+
+		List<LogEntry> logEntries = logCapture.getLogEntries();
+
+		Assert.assertEquals(logEntries.toString(), 1, logEntries.size());
+
+		LogEntry logEntry = logEntries.get(0);
+
+		Assert.assertEquals(logLevel, logEntry.getPriority());
+
+		Throwable throwable = logEntry.getThrowable();
+
+		Assert.assertTrue(
+			throwable.getMessage(
+			).contains(
+				expectedMessage
+			));
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
