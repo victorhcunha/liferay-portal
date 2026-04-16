@@ -10,10 +10,10 @@ import path from 'path';
 import {
 	getFDSDateFormat,
 	getFDSDateTimeFormat,
-} from '../../../tests/object-web/main/utils/dateFormat';
+} from '../../../tests/object-web/utils/dateFormat';
 import {PORTLET_URLS} from '../../../utils/portletUrls';
 
-import type {SupportedBusinessType} from '../../../tests/object-web/main/utils/generateObjectEntry';
+import type {SupportedBusinessType} from '../../../tests/object-web/utils/generateObjectEntry';
 
 export class ViewObjectEntriesPage {
 	readonly backButton: Locator;
@@ -301,7 +301,7 @@ export class ViewObjectEntriesPage {
 			.click();
 
 		await this.selectFileIframeArabic
-			.getByRole('link', {name: 'Liferay DXP Site'})
+			.getByRole('link', {name: 'موقع Liferay DXP'})
 			.click();
 
 		await this.selectFileIframeArabic
@@ -328,7 +328,7 @@ export class ViewObjectEntriesPage {
 		const fileChooser = await fileChooserPromise;
 
 		await fileChooser.setFiles(
-			path.join(dirName, 'dependencies', fileName)
+			path.join(dirName, '../dependencies', fileName)
 		);
 	}
 

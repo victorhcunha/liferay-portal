@@ -91,6 +91,12 @@ public class NodePlugin implements Plugin<Project> {
 		final NodeExtension nodeExtension = GradleUtil.addExtension(
 			project, EXTENSION_NAME, NodeExtension.class);
 
+		File packageJsonFile = project.file("package.json");
+
+		if (!packageJsonFile.exists()) {
+			return;
+		}
+
 		_configureExtensionNode(project, nodeExtension);
 
 		Delete cleanNpmTask = _addTaskCleanNpm(project, nodeExtension);
@@ -101,16 +107,10 @@ public class NodePlugin implements Plugin<Project> {
 		NpmInstallTask npmInstallTask = _addTaskNpmInstall(
 			project, cleanNpmTask);
 
-		Map<String, Object> packageJsonMap = null;
+		JsonSlurper jsonSlurper = new JsonSlurper();
 
-		File packageJsonFile = npmInstallTask.getPackageJsonFile();
-
-		if (packageJsonFile.exists()) {
-			JsonSlurper jsonSlurper = new JsonSlurper();
-
-			packageJsonMap = (Map<String, Object>)jsonSlurper.parse(
-				packageJsonFile);
-		}
+		Map<String, Object> packageJsonMap =
+			(Map<String, Object>)jsonSlurper.parse(packageJsonFile);
 
 		_addTaskNpmPackageLock(project, cleanNpmTask, npmInstallTask);
 		_addTaskNpmShrinkwrap(project, cleanNpmTask, npmInstallTask);
@@ -783,33 +783,35 @@ public class NodePlugin implements Plugin<Project> {
 				taskOutputs.dir(packageRunBuildTask.getDestinationDir());
 			}
 
-			processResourcesCopy.dependsOn(packageRunBuildTask);
+			if (_isNodeBuildRequired(project)) {
+				processResourcesCopy.dependsOn(packageRunBuildTask);
 
-			processResourcesCopy.setDuplicatesStrategy(
-				DuplicatesStrategy.INCLUDE);
+				processResourcesCopy.setDuplicatesStrategy(
+					DuplicatesStrategy.INCLUDE);
 
-			processResourcesCopy.from(
-				new Callable<File>() {
+				processResourcesCopy.from(
+					new Callable<File>() {
 
-					@Override
-					public File call() throws Exception {
-						return packageRunBuildTask.getDestinationDir();
-					}
+						@Override
+						public File call() throws Exception {
+							return packageRunBuildTask.getDestinationDir();
+						}
 
-				},
-				new Closure<Void>(project) {
+					},
+					new Closure<Void>(project) {
 
-					@SuppressWarnings("unused")
-					public void doCall(CopySpec copySpec) {
-						copySpec.exclude("**/*.d.js");
-						copySpec.exclude("**/*.d.js.map");
-						copySpec.exclude("**/*.ts");
-						copySpec.into("META-INF/resources");
-					}
+						@SuppressWarnings("unused")
+						public void doCall(CopySpec copySpec) {
+							copySpec.exclude("**/*.d.js");
+							copySpec.exclude("**/*.d.js.map");
+							copySpec.exclude("**/*.ts");
+							copySpec.into("META-INF/resources");
+						}
 
-				});
+					});
+			}
 		}
-		else {
+		else if (_isNodeBuildRequired(project)) {
 			packageRunBuildTask.mustRunAfter(processResourcesCopy);
 
 			Task classesTask = GradleUtil.getTask(
@@ -1158,6 +1160,31 @@ public class NodePlugin implements Plugin<Project> {
 			PathMatcher pathMatcher = fileSystem.getPathMatcher(s);
 
 			if (pathMatcher.matches(projectDir.toPath())) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	private boolean _isNodeBuildRequired(Project project) {
+		List<String> taskNames =
+			project.getGradle().getStartParameter().getTaskNames();
+
+		if (taskNames.isEmpty()) {
+			return true;
+		}
+
+		for (String taskName : taskNames) {
+			int index = taskName.lastIndexOf(':');
+
+			String simpleTaskName = taskName;
+
+			if (index >= 0) {
+				simpleTaskName = taskName.substring(index + 1);
+			}
+
+			if (!simpleTaskName.equals("baseline")) {
 				return true;
 			}
 		}

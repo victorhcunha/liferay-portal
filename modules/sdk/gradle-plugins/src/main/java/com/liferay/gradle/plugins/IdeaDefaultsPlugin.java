@@ -180,14 +180,13 @@ public class IdeaDefaultsPlugin extends BaseDefaultsPlugin<IdeaPlugin> {
 		}
 
 		if (GradleUtil.hasPlugin(project, NodePlugin.class)) {
-			TaskProvider<NpmInstallTask> npmInstallTaskProvider =
-				GradleUtil.getTaskProvider(
-					project, NodePlugin.NPM_INSTALL_TASK_NAME,
-					NpmInstallTask.class);
+			Task npmInstallTask = project.getTasks().findByName(
+				NodePlugin.NPM_INSTALL_TASK_NAME);
 
-			NpmInstallTask npmInstallTask = npmInstallTaskProvider.get();
-
-			excludeDirs.add(npmInstallTask.getNodeModulesDir());
+			if (npmInstallTask != null) {
+				excludeDirs.add(
+					((NpmInstallTask)npmInstallTask).getNodeModulesDir());
+			}
 		}
 
 		ideaModule.setExcludeDirs(excludeDirs);

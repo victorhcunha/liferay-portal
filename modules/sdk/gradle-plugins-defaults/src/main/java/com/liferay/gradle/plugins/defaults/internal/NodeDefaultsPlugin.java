@@ -118,8 +118,15 @@ public class NodeDefaultsPlugin extends BaseDefaultsPlugin<NodePlugin> {
 	private void _configureTaskNpmInstall(
 		Project project, String portalVersion) {
 
-		NpmInstallTask npmInstallTask = (NpmInstallTask)GradleUtil.getTask(
-			project, NodePlugin.NPM_INSTALL_TASK_NAME);
+		TaskContainer taskContainer = project.getTasks();
+
+		NpmInstallTask npmInstallTask =
+			(NpmInstallTask)taskContainer.findByName(
+				NodePlugin.NPM_INSTALL_TASK_NAME);
+
+		if (npmInstallTask == null) {
+			return;
+		}
 
 		File file = new File(npmInstallTask.getNodeModulesDir(), ".digest");
 
