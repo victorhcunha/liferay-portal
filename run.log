@@ -1,0 +1,450 @@
+nohup: ignoring input
+Run 1 - Thu Apr 16 11:08:52 -03 2026
+No Gradle daemons are running.
+Buildfile: /home/liferay/dev/projects/liferay-portal/portal-impl/build.xml
+   [delete] Deleting: /home/liferay/dev/projects/liferay-portal/null45234258.properties
+
+build-rests:
+     [java] The property "ExpiredAsset.usages" should use "type: integer" instead of "type: number"
+     [java] Processing headless-commerce-admin-catalog-impl
+     [java] Processing headless-delivery-impl
+     [java] Processing headless-admin-site-impl
+     [java] Processing headless-commerce-admin-account-impl
+     [java] Processing headless-commerce-admin-order-impl
+     [java] Processing headless-admin-user-impl
+     [java] Processing headless-commerce-delivery-catalog-impl
+     [java] Processing headless-commerce-admin-channel-impl
+     [java] Processing headless-commerce-admin-pricing-impl
+     [java] Processing headless-commerce-delivery-cart-impl
+     [java] Processing headless-commerce-admin-inventory-impl
+     [java] Processing headless-commerce-delivery-order-impl
+     [java] Processing object-rest-impl
+     [java] Processing portal-tools-rest-builder-test-impl
+     [java] Processing headless-admin-taxonomy-impl
+     [java] Processing object-admin-rest-impl
+     [java] Processing headless-commerce-admin-site-setting-impl
+     [java] Processing headless-commerce-admin-shipment-impl
+     [java] Processing headless-admin-workflow-impl
+     [java] Processing headless-commerce-machine-learning-impl
+     [java] Processing data-engine-rest-impl
+     [java] Processing search-experiences-rest-impl
+     [java] Processing headless-asset-library-impl
+     [java] Processing portal-workflow-metrics-rest-impl
+     [java] Processing headless-object-impl
+     [java] Processing scim-rest-impl
+     [java] Processing headless-commerce-admin-payment-impl
+     [java] Processing change-tracking-rest-impl
+     [java] Processing headless-form-impl
+     [java] Processing bulk-rest-impl
+     [java] Processing analytics-settings-rest-impl
+     [java] Processing headless-batch-engine-impl
+     [java] Processing headless-admin-content-impl
+     [java] Processing headless-admin-list-type-impl
+     [java] Processing headless-admin-address-impl
+     [java] Processing analytics-cms-rest-impl
+     [java] Processing notification-rest-impl
+     [java] Processing export-import-rest-impl
+     [java] Processing portal-search-rest-impl
+     [java] Processing ai-hub-rest-impl
+     [java] Processing headless-commerce-punchout-impl
+     [java] Processing headless-admin-configuration-impl
+     [java] Processing headless-site-impl
+     [java] Processing batch-planner-rest-impl
+     [java] Processing oauth-client-rest-impl
+     [java] Processing analytics-reports-rest-impl
+     [java] Processing headless-user-notification-impl
+     [java] Processing headless-portal-instances-impl
+     [java] Processing digital-signature-rest-impl
+     [java] Processing headless-dsr-impl
+     [java] Processing segments-asah-rest-impl
+     [java] Processing portal-language-rest-impl
+     [java] Processing saml-admin-rest-impl
+     [java] Processing cookies-rest-impl
+     [java] Processing analytics-dxp-entity-rest-impl
+     [java] Processing headless-cmp-impl
+     [java] Processing dispatch-rest-impl
+     [java] Processing headless-cms-impl
+     [java] Processing captcha-rest-impl
+     [java] Processing osb-testray-rest-impl
+     [java] Processing ai-hub-cell-rest-impl
+[beanshell] Executing Gradle task: :apps:commerce:headless:headless-commerce:headless-commerce-admin-catalog-api:baseline :apps:headless:headless-delivery:headless-delivery-api:baseline :apps:headless:headless-admin-site:headless-admin-site-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-account-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-order-api:baseline :apps:headless:headless-admin-user:headless-admin-user-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-catalog-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-channel-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-pricing-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-cart-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-inventory-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-order-api:baseline :apps:object:object-rest-api:baseline :util:portal-tools-rest-builder-test-api:baseline :apps:headless:headless-admin-taxonomy:headless-admin-taxonomy-api:baseline :apps:object:object-admin-rest-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-site-setting-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-shipment-api:baseline :apps:headless:headless-admin-workflow:headless-admin-workflow-api:baseline :dxp:apps:commerce:headless:headless-commerce-machine-learning-api:baseline :apps:data-engine:data-engine-rest-api:baseline :dxp:apps:portal-workflow:portal-workflow-metrics-rest-api:baseline :dxp:apps:search-experiences:search-experiences-rest-api:baseline :apps:headless:headless-asset-library:headless-asset-library-api:baseline :apps:headless:headless-object:headless-object-api:baseline :dxp:apps:scim:scim-rest-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-payment-api:baseline :apps:change-tracking:change-tracking-rest-api:baseline :apps:headless:headless-form:headless-form-api:baseline :apps:bulk:bulk-rest-api:baseline :apps:analytics:analytics-settings-rest-api:baseline :apps:headless:headless-batch-engine:headless-batch-engine-api:baseline :apps:headless:headless-admin-content:headless-admin-content-api:baseline :apps:headless:headless-admin-list-type:headless-admin-list-type-api:baseline :apps:headless:headless-admin-address:headless-admin-address-api:baseline :apps:analytics:analytics-cms-rest-api:baseline :apps:notification:notification-rest-api:baseline :apps:export-import:export-import-rest-api:baseline :apps:portal-search:portal-search-rest-api:baseline :dxp:apps:ai-hub:ai-hub-rest-api:baseline :dxp:apps:commerce-punchout:headless:headless-commerce-punchout-api:baseline :apps:headless:headless-admin-configuration:headless-admin-configuration-api:baseline :apps:headless:headless-site:headless-site-api:baseline :apps:batch-planner:batch-planner-rest-api:baseline :apps:oauth-client:oauth-client-rest-api:baseline :dxp:apps:analytics:analytics-reports-rest-api:baseline :apps:headless:headless-user-notification:headless-user-notification-api:baseline :apps:headless:headless-portal-instances:headless-portal-instances-api:baseline :apps:digital-signature:digital-signature-rest-api:baseline :apps:headless:headless-dsr:headless-dsr-api:baseline :dxp:apps:segments:segments-asah-rest-api:baseline :apps:portal-language:portal-language-rest-api:baseline :dxp:apps:saml:saml-admin-rest-api:baseline :apps:cookies:cookies-rest-api:baseline :apps:analytics:analytics-dxp-entity-rest-api:baseline :apps:headless:headless-cmp:headless-cmp-api:baseline :apps:dispatch:dispatch-rest-api:baseline :apps:headless:headless-cms:headless-cms-api:baseline :apps:captcha:captcha-rest-api:baseline :dxp:apps:osb:osb-testray:osb-testray-rest-api:baseline :apps:ai-hub-cell:ai-hub-cell-rest-api:baseline
+     [exec] 
+   [delete] Deleting: /tmp/rest-builder-baseline-20260416110854239
+
+BUILD SUCCESSFUL
+Total time: 34 seconds
+Run 2 - Thu Apr 16 11:09:38 -03 2026
+Stopping Daemon(s)
+1 Daemon stopped
+Buildfile: /home/liferay/dev/projects/liferay-portal/portal-impl/build.xml
+   [delete] Deleting: /home/liferay/dev/projects/liferay-portal/null713674175.properties
+
+build-rests:
+     [java] The property "ExpiredAsset.usages" should use "type: integer" instead of "type: number"
+     [java] Processing headless-commerce-admin-catalog-impl
+     [java] Processing headless-commerce-admin-inventory-impl
+     [java] Processing headless-delivery-impl
+     [java] Processing headless-admin-site-impl
+     [java] Processing headless-commerce-admin-account-impl
+     [java] Processing headless-commerce-admin-order-impl
+     [java] Processing headless-admin-user-impl
+     [java] Processing headless-commerce-delivery-catalog-impl
+     [java] Processing headless-commerce-admin-channel-impl
+     [java] Processing headless-commerce-admin-pricing-impl
+     [java] Processing headless-commerce-delivery-cart-impl
+     [java] Processing headless-commerce-delivery-order-impl
+     [java] Processing object-rest-impl
+     [java] Processing portal-tools-rest-builder-test-impl
+     [java] Processing headless-admin-taxonomy-impl
+     [java] Processing object-admin-rest-impl
+     [java] Processing headless-commerce-admin-site-setting-impl
+     [java] Processing headless-commerce-admin-shipment-impl
+     [java] Processing headless-admin-workflow-impl
+     [java] Processing headless-commerce-machine-learning-impl
+     [java] Processing data-engine-rest-impl
+     [java] Processing portal-workflow-metrics-rest-impl
+     [java] Processing search-experiences-rest-impl
+     [java] Processing headless-asset-library-impl
+     [java] Processing headless-object-impl
+     [java] Processing scim-rest-impl
+     [java] Processing headless-commerce-admin-payment-impl
+     [java] Processing change-tracking-rest-impl
+     [java] Processing headless-form-impl
+     [java] Processing bulk-rest-impl
+     [java] Processing analytics-settings-rest-impl
+     [java] Processing headless-batch-engine-impl
+     [java] Processing headless-admin-content-impl
+     [java] Processing headless-admin-list-type-impl
+     [java] Processing headless-admin-address-impl
+     [java] Processing analytics-cms-rest-impl
+     [java] Processing notification-rest-impl
+     [java] Processing export-import-rest-impl
+     [java] Processing portal-search-rest-impl
+     [java] Processing ai-hub-rest-impl
+     [java] Processing headless-commerce-punchout-impl
+     [java] Processing headless-admin-configuration-impl
+     [java] Processing headless-site-impl
+     [java] Processing batch-planner-rest-impl
+     [java] Processing oauth-client-rest-impl
+     [java] Processing analytics-reports-rest-impl
+     [java] Processing headless-user-notification-impl
+     [java] Processing headless-portal-instances-impl
+     [java] Processing digital-signature-rest-impl
+     [java] Processing headless-dsr-impl
+     [java] Processing segments-asah-rest-impl
+     [java] Processing portal-language-rest-impl
+     [java] Processing saml-admin-rest-impl
+     [java] Processing cookies-rest-impl
+     [java] Processing analytics-dxp-entity-rest-impl
+     [java] Processing headless-cmp-impl
+     [java] Processing dispatch-rest-impl
+     [java] Processing headless-cms-impl
+     [java] Processing captcha-rest-impl
+     [java] Processing osb-testray-rest-impl
+     [java] Processing ai-hub-cell-rest-impl
+[beanshell] Executing Gradle task: :apps:commerce:headless:headless-commerce:headless-commerce-admin-catalog-api:baseline :apps:headless:headless-delivery:headless-delivery-api:baseline :apps:headless:headless-admin-site:headless-admin-site-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-account-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-order-api:baseline :apps:headless:headless-admin-user:headless-admin-user-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-catalog-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-channel-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-pricing-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-cart-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-inventory-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-order-api:baseline :apps:object:object-rest-api:baseline :util:portal-tools-rest-builder-test-api:baseline :apps:headless:headless-admin-taxonomy:headless-admin-taxonomy-api:baseline :apps:object:object-admin-rest-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-site-setting-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-shipment-api:baseline :apps:headless:headless-admin-workflow:headless-admin-workflow-api:baseline :dxp:apps:commerce:headless:headless-commerce-machine-learning-api:baseline :apps:data-engine:data-engine-rest-api:baseline :dxp:apps:portal-workflow:portal-workflow-metrics-rest-api:baseline :dxp:apps:search-experiences:search-experiences-rest-api:baseline :apps:headless:headless-asset-library:headless-asset-library-api:baseline :apps:headless:headless-object:headless-object-api:baseline :dxp:apps:scim:scim-rest-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-payment-api:baseline :apps:change-tracking:change-tracking-rest-api:baseline :apps:headless:headless-form:headless-form-api:baseline :apps:bulk:bulk-rest-api:baseline :apps:analytics:analytics-settings-rest-api:baseline :apps:headless:headless-batch-engine:headless-batch-engine-api:baseline :apps:headless:headless-admin-content:headless-admin-content-api:baseline :apps:headless:headless-admin-list-type:headless-admin-list-type-api:baseline :apps:headless:headless-admin-address:headless-admin-address-api:baseline :apps:analytics:analytics-cms-rest-api:baseline :apps:notification:notification-rest-api:baseline :apps:export-import:export-import-rest-api:baseline :apps:portal-search:portal-search-rest-api:baseline :dxp:apps:ai-hub:ai-hub-rest-api:baseline :dxp:apps:commerce-punchout:headless:headless-commerce-punchout-api:baseline :apps:headless:headless-admin-configuration:headless-admin-configuration-api:baseline :apps:headless:headless-site:headless-site-api:baseline :apps:batch-planner:batch-planner-rest-api:baseline :apps:oauth-client:oauth-client-rest-api:baseline :dxp:apps:analytics:analytics-reports-rest-api:baseline :apps:headless:headless-user-notification:headless-user-notification-api:baseline :apps:headless:headless-portal-instances:headless-portal-instances-api:baseline :apps:digital-signature:digital-signature-rest-api:baseline :apps:headless:headless-dsr:headless-dsr-api:baseline :dxp:apps:segments:segments-asah-rest-api:baseline :apps:portal-language:portal-language-rest-api:baseline :dxp:apps:saml:saml-admin-rest-api:baseline :apps:cookies:cookies-rest-api:baseline :apps:analytics:analytics-dxp-entity-rest-api:baseline :apps:headless:headless-cmp:headless-cmp-api:baseline :apps:dispatch:dispatch-rest-api:baseline :apps:headless:headless-cms:headless-cms-api:baseline :apps:captcha:captcha-rest-api:baseline :dxp:apps:osb:osb-testray:osb-testray-rest-api:baseline :apps:ai-hub-cell:ai-hub-cell-rest-api:baseline
+     [exec] 
+   [delete] Deleting: /tmp/rest-builder-baseline-20260416110940063
+
+BUILD SUCCESSFUL
+Total time: 35 seconds
+Run 3 - Thu Apr 16 11:10:24 -03 2026
+Stopping Daemon(s)
+1 Daemon stopped
+Buildfile: /home/liferay/dev/projects/liferay-portal/portal-impl/build.xml
+   [delete] Deleting: /home/liferay/dev/projects/liferay-portal/null1050926843.properties
+
+build-rests:
+     [java] The property "ExpiredAsset.usages" should use "type: integer" instead of "type: number"
+     [java] Processing headless-commerce-admin-catalog-impl
+     [java] Processing headless-admin-site-impl
+     [java] Processing headless-delivery-impl
+     [java] Processing headless-commerce-admin-account-impl
+     [java] Processing headless-commerce-admin-order-impl
+     [java] Processing headless-admin-user-impl
+     [java] Processing headless-commerce-delivery-catalog-impl
+     [java] Processing headless-commerce-admin-channel-impl
+     [java] Processing headless-commerce-admin-pricing-impl
+     [java] Processing headless-commerce-delivery-cart-impl
+     [java] Processing headless-commerce-admin-inventory-impl
+     [java] Processing headless-commerce-delivery-order-impl
+     [java] Processing object-rest-impl
+     [java] Processing portal-tools-rest-builder-test-impl
+     [java] Processing headless-admin-taxonomy-impl
+     [java] Processing object-admin-rest-impl
+     [java] Processing headless-commerce-admin-site-setting-impl
+     [java] Processing headless-commerce-admin-shipment-impl
+     [java] Processing headless-admin-workflow-impl
+     [java] Processing headless-commerce-machine-learning-impl
+     [java] Processing data-engine-rest-impl
+     [java] Processing portal-workflow-metrics-rest-impl
+     [java] Processing search-experiences-rest-impl
+     [java] Processing headless-asset-library-impl
+     [java] Processing headless-object-impl
+     [java] Processing scim-rest-impl
+     [java] Processing headless-commerce-admin-payment-impl
+     [java] Processing change-tracking-rest-impl
+     [java] Processing headless-form-impl
+     [java] Processing bulk-rest-impl
+     [java] Processing analytics-settings-rest-impl
+     [java] Processing headless-batch-engine-impl
+     [java] Processing headless-admin-content-impl
+     [java] Processing headless-admin-list-type-impl
+     [java] Processing headless-admin-address-impl
+     [java] Processing analytics-cms-rest-impl
+     [java] Processing notification-rest-impl
+     [java] Processing export-import-rest-impl
+     [java] Processing portal-search-rest-impl
+     [java] Processing ai-hub-rest-impl
+     [java] Processing headless-commerce-punchout-impl
+     [java] Processing headless-admin-configuration-impl
+     [java] Processing headless-site-impl
+     [java] Processing batch-planner-rest-impl
+     [java] Processing oauth-client-rest-impl
+     [java] Processing analytics-reports-rest-impl
+     [java] Processing headless-user-notification-impl
+     [java] Processing headless-portal-instances-impl
+     [java] Processing digital-signature-rest-impl
+     [java] Processing headless-dsr-impl
+     [java] Processing segments-asah-rest-impl
+     [java] Processing portal-language-rest-impl
+     [java] Processing saml-admin-rest-impl
+     [java] Processing cookies-rest-impl
+     [java] Processing analytics-dxp-entity-rest-impl
+     [java] Processing headless-cmp-impl
+     [java] Processing dispatch-rest-impl
+     [java] Processing headless-cms-impl
+     [java] Processing captcha-rest-impl
+     [java] Processing osb-testray-rest-impl
+     [java] Processing ai-hub-cell-rest-impl
+[beanshell] Executing Gradle task: :apps:commerce:headless:headless-commerce:headless-commerce-admin-catalog-api:baseline :apps:headless:headless-delivery:headless-delivery-api:baseline :apps:headless:headless-admin-site:headless-admin-site-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-account-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-order-api:baseline :apps:headless:headless-admin-user:headless-admin-user-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-catalog-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-channel-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-pricing-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-cart-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-inventory-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-order-api:baseline :apps:object:object-rest-api:baseline :util:portal-tools-rest-builder-test-api:baseline :apps:headless:headless-admin-taxonomy:headless-admin-taxonomy-api:baseline :apps:object:object-admin-rest-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-site-setting-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-shipment-api:baseline :apps:headless:headless-admin-workflow:headless-admin-workflow-api:baseline :dxp:apps:commerce:headless:headless-commerce-machine-learning-api:baseline :apps:data-engine:data-engine-rest-api:baseline :dxp:apps:portal-workflow:portal-workflow-metrics-rest-api:baseline :dxp:apps:search-experiences:search-experiences-rest-api:baseline :apps:headless:headless-asset-library:headless-asset-library-api:baseline :apps:headless:headless-object:headless-object-api:baseline :dxp:apps:scim:scim-rest-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-payment-api:baseline :apps:change-tracking:change-tracking-rest-api:baseline :apps:headless:headless-form:headless-form-api:baseline :apps:bulk:bulk-rest-api:baseline :apps:analytics:analytics-settings-rest-api:baseline :apps:headless:headless-batch-engine:headless-batch-engine-api:baseline :apps:headless:headless-admin-content:headless-admin-content-api:baseline :apps:headless:headless-admin-list-type:headless-admin-list-type-api:baseline :apps:headless:headless-admin-address:headless-admin-address-api:baseline :apps:analytics:analytics-cms-rest-api:baseline :apps:notification:notification-rest-api:baseline :apps:export-import:export-import-rest-api:baseline :apps:portal-search:portal-search-rest-api:baseline :dxp:apps:ai-hub:ai-hub-rest-api:baseline :dxp:apps:commerce-punchout:headless:headless-commerce-punchout-api:baseline :apps:headless:headless-admin-configuration:headless-admin-configuration-api:baseline :apps:headless:headless-site:headless-site-api:baseline :apps:batch-planner:batch-planner-rest-api:baseline :apps:oauth-client:oauth-client-rest-api:baseline :dxp:apps:analytics:analytics-reports-rest-api:baseline :apps:headless:headless-user-notification:headless-user-notification-api:baseline :apps:headless:headless-portal-instances:headless-portal-instances-api:baseline :apps:digital-signature:digital-signature-rest-api:baseline :apps:headless:headless-dsr:headless-dsr-api:baseline :dxp:apps:segments:segments-asah-rest-api:baseline :apps:portal-language:portal-language-rest-api:baseline :dxp:apps:saml:saml-admin-rest-api:baseline :apps:cookies:cookies-rest-api:baseline :apps:analytics:analytics-dxp-entity-rest-api:baseline :apps:headless:headless-cmp:headless-cmp-api:baseline :apps:dispatch:dispatch-rest-api:baseline :apps:headless:headless-cms:headless-cms-api:baseline :apps:captcha:captcha-rest-api:baseline :dxp:apps:osb:osb-testray:osb-testray-rest-api:baseline :apps:ai-hub-cell:ai-hub-cell-rest-api:baseline
+     [exec] 
+   [delete] Deleting: /tmp/rest-builder-baseline-20260416111026287
+
+BUILD SUCCESSFUL
+Total time: 34 seconds
+Run 4 - Thu Apr 16 11:11:09 -03 2026
+Stopping Daemon(s)
+1 Daemon stopped
+Buildfile: /home/liferay/dev/projects/liferay-portal/portal-impl/build.xml
+   [delete] Deleting: /home/liferay/dev/projects/liferay-portal/null1582303385.properties
+
+build-rests:
+     [java] The property "ExpiredAsset.usages" should use "type: integer" instead of "type: number"
+     [java] Processing headless-commerce-admin-catalog-impl
+     [java] Processing headless-delivery-impl
+     [java] Processing headless-admin-site-impl
+     [java] Processing headless-commerce-admin-account-impl
+     [java] Processing headless-commerce-admin-order-impl
+     [java] Processing headless-admin-user-impl
+     [java] Processing headless-commerce-delivery-catalog-impl
+     [java] Processing headless-commerce-admin-channel-impl
+     [java] Processing headless-commerce-admin-pricing-impl
+     [java] Processing headless-commerce-delivery-cart-impl
+     [java] Processing headless-commerce-admin-inventory-impl
+     [java] Processing headless-commerce-delivery-order-impl
+     [java] Processing object-rest-impl
+     [java] Processing portal-tools-rest-builder-test-impl
+     [java] Processing headless-admin-taxonomy-impl
+     [java] Processing object-admin-rest-impl
+     [java] Processing headless-commerce-admin-site-setting-impl
+     [java] Processing headless-commerce-admin-shipment-impl
+     [java] Processing headless-admin-workflow-impl
+     [java] Processing headless-commerce-machine-learning-impl
+     [java] Processing data-engine-rest-impl
+     [java] Processing portal-workflow-metrics-rest-impl
+     [java] Processing search-experiences-rest-impl
+     [java] Processing headless-asset-library-impl
+     [java] Processing headless-object-impl
+     [java] Processing scim-rest-impl
+     [java] Processing headless-commerce-admin-payment-impl
+     [java] Processing change-tracking-rest-impl
+     [java] Processing headless-form-impl
+     [java] Processing bulk-rest-impl
+     [java] Processing analytics-settings-rest-impl
+     [java] Processing headless-batch-engine-impl
+     [java] Processing headless-admin-content-impl
+     [java] Processing headless-admin-list-type-impl
+     [java] Processing headless-admin-address-impl
+     [java] Processing analytics-cms-rest-impl
+     [java] Processing notification-rest-impl
+     [java] Processing export-import-rest-impl
+     [java] Processing portal-search-rest-impl
+     [java] Processing ai-hub-rest-impl
+     [java] Processing headless-commerce-punchout-impl
+     [java] Processing headless-admin-configuration-impl
+     [java] Processing headless-site-impl
+     [java] Processing batch-planner-rest-impl
+     [java] Processing oauth-client-rest-impl
+     [java] Processing analytics-reports-rest-impl
+     [java] Processing headless-user-notification-impl
+     [java] Processing headless-portal-instances-impl
+     [java] Processing digital-signature-rest-impl
+     [java] Processing headless-dsr-impl
+     [java] Processing segments-asah-rest-impl
+     [java] Processing portal-language-rest-impl
+     [java] Processing saml-admin-rest-impl
+     [java] Processing cookies-rest-impl
+     [java] Processing analytics-dxp-entity-rest-impl
+     [java] Processing headless-cmp-impl
+     [java] Processing dispatch-rest-impl
+     [java] Processing headless-cms-impl
+     [java] Processing captcha-rest-impl
+     [java] Processing osb-testray-rest-impl
+     [java] Processing ai-hub-cell-rest-impl
+[beanshell] Executing Gradle task: :apps:commerce:headless:headless-commerce:headless-commerce-admin-catalog-api:baseline :apps:headless:headless-delivery:headless-delivery-api:baseline :apps:headless:headless-admin-site:headless-admin-site-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-account-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-order-api:baseline :apps:headless:headless-admin-user:headless-admin-user-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-catalog-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-channel-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-pricing-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-cart-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-inventory-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-order-api:baseline :apps:object:object-rest-api:baseline :util:portal-tools-rest-builder-test-api:baseline :apps:headless:headless-admin-taxonomy:headless-admin-taxonomy-api:baseline :apps:object:object-admin-rest-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-site-setting-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-shipment-api:baseline :apps:headless:headless-admin-workflow:headless-admin-workflow-api:baseline :dxp:apps:commerce:headless:headless-commerce-machine-learning-api:baseline :apps:data-engine:data-engine-rest-api:baseline :dxp:apps:portal-workflow:portal-workflow-metrics-rest-api:baseline :dxp:apps:search-experiences:search-experiences-rest-api:baseline :apps:headless:headless-asset-library:headless-asset-library-api:baseline :apps:headless:headless-object:headless-object-api:baseline :dxp:apps:scim:scim-rest-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-payment-api:baseline :apps:change-tracking:change-tracking-rest-api:baseline :apps:headless:headless-form:headless-form-api:baseline :apps:bulk:bulk-rest-api:baseline :apps:analytics:analytics-settings-rest-api:baseline :apps:headless:headless-batch-engine:headless-batch-engine-api:baseline :apps:headless:headless-admin-content:headless-admin-content-api:baseline :apps:headless:headless-admin-list-type:headless-admin-list-type-api:baseline :apps:headless:headless-admin-address:headless-admin-address-api:baseline :apps:analytics:analytics-cms-rest-api:baseline :apps:notification:notification-rest-api:baseline :apps:export-import:export-import-rest-api:baseline :apps:portal-search:portal-search-rest-api:baseline :dxp:apps:ai-hub:ai-hub-rest-api:baseline :dxp:apps:commerce-punchout:headless:headless-commerce-punchout-api:baseline :apps:headless:headless-admin-configuration:headless-admin-configuration-api:baseline :apps:headless:headless-site:headless-site-api:baseline :apps:batch-planner:batch-planner-rest-api:baseline :apps:oauth-client:oauth-client-rest-api:baseline :dxp:apps:analytics:analytics-reports-rest-api:baseline :apps:headless:headless-user-notification:headless-user-notification-api:baseline :apps:headless:headless-portal-instances:headless-portal-instances-api:baseline :apps:digital-signature:digital-signature-rest-api:baseline :apps:headless:headless-dsr:headless-dsr-api:baseline :dxp:apps:segments:segments-asah-rest-api:baseline :apps:portal-language:portal-language-rest-api:baseline :dxp:apps:saml:saml-admin-rest-api:baseline :apps:cookies:cookies-rest-api:baseline :apps:analytics:analytics-dxp-entity-rest-api:baseline :apps:headless:headless-cmp:headless-cmp-api:baseline :apps:dispatch:dispatch-rest-api:baseline :apps:headless:headless-cms:headless-cms-api:baseline :apps:captcha:captcha-rest-api:baseline :dxp:apps:osb:osb-testray:osb-testray-rest-api:baseline :apps:ai-hub-cell:ai-hub-cell-rest-api:baseline
+     [exec] 
+   [delete] Deleting: /tmp/rest-builder-baseline-20260416111111373
+
+BUILD SUCCESSFUL
+Total time: 34 seconds
+Run 5 - Thu Apr 16 11:11:55 -03 2026
+Stopping Daemon(s)
+1 Daemon stopped
+Buildfile: /home/liferay/dev/projects/liferay-portal/portal-impl/build.xml
+   [delete] Deleting: /home/liferay/dev/projects/liferay-portal/null273126293.properties
+
+build-rests:
+     [java] The property "ExpiredAsset.usages" should use "type: integer" instead of "type: number"
+     [java] Processing headless-commerce-admin-catalog-impl
+     [java] Processing headless-delivery-impl
+     [java] Processing headless-commerce-admin-account-impl
+     [java] Processing headless-admin-site-impl
+     [java] Processing headless-commerce-admin-order-impl
+     [java] Processing headless-admin-user-impl
+     [java] Processing headless-commerce-delivery-catalog-impl
+     [java] Processing headless-commerce-admin-channel-impl
+     [java] Processing headless-commerce-admin-pricing-impl
+     [java] Processing headless-commerce-delivery-cart-impl
+     [java] Processing headless-commerce-admin-inventory-impl
+     [java] Processing headless-commerce-delivery-order-impl
+     [java] Processing object-rest-impl
+     [java] Processing portal-tools-rest-builder-test-impl
+     [java] Processing headless-admin-taxonomy-impl
+     [java] Processing object-admin-rest-impl
+     [java] Processing headless-commerce-admin-site-setting-impl
+     [java] Processing headless-commerce-admin-shipment-impl
+     [java] Processing headless-admin-workflow-impl
+     [java] Processing headless-commerce-machine-learning-impl
+     [java] Processing data-engine-rest-impl
+     [java] Processing portal-workflow-metrics-rest-impl
+     [java] Processing search-experiences-rest-impl
+     [java] Processing headless-asset-library-impl
+     [java] Processing headless-object-impl
+     [java] Processing scim-rest-impl
+     [java] Processing headless-commerce-admin-payment-impl
+     [java] Processing change-tracking-rest-impl
+     [java] Processing headless-form-impl
+     [java] Processing bulk-rest-impl
+     [java] Processing analytics-settings-rest-impl
+     [java] Processing headless-batch-engine-impl
+     [java] Processing headless-admin-content-impl
+     [java] Processing headless-admin-list-type-impl
+     [java] Processing headless-admin-address-impl
+     [java] Processing analytics-cms-rest-impl
+     [java] Processing notification-rest-impl
+     [java] Processing export-import-rest-impl
+     [java] Processing portal-search-rest-impl
+     [java] Processing ai-hub-rest-impl
+     [java] Processing headless-commerce-punchout-impl
+     [java] Processing headless-admin-configuration-impl
+     [java] Processing headless-site-impl
+     [java] Processing batch-planner-rest-impl
+     [java] Processing oauth-client-rest-impl
+     [java] Processing analytics-reports-rest-impl
+     [java] Processing headless-user-notification-impl
+     [java] Processing headless-portal-instances-impl
+     [java] Processing digital-signature-rest-impl
+     [java] Processing headless-dsr-impl
+     [java] Processing segments-asah-rest-impl
+     [java] Processing portal-language-rest-impl
+     [java] Processing saml-admin-rest-impl
+     [java] Processing cookies-rest-impl
+     [java] Processing analytics-dxp-entity-rest-impl
+     [java] Processing headless-cmp-impl
+     [java] Processing dispatch-rest-impl
+     [java] Processing headless-cms-impl
+     [java] Processing captcha-rest-impl
+     [java] Processing osb-testray-rest-impl
+     [java] Processing ai-hub-cell-rest-impl
+[beanshell] Executing Gradle task: :apps:commerce:headless:headless-commerce:headless-commerce-admin-catalog-api:baseline :apps:headless:headless-delivery:headless-delivery-api:baseline :apps:headless:headless-admin-site:headless-admin-site-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-account-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-order-api:baseline :apps:headless:headless-admin-user:headless-admin-user-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-catalog-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-channel-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-pricing-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-cart-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-inventory-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-order-api:baseline :apps:object:object-rest-api:baseline :util:portal-tools-rest-builder-test-api:baseline :apps:headless:headless-admin-taxonomy:headless-admin-taxonomy-api:baseline :apps:object:object-admin-rest-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-site-setting-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-shipment-api:baseline :apps:headless:headless-admin-workflow:headless-admin-workflow-api:baseline :dxp:apps:commerce:headless:headless-commerce-machine-learning-api:baseline :apps:data-engine:data-engine-rest-api:baseline :dxp:apps:portal-workflow:portal-workflow-metrics-rest-api:baseline :dxp:apps:search-experiences:search-experiences-rest-api:baseline :apps:headless:headless-asset-library:headless-asset-library-api:baseline :apps:headless:headless-object:headless-object-api:baseline :dxp:apps:scim:scim-rest-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-payment-api:baseline :apps:change-tracking:change-tracking-rest-api:baseline :apps:headless:headless-form:headless-form-api:baseline :apps:bulk:bulk-rest-api:baseline :apps:analytics:analytics-settings-rest-api:baseline :apps:headless:headless-batch-engine:headless-batch-engine-api:baseline :apps:headless:headless-admin-content:headless-admin-content-api:baseline :apps:headless:headless-admin-list-type:headless-admin-list-type-api:baseline :apps:headless:headless-admin-address:headless-admin-address-api:baseline :apps:analytics:analytics-cms-rest-api:baseline :apps:notification:notification-rest-api:baseline :apps:export-import:export-import-rest-api:baseline :apps:portal-search:portal-search-rest-api:baseline :dxp:apps:ai-hub:ai-hub-rest-api:baseline :dxp:apps:commerce-punchout:headless:headless-commerce-punchout-api:baseline :apps:headless:headless-admin-configuration:headless-admin-configuration-api:baseline :apps:headless:headless-site:headless-site-api:baseline :apps:batch-planner:batch-planner-rest-api:baseline :apps:oauth-client:oauth-client-rest-api:baseline :dxp:apps:analytics:analytics-reports-rest-api:baseline :apps:headless:headless-user-notification:headless-user-notification-api:baseline :apps:headless:headless-portal-instances:headless-portal-instances-api:baseline :apps:digital-signature:digital-signature-rest-api:baseline :apps:headless:headless-dsr:headless-dsr-api:baseline :dxp:apps:segments:segments-asah-rest-api:baseline :apps:portal-language:portal-language-rest-api:baseline :dxp:apps:saml:saml-admin-rest-api:baseline :apps:cookies:cookies-rest-api:baseline :apps:analytics:analytics-dxp-entity-rest-api:baseline :apps:headless:headless-cmp:headless-cmp-api:baseline :apps:dispatch:dispatch-rest-api:baseline :apps:headless:headless-cms:headless-cms-api:baseline :apps:captcha:captcha-rest-api:baseline :dxp:apps:osb:osb-testray:osb-testray-rest-api:baseline :apps:ai-hub-cell:ai-hub-cell-rest-api:baseline
+     [exec] 
+   [delete] Deleting: /tmp/rest-builder-baseline-20260416111157098
+
+BUILD SUCCESSFUL
+Total time: 34 seconds
+Run 6 - Thu Apr 16 11:12:41 -03 2026
+Stopping Daemon(s)
+1 Daemon stopped
+Buildfile: /home/liferay/dev/projects/liferay-portal/portal-impl/build.xml
+   [delete] Deleting: /home/liferay/dev/projects/liferay-portal/null98973782.properties
+
+build-rests:
+     [java] The property "ExpiredAsset.usages" should use "type: integer" instead of "type: number"
+     [java] Processing headless-commerce-admin-catalog-impl
+     [java] Processing headless-delivery-impl
+     [java] Processing headless-admin-site-impl
+     [java] Processing headless-commerce-admin-account-impl
+     [java] Processing headless-commerce-admin-order-impl
+     [java] Processing headless-admin-user-impl
+     [java] Processing headless-commerce-delivery-catalog-impl
+     [java] Processing headless-commerce-admin-channel-impl
+     [java] Processing headless-commerce-admin-pricing-impl
+     [java] Processing headless-commerce-delivery-cart-impl
+     [java] Processing headless-commerce-admin-inventory-impl
+     [java] Processing headless-commerce-delivery-order-impl
+     [java] Processing object-rest-impl
+     [java] Processing portal-tools-rest-builder-test-impl
+     [java] Processing headless-admin-taxonomy-impl
+     [java] Processing object-admin-rest-impl
+     [java] Processing headless-commerce-admin-site-setting-impl
+     [java] Processing headless-commerce-admin-shipment-impl
+     [java] Processing headless-admin-workflow-impl
+     [java] Processing headless-commerce-machine-learning-impl
+     [java] Processing data-engine-rest-impl
+     [java] Processing portal-workflow-metrics-rest-impl
+     [java] Processing search-experiences-rest-impl
+     [java] Processing headless-asset-library-impl
+     [java] Processing headless-object-impl
+     [java] Processing scim-rest-impl
+     [java] Processing headless-commerce-admin-payment-impl
+     [java] Processing change-tracking-rest-impl
+     [java] Processing headless-form-impl
+     [java] Processing bulk-rest-impl
+     [java] Processing analytics-settings-rest-impl
+     [java] Processing headless-batch-engine-impl
+     [java] Processing headless-admin-content-impl
+     [java] Processing headless-admin-list-type-impl
+     [java] Processing headless-admin-address-impl
+     [java] Processing analytics-cms-rest-impl
+     [java] Processing notification-rest-impl
+     [java] Processing export-import-rest-impl
+     [java] Processing portal-search-rest-impl
+     [java] Processing ai-hub-rest-impl
+     [java] Processing headless-commerce-punchout-impl
+     [java] Processing headless-admin-configuration-impl
+     [java] Processing headless-site-impl
+     [java] Processing batch-planner-rest-impl
+     [java] Processing oauth-client-rest-impl
+     [java] Processing analytics-reports-rest-impl
+     [java] Processing headless-user-notification-impl
+     [java] Processing headless-portal-instances-impl
+     [java] Processing digital-signature-rest-impl
+     [java] Processing headless-dsr-impl
+     [java] Processing segments-asah-rest-impl
+     [java] Processing portal-language-rest-impl
+     [java] Processing saml-admin-rest-impl
+     [java] Processing cookies-rest-impl
+     [java] Processing analytics-dxp-entity-rest-impl
+     [java] Processing headless-cmp-impl
+     [java] Processing dispatch-rest-impl
+     [java] Processing headless-cms-impl
+     [java] Processing captcha-rest-impl
+     [java] Processing osb-testray-rest-impl
+     [java] Processing ai-hub-cell-rest-impl
+[beanshell] Executing Gradle task: :apps:commerce:headless:headless-commerce:headless-commerce-admin-catalog-api:baseline :apps:headless:headless-delivery:headless-delivery-api:baseline :apps:headless:headless-admin-site:headless-admin-site-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-account-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-order-api:baseline :apps:headless:headless-admin-user:headless-admin-user-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-catalog-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-channel-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-pricing-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-cart-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-inventory-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-delivery-order-api:baseline :apps:object:object-rest-api:baseline :util:portal-tools-rest-builder-test-api:baseline :apps:headless:headless-admin-taxonomy:headless-admin-taxonomy-api:baseline :apps:object:object-admin-rest-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-site-setting-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-shipment-api:baseline :apps:headless:headless-admin-workflow:headless-admin-workflow-api:baseline :dxp:apps:commerce:headless:headless-commerce-machine-learning-api:baseline :apps:data-engine:data-engine-rest-api:baseline :dxp:apps:portal-workflow:portal-workflow-metrics-rest-api:baseline :dxp:apps:search-experiences:search-experiences-rest-api:baseline :apps:headless:headless-asset-library:headless-asset-library-api:baseline :apps:headless:headless-object:headless-object-api:baseline :dxp:apps:scim:scim-rest-api:baseline :apps:commerce:headless:headless-commerce:headless-commerce-admin-payment-api:baseline :apps:change-tracking:change-tracking-rest-api:baseline :apps:headless:headless-form:headless-form-api:baseline :apps:bulk:bulk-rest-api:baseline :apps:analytics:analytics-settings-rest-api:baseline :apps:headless:headless-batch-engine:headless-batch-engine-api:baseline :apps:headless:headless-admin-content:headless-admin-content-api:baseline :apps:headless:headless-admin-list-type:headless-admin-list-type-api:baseline :apps:headless:headless-admin-address:headless-admin-address-api:baseline :apps:analytics:analytics-cms-rest-api:baseline :apps:notification:notification-rest-api:baseline :apps:export-import:export-import-rest-api:baseline :apps:portal-search:portal-search-rest-api:baseline :dxp:apps:ai-hub:ai-hub-rest-api:baseline :dxp:apps:commerce-punchout:headless:headless-commerce-punchout-api:baseline :apps:headless:headless-admin-configuration:headless-admin-configuration-api:baseline :apps:headless:headless-site:headless-site-api:baseline :apps:batch-planner:batch-planner-rest-api:baseline :apps:oauth-client:oauth-client-rest-api:baseline :dxp:apps:analytics:analytics-reports-rest-api:baseline :apps:headless:headless-user-notification:headless-user-notification-api:baseline :apps:headless:headless-portal-instances:headless-portal-instances-api:baseline :apps:digital-signature:digital-signature-rest-api:baseline :apps:headless:headless-dsr:headless-dsr-api:baseline :dxp:apps:segments:segments-asah-rest-api:baseline :apps:portal-language:portal-language-rest-api:baseline :dxp:apps:saml:saml-admin-rest-api:baseline :apps:cookies:cookies-rest-api:baseline :apps:analytics:analytics-dxp-entity-rest-api:baseline :apps:headless:headless-cmp:headless-cmp-api:baseline :apps:dispatch:dispatch-rest-api:baseline :apps:headless:headless-cms:headless-cms-api:baseline :apps:captcha:captcha-rest-api:baseline :dxp:apps:osb:osb-testray:osb-testray-rest-api:baseline :apps:ai-hub-cell:ai-hub-cell-rest-api:baseline
+     [exec] 
+   [delete] Deleting: /tmp/rest-builder-baseline-20260416111242585
+
+BUILD SUCCESSFUL
+Total time: 34 seconds
