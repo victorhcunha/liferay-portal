@@ -36,6 +36,7 @@ import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.Validator_IW;
 import com.liferay.portal.tools.ArgumentsUtil;
+import com.liferay.portal.tools.GitException;
 import com.liferay.portal.tools.GitUtil;
 import com.liferay.portal.tools.ToolsUtil;
 import com.liferay.portal.tools.java.parser.JavaParser;
@@ -182,12 +183,25 @@ public class ServiceBuilder {
 		String inputFilesDirName = arguments.get("service.input.files.dir");
 
 		if (Validator.isNotNull(inputFilesDirName)) {
-			List<String> apiModulePaths = _processModuleServiceFiles(
+			_gitSearchStartDirName = inputFilesDirName;
+
+			List<String> baselineTasks = _processModuleServiceFiles(
 				Paths.get(inputFilesDirName), arguments);
 
-			System.out.println(
-				"service.builder.baseline.tasks=" +
-					StringUtil.merge(apiModulePaths, StringPool.SPACE));
+			String baselineOutputFileName = arguments.get(
+				"service.builder.baseline.output.file");
+
+			if (Validator.isNotNull(baselineOutputFileName) &&
+				!baselineTasks.isEmpty()) {
+
+				Files.write(
+					Paths.get(baselineOutputFileName),
+					StringUtil.merge(
+						baselineTasks, StringPool.SPACE
+					).getBytes(
+						StandardCharsets.UTF_8
+					));
+			}
 
 			return;
 		}
@@ -2334,7 +2348,7 @@ public class ServiceBuilder {
 		_threadLocalModelHints.set(moduleModelHintsImpl);
 
 		try {
-			System.err.println("Processing " + moduleDir.getFileName());
+			System.out.println("Processing " + moduleDir.getFileName());
 
 			new ServiceBuilder(
 				apiDir.toString(), true, autoNamespaceTables,
@@ -2466,7 +2480,7 @@ public class ServiceBuilder {
 
 		executorService.shutdown();
 
-		List<String> apiModulePaths = new ArrayList<>();
+		List<String> baselineTasks = new ArrayList<>();
 		List<Exception> exceptions = new ArrayList<>();
 
 		for (Future<String> future : futures) {
@@ -2474,7 +2488,7 @@ public class ServiceBuilder {
 				String baselineTask = future.get();
 
 				if (baselineTask != null) {
-					apiModulePaths.add(baselineTask);
+					baselineTasks.add(baselineTask);
 				}
 			}
 			catch (ExecutionException executionException) {
@@ -2501,7 +2515,7 @@ public class ServiceBuilder {
 			throw runtimeException;
 		}
 
-		return apiModulePaths;
+		return baselineTasks;
 	}
 
 	private static void _readResourceActionModels(
@@ -6328,9 +6342,19 @@ public class ServiceBuilder {
 	}
 
 	private boolean _hasLocalChanges(File propsFile) throws Exception {
-		for (String localChangesFileName :
-				GitUtil.getLocalChangesFileNames("")) {
+		List<String> localChangesFileNames = null;
 
+		try {
+			localChangesFileNames = GitUtil.getLocalChangesFileNames(
+				_gitSearchStartDirName);
+		}
+		catch (GitException gitException) {
+			System.out.println("Unable to get locally modified files from Git");
+
+			return false;
+		}
+
+		for (String localChangesFileName : localChangesFileNames) {
 			if (localChangesFileName.equals(propsFile.getPath())) {
 				return true;
 			}
@@ -8696,6 +8720,7 @@ public class ServiceBuilder {
 		StringBundler.concat(
 			"public .* get.*", Pattern.quote("("), "|public boolean is.*",
 			Pattern.quote("(")));
+	private static String _gitSearchStartDirName = "";
 	private static final List<String> _highCardinalityColumnNames =
 		Arrays.asList("externalReferenceCode", "uuid_");
 	private static final ClassLoader _negativeCachingClassLoader;

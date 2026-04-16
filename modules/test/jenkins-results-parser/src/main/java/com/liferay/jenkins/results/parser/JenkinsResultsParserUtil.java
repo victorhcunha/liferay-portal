@@ -4211,6 +4211,95 @@ public class JenkinsResultsParserUtil {
 		return matcher.matches();
 	}
 
+	public static synchronized boolean isTopLevelJobName(String jobName) {
+		if (isNullOrEmpty(jobName)) {
+			return false;
+		}
+
+		if (_topLevelJobNames != null) {
+			return _topLevelJobNames.contains(jobName);
+		}
+
+		String masterHostname = System.getenv("MASTER_HOSTNAME");
+
+		if (isNullOrEmpty(masterHostname)) {
+			return false;
+		}
+
+		final JenkinsMaster jenkinsMaster = JenkinsMaster.getInstance(
+			masterHostname);
+
+		Retryable<Set<String>> retryable = new Retryable<Set<String>>(
+			true, 3, 5, false) {
+
+			@Override
+			public Set<String> execute() {
+				JSONObject topLevelBuildsJSONObject;
+
+				try {
+					topLevelBuildsJSONObject = toJSONObject(
+						jenkinsMaster.getRemoteURL() +
+							"/view/Top%20Level/api/json?tree=jobs[name]");
+				}
+				catch (IOException ioException) {
+					throw new RuntimeException(ioException);
+				}
+
+				JSONArray jobsJSONArray = topLevelBuildsJSONObject.optJSONArray(
+					"jobs");
+
+				Set<String> topLevelJobNames = new HashSet<>();
+
+				if ((jobsJSONArray == null) || jobsJSONArray.isEmpty()) {
+					return topLevelJobNames;
+				}
+
+				for (int i = 0; i < jobsJSONArray.length(); i++) {
+					JSONObject jobJSONObject = jobsJSONArray.optJSONObject(i);
+
+					if (jobJSONObject == null) {
+						continue;
+					}
+
+					String topLevelJobName = jobJSONObject.getString("name");
+
+					topLevelJobNames.add(topLevelJobName);
+				}
+
+				return topLevelJobNames;
+			}
+
+		};
+
+		_topLevelJobNames = retryable.executeWithRetries();
+
+		return _topLevelJobNames.contains(jobName);
+	}
+
+	public static boolean isUnifiedBuilderSupported(String upstreamBranchName) {
+		if (Objects.equals(upstreamBranchName, "master")) {
+			return true;
+		}
+
+		if (upstreamBranchName == null) {
+			return false;
+		}
+
+		Matcher matcher = _quarterlyReleaseYearPattern.matcher(
+			upstreamBranchName);
+
+		if (matcher.matches()) {
+			int year = Integer.parseInt(matcher.group(1));
+			int quarter = Integer.parseInt(matcher.group(2));
+
+			if ((year > 2026) || ((year == 2026) && (quarter >= 2))) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	public static boolean isURL(String urlString) {
 		if (isNullOrEmpty(urlString) || !urlString.matches("https?://.+")) {
 			return false;
@@ -4904,7 +4993,7 @@ public class JenkinsResultsParserUtil {
 		}
 
 		Retryable<Process> retryable = new Retryable<Process>(
-			true, 3, 3000, false) {
+			true, 3, 3, false) {
 
 			@Override
 			public Process execute() {
@@ -7446,6 +7535,8 @@ public class JenkinsResultsParserUtil {
 		"\\$\\{([^\\}]+)\\}");
 	private static final Pattern _poshiFileNamePattern = Pattern.compile(
 		".*\\.(function|macro|path|prose|testcase)");
+	private static final Pattern _quarterlyReleaseYearPattern = Pattern.compile(
+		"release-(\\d{4})\\.q(\\d+).*");
 	private static final Set<String> _redactTokens = new HashSet<>();
 	private static final Pattern _remoteURLAuthorityPattern1 = Pattern.compile(
 		"https://(test-[0-9]+-[0])-aws.liferay.com/");
@@ -7473,6 +7564,7 @@ public class JenkinsResultsParserUtil {
 		"(?<baseURL>https://webserver-testray2(-(?<lxcEnvironment>.+))?" +
 			"\\.lfr\\.cloud|https://testray\\.liferay\\.com).*");
 	private static final Set<String> _timeStamps = new HashSet<>();
+	private static Set<String> _topLevelJobNames;
 	private static final List<HttpRequestMethod> _updatingHttpRequestMethods =
 		Arrays.asList(
 			HttpRequestMethod.POST, HttpRequestMethod.PATCH,

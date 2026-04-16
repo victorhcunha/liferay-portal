@@ -554,14 +554,13 @@ public class UpgradeReport {
 		).put(
 			"execution.time", _executionTimeString
 		).put(
-			"data.clean.up",
-			_getMessagesPrinters(
-				false, upgradeRecorder.getDataCleanUpMessages())
-		).put(
 			"errors",
 			_getMessagesPrinters(true, upgradeRecorder.getErrorMessages())
 		).put(
 			"failed.sqls", UpgradeSQLRecorder.getFailedSQLs()
+		).put(
+			"warnings",
+			_getMessagesPrinters(true, upgradeRecorder.getWarningMessages())
 		).put(
 			"longest.upgrade.processes",
 			() -> {
@@ -639,8 +638,9 @@ public class UpgradeReport {
 					Math.min(_LONGEST_RUNNING_SQLS_COUNT, runningSQLs.size()));
 			}
 		).put(
-			"warnings",
-			_getMessagesPrinters(true, upgradeRecorder.getWarningMessages())
+			"data.clean.up",
+			_getMessagesPrinters(
+				false, upgradeRecorder.getDataCleanUpMessages())
 		).build();
 	}
 
@@ -758,11 +758,10 @@ public class UpgradeReport {
 
 			return rootDir;
 		}
-		catch (IOException ioException) {
+		catch (Exception exception) {
 			if (_log.isWarnEnabled()) {
 				_log.warn(
-					"Unable to get document library store root dir",
-					ioException);
+					"Unable to get document library store root dir", exception);
 			}
 		}
 
@@ -793,7 +792,7 @@ public class UpgradeReport {
 
 						if (resultSet2.next()) {
 							tableCounts.put(
-								tableName, (long)resultSet2.getInt("count"));
+								tableName, resultSet2.getLong("count"));
 						}
 					}
 					catch (SQLException sqlException) {
