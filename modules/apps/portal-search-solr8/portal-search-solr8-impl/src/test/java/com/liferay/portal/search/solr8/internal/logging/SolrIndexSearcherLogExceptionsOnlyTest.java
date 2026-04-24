@@ -9,17 +9,20 @@ import com.liferay.portal.kernel.search.BooleanClauseOccur;
 import com.liferay.portal.kernel.search.Query;
 import com.liferay.portal.kernel.search.generic.BooleanQueryImpl;
 import com.liferay.portal.kernel.search.generic.TermQueryImpl;
-import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.search.solr8.internal.SolrIndexSearcher;
 import com.liferay.portal.search.solr8.internal.SolrUnitTestRequirements;
 import com.liferay.portal.search.solr8.internal.indexing.SolrIndexingFixture;
-import com.liferay.portal.search.test.rule.logging.ExpectedLogMethodTestRule;
 import com.liferay.portal.search.test.util.indexing.BaseIndexingTestCase;
 import com.liferay.portal.search.test.util.indexing.IndexingFixture;
-import com.liferay.portal.search.test.util.logging.ExpectedLog;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LogEntry;
+import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
+import java.util.List;
+
+import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -34,9 +37,8 @@ public class SolrIndexSearcherLogExceptionsOnlyTest
 
 	@ClassRule
 	@Rule
-	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			ExpectedLogMethodTestRule.INSTANCE, LiferayUnitTestRule.INSTANCE);
+	public static final LiferayUnitTestRule liferayUnitTestRule =
+		LiferayUnitTestRule.INSTANCE;
 
 	@BeforeClass
 	public static void setUpClass() {
@@ -44,24 +46,26 @@ public class SolrIndexSearcherLogExceptionsOnlyTest
 			SolrUnitTestRequirements.isSolrExternallyStartedByDeveloper());
 	}
 
-	@ExpectedLog(
-		expectedClass = SolrIndexSearcher.class,
-		expectedLevel = ExpectedLog.Level.WARNING,
-		expectedLog = "Cannot parse '+(+f^eld:text)"
-	)
 	@Test
 	public void testExceptionOnlyLoggedWhenQueryMalformedSearch() {
-		search(createSearchContext(), getMalformedQuery());
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				SolrIndexSearcher.class.getName(), LoggerTestUtil.ERROR)) {
+
+			search(createSearchContext(), getMalformedQuery());
+
+			_assertLogCapture(logCapture, "Cannot parse '+(+f^eld:text)");
+		}
 	}
 
-	@ExpectedLog(
-		expectedClass = SolrIndexSearcher.class,
-		expectedLevel = ExpectedLog.Level.WARNING,
-		expectedLog = "Cannot parse '+(+f^eld:text)"
-	)
 	@Test
 	public void testExceptionOnlyLoggedWhenQueryMalformedSearchCount() {
-		searchCount(createSearchContext(), getMalformedQuery());
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				SolrIndexSearcher.class.getName(), LoggerTestUtil.ERROR)) {
+
+			searchCount(createSearchContext(), getMalformedQuery());
+
+			_assertLogCapture(logCapture, "Cannot parse '+(+f^eld:text)");
+		}
 	}
 
 	@Override
@@ -79,6 +83,24 @@ public class SolrIndexSearcherLogExceptionsOnlyTest
 			new TermQueryImpl("f^eld", "text"), BooleanClauseOccur.MUST);
 
 		return booleanQueryImpl;
+	}
+
+	private void _assertLogCapture(
+		LogCapture logCapture, String expectedMessage) {
+
+		List<LogEntry> logEntries = logCapture.getLogEntries();
+
+		Assert.assertFalse(logEntries.toString(), logEntries.isEmpty());
+
+		StringBuilder sb = new StringBuilder();
+
+		for (LogEntry logEntry : logEntries) {
+			sb.append(logEntry.getMessage());
+		}
+
+		String messages = sb.toString();
+
+		Assert.assertTrue(messages, messages.contains(expectedMessage));
 	}
 
 }

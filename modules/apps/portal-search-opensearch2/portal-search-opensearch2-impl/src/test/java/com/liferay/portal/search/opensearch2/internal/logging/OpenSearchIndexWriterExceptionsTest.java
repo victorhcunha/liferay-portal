@@ -13,20 +13,21 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.IndexWriter;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
-import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.search.opensearch2.internal.OpenSearchIndexWriter;
 import com.liferay.portal.search.opensearch2.internal.OpenSearchTestRule;
 import com.liferay.portal.search.opensearch2.internal.indexing.LiferayOpenSearchIndexingFixtureFactory;
-import com.liferay.portal.search.test.rule.logging.ExpectedLogMethodTestRule;
 import com.liferay.portal.search.test.util.indexing.BaseIndexingTestCase;
 import com.liferay.portal.search.test.util.indexing.DocumentCreationHelpers;
 import com.liferay.portal.search.test.util.indexing.IndexingFixture;
-import com.liferay.portal.search.test.util.logging.ExpectedLog;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LogEntry;
+import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,9 +41,9 @@ import org.opensearch.client.opensearch._types.OpenSearchException;
 public class OpenSearchIndexWriterExceptionsTest extends BaseIndexingTestCase {
 
 	@ClassRule
-	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			ExpectedLogMethodTestRule.INSTANCE, LiferayUnitTestRule.INSTANCE);
+	@Rule
+	public static final LiferayUnitTestRule liferayUnitTestRule =
+		LiferayUnitTestRule.INSTANCE;
 
 	@ClassRule
 	public static OpenSearchTestRule openSearchTestRule =
@@ -107,25 +108,27 @@ public class OpenSearchIndexWriterExceptionsTest extends BaseIndexingTestCase {
 		}
 	}
 
-	@ExpectedLog(
-		expectedClass = OpenSearchIndexWriter.class,
-		expectedLevel = ExpectedLog.Level.INFO, expectedLog = "no such index"
-	)
 	@Test
 	public void testDeleteDocument() {
-		SearchContext searchContext = new SearchContext();
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				OpenSearchIndexWriter.class.getName(), LoggerTestUtil.INFO)) {
 
-		searchContext.setCompanyId(1);
+			SearchContext searchContext = new SearchContext();
 
-		IndexWriter indexWriter = getIndexWriter();
+			searchContext.setCompanyId(1);
 
-		try {
-			indexWriter.deleteDocument(searchContext, "1");
-		}
-		catch (SearchException searchException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(searchException);
+			IndexWriter indexWriter = getIndexWriter();
+
+			try {
+				indexWriter.deleteDocument(searchContext, "1");
 			}
+			catch (SearchException searchException) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(searchException);
+				}
+			}
+
+			_assertLogCapture(logCapture, "no such index");
 		}
 	}
 
@@ -272,6 +275,24 @@ public class OpenSearchIndexWriterExceptionsTest extends BaseIndexingTestCase {
 	@Override
 	protected IndexingFixture createIndexingFixture() {
 		return LiferayOpenSearchIndexingFixtureFactory.getInstance();
+	}
+
+	private void _assertLogCapture(
+		LogCapture logCapture, String expectedMessage) {
+
+		List<LogEntry> logEntries = logCapture.getLogEntries();
+
+		Assert.assertFalse(logEntries.toString(), logEntries.isEmpty());
+
+		StringBuilder sb = new StringBuilder();
+
+		for (LogEntry logEntry : logEntries) {
+			sb.append(logEntry.getMessage());
+		}
+
+		String messages = sb.toString();
+
+		Assert.assertTrue(messages, messages.contains(expectedMessage));
 	}
 
 	private static final Log _log = LogFactoryUtil.getLog(
