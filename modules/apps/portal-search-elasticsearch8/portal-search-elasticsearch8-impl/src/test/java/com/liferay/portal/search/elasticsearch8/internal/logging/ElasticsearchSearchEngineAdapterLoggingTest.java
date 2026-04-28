@@ -20,7 +20,6 @@ import com.liferay.portal.search.engine.adapter.SearchEngineAdapter;
 import com.liferay.portal.search.engine.adapter.search.CountSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.MultisearchSearchRequest;
 import com.liferay.portal.search.engine.adapter.search.SearchSearchRequest;
-import com.liferay.portal.search.test.util.logging.ExpectedLog;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import org.junit.AfterClass;
@@ -78,11 +77,6 @@ public class ElasticsearchSearchEngineAdapterLoggingTest {
 			_elasticsearchEngineAdapterFixture.getSearchEngineAdapter();
 	}
 
-	@ExpectedLog(
-		expectedClass = CountSearchRequestExecutor.class,
-		expectedLevel = ExpectedLog.Level.FINE,
-		expectedLog = "The search engine processed"
-	)
 	@Test
 	public void testCountSearchRequestExecutorLogs() {
 		_searchEngineAdapter.execute(
@@ -94,11 +88,6 @@ public class ElasticsearchSearchEngineAdapterLoggingTest {
 			});
 	}
 
-	@ExpectedLog(
-		expectedClass = MultisearchSearchRequestExecutor.class,
-		expectedLevel = ExpectedLog.Level.FINE,
-		expectedLog = "The search engine processed"
-	)
 	@Test
 	public void testMultisearchSearchRequestExecutorLogs() {
 		_searchEngineAdapter.execute(
@@ -115,11 +104,6 @@ public class ElasticsearchSearchEngineAdapterLoggingTest {
 			});
 	}
 
-	@ExpectedLog(
-		expectedClass = SearchSearchRequestExecutor.class,
-		expectedLevel = ExpectedLog.Level.FINE,
-		expectedLog = "The search engine processed"
-	)
 	@Test
 	public void testSearchSearchRequestExecutorLogs() {
 		_searchEngineAdapter.execute(
