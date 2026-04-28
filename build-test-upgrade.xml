@@ -16,5 +16,81 @@
 
 	<target depends="build, test-upgrade" description="Sets up the DXP profile, builds the project, and executes the upgrade tool to test the upgrade." name="build-and-test-upgrade" />
 
-	<target depends="run-simple-server" description="Executes the upgrade tool to test the upgrade." name="test-upgrade" />
+	<target description="Executes the upgrade tool to test the upgrade." name="test-upgrade">
+		<local name="upgrade.client.dir" />
+
+		<property name="upgrade.client.dir" value="${liferay.home}/tools/portal-tools-db-upgrade-client" />
+
+		<trycatch>
+			<try>
+				<delete dir="${upgrade.client.dir}/logs" failonerror="false" />
+				<delete dir="${upgrade.client.dir}/reports" failonerror="false" />
+
+				<antcall target="run-simple-server" />
+			</try>
+			<finally>
+				<if>
+					<and>
+						<isset property="upgrade.output.dir" />
+						<not>
+							<equals arg1="${upgrade.output.dir}" arg2="" trim="true" />
+						</not>
+					</and>
+					<then>
+						<local name="upgrade.output.subfolder" />
+
+						<if>
+							<isset property="legacy.database.file" />
+							<then>
+								<local name="legacy.database.file.name" />
+
+								<basename file="${legacy.database.file}" property="legacy.database.file.name" />
+
+								<propertyregex
+									casesensitive="false"
+									defaultValue="${legacy.database.file.name}"
+									input="${legacy.database.file.name}"
+									property="upgrade.output.subfolder"
+									regexp="\.(bak|dmp|gz|sql|zip)$"
+									replace=""
+								/>
+							</then>
+							<else>
+								<property name="upgrade.output.subfolder" value="${data.archive.type}_${portal.version}" />
+							</else>
+						</if>
+
+						<local name="upgrade.output.timestamp" />
+
+						<tstamp>
+							<format pattern="yyyyMMdd_HHmmss" property="upgrade.output.timestamp" />
+						</tstamp>
+
+						<mkdir dir="${upgrade.output.dir}/${upgrade.output.subfolder}" />
+
+						<copy
+							failonerror="false"
+							file="${upgrade.client.dir}/logs/upgrade.log"
+							tofile="${upgrade.output.dir}/${upgrade.output.subfolder}/${upgrade.output.timestamp}-upgrade.log"
+						/>
+						<copy
+							failonerror="false"
+							file="${upgrade.client.dir}/reports/upgrade_report.txt"
+							tofile="${upgrade.output.dir}/${upgrade.output.subfolder}/${upgrade.output.timestamp}-upgrade_report.txt"
+						/>
+						<copy
+							failonerror="false"
+							file="${upgrade.client.dir}/reports/upgrade_report_diagnostics.txt"
+							tofile="${upgrade.output.dir}/${upgrade.output.subfolder}/${upgrade.output.timestamp}-upgrade_report_diagnostics.txt"
+						/>
+						<copy
+							failonerror="false"
+							file="${basedir}/test-upgrade.properties"
+							tofile="${upgrade.output.dir}/${upgrade.output.subfolder}/${upgrade.output.timestamp}-test-upgrade.properties"
+						/>
+					</then>
+				</if>
+			</finally>
+		</trycatch>
+	</target>
 </project>
