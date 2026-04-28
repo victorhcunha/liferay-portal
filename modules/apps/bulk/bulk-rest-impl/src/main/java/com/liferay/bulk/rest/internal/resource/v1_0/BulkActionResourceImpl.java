@@ -61,11 +61,11 @@ import com.liferay.portal.kernel.model.Role;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.search.Field;
+import com.liferay.portal.kernel.search.QueryTerm;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.search.TermQuery;
 import com.liferay.portal.kernel.search.filter.Filter;
 import com.liferay.portal.kernel.search.filter.QueryFilter;
-import com.liferay.portal.kernel.search.generic.QueryTermImpl;
-import com.liferay.portal.kernel.search.generic.TermQueryImpl;
 import com.liferay.portal.kernel.security.permission.ResourceActionsUtil;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
@@ -760,12 +760,11 @@ public class BulkActionResourceImpl extends BaseBulkActionResourceImpl {
 		if (selectionScope.getSelectAll()) {
 			QueryFilter queryFilter = (QueryFilter)filter;
 
-			TermQueryImpl termQueryImpl = (TermQueryImpl)queryFilter.getQuery();
+			TermQuery termQuery = (TermQuery)queryFilter.getQuery();
 
-			QueryTermImpl queryTermImpl =
-				(QueryTermImpl)termQueryImpl.getQueryTerm();
+			QueryTerm queryTerm = termQuery.getQueryTerm();
 
-			return Long.valueOf(queryTermImpl.getValue());
+			return Long.valueOf(queryTerm.getValue());
 		}
 
 		BulkActionItem[] bulkActionItems = bulkAction.getBulkActionItems();
