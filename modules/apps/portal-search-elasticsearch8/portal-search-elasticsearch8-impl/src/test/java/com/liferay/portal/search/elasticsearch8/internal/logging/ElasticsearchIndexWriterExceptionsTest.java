@@ -15,19 +15,20 @@ import com.liferay.portal.kernel.search.Field;
 import com.liferay.portal.kernel.search.IndexWriter;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.SearchException;
-import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.search.elasticsearch8.internal.ElasticsearchIndexWriter;
 import com.liferay.portal.search.elasticsearch8.internal.indexing.LiferayElasticsearchIndexingFixtureFactory;
-import com.liferay.portal.search.test.rule.logging.ExpectedLogMethodTestRule;
 import com.liferay.portal.search.test.util.indexing.BaseIndexingTestCase;
 import com.liferay.portal.search.test.util.indexing.DocumentCreationHelpers;
 import com.liferay.portal.search.test.util.indexing.IndexingFixture;
-import com.liferay.portal.search.test.util.logging.ExpectedLog;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LogEntry;
+import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -41,9 +42,8 @@ public class ElasticsearchIndexWriterExceptionsTest
 
 	@ClassRule
 	@Rule
-	public static final AggregateTestRule aggregateTestRule =
-		new AggregateTestRule(
-			ExpectedLogMethodTestRule.INSTANCE, LiferayUnitTestRule.INSTANCE);
+	public static final LiferayUnitTestRule liferayUnitTestRule =
+		LiferayUnitTestRule.INSTANCE;
 
 	@Test
 	public void testAddDocument() {
@@ -103,12 +103,11 @@ public class ElasticsearchIndexWriterExceptionsTest
 		}
 	}
 
-	@ExpectedLog(
-		expectedClass = ElasticsearchIndexWriter.class,
-		expectedLevel = ExpectedLog.Level.INFO, expectedLog = "no such index"
-	)
 	@Test
 	public void testDeleteDocument() {
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				ElasticsearchIndexWriter.class.getName(),
+				LoggerTestUtil.INFO)) {
 		SearchContext searchContext = new SearchContext();
 
 		searchContext.setCompanyId(1);
@@ -123,7 +122,9 @@ public class ElasticsearchIndexWriterExceptionsTest
 				_log.debug(searchException);
 			}
 		}
-	}
+
+		_assertLogCapture(logCapture);
+	}}
 
 	@Test
 	public void testDeleteDocuments() {
@@ -244,6 +245,27 @@ public class ElasticsearchIndexWriterExceptionsTest
 				_log.debug(searchException);
 			}
 		}
+	}
+
+		private void _assertLogCapture(
+		LogCapture logCapture) {
+
+		List<LogEntry> logEntries = logCapture.getLogEntries();
+
+		Assert.assertEquals(logEntries.toString(), 1, logEntries.size());
+
+		LogEntry logEntry = logEntries.get(0);
+
+		System.out.println(logEntry);
+
+		Assert.assertEquals(LoggerTestUtil.INFO, logEntry.getPriority());
+
+		Throwable throwable = logEntry.getThrowable();
+
+		Assert.assertEquals(
+			"[es/delete] failed: [index_not_found_exception] no such index [1]",
+			throwable.getMessage());
+		Assert.assertSame(ElasticsearchException.class, throwable.getClass());
 	}
 
 	@Rule
