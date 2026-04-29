@@ -1543,6 +1543,10 @@ public class PortletURLImpl
 						catch (UnsupportedOperationException
 									unsupportedOperationException) {
 
+							if (_log.isDebugEnabled()) {
+								_log.debug(unsupportedOperationException);
+							}
+
 							requestRenderParameterValues =
 								portletRequest.getParameterValues(
 									renderParameterName);
@@ -1699,6 +1703,10 @@ public class PortletURLImpl
 			}
 			catch (UnsupportedOperationException
 						unsupportedOperationException) {
+
+				if (_log.isDebugEnabled()) {
+					_log.debug(unsupportedOperationException);
+				}
 
 				publicRenderParameterNames = new HashSet<>();
 
