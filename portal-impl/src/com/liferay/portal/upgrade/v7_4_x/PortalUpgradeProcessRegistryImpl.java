@@ -753,6 +753,11 @@ public class PortalUpgradeProcessRegistryImpl
 
 		upgradeVersionTreeMap.put(
 				new Version(38, 2, 4), new UpgradeAssetEntryPublishDate());
+
+		upgradeVersionTreeMap.put(
+			new Version(38, 2, 5),
+			UpgradeModulesFactory.create(
+				new String[] {"com.liferay.portal.vulcan.impl"}, null));
 	}
 
 }
