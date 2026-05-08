@@ -338,24 +338,33 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 	@Test
 	public void testPartiallyUpdateDocuments() {
-		Document document = new DocumentImpl();
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				OpenSearchIndexWriter.class.getName(), LoggerTestUtil.ERROR)) {
 
-		List<Document> documents = new ArrayList<>();
+			Document document = new DocumentImpl();
 
-		document.addKeyword(Field.UID, "1");
+			List<Document> documents = new ArrayList<>();
 
-		documents.add(document);
+			document.addKeyword(Field.UID, "1");
 
-		IndexWriter indexWriter = getIndexWriter();
+			documents.add(document);
 
-		try {
-			indexWriter.partiallyUpdateDocuments(
-				createSearchContext(), documents);
-		}
-		catch (SearchException searchException) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(searchException);
+			IndexWriter indexWriter = getIndexWriter();
+
+			try {
+				indexWriter.partiallyUpdateDocuments(
+					createSearchContext(), documents);
 			}
+			catch (SearchException searchException) {
+				if (_log.isDebugEnabled()) {
+					_log.debug(searchException);
+				}
+			}
+
+			_assertLogCapture(
+				message -> Assert.assertEquals(
+					"Bulk partial update failed", message),
+				logCapture, LoggerTestUtil.ERROR);
 		}
 	}
 
