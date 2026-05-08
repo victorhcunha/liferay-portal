@@ -192,6 +192,12 @@ public class CommercePriceEntryDisplayContext
 	public String getDiscountLevel1() throws PortalException {
 		CommercePriceEntry commercePriceEntry = getCommercePriceEntry();
 
+		if ((commercePriceEntry == null) ||
+			(commercePriceEntry.getDiscountLevel1() == null)) {
+
+			return StringPool.BLANK;
+		}
+
 		return _commercePriceFormatter.format(
 			commercePriceEntry.getDiscountLevel1(),
 			cpRequestHelper.getLocale());
@@ -199,6 +205,12 @@ public class CommercePriceEntryDisplayContext
 
 	public String getDiscountLevel2() throws PortalException {
 		CommercePriceEntry commercePriceEntry = getCommercePriceEntry();
+
+		if ((commercePriceEntry == null) ||
+			(commercePriceEntry.getDiscountLevel2() == null)) {
+
+			return StringPool.BLANK;
+		}
 
 		return _commercePriceFormatter.format(
 			commercePriceEntry.getDiscountLevel2(),
@@ -208,6 +220,12 @@ public class CommercePriceEntryDisplayContext
 	public String getDiscountLevel3() throws PortalException {
 		CommercePriceEntry commercePriceEntry = getCommercePriceEntry();
 
+		if ((commercePriceEntry == null) ||
+			(commercePriceEntry.getDiscountLevel3() == null)) {
+
+			return StringPool.BLANK;
+		}
+
 		return _commercePriceFormatter.format(
 			commercePriceEntry.getDiscountLevel3(),
 			cpRequestHelper.getLocale());
@@ -215,6 +233,12 @@ public class CommercePriceEntryDisplayContext
 
 	public String getDiscountLevel4() throws PortalException {
 		CommercePriceEntry commercePriceEntry = getCommercePriceEntry();
+
+		if ((commercePriceEntry == null) ||
+			(commercePriceEntry.getDiscountLevel4() == null)) {
+
+			return StringPool.BLANK;
+		}
 
 		return _commercePriceFormatter.format(
 			commercePriceEntry.getDiscountLevel4(),

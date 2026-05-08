@@ -176,6 +176,10 @@ public class CPInstanceCommercePriceEntryDisplayContext
 	public String getFormattedDiscount(BigDecimal discount)
 		throws PortalException {
 
+		if (discount == null) {
+			return StringPool.BLANK;
+		}
+
 		return _commercePriceFormatter.format(
 			discount, cpRequestHelper.getLocale());
 	}
