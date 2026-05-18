@@ -28,7 +28,7 @@ import com.liferay.portal.test.log.LogEntry;
 import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -68,13 +68,13 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
 				OpenSearchIndexWriter.class.getName(), LoggerTestUtil.ERROR)) {
 
-			String expectedMessage =
-				"failed to parse field [expirationDate] of type [date] in " +
-					"document with id";
-
 			addDocument(
 				DocumentCreationHelpers.singleKeyword(
 					Field.EXPIRATION_DATE, _EXPIRATION_DATE));
+
+			String expectedMessage =
+				"failed to parse field [expirationDate] of type [date] in " +
+					"document with id";
 
 			_assertLogCapture(
 				message -> Assert.assertTrue(
@@ -89,18 +89,15 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
 				OpenSearchIndexWriter.class.getName(), LoggerTestUtil.ERROR)) {
 
-			List<Document> documents = new ArrayList<>();
-
 			Document document = new DocumentImpl();
 
 			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
 
-			documents.add(document);
-
 			IndexWriter indexWriter = getIndexWriter();
 
 			try {
-				indexWriter.addDocuments(createSearchContext(), documents);
+				indexWriter.addDocuments(
+					createSearchContext(), Arrays.asList(document));
 			}
 			catch (SearchException searchException) {
 				if (_log.isDebugEnabled()) {
@@ -120,28 +117,25 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 				BulkDocumentRequestExecutor.class.getName(),
 				LoggerTestUtil.ERROR)) {
 
-			String expectedMessage =
-				"failed to parse field [expirationDate] of type [date] in " +
-					"document with id";
-
-			List<Document> documents = new ArrayList<>();
-
 			Document document = new DocumentImpl();
 
 			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
 
-			documents.add(document);
-
 			IndexWriter indexWriter = getIndexWriter();
 
 			try {
-				indexWriter.addDocuments(createSearchContext(), documents);
+				indexWriter.addDocuments(
+					createSearchContext(), Arrays.asList(document));
 			}
 			catch (SearchException searchException) {
 				if (_log.isDebugEnabled()) {
 					_log.debug(searchException);
 				}
 			}
+
+			String expectedMessage =
+				"failed to parse field [expirationDate] of type [date] in " +
+					"document with id";
 
 			_assertLogCapture(
 				message -> Assert.assertTrue(
@@ -240,14 +234,10 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			searchContext.setCompanyId(_COMPANY_ID);
 
-			List<String> uids = new ArrayList<>();
-
-			uids.add(_UID);
-
 			IndexWriter indexWriter = getIndexWriter();
 
 			try {
-				indexWriter.deleteDocuments(searchContext, uids);
+				indexWriter.deleteDocuments(searchContext, Arrays.asList(_UID));
 			}
 			catch (SearchException searchException) {
 				if (_log.isDebugEnabled()) {
@@ -267,26 +257,22 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 				BulkDocumentRequestExecutor.class.getName(),
 				LoggerTestUtil.ERROR)) {
 
-			String expectedMessage = "no such index [" + _COMPANY_ID + "]";
-
 			SearchContext searchContext = new SearchContext();
 
 			searchContext.setCompanyId(_COMPANY_ID);
 
-			List<String> uids = new ArrayList<>();
-
-			uids.add(_UID);
-
 			IndexWriter indexWriter = getIndexWriter();
 
 			try {
-				indexWriter.deleteDocuments(searchContext, uids);
+				indexWriter.deleteDocuments(searchContext, Arrays.asList(_UID));
 			}
 			catch (SearchException searchException) {
 				if (_log.isDebugEnabled()) {
 					_log.debug(searchException);
 				}
 			}
+
+			String expectedMessage = "no such index [" + _COMPANY_ID + "]";
 
 			_assertLogCapture(
 				message -> Assert.assertTrue(
@@ -352,17 +338,13 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			Document document = new DocumentImpl();
 
-			List<Document> documents = new ArrayList<>();
-
 			document.addKeyword(Field.UID, _UID);
-
-			documents.add(document);
 
 			IndexWriter indexWriter = getIndexWriter();
 
 			try {
 				indexWriter.partiallyUpdateDocuments(
-					createSearchContext(), documents);
+					createSearchContext(), Arrays.asList(document));
 			}
 			catch (SearchException searchException) {
 				if (_log.isDebugEnabled()) {
@@ -383,27 +365,23 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 				BulkDocumentRequestExecutor.class.getName(),
 				LoggerTestUtil.ERROR)) {
 
-			String expectedMessage = "[" + _UID + "]: document missing";
-
 			Document document = new DocumentImpl();
 
-			List<Document> documents = new ArrayList<>();
-
 			document.addKeyword(Field.UID, _UID);
-
-			documents.add(document);
 
 			IndexWriter indexWriter = getIndexWriter();
 
 			try {
 				indexWriter.partiallyUpdateDocuments(
-					createSearchContext(), documents);
+					createSearchContext(), Arrays.asList(document));
 			}
 			catch (SearchException searchException) {
 				if (_log.isDebugEnabled()) {
 					_log.debug(searchException);
 				}
 			}
+
+			String expectedMessage = "[" + _UID + "]: document missing";
 
 			_assertLogCapture(
 				message -> Assert.assertTrue(
@@ -446,11 +424,6 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 				BulkDocumentRequestExecutor.class.getName(),
 				LoggerTestUtil.ERROR)) {
 
-			String expectedMessage = StringBundler.concat(
-				"failed to parse field [expirationDate] of type [date] in ",
-				"document with id '", _UID, "'. Preview of field's value: '",
-				_EXPIRATION_DATE, "'");
-
 			Document document = new DocumentImpl();
 
 			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
@@ -467,6 +440,11 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 				}
 			}
 
+			String expectedMessage = StringBundler.concat(
+				"failed to parse field [expirationDate] of type [date] in ",
+				"document with id '", _UID, "'. Preview of field's value: '",
+				_EXPIRATION_DATE, "'");
+
 			_assertLogCapture(
 				message -> Assert.assertTrue(
 					message + " does not contain " + expectedMessage,
@@ -480,19 +458,16 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
 				OpenSearchIndexWriter.class.getName(), LoggerTestUtil.ERROR)) {
 
-			List<Document> documents = new ArrayList<>();
-
 			Document document = new DocumentImpl();
 
 			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
 			document.addKeyword(Field.UID, _UID);
 
-			documents.add(document);
-
 			IndexWriter indexWriter = getIndexWriter();
 
 			try {
-				indexWriter.updateDocuments(createSearchContext(), documents);
+				indexWriter.updateDocuments(
+					createSearchContext(), Arrays.asList(document));
 			}
 			catch (SearchException searchException) {
 				if (_log.isDebugEnabled()) {
@@ -512,30 +487,27 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 				BulkDocumentRequestExecutor.class.getName(),
 				LoggerTestUtil.ERROR)) {
 
-			String expectedMessage = StringBundler.concat(
-				"failed to parse field [expirationDate] of type [date] in ",
-				"document with id '", _UID, "'. Preview of field's value: '",
-				_EXPIRATION_DATE, "'");
-
-			List<Document> documents = new ArrayList<>();
-
 			Document document = new DocumentImpl();
 
 			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
 			document.addKeyword(Field.UID, _UID);
 
-			documents.add(document);
-
 			IndexWriter indexWriter = getIndexWriter();
 
 			try {
-				indexWriter.updateDocuments(createSearchContext(), documents);
+				indexWriter.updateDocuments(
+					createSearchContext(), Arrays.asList(document));
 			}
 			catch (SearchException searchException) {
 				if (_log.isDebugEnabled()) {
 					_log.debug(searchException);
 				}
 			}
+
+			String expectedMessage = StringBundler.concat(
+				"failed to parse field [expirationDate] of type [date] in ",
+				"document with id '", _UID, "'. Preview of field's value: '",
+				_EXPIRATION_DATE, "'");
 
 			_assertLogCapture(
 				message -> Assert.assertTrue(
