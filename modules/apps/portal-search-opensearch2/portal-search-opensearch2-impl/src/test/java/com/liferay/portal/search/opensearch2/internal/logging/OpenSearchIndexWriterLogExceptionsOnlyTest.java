@@ -5,6 +5,7 @@
 
 package com.liferay.portal.search.opensearch2.internal.logging;
 
+import com.liferay.petra.string.StringBundler;
 import com.liferay.portal.kernel.search.Document;
 import com.liferay.portal.kernel.search.DocumentImpl;
 import com.liferay.portal.kernel.search.Field;
@@ -52,7 +53,7 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 	public void tearDownOpenSearchIndexWriterLogExceptionsOnlyTest()
 		throws SearchException {
 
-		getIndexWriter().deleteDocument(createSearchContext(), "1");
+		getIndexWriter().deleteDocument(createSearchContext(), _UID);
 	}
 
 	@Test
@@ -66,7 +67,7 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			addDocument(
 				DocumentCreationHelpers.singleKeyword(
-					Field.EXPIRATION_DATE, "text"));
+					Field.EXPIRATION_DATE, _EXPIRATION_DATE));
 
 			_assertLogCapture(
 				message -> Assert.assertTrue(
@@ -85,7 +86,7 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			Document document = new DocumentImpl();
 
-			document.addKeyword(Field.EXPIRATION_DATE, "text");
+			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
 
 			documents.add(document);
 
@@ -113,7 +114,7 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			Document document = new DocumentImpl();
 
-			document.addKeyword(Field.EXPIRATION_DATE, "text");
+			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
 
 			documents.add(document);
 
@@ -136,7 +137,7 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			SearchContext searchContext = new SearchContext();
 
-			searchContext.setCompanyId(1);
+			searchContext.setCompanyId(_COMPANY_ID);
 
 			IndexWriter indexWriter = getIndexWriter();
 
@@ -144,8 +145,9 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			_assertLogCapture(
 				message -> Assert.assertEquals(
-					"Request failed: [index_not_found_exception] no such " +
-						"index [1]",
+					StringBundler.concat(
+						"Request failed: [index_not_found_exception] no such ",
+						"index [", _COMPANY_ID, "]"),
 					message),
 				logCapture, LoggerTestUtil.ERROR);
 		}
@@ -155,11 +157,11 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 	public void testDeleteDocument() throws SearchException {
 		SearchContext searchContext = new SearchContext();
 
-		searchContext.setCompanyId(1);
+		searchContext.setCompanyId(_COMPANY_ID);
 
 		IndexWriter indexWriter = getIndexWriter();
 
-		indexWriter.deleteDocument(searchContext, "1");
+		indexWriter.deleteDocument(searchContext, _UID);
 	}
 
 	@Test
@@ -167,16 +169,17 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
 				OpenSearchIndexWriter.class.getName(), LoggerTestUtil.INFO)) {
 
-			String expectedMessage =
-				"Request failed: [index_not_found_exception] no such index [1]";
+			String expectedMessage = StringBundler.concat(
+				"Request failed: [index_not_found_exception] no such index [",
+				_COMPANY_ID, "]");
 
 			SearchContext searchContext = new SearchContext();
 
-			searchContext.setCompanyId(1);
+			searchContext.setCompanyId(_COMPANY_ID);
 
 			IndexWriter indexWriter = getIndexWriter();
 
-			indexWriter.deleteDocument(searchContext, "1");
+			indexWriter.deleteDocument(searchContext, _UID);
 
 			_assertLogCapture(
 				message -> Assert.assertTrue(
@@ -193,11 +196,11 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			SearchContext searchContext = new SearchContext();
 
-			searchContext.setCompanyId(1);
+			searchContext.setCompanyId(_COMPANY_ID);
 
 			List<String> uids = new ArrayList<>();
 
-			uids.add("1");
+			uids.add(_UID);
 
 			IndexWriter indexWriter = getIndexWriter();
 
@@ -215,15 +218,16 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 				BulkDocumentRequestExecutor.class.getName(),
 				LoggerTestUtil.ERROR)) {
 
-			String expectedMessage = "no such index [1]";
+			String expectedMessage = StringBundler.concat(
+				"no such index [", _COMPANY_ID, "]");
 
 			SearchContext searchContext = new SearchContext();
 
-			searchContext.setCompanyId(1);
+			searchContext.setCompanyId(_COMPANY_ID);
 
 			List<String> uids = new ArrayList<>();
 
-			uids.add("1");
+			uids.add(_UID);
 
 			IndexWriter indexWriter = getIndexWriter();
 
@@ -244,7 +248,7 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			SearchContext searchContext = new SearchContext();
 
-			searchContext.setCompanyId(1);
+			searchContext.setCompanyId(_COMPANY_ID);
 
 			IndexWriter indexWriter = getIndexWriter();
 
@@ -252,8 +256,9 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			_assertLogCapture(
 				message -> Assert.assertEquals(
-					"Request failed: [index_not_found_exception] no such " +
-						"index [1]",
+					StringBundler.concat(
+						"Request failed: [index_not_found_exception] no such ",
+						"index [", _COMPANY_ID, "]"),
 					message),
 				logCapture, LoggerTestUtil.ERROR);
 		}
@@ -263,7 +268,7 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 	public void testPartiallyUpdateDocument() throws SearchException {
 		Document document = new DocumentImpl();
 
-		document.addKeyword(Field.UID, "1");
+		document.addKeyword(Field.UID, _UID);
 
 		IndexWriter indexWriter = getIndexWriter();
 
@@ -279,7 +284,7 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			List<Document> documents = new ArrayList<>();
 
-			document.addKeyword(Field.UID, "1");
+			document.addKeyword(Field.UID, _UID);
 
 			documents.add(document);
 
@@ -303,13 +308,14 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 				BulkDocumentRequestExecutor.class.getName(),
 				LoggerTestUtil.ERROR)) {
 
-			String expectedMessage = "[1]: document missing";
+			String expectedMessage = StringBundler.concat(
+				"[", _UID, "]: document missing");
 
 			Document document = new DocumentImpl();
 
 			List<Document> documents = new ArrayList<>();
 
-			document.addKeyword(Field.UID, "1");
+			document.addKeyword(Field.UID, _UID);
 
 			documents.add(document);
 
@@ -333,8 +339,8 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			Document document = new DocumentImpl();
 
-			document.addKeyword(Field.EXPIRATION_DATE, "text");
-			document.addKeyword(Field.UID, "1");
+			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
+			document.addKeyword(Field.UID, _UID);
 
 			IndexWriter indexWriter = getIndexWriter();
 
@@ -352,14 +358,15 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 				BulkDocumentRequestExecutor.class.getName(),
 				LoggerTestUtil.ERROR)) {
 
-			String expectedMessage =
-				"failed to parse field [expirationDate] of type [date] in " +
-					"document with id '1'. Preview of field's value: 'text'";
+			String expectedMessage = StringBundler.concat(
+				"failed to parse field [expirationDate] of type [date] in ",
+				"document with id '", _UID, "'. Preview of field's value: '",
+				_EXPIRATION_DATE, "'");
 
 			Document document = new DocumentImpl();
 
-			document.addKeyword(Field.EXPIRATION_DATE, "text");
-			document.addKeyword(Field.UID, "1");
+			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
+			document.addKeyword(Field.UID, _UID);
 
 			IndexWriter indexWriter = getIndexWriter();
 
@@ -382,8 +389,8 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			Document document = new DocumentImpl();
 
-			document.addKeyword(Field.EXPIRATION_DATE, "text");
-			document.addKeyword(Field.UID, "1");
+			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
+			document.addKeyword(Field.UID, _UID);
 
 			documents.add(document);
 
@@ -403,16 +410,17 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 				BulkDocumentRequestExecutor.class.getName(),
 				LoggerTestUtil.ERROR)) {
 
-			String expectedMessage =
-				"failed to parse field [expirationDate] of type [date] in " +
-					"document with id '1'. Preview of field's value: 'text'";
+			String expectedMessage = StringBundler.concat(
+				"failed to parse field [expirationDate] of type [date] in ",
+				"document with id '", _UID, "'. Preview of field's value: '",
+				_EXPIRATION_DATE, "'");
 
 			List<Document> documents = new ArrayList<>();
 
 			Document document = new DocumentImpl();
 
-			document.addKeyword(Field.EXPIRATION_DATE, "text");
-			document.addKeyword(Field.UID, "1");
+			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
+			document.addKeyword(Field.UID, _UID);
 
 			documents.add(document);
 
@@ -451,5 +459,11 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 		Assert.assertEquals(logLevel, logEntry.getPriority());
 		consumer.accept(logEntry.getMessage());
 	}
+
+	private static final long _COMPANY_ID = 1;
+
+	private static final String _EXPIRATION_DATE = "text";
+
+	private static final String _UID = "1";
 
 }
