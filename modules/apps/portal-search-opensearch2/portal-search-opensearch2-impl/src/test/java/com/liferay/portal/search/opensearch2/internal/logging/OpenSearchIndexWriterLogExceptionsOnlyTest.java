@@ -26,7 +26,7 @@ import com.liferay.portal.test.log.LogEntry;
 import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.LiferayUnitTestRule;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -82,17 +82,14 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
 				OpenSearchIndexWriter.class.getName(), LoggerTestUtil.ERROR)) {
 
-			List<Document> documents = new ArrayList<>();
-
 			Document document = new DocumentImpl();
 
 			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
 
-			documents.add(document);
-
 			IndexWriter indexWriter = getIndexWriter();
 
-			indexWriter.addDocuments(createSearchContext(), documents);
+			indexWriter.addDocuments(
+				createSearchContext(), Arrays.asList(document));
 
 			_assertLogCapture(
 				message -> Assert.assertEquals("Bulk add failed", message),
@@ -110,17 +107,14 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 				"failed to parse field [expirationDate] of type [date] in " +
 					"document with id";
 
-			List<Document> documents = new ArrayList<>();
-
 			Document document = new DocumentImpl();
 
 			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
 
-			documents.add(document);
-
 			IndexWriter indexWriter = getIndexWriter();
 
-			indexWriter.addDocuments(createSearchContext(), documents);
+			indexWriter.addDocuments(
+				createSearchContext(), Arrays.asList(document));
 
 			_assertLogCapture(
 				message -> Assert.assertTrue(
@@ -198,13 +192,9 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			searchContext.setCompanyId(_COMPANY_ID);
 
-			List<String> uids = new ArrayList<>();
-
-			uids.add(_UID);
-
 			IndexWriter indexWriter = getIndexWriter();
 
-			indexWriter.deleteDocuments(searchContext, uids);
+			indexWriter.deleteDocuments(searchContext, Arrays.asList(_UID));
 
 			_assertLogCapture(
 				message -> Assert.assertEquals("Bulk delete failed", message),
@@ -225,13 +215,9 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			searchContext.setCompanyId(_COMPANY_ID);
 
-			List<String> uids = new ArrayList<>();
-
-			uids.add(_UID);
-
 			IndexWriter indexWriter = getIndexWriter();
 
-			indexWriter.deleteDocuments(searchContext, uids);
+			indexWriter.deleteDocuments(searchContext, Arrays.asList(_UID));
 
 			_assertLogCapture(
 				message -> Assert.assertTrue(
@@ -282,16 +268,12 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			Document document = new DocumentImpl();
 
-			List<Document> documents = new ArrayList<>();
-
 			document.addKeyword(Field.UID, _UID);
-
-			documents.add(document);
 
 			IndexWriter indexWriter = getIndexWriter();
 
 			indexWriter.partiallyUpdateDocuments(
-				createSearchContext(), documents);
+				createSearchContext(), Arrays.asList(document));
 
 			_assertLogCapture(
 				message -> Assert.assertEquals(
@@ -313,16 +295,12 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 
 			Document document = new DocumentImpl();
 
-			List<Document> documents = new ArrayList<>();
-
 			document.addKeyword(Field.UID, _UID);
-
-			documents.add(document);
 
 			IndexWriter indexWriter = getIndexWriter();
 
 			indexWriter.partiallyUpdateDocuments(
-				createSearchContext(), documents);
+				createSearchContext(), Arrays.asList(document));
 
 			_assertLogCapture(
 				message -> Assert.assertTrue(
@@ -385,18 +363,15 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
 				OpenSearchIndexWriter.class.getName(), LoggerTestUtil.ERROR)) {
 
-			List<Document> documents = new ArrayList<>();
-
 			Document document = new DocumentImpl();
 
 			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
 			document.addKeyword(Field.UID, _UID);
 
-			documents.add(document);
-
 			IndexWriter indexWriter = getIndexWriter();
 
-			indexWriter.updateDocuments(createSearchContext(), documents);
+			indexWriter.updateDocuments(
+				createSearchContext(), Arrays.asList(document));
 
 			_assertLogCapture(
 				message -> Assert.assertEquals("Bulk update failed", message),
@@ -415,18 +390,15 @@ public class OpenSearchIndexWriterLogExceptionsOnlyTest
 				"document with id '", _UID, "'. Preview of field's value: '",
 				_EXPIRATION_DATE, "'");
 
-			List<Document> documents = new ArrayList<>();
-
 			Document document = new DocumentImpl();
 
 			document.addKeyword(Field.EXPIRATION_DATE, _EXPIRATION_DATE);
 			document.addKeyword(Field.UID, _UID);
 
-			documents.add(document);
-
 			IndexWriter indexWriter = getIndexWriter();
 
-			indexWriter.updateDocuments(createSearchContext(), documents);
+			indexWriter.updateDocuments(
+				createSearchContext(), Arrays.asList(document));
 
 			_assertLogCapture(
 				message -> Assert.assertTrue(
