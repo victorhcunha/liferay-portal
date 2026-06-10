@@ -480,10 +480,20 @@ public class LayoutTypePortletImpl
 			layoutTemplate = new LayoutTemplateImpl(
 				StringPool.BLANK, StringPool.BLANK);
 
-			List<String> columns = new ArrayList<>(10);
+			List<String> columns = new ArrayList<>();
 
-			for (int i = 1; i <= 100; i++) {
-				columns.add(LayoutTypePortletConstants.COLUMN_PREFIX + i);
+			for (String key :
+					getLayout().getTypeSettingsProperties().keySet()) {
+
+				if (key.startsWith(LayoutTypePortletConstants.COLUMN_PREFIX)) {
+					columns.add(key);
+				}
+			}
+
+			if (columns.isEmpty()) {
+				for (int i = 1; i <= 10; i++) {
+					columns.add(LayoutTypePortletConstants.COLUMN_PREFIX + i);
+				}
 			}
 
 			layoutTemplate.setColumns(columns);
