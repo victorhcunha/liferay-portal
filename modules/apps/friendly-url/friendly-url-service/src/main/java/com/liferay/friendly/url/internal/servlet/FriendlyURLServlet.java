@@ -348,6 +348,13 @@ public class FriendlyURLServlet extends HttpServlet {
 							throw new NoSuchLayoutException();
 						}
 
+						DepotEntryLocalService depotEntryLocalService =
+							_depotEntryLocalServiceSnapshot.get();
+
+						if (depotEntryLocalService == null) {
+							throw new NoSuchLayoutException();
+						}
+
 						int depotEntriesCount =
 							depotEntryLocalService.getDepotEntriesCount(
 								group.getCompanyId(),
@@ -884,9 +891,6 @@ public class FriendlyURLServlet extends HttpServlet {
 	}
 
 	@Reference
-	protected DepotEntryLocalService depotEntryLocalService;
-
-	@Reference
 	protected Encryptor encryptor;
 
 	@Reference
@@ -1263,6 +1267,13 @@ public class FriendlyURLServlet extends HttpServlet {
 	}
 
 	private boolean _hasDepotEntryTypeSpace(User user) {
+		DepotEntryLocalService depotEntryLocalService =
+			_depotEntryLocalServiceSnapshot.get();
+
+		if (depotEntryLocalService == null) {
+			return false;
+		}
+
 		return ListUtil.isNotEmpty(
 			depotEntryLocalService.getDepotEntryGroupIds(
 				user.getCompanyId(), user.getUserId(),
@@ -1387,6 +1398,9 @@ public class FriendlyURLServlet extends HttpServlet {
 	private static final Log _log = LogFactoryUtil.getLog(
 		FriendlyURLServlet.class);
 
+	private static final Snapshot<DepotEntryLocalService>
+		_depotEntryLocalServiceSnapshot = new Snapshot<>(
+			FriendlyURLServlet.class, DepotEntryLocalService.class, null, true);
 	private static final Snapshot<RedirectNotFoundTracker>
 		_redirectNotFoundTrackerSnapshot = new Snapshot<>(
 			FriendlyURLServlet.class, RedirectNotFoundTracker.class, null,
