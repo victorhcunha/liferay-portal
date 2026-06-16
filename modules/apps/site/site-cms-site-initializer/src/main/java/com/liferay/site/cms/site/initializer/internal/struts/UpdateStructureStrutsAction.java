@@ -144,11 +144,11 @@ public class UpdateStructureStrutsAction implements StrutsAction {
 				existingObjectRelationship);
 		}
 
-		Collection<ObjectRelationship> mergedObjectRelationshipsCollection =
+		Collection<ObjectRelationship> objectRelationshipsCollection =
 			objectRelationshipsMap.values();
 
 		objectDefinition.setObjectRelationships(
-			() -> mergedObjectRelationshipsCollection.toArray(
+			() -> objectRelationshipsCollection.toArray(
 				new ObjectRelationship[0]));
 	}
 
