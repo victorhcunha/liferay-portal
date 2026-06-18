@@ -28,7 +28,6 @@ import com.liferay.exportimport.kernel.lar.StagedModelType;
 import com.liferay.exportimport.kernel.staging.constants.StagingConstants;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepository;
 import com.liferay.exportimport.staged.model.repository.StagedModelRepositoryRegistryUtil;
-import com.liferay.journal.model.JournalArticle;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.ActionableDynamicQuery;
 import com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil;
@@ -49,6 +48,7 @@ import com.liferay.portal.model.adapter.util.ModelAdapterUtil;
 
 import jakarta.portlet.PortletPreferences;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -213,7 +213,7 @@ public class ChangesetPortletDataHandler extends BasePortletDataHandler {
 			}
 		}
 
-		_importPostProcessArticleUuids(entityTypeElements, portletDataContext);
+		_importPostProcessStagedModels(entityTypeElements, portletDataContext);
 
 		String[] portletResourceNames = _getPortletResourceNames(
 			portletDataContext);
@@ -356,21 +356,32 @@ public class ChangesetPortletDataHandler extends BasePortletDataHandler {
 		return parameterMap.getOrDefault("portletResourceNames", new String[0]);
 	}
 
-	private void _importPostProcessArticleUuids(
+	private void _importPostProcessStagedModels(
 			List<Element> entityTypeElements,
 			PortletDataContext portletDataContext)
 		throws Exception {
 
-		Map<String, String> postProcessArticleUuids =
-			(Map<String, String>)portletDataContext.getNewPrimaryKeysMap(
-				JournalArticle.class + ".postProcessArticleUuid");
+		Map<String, Map<?, ?>> newPrimaryKeysMaps =
+			portletDataContext.getNewPrimaryKeysMaps();
+		Map<String, String> postProcessStagedModelPaths = new HashMap<>();
 
-		if (postProcessArticleUuids.isEmpty()) {
+		for (Map.Entry<String, Map<?, ?>> entry :
+				newPrimaryKeysMaps.entrySet()) {
+
+			String key = entry.getKey();
+
+			if (key.endsWith(".postProcessStagedModelPath")) {
+				postProcessStagedModelPaths.putAll(
+					(Map<String, String>)entry.getValue());
+			}
+		}
+
+		if (postProcessStagedModelPaths.isEmpty()) {
 			return;
 		}
 
-		for (String articleModelPath : postProcessArticleUuids.values()) {
-			portletDataContext.removePrimaryKey(articleModelPath);
+		for (String modelPath : postProcessStagedModelPaths.values()) {
+			portletDataContext.removePrimaryKey(modelPath);
 		}
 
 		for (Element entityTypeElement : entityTypeElements) {
@@ -379,7 +390,7 @@ public class ChangesetPortletDataHandler extends BasePortletDataHandler {
 			for (Element entityElement : entityElements) {
 				String uuid = entityElement.attributeValue("uuid");
 
-				if (postProcessArticleUuids.remove(uuid) != null) {
+				if (postProcessStagedModelPaths.remove(uuid) != null) {
 					StagedModelDataHandlerUtil.importStagedModel(
 						portletDataContext, entityElement);
 				}
