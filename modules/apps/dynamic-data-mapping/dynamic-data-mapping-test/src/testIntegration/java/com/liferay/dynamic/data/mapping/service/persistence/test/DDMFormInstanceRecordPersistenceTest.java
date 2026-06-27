@@ -152,8 +152,10 @@ public class DDMFormInstanceRecordPersistenceTest {
 
 		newDDMFormInstanceRecord.setLastPublishDate(RandomTestUtil.nextDate());
 
-		_ddmFormInstanceRecords.add(
-			_persistence.update(newDDMFormInstanceRecord));
+		newDDMFormInstanceRecord = _persistence.update(
+			newDDMFormInstanceRecord);
+
+		_ddmFormInstanceRecords.add(newDDMFormInstanceRecord);
 
 		DDMFormInstanceRecord existingDDMFormInstanceRecord =
 			_persistence.findByPrimaryKey(
@@ -275,6 +277,15 @@ public class DDMFormInstanceRecordPersistenceTest {
 		_persistence.countByF_F(0L, "null");
 
 		_persistence.countByF_F(0L, (String)null);
+	}
+
+	@Test
+	public void testCountByF_I() throws Exception {
+		_persistence.countByF_I(RandomTestUtil.nextLong(), "");
+
+		_persistence.countByF_I(0L, "null");
+
+		_persistence.countByF_I(0L, (String)null);
 	}
 
 	@Test
@@ -670,4 +681,4 @@ public class DDMFormInstanceRecordPersistenceTest {
 	private ClassLoader _dynamicQueryClassLoader;
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1762158866
+// LIFERAY-SERVICE-BUILDER-HASH:-285956691

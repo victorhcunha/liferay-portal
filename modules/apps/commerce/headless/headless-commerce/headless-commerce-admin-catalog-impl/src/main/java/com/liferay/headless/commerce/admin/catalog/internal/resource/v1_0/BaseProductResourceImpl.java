@@ -280,6 +280,11 @@ public abstract class BaseProductResourceImpl
 				description = "Internal numeric identifier of the target resource. Counterpart to the `by-externalReferenceCode` path variant; identifiers are server-assigned and stable across the resource's lifetime.",
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
 				name = "id"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				description = "Comma-separated list of nested fields to embed in each returned resource. Each value names a relationship exposed on the resource; when omitted, those relationships are not expanded inline.",
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
 			)
 		}
 	)
@@ -314,6 +319,11 @@ public abstract class BaseProductResourceImpl
 				description = "External reference code that addresses the target resource on the `by-externalReferenceCode` paths. The code is the integration-supplied idempotency key, unique within the resource scope; POST against this path is upsert (create when absent, replace when present).",
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
 				name = "externalReferenceCode"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				description = "Comma-separated list of nested fields to embed in each returned resource. Each value names a relationship exposed on the resource; when omitted, those relationships are not expanded inline.",
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
 			)
 		}
 	)
@@ -355,6 +365,11 @@ public abstract class BaseProductResourceImpl
 				description = "Numeric version of the resource snapshot to address. Used on operations that return or act on a specific historical revision rather than the current state.",
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
 				name = "version"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				description = "Comma-separated list of nested fields to embed in each returned resource. Each value names a relationship exposed on the resource; when omitted, those relationships are not expanded inline.",
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
 			)
 		}
 	)
@@ -400,6 +415,11 @@ public abstract class BaseProductResourceImpl
 				description = "Numeric version of the resource snapshot to address. Used on operations that return or act on a specific historical revision rather than the current state.",
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.PATH,
 				name = "version"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				description = "Comma-separated list of nested fields to embed in each returned resource. Each value names a relationship exposed on the resource; when omitted, those relationships are not expanded inline.",
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
 			)
 		}
 	)
@@ -438,6 +458,11 @@ public abstract class BaseProductResourceImpl
 				description = "OData v4 filter expression that narrows the result set. Supported fields depend on the endpoint and are sourced from the matching entity model (typically createDate, externalReferenceCode, modifiedDate, productExternalReferenceCode, productId, and similar). Example -- filter=productId eq 12345.",
 				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
 				name = "filter"
+			),
+			@io.swagger.v3.oas.annotations.Parameter(
+				description = "Comma-separated list of nested fields to embed in each returned resource. Each value names a relationship exposed on the resource; when omitted, those relationships are not expanded inline.",
+				in = io.swagger.v3.oas.annotations.enums.ParameterIn.QUERY,
+				name = "nestedFields"
 			),
 			@io.swagger.v3.oas.annotations.Parameter(
 				description = "One-based page index. Combined with pageSize to paginate the result set; defaults to 1 when omitted.",
@@ -507,7 +532,7 @@ public abstract class BaseProductResourceImpl
 	@jakarta.ws.rs.Path("/products/{id}")
 	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
-	public Response patchProduct(
+	public Product patchProduct(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@jakarta.validation.constraints.NotNull
 			@jakarta.ws.rs.PathParam("id")
@@ -515,9 +540,7 @@ public abstract class BaseProductResourceImpl
 			Product product)
 		throws Exception {
 
-		Response.ResponseBuilder responseBuilder = Response.ok();
-
-		return responseBuilder.build();
+		return new Product();
 	}
 
 	/**
@@ -547,7 +570,7 @@ public abstract class BaseProductResourceImpl
 	)
 	@jakarta.ws.rs.Produces({"application/json", "application/xml"})
 	@Override
-	public Response patchProductByExternalReferenceCode(
+	public Product patchProductByExternalReferenceCode(
 			@io.swagger.v3.oas.annotations.Parameter(hidden = true)
 			@jakarta.validation.constraints.NotNull
 			@jakarta.ws.rs.PathParam("externalReferenceCode")
@@ -555,9 +578,113 @@ public abstract class BaseProductResourceImpl
 			Product product)
 		throws Exception {
 
-		Response.ResponseBuilder responseBuilder = Response.ok();
+		Product existingProduct = getProductByExternalReferenceCode(
+			externalReferenceCode);
 
-		return responseBuilder.build();
+		if (product.getActive() != null) {
+			existingProduct.setActive(product.getActive());
+		}
+
+		if (product.getCatalogExternalReferenceCode() != null) {
+			existingProduct.setCatalogExternalReferenceCode(
+				product.getCatalogExternalReferenceCode());
+		}
+
+		if (product.getCatalogId() != null) {
+			existingProduct.setCatalogId(product.getCatalogId());
+		}
+
+		if (product.getCreateDate() != null) {
+			existingProduct.setCreateDate(product.getCreateDate());
+		}
+
+		if (product.getCustomFields() != null) {
+			existingProduct.setCustomFields(product.getCustomFields());
+		}
+
+		if (product.getDefaultSku() != null) {
+			existingProduct.setDefaultSku(product.getDefaultSku());
+		}
+
+		if (product.getDescription() != null) {
+			existingProduct.setDescription(product.getDescription());
+		}
+
+		if (product.getDisplayDate() != null) {
+			existingProduct.setDisplayDate(product.getDisplayDate());
+		}
+
+		if (product.getExpando() != null) {
+			existingProduct.setExpando(product.getExpando());
+		}
+
+		if (product.getExpirationDate() != null) {
+			existingProduct.setExpirationDate(product.getExpirationDate());
+		}
+
+		if (product.getExternalReferenceCode() != null) {
+			existingProduct.setExternalReferenceCode(
+				product.getExternalReferenceCode());
+		}
+
+		if (product.getMetaDescription() != null) {
+			existingProduct.setMetaDescription(product.getMetaDescription());
+		}
+
+		if (product.getMetaKeyword() != null) {
+			existingProduct.setMetaKeyword(product.getMetaKeyword());
+		}
+
+		if (product.getMetaTitle() != null) {
+			existingProduct.setMetaTitle(product.getMetaTitle());
+		}
+
+		if (product.getModifiedDate() != null) {
+			existingProduct.setModifiedDate(product.getModifiedDate());
+		}
+
+		if (product.getName() != null) {
+			existingProduct.setName(product.getName());
+		}
+
+		if (product.getNeverExpire() != null) {
+			existingProduct.setNeverExpire(product.getNeverExpire());
+		}
+
+		if (product.getProductAccountGroupFilter() != null) {
+			existingProduct.setProductAccountGroupFilter(
+				product.getProductAccountGroupFilter());
+		}
+
+		if (product.getProductChannelFilter() != null) {
+			existingProduct.setProductChannelFilter(
+				product.getProductChannelFilter());
+		}
+
+		if (product.getProductStatus() != null) {
+			existingProduct.setProductStatus(product.getProductStatus());
+		}
+
+		if (product.getProductType() != null) {
+			existingProduct.setProductType(product.getProductType());
+		}
+
+		if (product.getShortDescription() != null) {
+			existingProduct.setShortDescription(product.getShortDescription());
+		}
+
+		if (product.getTags() != null) {
+			existingProduct.setTags(product.getTags());
+		}
+
+		if (product.getUrls() != null) {
+			existingProduct.setUrls(product.getUrls());
+		}
+
+		preparePatch(product, existingProduct);
+
+		return putProductByExternalReferenceCode(
+			externalReferenceCode, existingProduct);
 	}
 
 	/**
@@ -860,7 +987,8 @@ public abstract class BaseProductResourceImpl
 						getProduct = getProductByExternalReferenceCode(
 							product.getExternalReferenceCode());
 
-						patchProduct(getProduct.getId(), product);
+						persistedProduct = patchProduct(
+							getProduct.getId(), product);
 					}
 					catch (NoSuchModelException noSuchModelException) {
 						persistedProduct = postProduct(product);
@@ -1029,11 +1157,8 @@ public abstract class BaseProductResourceImpl
 			"updateStrategy", "UPDATE");
 
 		if (StringUtil.equalsIgnoreCase(updateStrategy, "PARTIAL_UPDATE")) {
-			productUnsafeFunction = product -> {
-				patchProduct(product.getId(), product);
-
-				return null;
-			};
+			productUnsafeFunction = product -> patchProduct(
+				product.getId(), product);
 		}
 
 		if (productUnsafeFunction == null) {
@@ -1274,6 +1399,9 @@ public abstract class BaseProductResourceImpl
 
 		return addAction(
 			actionName, siteId, methodName, null, permissionName, siteId);
+	}
+
+	protected void preparePatch(Product product, Product existingProduct) {
 	}
 
 	protected <T, R, E extends Throwable> List<R> transform(
@@ -1621,4 +1749,4 @@ public abstract class BaseProductResourceImpl
 		LogFactoryUtil.getLog(BaseProductResourceImpl.class);
 
 }
-// LIFERAY-REST-BUILDER-HASH:1094714840
+// LIFERAY-REST-BUILDER-HASH:989377637

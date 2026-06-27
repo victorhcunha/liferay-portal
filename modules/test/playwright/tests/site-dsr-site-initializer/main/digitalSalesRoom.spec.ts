@@ -4,12 +4,14 @@
  */
 
 import {expect, mergeTests} from '@playwright/test';
+import {createReadStream} from 'fs';
 import path from 'path';
 
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
 import {digitalSalesRoomPagesTest} from '../../../fixtures/digitalSalesRoomPagesTest';
 import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {loginTest} from '../../../fixtures/loginTest';
+import {PageEditorPage} from '../../../pages/layout-content-page-editor-web/PageEditorPage';
 import {getRandomInt} from '../../../utils/getRandomInt';
 import getRandomString from '../../../utils/getRandomString';
 import {performUserSwitch, userData} from '../../../utils/performLogin';
@@ -226,6 +228,106 @@ test(
 );
 
 test(
+	'Add Document Gallery Block and configure a document card',
+	{tag: '@LPD-92373'},
+	async ({
+		apiHelpers,
+		digitalSalesRoomsPage,
+		editDigitalSalesRoomPage,
+		page,
+	}) => {
+		const documentTitle = `Doc${getRandomInt()}`;
+		const fileName = `${documentTitle}.png`;
+		const filePath = path.join(__dirname, 'dependencies', 'document1.png');
+		const roomName = `A${getRandomInt()}`;
+
+		const account = await apiHelpers.headlessAdminUser.postAccount({
+			type: 'business',
+		});
+
+		await digitalSalesRoomsPage.goToRoomsPage();
+
+		await digitalSalesRoomsPage.digitalSalesRoomsTable.newButton.click();
+
+		await editDigitalSalesRoomPage.addDigitalSalesRoom({
+			accountName: account.name,
+			roomName,
+		});
+
+		const pageEditorPage = new PageEditorPage(page);
+
+		await page.goto(`/web/${roomName}/onboarding?p_l_mode=edit`);
+
+		const groupId = await page.evaluate(() =>
+			Liferay.ThemeDisplay.getScopeGroupId()
+		);
+
+		await apiHelpers.headlessDelivery.postDocument(
+			groupId,
+			createReadStream(filePath),
+			{fileName, title: documentTitle}
+		);
+
+		await pageEditorPage.addFragment(
+			'Digital Sales Room',
+			'Document Gallery Block'
+		);
+
+		const fragmentId = await pageEditorPage.getFragmentId(
+			'Document Gallery Block'
+		);
+
+		await pageEditorPage.selectFragment(fragmentId);
+		await pageEditorPage.goToConfigurationTab('General');
+
+		const generalPanel = page.getByRole('tabpanel', {name: 'General'});
+
+		await generalPanel
+			.getByRole('button', {name: 'Select Document 1'})
+			.click();
+		const selectFromModalItem = page.getByRole('menuitem', {
+			name: 'Select Document 1',
+		});
+
+		await selectFromModalItem.click({timeout: 2000}).catch(() => {});
+		await page
+			.frameLocator('iframe[title="Select"]')
+			.getByText(documentTitle, {exact: true})
+			.click();
+
+		await expect(
+			generalPanel.getByRole('textbox', {name: 'Document 1'})
+		).toHaveValue(documentTitle);
+
+		await pageEditorPage.publishPage();
+
+		await page.goto(`/web/${roomName}/onboarding`);
+
+		await expect(
+			editDigitalSalesRoomPage.documentGalleryCard
+		).toBeVisible();
+		await expect(
+			editDigitalSalesRoomPage.documentGalleryCardBadge
+		).toHaveText('PNG');
+		await expect(
+			editDigitalSalesRoomPage.documentGalleryCardIcon
+		).toBeVisible();
+		await expect(
+			editDigitalSalesRoomPage.documentGalleryCardTitle
+		).toHaveText(documentTitle);
+
+		const response = await page.request.get(
+			(await editDigitalSalesRoomPage.documentGalleryCard.getAttribute(
+				'href'
+			)) ?? ''
+		);
+
+		expect(response.status()).toBe(200);
+		expect(response.headers()['content-type']).toContain('image');
+	}
+);
+
+test(
 	'Delete a digital sales room',
 	{tag: '@LPD-73577'},
 	async ({
@@ -255,6 +357,8 @@ test(
 
 		await digitalSalesRoomsPage.goToRoomsPage();
 
+		await digitalSalesRoomsPage.archiveRoom(roomName);
+		await digitalSalesRoomsPage.showArchivedRooms();
 		await digitalSalesRoomsPage.clickRowActionsMenuItem(
 			roomName,
 			digitalSalesRoomsPage.deleteMenuItem
@@ -704,6 +808,115 @@ test(
 		await editDigitalSalesRoomPage.documentsMenuItem.click();
 
 		await expect(editDigitalSalesRoomPage.newButton).not.toBeVisible();
+
+		await performUserSwitch(page, 'test');
+	}
+);
+
+test(
+	'An invited non-owner cannot browse an archived room',
+	{tag: '@LPD-92367'},
+	async ({
+		apiHelpers,
+		digitalSalesRoomUsersPage,
+		digitalSalesRoomsPage,
+		editDigitalSalesRoomPage,
+		page,
+	}) => {
+		const account = await apiHelpers.headlessAdminUser.postAccount({
+			type: 'business',
+		});
+
+		const userAccount =
+			await apiHelpers.headlessAdminUser.postUserAccount();
+
+		userData[userAccount.alternateName] = {
+			name: userAccount.givenName,
+			password: 'test',
+			surname: userAccount.familyName,
+		};
+
+		const roomName = `A${getRandomInt()}`;
+
+		await digitalSalesRoomsPage.goToRoomsPage();
+
+		await expect(
+			digitalSalesRoomsPage.digitalSalesRoomsTable.searchInput
+		).toBeVisible();
+
+		await digitalSalesRoomsPage.digitalSalesRoomsTable.newButton.click();
+
+		await editDigitalSalesRoomPage.addDigitalSalesRoom({
+			accountName: account.name,
+			roomName,
+		});
+
+		await digitalSalesRoomsPage.goToRoomsPage();
+		await digitalSalesRoomsPage.clickRowActionsMenuItem(
+			roomName,
+			digitalSalesRoomsPage.shareMenuItem
+		);
+
+		await expect(
+			digitalSalesRoomUsersPage.userEmailAddressesInput
+		).toBeVisible();
+
+		await digitalSalesRoomUsersPage.userEmailAddressesInput.fill(
+			userAccount.emailAddress
+		);
+		await digitalSalesRoomUsersPage.userEmailAddressesInput.press('Enter');
+		await digitalSalesRoomUsersPage.inviteButton.click();
+
+		await waitForAlert(page, 'Success:User was invited successfully.');
+
+		await digitalSalesRoomsPage.goToRoomsPage();
+
+		await expect(async () => {
+			await (
+				await digitalSalesRoomsPage.digitalSalesRoomsTable.rowActions(
+					roomName,
+					0,
+					false
+				)
+			).click({timeout: 1000});
+		}).toPass();
+
+		await expect(digitalSalesRoomsPage.archiveMenuItem).toBeVisible();
+
+		await page.keyboard.press('Escape');
+
+		await digitalSalesRoomsPage.archiveRoom(roomName);
+		await digitalSalesRoomsPage.showArchivedRooms();
+
+		await (
+			await digitalSalesRoomsPage.digitalSalesRoomsTable.rowActions(
+				roomName,
+				0,
+				false
+			)
+		).click();
+
+		await expect(digitalSalesRoomsPage.restoreMenuItem).toBeVisible();
+
+		await page.keyboard.press('Escape');
+
+		await performUserSwitch(page, userAccount.alternateName);
+
+		await page.goto(`/web/${roomName}`);
+
+		await expect(page).not.toHaveURL(new RegExp(roomName, 'i'));
+
+		await performUserSwitch(page, 'test');
+
+		await digitalSalesRoomsPage.goToRoomsPage();
+		await digitalSalesRoomsPage.showArchivedRooms();
+		await digitalSalesRoomsPage.restoreRoom(roomName);
+
+		await performUserSwitch(page, userAccount.alternateName);
+
+		await page.goto(`/web/${roomName}`);
+
+		await expect(page).toHaveURL(new RegExp(roomName, 'i'));
 
 		await performUserSwitch(page, 'test');
 	}
