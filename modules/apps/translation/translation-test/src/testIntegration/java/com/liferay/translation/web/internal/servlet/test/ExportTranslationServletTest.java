@@ -29,7 +29,6 @@ import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.ReflectionTestUtil;
-import com.liferay.portal.kernel.test.TestInfo;
 import com.liferay.portal.kernel.test.rule.AggregateTestRule;
 import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
 import com.liferay.portal.kernel.test.util.GroupTestUtil;
@@ -97,7 +96,6 @@ public class ExportTranslationServletTest {
 	}
 
 	@Test
-	@TestInfo("LPD-88077")
 	public void testDoGetExportsArticleCreatedInsidePublication()
 		throws Exception {
 
@@ -127,7 +125,6 @@ public class ExportTranslationServletTest {
 	}
 
 	@Test
-	@TestInfo("LPD-92001")
 	public void testDoGetExportsIteratedFragmentEditable() throws Exception {
 		ServiceContext serviceContext =
 			ServiceContextTestUtil.getServiceContext(
