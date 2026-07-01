@@ -579,6 +579,10 @@ const Main = ({
 	};
 
 	const handleUploadSelectButtonClicked = (event, currentValue) => {
+		if (!event.target.files?.length) {
+			return;
+		}
+
 		onFocus(event);
 
 		stagePendingDeletion(getFileEntryId(currentValue));
