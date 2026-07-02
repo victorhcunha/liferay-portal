@@ -149,6 +149,7 @@ export function getCMSItemSelectorGroupedFilters(
 				'objectDefinitionExternalReferenceCode',
 				'taxonomyCategoryIds',
 				'keywords',
+				'extension',
 				'creatorId',
 				'status',
 			],
