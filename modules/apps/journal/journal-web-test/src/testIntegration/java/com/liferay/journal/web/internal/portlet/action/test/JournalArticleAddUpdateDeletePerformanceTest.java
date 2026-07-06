@@ -44,8 +44,6 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
-import com.liferay.portal.kernel.trash.TrashHandler;
-import com.liferay.portal.kernel.trash.TrashHandlerRegistryUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
@@ -57,6 +55,7 @@ import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 
 import jakarta.portlet.ActionRequest;
 import jakarta.portlet.Portlet;
+
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
@@ -72,6 +71,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
 import org.springframework.mock.web.MockHttpServletRequest;
 
 /**
@@ -215,7 +215,7 @@ public class JournalArticleAddUpdateDeletePerformanceTest {
 			}
 		}
 
-		Assert.assertEquals(5, deleteRowIds.size());
+		Assert.assertEquals(deleteRowIds.toString(), 5, deleteRowIds.size());
 
 		try (LoggingTimer loggingTimer = new LoggingTimer(
 				"Delete article versions 1 to 5")) {
@@ -379,23 +379,6 @@ public class JournalArticleAddUpdateDeletePerformanceTest {
 			new MockLiferayPortletActionResponse());
 	}
 
-	private void _moveArticleToTrash(String articleId) throws Exception {
-		MockLiferayPortletActionRequest mockLiferayPortletActionRequest =
-			new MockLiferayPortletActionRequest();
-
-		mockLiferayPortletActionRequest.setAttribute(
-			WebKeys.THEME_DISPLAY, _getThemeDisplay());
-
-		mockLiferayPortletActionRequest.setParameter(
-			"groupId", String.valueOf(_group.getGroupId()));
-		mockLiferayPortletActionRequest.setParameter(
-			"rowIdsJournalArticle", articleId);
-
-		_moveArticlesAndFoldersToTrashMVCActionCommand.processAction(
-			mockLiferayPortletActionRequest,
-			new MockLiferayPortletActionResponse());
-	}
-
 	private String _generateContent(DDMStructure ddmStructure, DDMForm ddmForm)
 		throws Exception {
 
@@ -465,6 +448,23 @@ public class JournalArticleAddUpdateDeletePerformanceTest {
 		return themeDisplay;
 	}
 
+	private void _moveArticleToTrash(String articleId) throws Exception {
+		MockLiferayPortletActionRequest mockLiferayPortletActionRequest =
+			new MockLiferayPortletActionRequest();
+
+		mockLiferayPortletActionRequest.setAttribute(
+			WebKeys.THEME_DISPLAY, _getThemeDisplay());
+
+		mockLiferayPortletActionRequest.setParameter(
+			"groupId", String.valueOf(_group.getGroupId()));
+		mockLiferayPortletActionRequest.setParameter(
+			"rowIdsJournalArticle", articleId);
+
+		_moveArticlesAndFoldersToTrashMVCActionCommand.processAction(
+			mockLiferayPortletActionRequest,
+			new MockLiferayPortletActionResponse());
+	}
+
 	private void _setLabel(DDMFormField ddmFormField, String label) {
 		LocalizedValue localizedValue = new LocalizedValue(_DEFAULT_LOCALE);
 
@@ -523,10 +523,14 @@ public class JournalArticleAddUpdateDeletePerformanceTest {
 	@Inject
 	private JournalConverter _journalConverter;
 
-	@Inject(filter = "mvc.command.name=/journal/move_articles_and_folders_to_trash")
+	@Inject(
+		filter = "mvc.command.name=/journal/move_articles_and_folders_to_trash"
+	)
 	private MVCActionCommand _moveArticlesAndFoldersToTrashMVCActionCommand;
 
-	@Inject(filter = "jakarta.portlet.name=com_liferay_trash_web_portlet_TrashPortlet")
+	@Inject(
+		filter = "jakarta.portlet.name=com_liferay_trash_web_portlet_TrashPortlet"
+	)
 	private Portlet _trashPortlet;
 
 }
