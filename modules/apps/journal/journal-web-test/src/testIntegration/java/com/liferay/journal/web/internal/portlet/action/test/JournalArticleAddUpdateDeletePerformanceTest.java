@@ -44,9 +44,11 @@ import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
+import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.LoggingTimer;
+import com.liferay.portal.kernel.util.PropertiesUtil;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.portal.test.rule.Inject;
@@ -63,10 +65,12 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -101,6 +105,30 @@ public class JournalArticleAddUpdateDeletePerformanceTest {
 		new AggregateTestRule(
 			new LiferayIntegrationTestRule(),
 			PermissionCheckerMethodTestRule.INSTANCE);
+
+	@BeforeClass
+	public static void setUpClass() throws Exception {
+		Class<?> clazz = JournalArticleAddUpdateDeletePerformanceTest.class;
+
+		_properties = PropertiesUtil.load(
+			clazz.getResourceAsStream(
+				"dependencies/journal-article-add-update-delete-performance." +
+					"properties"),
+			"UTF-8");
+
+		_fieldSetChildCount = GetterUtil.getInteger(
+			_properties.getProperty("journal.article.field.set.child.count"));
+		_fieldSetInstanceCount = GetterUtil.getInteger(
+			_properties.getProperty(
+				"journal.article.field.set.instance.count"));
+		_fieldSetMultilingualChildCount = GetterUtil.getInteger(
+			_properties.getProperty(
+				"journal.article.field.set.multilingual.child.count"));
+		_singletonFieldCount = GetterUtil.getInteger(
+			_properties.getProperty("journal.article.singleton.field.count"));
+		_updateCount = GetterUtil.getInteger(
+			_properties.getProperty("journal.article.update.count"));
+	}
 
 	@Before
 	public void setUp() throws Exception {
@@ -170,7 +198,7 @@ public class JournalArticleAddUpdateDeletePerformanceTest {
 
 		// Update
 
-		for (int i = 1; i <= _UPDATE_COUNT; i++) {
+		for (int i = 1; i <= _updateCount; i++) {
 			Map<Locale, String> titleMap = HashMapBuilder.put(
 				_DEFAULT_LOCALE, "Performance Test Article (update " + i + ")"
 			).build();
@@ -187,18 +215,18 @@ public class JournalArticleAddUpdateDeletePerformanceTest {
 		}
 
 		Assert.assertEquals(
-			_UPDATE_COUNT + 1,
+			_updateCount + 1,
 			_journalArticleLocalService.getArticlesCount(
 				_group.getGroupId(), article.getArticleId()));
 
 		Assert.assertTrue(
 			_getRowCount(DDMFieldTable.INSTANCE) >=
 				(initialDDMFieldCount +
-					((_UPDATE_COUNT + 1) * _MIN_DDM_FIELD_ROWS)));
+					((_updateCount + 1) * _MIN_DDM_FIELD_ROWS)));
 		Assert.assertTrue(
 			_getRowCount(DDMFieldAttributeTable.INSTANCE) >=
 				(initialDDMFieldAttributeCount +
-					((_UPDATE_COUNT + 1) * _MIN_DDM_FIELD_ATTRIBUTE_ROWS)));
+					((_updateCount + 1) * _MIN_DDM_FIELD_ATTRIBUTE_ROWS)));
 
 		// Delete first 5 versions
 
@@ -275,7 +303,7 @@ public class JournalArticleAddUpdateDeletePerformanceTest {
 		DDMForm ddmForm = DDMFormTestUtil.createDDMForm(
 			availableLocales, _DEFAULT_LOCALE);
 
-		for (int i = 0; i < _SINGLETON_FIELD_COUNT; i++) {
+		for (int i = 0; i < _singletonFieldCount; i++) {
 			ddmForm.addDDMFormField(_createTextDDMFormField("field" + i));
 		}
 
@@ -290,7 +318,7 @@ public class JournalArticleAddUpdateDeletePerformanceTest {
 		List<DDMFormField> nestedDDMFormFields =
 			fieldSetDDMFormField.getNestedDDMFormFields();
 
-		for (int i = 0; i < _FIELD_SET_CHILD_COUNT; i++) {
+		for (int i = 0; i < _fieldSetChildCount; i++) {
 			nestedDDMFormFields.add(
 				_createTextDDMFormField(_FIELD_SET_NAME + "Field" + i));
 		}
@@ -385,23 +413,23 @@ public class JournalArticleAddUpdateDeletePerformanceTest {
 		DDMFormValues ddmFormValues = DDMFormValuesTestUtil.createDDMFormValues(
 			ddmForm, ddmForm.getAvailableLocales(), _DEFAULT_LOCALE);
 
-		for (int i = 0; i < _SINGLETON_FIELD_COUNT; i++) {
+		for (int i = 0; i < _singletonFieldCount; i++) {
 			ddmFormValues.addDDMFormFieldValue(
 				_createTextDDMFormFieldValue("field" + i, false));
 		}
 
-		for (int i = 0; i < _FIELD_SET_INSTANCE_COUNT; i++) {
+		for (int i = 0; i < _fieldSetInstanceCount; i++) {
 			DDMFormFieldValue fieldSetDDMFormFieldValue =
 				new DDMFormFieldValue();
 
 			fieldSetDDMFormFieldValue.setFieldReference(_FIELD_SET_NAME);
 			fieldSetDDMFormFieldValue.setName(_FIELD_SET_NAME);
 
-			for (int j = 0; j < _FIELD_SET_CHILD_COUNT; j++) {
+			for (int j = 0; j < _fieldSetChildCount; j++) {
 				fieldSetDDMFormFieldValue.addNestedDDMFormFieldValue(
 					_createTextDDMFormFieldValue(
 						_FIELD_SET_NAME + "Field" + j,
-						j < _FIELD_SET_MULTILINGUAL_CHILD_COUNT));
+						j < _fieldSetMultilingualChildCount));
 			}
 
 			ddmFormValues.addDDMFormFieldValue(fieldSetDDMFormFieldValue);
@@ -479,12 +507,6 @@ public class JournalArticleAddUpdateDeletePerformanceTest {
 
 	private static final Locale _DEFAULT_LOCALE = LocaleUtil.US;
 
-	private static final int _FIELD_SET_CHILD_COUNT = 18;
-
-	private static final int _FIELD_SET_INSTANCE_COUNT = 320;
-
-	private static final int _FIELD_SET_MULTILINGUAL_CHILD_COUNT = 5;
-
 	private static final String _FIELD_SET_NAME = "repeatableFieldSet";
 
 	private static final int _MIN_DDM_FIELD_ATTRIBUTE_ROWS = 8500;
@@ -495,12 +517,15 @@ public class JournalArticleAddUpdateDeletePerformanceTest {
 		LocaleUtil.GERMANY, LocaleUtil.FRANCE, LocaleUtil.SPAIN
 	};
 
-	private static final int _SINGLETON_FIELD_COUNT = 30;
-
-	private static final int _UPDATE_COUNT = 5;
-
 	private static final Log _log = LogFactoryUtil.getLog(
 		JournalArticleAddUpdateDeletePerformanceTest.class);
+
+	private static int _fieldSetChildCount;
+	private static int _fieldSetInstanceCount;
+	private static int _fieldSetMultilingualChildCount;
+	private static Properties _properties;
+	private static int _singletonFieldCount;
+	private static int _updateCount;
 
 	@Inject
 	private CompanyLocalService _companyLocalService;
