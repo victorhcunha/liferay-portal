@@ -26,6 +26,7 @@ const test = mergeTests(
 	siteSettingsPagesTest,
 	systemSettingsPageTest,
 	featureFlagsTest({
+		'LPD-36105': {enabled: true},
 		'LPS-178052': {enabled: true},
 	}),
 	instanceSettingsPagesTest,

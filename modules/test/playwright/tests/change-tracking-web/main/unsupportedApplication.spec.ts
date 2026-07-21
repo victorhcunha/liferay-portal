@@ -12,6 +12,7 @@ import {globalMenuPagesTest} from '../../../fixtures/globalMenuPagesTest';
 export const test = mergeTests(
 	featureFlagsTest({
 		'COMMERCE-8087': {enabled: true},
+		'LPD-36105': {enabled: true},
 	}),
 	changeTrackingPagesTest,
 	globalMenuPagesTest

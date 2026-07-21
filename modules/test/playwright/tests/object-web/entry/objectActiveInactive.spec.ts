@@ -18,6 +18,7 @@ import {generateObjectFields} from '../utils/generateObjectFields';
 const test = mergeTests(
 	dataApiHelpersTest,
 	featureFlagsTest({
+		'LPD-36105': {enabled: true},
 		'LPS-178052': {enabled: true},
 	}),
 	globalMenuPagesTest,

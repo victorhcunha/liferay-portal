@@ -34,6 +34,7 @@ export const test = mergeTests(
 	dataApiHelpersTest,
 	displayPageTemplatesPagesTest,
 	featureFlagsTest({
+		'LPD-36105': {enabled: true},
 		'LPS-178052': {enabled: true},
 	}),
 	isolatedSiteTest,
@@ -232,6 +233,7 @@ test(
 
 			const [fileChooser] = await Promise.all([
 				page.waitForEvent('filechooser'),
+
 				dropZoneArea.click(),
 			]);
 

@@ -31,6 +31,7 @@ export const test = mergeTests(
 	displayPageTemplatesPagesTest,
 	featureFlagsTest({
 		'LPD-10562': {enabled: true},
+		'LPD-36105': {enabled: true},
 	}),
 	loginTest(),
 	pageEditorPagesTest

@@ -58,6 +58,9 @@ const setWebContentScope = async (iframe, scope) => {
 
 const baseTest = mergeTests(
 	apiHelpersTest,
+	featureFlagsTest({
+		'LPD-36105': {enabled: true},
+	}),
 	isolatedSiteTest,
 	journalPagesTest,
 	loginTest(),
@@ -299,6 +302,7 @@ ckeditor5Test(
 	{
 		tag: '@LPD-66008',
 	},
+
 	async ({apiHelpers, journalEditArticlePage, page, site}) => {
 		const structureName = 'Test Structure';
 

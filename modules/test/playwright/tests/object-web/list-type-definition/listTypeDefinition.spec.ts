@@ -13,6 +13,7 @@ import path from 'path';
 
 import {accountSettingsPagesTest} from '../../../fixtures/accountSettingsPagesTest';
 import {dataApiHelpersTest} from '../../../fixtures/dataApiHelpersTest';
+import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {formsPagesTest} from '../../../fixtures/formsPagesTest';
 import {isolatedSiteTest} from '../../../fixtures/isolatedSiteTest';
 import {listTypeDefinitionsPagesTest} from '../../../fixtures/listTypeDefinitionsPagesTest';
@@ -29,6 +30,9 @@ import {postListTypeDefinitionListTypeEntries} from '../utils/postListTypeDefini
 export const test = mergeTests(
 	accountSettingsPagesTest,
 	dataApiHelpersTest,
+	featureFlagsTest({
+		'LPD-36105': {enabled: true},
+	}),
 	formsPagesTest,
 	isolatedSiteTest,
 	listTypeDefinitionsPagesTest,

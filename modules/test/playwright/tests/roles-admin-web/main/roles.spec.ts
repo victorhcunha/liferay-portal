@@ -23,11 +23,13 @@ import {
 } from '../../../utils/performLogin';
 import {waitForAlert} from '../../../utils/waitForAlert';
 import {setupBookmark} from './utils/bookmarks';
+import {enableGlobalMenuFeatureFlag} from './utils/featureFlag';
 
 export const test = mergeTests(
 	dataApiHelpersTest,
 	featureFlagsTest({
 		'LPD-35443': {enabled: true},
+		'LPD-36105': {enabled: true},
 		'LPD-78863': {enabled: true, system: true},
 		'LPS-178052': {enabled: true},
 	}),
@@ -43,6 +45,8 @@ test.beforeAll(async ({browser}) => {
 	await page.goto('/');
 
 	await performLoginViaApi({page, screenName: 'test'});
+
+	await enableGlobalMenuFeatureFlag(page);
 
 	const rolesPage = new RolesPage(page);
 

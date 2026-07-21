@@ -6,12 +6,19 @@
 import {expect, mergeTests} from '@playwright/test';
 import {readFileSync, statSync} from 'fs';
 
+import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {globalMenuPagesTest} from '../../../fixtures/globalMenuPagesTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {clickAndExpectToBeVisible} from '../../../utils/clickAndExpectToBeVisible';
 import {getTempDir} from '../../../utils/temp';
 
-export const test = mergeTests(loginTest(), globalMenuPagesTest);
+export const test = mergeTests(
+	featureFlagsTest({
+		'LPD-36105': {enabled: true},
+	}),
+	loginTest(),
+	globalMenuPagesTest
+);
 
 const AUDIT_PORTLET_NAMESPACE =
 	'_com_liferay_portal_security_audit_web_portlet_AuditPortlet_';

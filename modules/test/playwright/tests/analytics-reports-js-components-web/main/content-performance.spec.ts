@@ -105,6 +105,7 @@ export const test = mergeTests(
 	contentDashboardPagesTest,
 	featureFlagsTest({
 		'LPD-11235': {enabled: true},
+		'LPD-36105': {enabled: true},
 	}),
 	globalMenuPagesTest,
 	isolatedSiteTest,

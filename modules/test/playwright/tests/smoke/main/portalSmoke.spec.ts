@@ -24,6 +24,7 @@ import {sitesAdminPagesTest} from '../../site-admin-web/main/fixtures/sitesAdmin
 export const test = mergeTests(
 	apiHelpersTest,
 	featureFlagsTest({
+		'LPD-36105': {enabled: true},
 		'LPD-76864': {enabled: true},
 	}),
 	globalMenuPagesTest,
