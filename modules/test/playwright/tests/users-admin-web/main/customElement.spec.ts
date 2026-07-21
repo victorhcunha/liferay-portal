@@ -5,6 +5,7 @@
 
 import {expect, mergeTests} from '@playwright/test';
 
+import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {globalMenuPagesTest} from '../../../fixtures/globalMenuPagesTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {liferayConfig} from '../../../liferay.config';
@@ -16,6 +17,9 @@ import {componentsPageTest} from '../../configuration-admin-web/main/fixtures/Co
 export const test = mergeTests(
 	componentsPageTest,
 	editCustomElementPageTest,
+	featureFlagsTest({
+		'LPD-36105': {enabled: true},
+	}),
 	globalMenuPagesTest,
 	loginTest()
 );

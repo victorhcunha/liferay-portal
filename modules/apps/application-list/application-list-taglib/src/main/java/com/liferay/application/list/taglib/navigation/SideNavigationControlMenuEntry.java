@@ -10,6 +10,7 @@ import com.liferay.application.list.display.context.logic.PanelCategoryHelper;
 import com.liferay.application.list.taglib.internal.display.context.SideNavigationDisplayContext;
 import com.liferay.frontend.taglib.clay.servlet.taglib.IconTag;
 import com.liferay.petra.string.StringBundler;
+import com.liferay.portal.kernel.feature.flag.FeatureFlagManagerUtil;
 import com.liferay.portal.kernel.model.Layout;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
 import com.liferay.portal.kernel.util.HashMapBuilder;
@@ -131,11 +132,17 @@ public class SideNavigationControlMenuEntry
 			return false;
 		}
 
-		PanelCategoryHelper panelCategoryHelper = new PanelCategoryHelper(
-			_panelAppRegistry);
+		if (FeatureFlagManagerUtil.isEnabled(
+				themeDisplay.getCompanyId(), "LPD-36105")) {
 
-		return panelCategoryHelper.containsPortlet(
-			themeDisplay.getPpid(), "applications_menu");
+			PanelCategoryHelper panelCategoryHelper = new PanelCategoryHelper(
+				_panelAppRegistry);
+
+			return panelCategoryHelper.containsPortlet(
+				themeDisplay.getPpid(), "applications_menu");
+		}
+
+		return false;
 	}
 
 	@Reference

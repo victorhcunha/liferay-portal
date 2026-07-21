@@ -35,6 +35,7 @@ const test = mergeTests(
 	dataApiHelpersTest,
 	displayPageTemplatesPagesTest,
 	featureFlagsTest({
+		'LPD-36105': {enabled: true},
 		'LPD-60546': {enabled: true},
 	}),
 	isolatedSiteTest,

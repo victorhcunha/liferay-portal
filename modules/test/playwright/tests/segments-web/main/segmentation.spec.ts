@@ -31,6 +31,7 @@ export const test = mergeTests(
 	isolatedSiteTest,
 	dataApiHelpersTest,
 	featureFlagsTest({
+		'LPD-36105': {enabled: true},
 		'LPD-78863': {enabled: true, system: true},
 		'LPS-178052': {enabled: true},
 	}),
@@ -54,9 +55,11 @@ test.beforeEach(async ({page}) => {
 
 test(
 	`Can validate a segment can be created using the "Organization > Country" criterion`,
+
 	{
 		tag: '@LPS-130281',
 	},
+
 	async ({
 		apiHelpers,
 		editOrganizationPage,
@@ -153,9 +156,11 @@ test(
 
 test(
 	`Can validate a segment can be created using the "Organization > Name" criterion`,
+
 	{
 		tag: '@LPS-130277',
 	},
+
 	async ({apiHelpers, page, pageEditorPage, segmentsPage, site}) => {
 		const organizationName = getRandomString();
 		const segmentName = 'AddSegmentByOrganizationName Test';
@@ -212,9 +217,11 @@ test(
 
 test(
 	`Can validate a segment can be created using the "Organization > Type" criterion`,
+
 	{
 		tag: '@LPS-130280',
 	},
+
 	async ({apiHelpers, page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName = 'AddSegmentByOrganizationType Test';
 
@@ -386,9 +393,11 @@ test(
 
 test(
 	`Can validate that a user cannot create a segment when no segments are available`,
+
 	{
 		tag: '@LPS-130346',
 	},
+
 	async ({page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName = 'AddSegment Test';
 
@@ -414,9 +423,11 @@ test(
 
 test(
 	`Can validate a warning message is displayed when a non-existent entity name is entered in the segments editor.`,
+
 	{
 		tag: '@LPS-130347',
 	},
+
 	async ({apiHelpers, page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName1 = 'Segment With User1';
 		const segmentName2 = 'Segment With User2';
@@ -502,9 +513,11 @@ test(
 
 test(
 	`Can validate a segment can be created using the "Session > Browser" criterion`,
+
 	{
 		tag: '@LPS-130313',
 	},
+
 	async ({page, segmentsPage, site}) => {
 		const segmentName = 'AddSegmentBySessionBrowser Test';
 
@@ -538,9 +551,11 @@ test(
 
 test(
 	`Can validate a segment can be created using the "Session > Language" criterion`,
+
 	{
 		tag: '@LPS-130351',
 	},
+
 	async ({page, segmentsPage, site}) => {
 		const segmentName = 'AddSegmentBySessionLanguage Test';
 
@@ -572,9 +587,11 @@ test(
 
 test(
 	`Can validate a segment can be created using the "Session > URL" criterion`,
+
 	{
 		tag: '@LPS-130325',
 	},
+
 	async ({page, segmentsPage, site}) => {
 		const segmentName = 'AddSegmentBySessionURL Test';
 
@@ -806,9 +823,11 @@ test(
 
 test(
 	`Can validate a segment can be created using an 'Apostrophe' in segment property`,
+
 	{
 		tag: '@LPS-146550',
 	},
+
 	async ({
 		editUserPage,
 		page,
@@ -861,9 +880,11 @@ test(
 
 test(
 	`Can delete unavailable segment criterion.`,
+
 	{
 		tag: '@LPS-152077',
 	},
+
 	async ({apiHelpers, page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName1 = 'First Segment';
 		const segmentName2 = 'Second Segment';
@@ -933,9 +954,11 @@ test(
 
 test(
 	`Can scroll down in segments editor sidebar.`,
+
 	{
 		tag: '@LPS-150511',
 	},
+
 	async ({page, segmentsPage, site}) => {
 		await test.step('Given a segment designer goes to the segments editor page', async () => {
 			await goToSegmentsAdmin(page, site.friendlyUrlPath);
@@ -961,9 +984,11 @@ test(
 
 test(
 	`Can validate a segment can be created using special characters in segment property`,
+
 	{
 		tag: '@LPS-131815',
 	},
+
 	async ({
 		editUserPage,
 		page,
@@ -1051,9 +1076,11 @@ test(
 
 test(
 	`Can validate the default segments is not displayed.`,
+
 	{
 		tag: '@LPS-136086',
 	},
+
 	async ({page, site}) => {
 		await test.step('Given a segment designer goes to the segments editor page', async () => {
 			await goToSegmentsAdmin(page, site.friendlyUrlPath);
@@ -1069,9 +1096,11 @@ test(
 
 test(
 	`Can validate the value input persist in a segment created with Organization criterion in view mode`,
+
 	{
 		tag: '@LPS-135880',
 	},
+
 	async ({apiHelpers, page, pageEditorPage, segmentsPage, site}) => {
 		const organizationName = getRandomString();
 		const segmentName = 'Validate Organization Segment';
@@ -1112,9 +1141,11 @@ test(
 
 test(
 	`Can validate the value input persist in a segment created with Parent Organization criterion in view mode`,
+
 	{
 		tag: '@LPS-135880',
 	},
+
 	async ({apiHelpers, page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName = 'Validate Parent Organization Segment';
 		const parentOrganizationName = getRandomString();
@@ -1164,9 +1195,11 @@ test(
 
 test(
 	`Can validate the value input persist in a segment created with Role criterion in view mode`,
+
 	{
 		tag: '@LPS-135880',
 	},
+
 	async ({page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName = 'Validate Role Segment';
 
@@ -1200,9 +1233,11 @@ test(
 
 test(
 	`Can validate the value input persist in a segment created with Site criterion in view mode`,
+
 	{
 		tag: '@LPS-135880',
 	},
+
 	async ({page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName = 'Validate Site Segment';
 
@@ -1236,9 +1271,11 @@ test(
 
 test(
 	`Can validate the value input persist in a segment created with Team criterion in view mode`,
+
 	{
 		tag: '@LPS-135880',
 	},
+
 	async ({
 		page,
 		pageEditorPage,
@@ -1294,9 +1331,11 @@ test(
 
 test(
 	`Can validate the value input persist in a segment created with User criterion in view mode`,
+
 	{
 		tag: '@LPS-135880',
 	},
+
 	async ({page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName = 'Validate User Segment';
 
@@ -1330,9 +1369,11 @@ test(
 
 test(
 	`Can validate the value input persist in a segment created with User Group criterion in view mode`,
+
 	{
 		tag: '@LPS-135880',
 	},
+
 	async ({apiHelpers, page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName = 'Validate User Group Segment';
 
@@ -1372,9 +1413,11 @@ test(
 
 test(
 	`Can validate the segment field types are displayed.`,
+
 	{
 		tag: '@LPS-103516',
 	},
+
 	async ({page, segmentsPage, site}) => {
 		await test.step('Given a segment designer goes to the segments editor page', async () => {
 			await goToSegmentsAdmin(page, site.friendlyUrlPath);
@@ -1397,9 +1440,11 @@ test(
 
 test(
 	'Can understand the actions of keyboard from screen reader.',
+
 	{
 		tag: '@LPS-198108',
 	},
+
 	async ({page, productMenuPage}) => {
 		await test.step('Given a segment designer accesses to the segment editor', async () => {
 			await productMenuPage.openProductMenuIfClosed();
@@ -1509,9 +1554,11 @@ test(
 
 test(
 	`Can edit segment with a select input.`,
+
 	{
 		tag: '@LPS-94874',
 	},
+
 	async ({page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName1 = 'EditSegment Test';
 		const segmentName2 = 'EditSegmentIfHaveASelectInput Test';
@@ -1643,9 +1690,11 @@ test(
 
 test(
 	`Can edit segment with Country criterion.`,
+
 	{
 		tag: '@LPS-102740',
 	},
+
 	async ({page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName1 = 'EditSegment Test';
 		const segmentName2 = 'EditSegmentUserByCountry Test';
@@ -1690,9 +1739,11 @@ test(
 
 test(
 	`Can edit segment with Region criterion.`,
+
 	{
 		tag: '@LPS-102740',
 	},
+
 	async ({page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName1 = 'EditSegment Test';
 		const segmentName2 = 'EditSegmentUserByRegion Test';
@@ -1737,9 +1788,11 @@ test(
 
 test(
 	`Can edit segment with Session > URL criterion.`,
+
 	{
 		tag: '@LPS-102743',
 	},
+
 	async ({page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName1 = 'EditSegment Test';
 		const segmentName2 = 'EditSegmentUserBySessionURL Test';
@@ -1784,9 +1837,11 @@ test(
 
 test(
 	`Can edit segment with User > Tag criterion.`,
+
 	{
 		tag: '@LPS-102742',
 	},
+
 	async ({
 		editUserPage,
 		page,
@@ -1857,9 +1912,11 @@ test(
 
 test(
 	`Can edit segment condition from Equals to Contains option.`,
+
 	{
 		tag: '@LPS-97141',
 	},
+
 	async ({page, pageEditorPage, segmentsPage, site}) => {
 		const segmentName1 = 'EditSegment Test';
 		const segmentName2 = 'EditSegmentUserEmailAddressEqualsToContains Test';
@@ -2010,6 +2067,7 @@ test(
 	{
 		tag: '@LPS-130344',
 	},
+
 	async ({apiHelpers, page, pageEditorPage, segmentsPage, site}) => {
 		const layout = await apiHelpers.jsonWebServicesLayout.addLayout({
 			groupId: site.id,
@@ -2160,6 +2218,7 @@ test(
 	{
 		tag: '@LPS-163095',
 	},
+
 	async ({apiHelpers, page, pageEditorPage, segmentsPage, site}) => {
 		const layout = await apiHelpers.jsonWebServicesLayout.addLayout({
 			groupId: site.id,

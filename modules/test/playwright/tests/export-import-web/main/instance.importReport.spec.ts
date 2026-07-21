@@ -25,6 +25,7 @@ export const test = mergeTests(
 	exportImportPagesTest,
 	companyExportImportPageTest,
 	featureFlagsTest({
+		'LPD-36105': {enabled: true},
 		'LPD-57655': {enabled: false},
 	}),
 	globalMenuPagesTest,

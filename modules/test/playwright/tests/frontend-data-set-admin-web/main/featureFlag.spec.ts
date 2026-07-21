@@ -14,6 +14,7 @@ export const test = mergeTests(
 	customDataSetsPageTest,
 	featureFlagPagesTest,
 	featureFlagsTest({
+		'LPD-36105': {enabled: true},
 		'LPS-164563': {enabled: true},
 	}),
 	loginTest()
@@ -108,6 +109,7 @@ export const disabledTest = mergeTests(
 	customDataSetsPageTest,
 	featureFlagPagesTest,
 	featureFlagsTest({
+		'LPD-36105': {enabled: true},
 		'LPS-164563': {enabled: false},
 	}),
 	loginTest()

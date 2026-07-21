@@ -13364,6 +13364,14 @@ enterprise.product.enterprise.search.enabled=false</echo>
 			</then>
 		</if>
 
+		<if>
+			<equals arg1="${functional.test.type}" arg2="poshi" />
+			<then>
+				<echo append="true" file="portal-impl/src/portal-ext.properties">
+feature.flag.LPD-36105=true</echo>
+			</then>
+		</if>
+
 		<apply-portal-ext-properties />
 	</target>
 

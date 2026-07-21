@@ -35,6 +35,7 @@ export const test = mergeTests(
 	documentLibraryPagesTest,
 	featureFlagsTest({
 		'LPD-35013': {enabled: true},
+		'LPD-36105': {enabled: true},
 		'LPD-84028': {enabled: true},
 		'LPS-164563': {enabled: true},
 	}),

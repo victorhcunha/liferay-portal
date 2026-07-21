@@ -34,6 +34,7 @@ const test = mergeTests(
 	documentLibraryPagesTest,
 	workflowPagesTest,
 	featureFlagsTest({
+		'LPD-36105': {enabled: true},
 		'LPS-178052': {enabled: true},
 	}),
 	globalMenuPagesTest,
@@ -351,6 +352,7 @@ test(
 	{
 		tag: '@LPD-29609',
 	},
+
 	async ({
 		documentLibraryEditDocumentTypesPage,
 		documentLibraryEditFilePage,
@@ -380,6 +382,7 @@ test(
 	{
 		tag: '@LPD-50971',
 	},
+
 	async ({apiHelpers, documentLibraryPage, page, site}) => {
 		const vocabularyName = getRandomString();
 
@@ -661,6 +664,7 @@ test(
 	{
 		tag: ['@LPD-27899', '@LPSA-74819'],
 	},
+
 	async ({
 		apiHelpers,
 		documentLibraryEditFilePage,
@@ -740,6 +744,7 @@ test(
 	{
 		tag: '@LPD-42737',
 	},
+
 	async ({
 		apiHelpers,
 		documentLibraryPage,
@@ -891,6 +896,7 @@ test(
 	{
 		tag: '@LPP-53324',
 	},
+
 	async ({
 		apiHelpers,
 		documentLibraryEditDocumentTypesPage,
@@ -1040,6 +1046,7 @@ test(
 	{
 		tag: '@LPD-57911',
 	},
+
 	async ({
 		documentLibraryEditDocumentTypesPage,
 		documentLibraryEditFilePage,

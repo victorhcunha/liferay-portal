@@ -6,6 +6,7 @@
 import {expect, mergeTests} from '@playwright/test';
 
 import {consentManagerConfigurationPageTest} from '../../../fixtures/consentManagerConfigurationPageTest';
+import {featureFlagsTest} from '../../../fixtures/featureFlagsTest';
 import {loginTest} from '../../../fixtures/loginTest';
 import {systemSettingsPageTest} from '../../../fixtures/systemSettingsPageTest';
 import {ConsentManagerConfigurationPage} from '../../../pages/cookies-banner-web/ConsentManagerConfigurationPage';
@@ -32,6 +33,9 @@ const allCookieKeys = [...optionalCookieKeys, ...requiredCookieKeys];
 
 export const test = mergeTests(
 	consentManagerConfigurationPageTest,
+	featureFlagsTest({
+		'LPD-36105': {enabled: true},
+	}),
 	loginTest(),
 	systemSettingsPageTest
 );

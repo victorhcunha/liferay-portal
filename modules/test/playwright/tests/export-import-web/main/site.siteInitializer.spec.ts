@@ -47,6 +47,7 @@ const testWithClaritySiteInitializerFF = mergeTests(
 	test,
 	featureFlagsTest({
 		'LPD-35443': {enabled: false},
+		'LPD-36105': {enabled: true},
 		'LPD-45276': {enabled: true},
 		'LPD-57655': {enabled: false},
 	})
