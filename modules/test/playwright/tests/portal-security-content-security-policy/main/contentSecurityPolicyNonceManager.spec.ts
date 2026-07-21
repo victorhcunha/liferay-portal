@@ -18,6 +18,7 @@ export const test = mergeTests(
 	apiHelpersTest,
 	contentSecurityPolicyPagesTest,
 	featureFlagsTest({
+		'LPD-36105': {enabled: true},
 		'LPS-178052': {enabled: true},
 	}),
 	isolatedSiteTest,
