@@ -72,6 +72,7 @@ import com.liferay.portal.kernel.search.NestedQuery;
 import com.liferay.portal.kernel.search.QueryConfig;
 import com.liferay.portal.kernel.search.SearchContext;
 import com.liferay.portal.kernel.search.Sort;
+import com.liferay.portal.kernel.search.SortFactoryUtil;
 import com.liferay.portal.kernel.search.TermQuery;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.GroupLocalService;
@@ -326,7 +327,9 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 		com.liferay.info.sort.Sort sort = collectionQuery.getSort();
 
 		if (sort == null) {
-			searchContext.setSorts(_SORTS_DEFAULT_INDEXED);
+			searchContext.setSorts(
+				SortFactoryUtil.create(
+					Field.CREATE_DATE, Sort.LONG_TYPE, false));
 		}
 
 		searchContext.setStart(pagination.getStart());
@@ -795,11 +798,6 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 
 		return false;
 	}
-
-	private static final Sort[] _SORTS_DEFAULT_INDEXED = {
-		new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, false),
-		new Sort(Field.ENTRY_CLASS_PK, Sort.LONG_TYPE, false)
-	};
 
 	private static final Sort[] _SORTS_DEFAULT_OBJECT_ENTRY = {
 		new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, false),
