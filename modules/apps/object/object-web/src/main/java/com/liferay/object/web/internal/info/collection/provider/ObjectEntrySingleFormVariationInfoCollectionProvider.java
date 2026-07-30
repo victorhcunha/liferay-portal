@@ -441,7 +441,7 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 					collectionQuery.getPagination()),
 				ObjectEntryInfoCollectionProviderUtil.getSearch(
 					collectionQuery),
-				_SORTS_DEFAULT_OBJECT_ENTRY);
+				null);
 
 		return InfoPage.of(
 			TransformUtil.transform(
@@ -501,7 +501,7 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 					collectionQuery.getPagination()),
 				ObjectEntryInfoCollectionProviderUtil.getSearch(
 					collectionQuery),
-				_SORTS_DEFAULT_OBJECT_ENTRY);
+				null);
 
 		return InfoPage.of(
 			TransformUtil.transform(
@@ -799,11 +799,6 @@ public class ObjectEntrySingleFormVariationInfoCollectionProvider
 	private static final Sort[] _SORTS_DEFAULT_INDEXED = {
 		new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, false),
 		new Sort(Field.ENTRY_CLASS_PK, Sort.LONG_TYPE, false)
-	};
-
-	private static final Sort[] _SORTS_DEFAULT_OBJECT_ENTRY = {
-		new Sort(Field.CREATE_DATE, Sort.LONG_TYPE, false),
-		new Sort("id", Sort.LONG_TYPE, false)
 	};
 
 	private static final Log _log = LogFactoryUtil.getLog(
