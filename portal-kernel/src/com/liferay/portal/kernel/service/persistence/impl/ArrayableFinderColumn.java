@@ -75,7 +75,13 @@ public class ArrayableFinderColumn<T extends BaseModel<T>>
 		Object[] array = (Object[])normalizedValue;
 
 		if (array.length == 0) {
-			return "";
+
+			// An empty IN clause matches nothing; an empty NOT IN clause
+			// excludes nothing. Returning "" here would drop the predicate
+			// entirely, which produces a dangling WHERE with no expression
+			// before ORDER BY when this is the only finder column.
+
+			return _andOperator ? "(1 = 1)" : "(1 = 0)";
 		}
 
 		if (type == Type.STRING) {
