@@ -1258,8 +1258,20 @@ public class DataFactory {
 	public AssetEntryModel newAssetEntryModel(
 		ObjectEntryModel objectEntryModel) {
 
+		long groupId = objectEntryModel.getGroupId();
+
+		if (groupId == 0) {
+
+			// Mirrors ObjectEntryImpl#getNonzeroGroupId(): a company-scoped
+			// object entry has no group of its own, but its AssetEntry still
+			// needs a real group to resolve site-scoped lookups (e.g.,
+			// AssetVocabularyLocalService#getGroupsVocabularies) against.
+
+			groupId = _globalGroupId;
+		}
+
 		return newAssetEntryModel(
-			objectEntryModel.getGroupId(), objectEntryModel.getCreateDate(),
+			groupId, objectEntryModel.getCreateDate(),
 			objectEntryModel.getModifiedDate(),
 			getClassNameId(
 				ObjectDefinitionConstants.
