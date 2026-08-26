@@ -25,6 +25,23 @@ import org.junit.Test;
 public class CollectionPersistenceFinderTest {
 
 	@Test
+	public void testBuildSQLWhereWithEmptyNotInArray() {
+		CollectionPersistenceFinder<TestModel, NoSuchModelException>
+			collectionPersistenceFinder = _createCollectionPersistenceFinder(
+				true);
+
+		Assert.assertEquals(
+			"SELECT t FROM TestModel t",
+			collectionPersistenceFinder.buildSQLWhere(
+				_SQL_SELECT_WHERE, new Object[] {new Long[0]}, false));
+
+		Assert.assertEquals(
+			"SELECT t FROM TestModel t WHERE (t.col NOT IN (?))",
+			collectionPersistenceFinder.buildSQLWhere(
+				_SQL_SELECT_WHERE, new Object[] {new Long[] {100L}}, false));
+	}
+
+	@Test
 	public void testIsArrayableNeverMatchingWithEmptyInArray() {
 		FinderPath[] recordedFinderPath = new FinderPath[1];
 
@@ -178,6 +195,9 @@ public class CollectionPersistenceFinderTest {
 			Integer.class.getName(), OrderByComparator.class.getName()
 		},
 		new String[] {"col"}, true);
+
+	private static final String _SQL_SELECT_WHERE =
+		"SELECT t FROM TestModel t WHERE ";
 
 	private static final FinderPath _UNPAGINATED_FIND_PATH = new FinderPath(
 		"TestModel.List2", "findByCol", new String[] {Long.class.getName()},
