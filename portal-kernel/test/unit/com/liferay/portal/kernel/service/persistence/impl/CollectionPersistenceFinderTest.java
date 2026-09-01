@@ -14,6 +14,7 @@ import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
 import java.util.Collections;
+import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,11 +25,72 @@ import org.junit.Test;
 public class CollectionPersistenceFinderTest {
 
 	@Test
+	public void testBuildSQLWhereWithEmptyNotInArray() {
+		CollectionPersistenceFinder<TestModel, NoSuchModelException>
+			collectionPersistenceFinder = _createCollectionPersistenceFinder(
+				true);
+
+		Assert.assertEquals(
+			"SELECT t FROM TestModel t",
+			collectionPersistenceFinder.buildSQLWhere(
+				_SQL_SELECT_WHERE, new Object[] {new Long[0]}, false));
+
+		Assert.assertEquals(
+			"SELECT t FROM TestModel t WHERE (t.col NOT IN (?))",
+			collectionPersistenceFinder.buildSQLWhere(
+				_SQL_SELECT_WHERE, new Object[] {new Long[] {100L}}, false));
+	}
+
+	@Test
+	public void testIsArrayableNeverMatchingWithEmptyInArray() {
+		FinderPath[] recordedFinderPath = new FinderPath[1];
+
+		CollectionPersistenceFinder<TestModel, NoSuchModelException>
+			collectionPersistenceFinder = _createCollectionPersistenceFinder(
+				false);
+
+		FinderCache finderCache = _createRecordingFinderCache(
+			recordedFinderPath);
+
+		List<TestModel> testModels = collectionPersistenceFinder.find(
+			finderCache, new Object[] {new long[0]}, QueryUtil.ALL_POS,
+			QueryUtil.ALL_POS, null, true);
+
+		Assert.assertEquals(testModels.toString(), 0, testModels.size());
+
+		Assert.assertNull(recordedFinderPath[0]);
+
+		Assert.assertEquals(
+			0,
+			collectionPersistenceFinder.count(
+				finderCache, new Object[] {new long[0]}));
+
+		Assert.assertNull(recordedFinderPath[0]);
+	}
+
+	@Test
+	public void testIsArrayableNeverMatchingWithEmptyNotInArray() {
+		FinderPath[] recordedFinderPath = new FinderPath[1];
+
+		CollectionPersistenceFinder<TestModel, NoSuchModelException>
+			collectionPersistenceFinder = _createCollectionPersistenceFinder(
+				true);
+
+		collectionPersistenceFinder.find(
+			_createRecordingFinderCache(recordedFinderPath),
+			new Object[] {new long[0]}, QueryUtil.ALL_POS, QueryUtil.ALL_POS,
+			null, true);
+
+		Assert.assertNotNull(recordedFinderPath[0]);
+	}
+
+	@Test
 	public void testMultiElementArrayableFindUsesPaginatedFinderPath() {
 		FinderPath[] recordedFinderPath = new FinderPath[1];
 
 		CollectionPersistenceFinder<TestModel, NoSuchModelException>
-			collectionPersistenceFinder = _createCollectionPersistenceFinder();
+			collectionPersistenceFinder = _createCollectionPersistenceFinder(
+				false);
 
 		collectionPersistenceFinder.find(
 			_createRecordingFinderCache(recordedFinderPath),
@@ -43,7 +105,8 @@ public class CollectionPersistenceFinderTest {
 		FinderPath[] recordedFinderPath = new FinderPath[1];
 
 		CollectionPersistenceFinder<TestModel, NoSuchModelException>
-			collectionPersistenceFinder = _createCollectionPersistenceFinder();
+			collectionPersistenceFinder = _createCollectionPersistenceFinder(
+				false);
 
 		collectionPersistenceFinder.find(
 			_createRecordingFinderCache(recordedFinderPath),
@@ -54,7 +117,7 @@ public class CollectionPersistenceFinderTest {
 	}
 
 	private CollectionPersistenceFinder<TestModel, NoSuchModelException>
-		_createCollectionPersistenceFinder() {
+		_createCollectionPersistenceFinder(boolean andOperator) {
 
 		return new CollectionPersistenceFinder<>(
 			new BasePersistenceImpl<TestModel, NoSuchModelException>() {
@@ -62,8 +125,8 @@ public class CollectionPersistenceFinderTest {
 			_PAGINATED_FIND_PATH, _UNPAGINATED_FIND_PATH, _COUNT_FIND_PATH, "",
 			"", "", "", "", "", null,
 			new ArrayableFinderColumn<>(
-				"t.", "col", FinderColumn.Type.LONG, "=", false, true, true,
-				testModel -> 0L));
+				"t.", "col", FinderColumn.Type.LONG, "=", andOperator, true,
+				true, testModel -> 0L));
 	}
 
 	private FinderCache _createRecordingFinderCache(
@@ -93,6 +156,10 @@ public class CollectionPersistenceFinderTest {
 				BasePersistence<?> basePersistence) {
 
 				recordedFinderPath[0] = finderPath;
+
+				if (finderPath == _COUNT_FIND_PATH) {
+					return 1L;
+				}
 
 				return Collections.emptyList();
 			}
@@ -128,6 +195,9 @@ public class CollectionPersistenceFinderTest {
 			Integer.class.getName(), OrderByComparator.class.getName()
 		},
 		new String[] {"col"}, true);
+
+	private static final String _SQL_SELECT_WHERE =
+		"SELECT t FROM TestModel t WHERE ";
 
 	private static final FinderPath _UNPAGINATED_FIND_PATH = new FinderPath(
 		"TestModel.List2", "findByCol", new String[] {Long.class.getName()},
