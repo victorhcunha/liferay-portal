@@ -177,7 +177,8 @@ test(
 
 				await objectLayoutsPage.createObjectLayoutContent({
 					objectFieldNames: [
-						'Custom Decimal Field',
+						'Custom Decimal Field 1',
+						'Custom Decimal Field 2',
 						'Custom Formula Field',
 					],
 					objectLayoutName: layoutName,
