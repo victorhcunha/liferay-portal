@@ -91,6 +91,7 @@ import {
 	ObjectDefinition,
 	ObjectField,
 } from '@liferay/object-admin-rest-client-js';
+import {test as chromaticTest} from '@chromatic-com/playwright';
 import {expect, mergeTests} from '@playwright/test';
 
 import {apiHelpersTest} from '../../../fixtures/apiHelpersTest';
@@ -101,6 +102,7 @@ import getRandomString from '../../../utils/getRandomString';
 
 const test = mergeTests(
 	apiHelpersTest,
+	chromaticTest,
 	dataApiHelpersTest,
 	loginTest(),
 	objectPagesTest
@@ -159,7 +161,7 @@ test(
 		);
 
 		await test.step(
-			'Given an object layout with both fields in a single tab',
+			'Given an object layout with all three fields in a single tab',
 			async () => {
 				const layoutName = getRandomString();
 				const tabName = getRandomString();
@@ -177,7 +179,8 @@ test(
 
 				await objectLayoutsPage.createObjectLayoutContent({
 					objectFieldNames: [
-						'Custom Decimal Field',
+						'Custom Decimal Field 1',
+						'Custom Decimal Field 2',
 						'Custom Formula Field',
 					],
 					objectLayoutName: layoutName,
@@ -190,7 +193,7 @@ test(
 		);
 
 		await test.step(
-			'When an entry is added with a value for the decimal field',
+			'When the value of the decimal fields is added',
 			async () => {
 				await viewObjectEntriesPage.goto(objectDefinition.className);
 
