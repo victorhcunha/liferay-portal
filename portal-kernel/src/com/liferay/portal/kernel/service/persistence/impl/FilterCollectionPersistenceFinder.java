@@ -18,6 +18,7 @@ import com.liferay.portal.kernel.model.BaseModel;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -187,23 +188,7 @@ public class FilterCollectionPersistenceFinder
 			sb.append(_filterSqlSelectNoInlineDistinctWhere1);
 		}
 
-		for (int i = 0; i < finderColumns.length; i++) {
-			String fragment = finderColumns[i].getSqlFragment(values[i], true);
-
-			if (fragment.isEmpty()) {
-				continue;
-			}
-
-			sb.append(fragment);
-			sb.append(" AND ");
-		}
-
-		if (!dbWhere.isEmpty()) {
-			sb.append(dbWhere);
-		}
-		else if (sb.index() > 1) {
-			sb.setIndex(sb.index() - 1);
-		}
+		appendSQLWhere(sb, values, true);
 
 		if (!inlineDistinct) {
 			sb.append(_filterSqlSelectNoInlineDistinctWhere2);
@@ -228,6 +213,10 @@ public class FilterCollectionPersistenceFinder
 
 	private int _filterCount(
 		FinderCache finderCache, Object[] values, long[] groupIds) {
+
+		if (isArrayableNeverMatching(values)) {
+			return 0;
+		}
 
 		if (basePersistenceImpl.isPermissionsInMemoryFilterEnabled()) {
 			List<T> list = find(
@@ -274,6 +263,10 @@ public class FilterCollectionPersistenceFinder
 	private List<T> _filterFind(
 		FinderCache finderCache, Object[] values, int start, int end,
 		OrderByComparator<T> orderByComparator, long[] groupIds) {
+
+		if (isArrayableNeverMatching(values)) {
+			return Collections.emptyList();
+		}
 
 		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
 			basePersistenceImpl.isPermissionsInMemoryFilterEnabled()) {

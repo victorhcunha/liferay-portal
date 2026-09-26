@@ -69,6 +69,10 @@ public class CollectionPersistenceFinder
 	}
 
 	public int count(FinderCache finderCache, Object[] values) {
+		if (isArrayableNeverMatching(values)) {
+			return 0;
+		}
+
 		try (SafeCloseable safeCloseable =
 				setCTCollectionIdWithSafeCloseable()) {
 
@@ -120,6 +124,10 @@ public class CollectionPersistenceFinder
 	public List<T> find(
 		FinderCache finderCache, Object[] values, int start, int end,
 		OrderByComparator<T> orderByComparator, boolean useFinderCache) {
+
+		if (isArrayableNeverMatching(values)) {
+			return Collections.emptyList();
+		}
 
 		try (SafeCloseable safeCloseable =
 				setCTCollectionIdWithSafeCloseable()) {
@@ -223,6 +231,29 @@ public class CollectionPersistenceFinder
 		}
 	}
 
+	protected boolean isArrayableNeverMatching(Object[] values) {
+		if (_arrayableIndexes == null) {
+			return false;
+		}
+
+		for (int index : _arrayableIndexes) {
+			ArrayableFinderColumn<?> arrayableFinderColumn =
+				(ArrayableFinderColumn<?>)finderColumns[index];
+
+			if (arrayableFinderColumn.isAndOperator()) {
+				continue;
+			}
+
+			Object value = values[index];
+
+			if ((value == null) || (Array.getLength(value) == 0)) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
 	private String _buildFindSql(
 		Object[] values, OrderByComparator<T> orderByComparator) {
 
@@ -239,23 +270,7 @@ public class CollectionPersistenceFinder
 
 		sb.append(sqlSelectWhere);
 
-		for (int i = 0; i < finderColumns.length; i++) {
-			String fragment = finderColumns[i].getSqlFragment(values[i], false);
-
-			if (fragment.isEmpty()) {
-				continue;
-			}
-
-			sb.append(fragment);
-			sb.append(" AND ");
-		}
-
-		if (!where.isEmpty()) {
-			sb.append(where);
-		}
-		else if (sb.index() > 1) {
-			sb.setIndex(sb.index() - 1);
-		}
+		appendSQLWhere(sb, values, false);
 
 		if (orderByComparator == null) {
 			sb.append(_defaultOrderByJpql);
