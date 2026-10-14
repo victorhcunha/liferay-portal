@@ -15,6 +15,17 @@ import com.liferay.portal.kernel.model.BaseModel;
 import java.util.List;
 
 /**
+ * Reusable implementation of unique finder operations (finders that return a
+ * single entity). Encapsulates the core fetch-with-cache logic that is
+ * otherwise generated identically for every unique finder in every
+ * PersistenceImpl class.
+ *
+ * <p>
+ * The finder cache stores either the found entity or an empty {@code List} as
+ * a not-found sentinel. This matches the caching contract of the originally
+ * generated code.
+ * </p>
+ *
  * @author Shuyang Zhou
  */
 public class UniquePersistenceFinder<T extends BaseModel<T>>
@@ -66,7 +77,7 @@ public class UniquePersistenceFinder<T extends BaseModel<T>>
 		}
 
 		if (result == null) {
-			String sql = buildSQLWhere(sqlSelectWhere, values);
+			String sql = buildSqlWhere(sqlSelectWhere, values);
 
 			Session session = null;
 
