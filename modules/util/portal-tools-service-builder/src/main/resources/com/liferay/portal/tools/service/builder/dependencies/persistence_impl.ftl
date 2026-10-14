@@ -18,19 +18,16 @@
 	<#assign
 		entityCache = "dummyEntityCache"
 		finderCache = "dummyFinderCache"
-		finderCacheInstance = "dummyFinderCache"
 	/>
 <#elseif osgiModule>
 	<#assign
 		entityCache = "entityCache"
 		finderCache = "finderCache"
-		finderCacheInstance = "finderCache"
 	/>
 <#else>
 	<#assign
 		entityCache = "EntityCacheUtil"
 		finderCache = "FinderCacheUtil"
-		finderCacheInstance = "FinderCacheUtil.getFinderCache()"
 	/>
 </#if>
 
@@ -113,21 +110,10 @@ import com.liferay.portal.kernel.service.persistence.BasePersistence;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelperUtil;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-
-<#if serviceBuilder.isVersionGTE_7_4_0()>
-	import com.liferay.portal.kernel.service.persistence.impl.CollectionPersistenceFinder;
-	import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
-</#if>
-
 import com.liferay.portal.kernel.service.persistence.impl.NestedSetsTreeManager;
 import com.liferay.portal.kernel.service.persistence.impl.PersistenceNestedSetsTreeManager;
 import com.liferay.portal.kernel.service.persistence.impl.TableMapper;
 import com.liferay.portal.kernel.service.persistence.impl.TableMapperFactory;
-
-<#if serviceBuilder.isVersionGTE_7_4_0()>
-	import com.liferay.portal.kernel.service.persistence.impl.UniquePersistenceFinder;
-</#if>
-
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
@@ -2980,83 +2966,6 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 					</#if>
 					);
 			</#if>
-
-			<#if entityFinder.collectionPersistenceFinderEnabled>
-				_collectionPersistenceFinderBy${entityFinder.name} =
-					new CollectionPersistenceFinder<>(
-						this,
-						_finderPathWithPaginationFindBy${entityFinder.name},
-						<#if !entityFinder.hasCustomComparator()>
-							_finderPathWithoutPaginationFindBy${entityFinder.name},
-						<#else>
-							null,
-						</#if>
-						<#if !entityFinder.hasCustomComparator()>
-							_finderPathCountBy${entityFinder.name},
-						<#else>
-							_finderPathWithPaginationCountBy${entityFinder.name},
-						</#if>
-						_SQL_SELECT_${entity.alias?upper_case}_WHERE,
-						_SQL_COUNT_${entity.alias?upper_case}_WHERE,
-						${entity.name}ModelImpl.ORDER_BY_JPQL,
-						_ORDER_BY_ENTITY_ALIAS,
-						<#list entityColumns as entityColumn>
-							new FinderColumn<>(
-								"${entity.alias}.",
-								<#if entity.hasCompoundPK() && entityColumn.isPrimary()>
-									"id.${entityColumn.name}",
-								<#else>
-									"${entityColumn.name}",
-								</#if>
-								${entityColumn.finderColumnTypeName},
-								"${entityColumn.comparator}",
-								${entityColumn.isConvertNull()?c},
-								${(!entityColumn_has_next)?c},
-								<#if stringUtil.equals(entityColumn.type, "boolean")>
-									${entity.name}::is${entityColumn.methodName}
-								<#else>
-									${entity.name}::get${entityColumn.methodName}
-								</#if>
-							)
-
-							<#if entityColumn_has_next>
-								,
-							</#if>
-						</#list>
-					);
-			</#if>
-
-			<#if entityFinder.uniquePersistenceFinderEnabled>
-				_uniquePersistenceFinderBy${entityFinder.name} =
-					new UniquePersistenceFinder<>(
-						this,
-						_finderPathFetchBy${entityFinder.name},
-						_SQL_SELECT_${entity.alias?upper_case}_WHERE,
-						<#list entityColumns as entityColumn>
-							new FinderColumn<>(
-								"${entity.alias}.",
-								<#if entity.hasCompoundPK() && entityColumn.isPrimary()>
-									"id.${entityColumn.name}",
-								<#else>
-									"${entityColumn.name}",
-								</#if>
-								${entityColumn.finderColumnTypeName},
-								"${entityColumn.comparator}",
-								${entityColumn.isConvertNull()?c},
-								${(!entityColumn_has_next)?c},
-								<#if stringUtil.equals(entityColumn.type, "boolean")>
-									${entity.name}::is${entityColumn.methodName}
-								<#else>
-									${entity.name}::get${entityColumn.methodName}
-								</#if>
-							)
-
-							<#if entityColumn_has_next>
-								,
-							</#if>
-						</#list>
-					);
-			</#if>
 		</#list>
 
 		${entity.name}Util.setPersistence(this);
@@ -3195,36 +3104,16 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 	<#assign hasDateFinder = false />
 
 	<#list entity.entityFinders as entityFinder>
-		<#if !entityFinder.collectionPersistenceFinderEnabled && !entityFinder.uniquePersistenceFinderEnabled>
-			<#list entityFinder.entityColumns as entityColumn>
-				<#if stringUtil.equals(entityColumn.type, "Date")>
-					<#assign hasDateFinder = true />
+		<#assign entityColumns = entityFinder.entityColumns />
 
-					<#break>
-				</#if>
-			</#list>
-		</#if>
+		<#list entityColumns as entityColumn>
+			<#if stringUtil.equals(entityColumn.type, "Date")>
+				<#assign hasDateFinder = true />
 
-		<#if hasDateFinder>
-			<#break>
-		</#if>
-	</#list>
-
-	<#if !hasDateFinder>
-		<#list entity.uniqueEntityFinders as uniqueEntityFinder>
-			<#list uniqueEntityFinder.entityColumns as entityColumn>
-				<#if stringUtil.equals(entityColumn.type, "Date")>
-					<#assign hasDateFinder = true />
-
-					<#break>
-				</#if>
-			</#list>
-
-			<#if hasDateFinder>
 				<#break>
 			</#if>
 		</#list>
-	</#if>
+	</#list>
 
 	<#if hasDateFinder>
 		private static Long _getTime(Date date) {
@@ -3248,7 +3137,7 @@ public class ${entity.name}PersistenceImpl extends BasePersistenceImpl<${entity.
 
 	private static final String _SQL_COUNT_${entity.alias?upper_case} = "SELECT COUNT(${entity.alias}) FROM ${entity.name} ${entity.alias}";
 
-	<#if entity.hasCollectionEntityFinder() || (serviceBuilder.isVersionLTE_7_3_0() && (entity.entityFinders?size != 0))>
+	<#if entity.entityFinders?size != 0>
 		private static final String _SQL_COUNT_${entity.alias?upper_case}_WHERE = "SELECT COUNT(${entity.alias}) FROM ${entity.name} ${entity.alias} WHERE ";
 	</#if>
 

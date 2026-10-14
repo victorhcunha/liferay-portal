@@ -198,147 +198,124 @@ that may or may not be enforced with a unique index at the database level. Case
 	</#list>
 
 	int start, int end, OrderByComparator<${entity.name}> orderByComparator, boolean useFinderCache) {
-		<#if entityFinder.collectionPersistenceFinderEnabled>
-			<#if entity.isChangeTrackingEnabled()>
-				try (SafeCloseable safeCloseable = ${ctPersistenceHelper}.setCTCollectionIdWithSafeCloseable(${entity.name}.class)) {
+		<#if entity.isChangeTrackingEnabled()>
+			try (SafeCloseable safeCloseable = ${ctPersistenceHelper}.setCTCollectionIdWithSafeCloseable(${entity.name}.class)) {
+		</#if>
+
+		<#list entityColumns as entityColumn>
+			<#if stringUtil.equals(entityColumn.type, "String") && entityColumn.isConvertNull()>
+				${entityColumn.name} = Objects.toString(${entityColumn.name}, "");
 			</#if>
+		</#list>
 
-			return _collectionPersistenceFinderBy${entityFinder.name}.find(
-				${finderCacheInstance},
-				new Object[] {
-					<#list entityColumns as entityColumn>
-						${entityColumn.name}
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
 
-						<#if entityColumn_has_next>
-							,
-						</#if>
-					</#list>
-				},
-				start, end, orderByComparator, useFinderCache);
+		<#if !entityFinder.hasCustomComparator()>
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) && (orderByComparator == null)) {
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindBy${entityFinder.name};
+					finderArgs = new Object[] {
+						<#list entityColumns as entityColumn>
+							<#if stringUtil.equals(entityColumn.type, "Date")>
+								_getTime(${entityColumn.name})
+							<#else>
+								${entityColumn.name}
+							</#if>
 
-			<#if entity.isChangeTrackingEnabled()>
+							<#if entityColumn_has_next>
+								,
+							</#if>
+						</#list>
+					};
 				}
-			</#if>
-		<#else>
-			<#if entity.isChangeTrackingEnabled()>
-				try (SafeCloseable safeCloseable = ${ctPersistenceHelper}.setCTCollectionIdWithSafeCloseable(${entity.name}.class)) {
-			</#if>
+			}
+			else if (useFinderCache) {
+		</#if>
 
+		finderPath = _finderPathWithPaginationFindBy${entityFinder.name};
+		finderArgs = new Object[] {
 			<#list entityColumns as entityColumn>
-				<#if stringUtil.equals(entityColumn.type, "String") && entityColumn.isConvertNull()>
-					${entityColumn.name} = Objects.toString(${entityColumn.name}, "");
+				<#if stringUtil.equals(entityColumn.type, "Date")>
+					_getTime(${entityColumn.name}),
+				<#else>
+					${entityColumn.name},
 				</#if>
 			</#list>
 
-			FinderPath finderPath = null;
-			Object[] finderArgs = null;
+			start, end, orderByComparator
+		};
 
-			<#if !entityFinder.hasCustomComparator()>
-				if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) && (orderByComparator == null)) {
-					if (useFinderCache) {
-						finderPath = _finderPathWithoutPaginationFindBy${entityFinder.name};
-						finderArgs = new Object[] {
-							<#list entityColumns as entityColumn>
-								<#if stringUtil.equals(entityColumn.type, "Date")>
-									_getTime(${entityColumn.name})
-								<#else>
-									${entityColumn.name}
-								</#if>
+		<#if !entityFinder.hasCustomComparator()>
+			}
+		</#if>
 
-								<#if entityColumn_has_next>
-									,
-								</#if>
-							</#list>
-						};
-					}
-				}
-				else if (useFinderCache) {
-			</#if>
+		List<${entity.name}> list = null;
 
-			finderPath = _finderPathWithPaginationFindBy${entityFinder.name};
-			finderArgs = new Object[] {
-				<#list entityColumns as entityColumn>
-					<#if stringUtil.equals(entityColumn.type, "Date")>
-						_getTime(${entityColumn.name}),
-					<#else>
-						${entityColumn.name},
-					</#if>
-				</#list>
+		if (useFinderCache) {
+			list = (List<${entity.name}>)${finderCache}.getResult(finderPath, finderArgs, this);
 
-				start, end, orderByComparator
-			};
+			if ((list != null) && !list.isEmpty()) {
+				for (${entity.name} ${entity.variableName} : list) {
+					if (
+						<#list entityColumns as entityColumn>
+							<#include "persistence_impl_finder_field_comparator.ftl">
 
-			<#if !entityFinder.hasCustomComparator()>
-				}
-			</#if>
+							<#if entityColumn_has_next>
+								||
+							</#if>
+						</#list>
+					) {
+						list = null;
 
-			List<${entity.name}> list = null;
-
-			if (useFinderCache) {
-				list = (List<${entity.name}>)${finderCache}.getResult(finderPath, finderArgs, this);
-
-				if ((list != null) && !list.isEmpty()) {
-					for (${entity.name} ${entity.variableName} : list) {
-						if (
-							<#list entityColumns as entityColumn>
-								<#include "persistence_impl_finder_field_comparator.ftl">
-
-								<#if entityColumn_has_next>
-									||
-								</#if>
-							</#list>
-						) {
-							list = null;
-
-							break;
-						}
+						break;
 					}
 				}
 			}
+		}
 
-			if (list == null) {
-				<#include "persistence_impl_find_by_query.ftl">
+		if (list == null) {
+			<#include "persistence_impl_find_by_query.ftl">
 
-				String sql = sb.toString();
+			String sql = sb.toString();
 
-				Session session = null;
+			Session session = null;
 
-				try {
-					session = openSession();
+			try {
+				session = openSession();
 
-					Query query = session.createQuery(sql);
+				Query query = session.createQuery(sql);
 
-					QueryPos queryPos = QueryPos.getInstance(query);
+				QueryPos queryPos = QueryPos.getInstance(query);
 
-					<@finderQPos />
+				<@finderQPos />
 
-					list = (List<${entity.name}>)QueryUtil.list(query, getDialect(), start, end);
+				list = (List<${entity.name}>)QueryUtil.list(query, getDialect(), start, end);
 
-					cacheResult(list);
+				cacheResult(list);
 
-					if (useFinderCache) {
-						${finderCache}.putResult(finderPath, finderArgs, list);
-					}
-				}
-				catch (Exception exception) {
-					<#if serviceBuilder.isVersionLTE_7_2_0()>
-						if (useFinderCache) {
-							${finderCache}.removeResult(finderPath, finderArgs);
-						}
-					</#if>
-
-					throw processException(exception);
-				}
-				finally {
-					closeSession(session);
+				if (useFinderCache) {
+					${finderCache}.putResult(finderPath, finderArgs, list);
 				}
 			}
+			catch (Exception exception) {
+				<#if serviceBuilder.isVersionLTE_7_2_0()>
+					if (useFinderCache) {
+						${finderCache}.removeResult(finderPath, finderArgs);
+					}
+				</#if>
 
-			return list;
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
 
-			<#if entity.isChangeTrackingEnabled()>
-				}
-			</#if>
+		return list;
+
+		<#if entity.isChangeTrackingEnabled()>
+			}
 		</#if>
 	}
 
@@ -2366,171 +2343,148 @@ that may or may not be enforced with a unique index at the database level. Case
 	</#list>
 
 	boolean useFinderCache) {
-		<#if entityFinder.uniquePersistenceFinderEnabled>
-			<#if entity.isChangeTrackingEnabled()>
-				try (SafeCloseable safeCloseable = ${ctPersistenceHelper}.setCTCollectionIdWithSafeCloseable(${entity.name}.class)) {
-			</#if>
+		<#if entity.isChangeTrackingEnabled()>
+			try (SafeCloseable safeCloseable = ${ctPersistenceHelper}.setCTCollectionIdWithSafeCloseable(${entity.name}.class)) {
+		</#if>
 
-			return _uniquePersistenceFinderBy${entityFinder.name}.fetch(
-				${finderCacheInstance},
-				new Object[] {
-					<#list entityColumns as entityColumn>
+		<#list entityColumns as entityColumn>
+			<#if stringUtil.equals(entityColumn.type, "String") && entityColumn.isConvertNull()>
+				${entityColumn.name} = Objects.toString(${entityColumn.name}, "");
+			</#if>
+		</#list>
+
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {
+				<#list entityColumns as entityColumn>
+					<#if stringUtil.equals(entityColumn.type, "Date")>
+						_getTime(${entityColumn.name})
+					<#else>
 						${entityColumn.name}
+					</#if>
 
-						<#if entityColumn_has_next>
-							,
-						</#if>
-					</#list>
-				},
-				useFinderCache);
+					<#if entityColumn_has_next>
+						,
+					</#if>
+				</#list>
+			};
+		}
 
-			<#if entity.isChangeTrackingEnabled()>
-				}
-			</#if>
-		<#else>
-			<#if entity.isChangeTrackingEnabled()>
-				try (SafeCloseable safeCloseable = ${ctPersistenceHelper}.setCTCollectionIdWithSafeCloseable(${entity.name}.class)) {
-			</#if>
+		Object result = null;
 
-			<#list entityColumns as entityColumn>
-				<#if stringUtil.equals(entityColumn.type, "String") && entityColumn.isConvertNull()>
-					${entityColumn.name} = Objects.toString(${entityColumn.name}, "");
-				</#if>
-			</#list>
+		if (useFinderCache) {
+			result = ${finderCache}.getResult(_finderPathFetchBy${entityFinder.name}, finderArgs, this);
+		}
 
-			Object[] finderArgs = null;
+		if (result instanceof ${entity.name}) {
+			${entity.name} ${entity.variableName} = (${entity.name})result;
 
-			if (useFinderCache) {
-				finderArgs = new Object[] {
-					<#list entityColumns as entityColumn>
-						<#if stringUtil.equals(entityColumn.type, "Date")>
-							_getTime(${entityColumn.name})
+			if (
+				<#list entityColumns as entityColumn>
+					<#if entityColumn.isPrimitiveType(false)>
+						<#if stringUtil.equals(entityColumn.type, "boolean")>
+							(${entityColumn.name} != ${entity.variableName}.is${entityColumn.methodName}())
 						<#else>
-							${entityColumn.name}
+							(${entityColumn.name} != ${entity.variableName}.get${entityColumn.methodName}())
 						</#if>
+					<#else>
+						!Objects.equals(${entityColumn.name}, ${entity.variableName}.get${entityColumn.methodName}())
+					</#if>
 
-						<#if entityColumn_has_next>
-							,
-						</#if>
-					</#list>
-				};
+					<#if entityColumn_has_next>
+						||
+					</#if>
+				</#list>
+			) {
+				result = null;
 			}
+		}
 
-			Object result = null;
+		if (result == null) {
+			StringBundler sb = new StringBundler(${entityColumns?size + 2});
 
-			if (useFinderCache) {
-				result = ${finderCache}.getResult(_finderPathFetchBy${entityFinder.name}, finderArgs, this);
-			}
+			sb.append(_SQL_SELECT_${entity.alias?upper_case}_WHERE);
 
-			if (result instanceof ${entity.name}) {
-				${entity.name} ${entity.variableName} = (${entity.name})result;
+			<#include "persistence_impl_finder_cols.ftl">
 
-				if (
-					<#list entityColumns as entityColumn>
-						<#if entityColumn.isPrimitiveType(false)>
-							<#if stringUtil.equals(entityColumn.type, "boolean")>
-								(${entityColumn.name} != ${entity.variableName}.is${entityColumn.methodName}())
-							<#else>
-								(${entityColumn.name} != ${entity.variableName}.get${entityColumn.methodName}())
-							</#if>
-						<#else>
-							!Objects.equals(${entityColumn.name}, ${entity.variableName}.get${entityColumn.methodName}())
-						</#if>
+			String sql = sb.toString();
 
-						<#if entityColumn_has_next>
-							||
-						</#if>
-					</#list>
-				) {
-					result = null;
-				}
-			}
+			Session session = null;
 
-			if (result == null) {
-				StringBundler sb = new StringBundler(${entityColumns?size + 2});
+			try {
+				session = openSession();
 
-				sb.append(_SQL_SELECT_${entity.alias?upper_case}_WHERE);
+				Query query = session.createQuery(sql);
 
-				<#include "persistence_impl_finder_cols.ftl">
+				QueryPos queryPos = QueryPos.getInstance(query);
 
-				String sql = sb.toString();
+				<@finderQPos />
 
-				Session session = null;
+				List<${entity.name}> list = query.list();
 
-				try {
-					session = openSession();
-
-					Query query = session.createQuery(sql);
-
-					QueryPos queryPos = QueryPos.getInstance(query);
-
-					<@finderQPos />
-
-					List<${entity.name}> list = query.list();
-
-					if (list.isEmpty()) {
-						if (useFinderCache) {
-							${finderCache}.putResult(_finderPathFetchBy${entityFinder.name}, finderArgs, list);
-						}
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						${finderCache}.putResult(_finderPathFetchBy${entityFinder.name}, finderArgs, list);
 					}
-					else {
-						<#if !entityFinder.isUnique()>
-							if (list.size() > 1) {
-								Collections.sort(list, Collections.reverseOrder());
+				}
+				else {
+					<#if !entityFinder.isUnique()>
+						if (list.size() > 1) {
+							Collections.sort(list, Collections.reverseOrder());
 
-								if (_log.isWarnEnabled()) {
-									if (!useFinderCache) {
-										finderArgs = new Object[] {
-											<#list entityColumns as entityColumn>
-												<#if stringUtil.equals(entityColumn.type, "Date")>
-													_getTime(${entityColumn.name})
-												<#else>
-													${entityColumn.name}
-												</#if>
+							if (_log.isWarnEnabled()) {
+								if (!useFinderCache) {
+									finderArgs = new Object[] {
+										<#list entityColumns as entityColumn>
+											<#if stringUtil.equals(entityColumn.type, "Date")>
+												_getTime(${entityColumn.name})
+											<#else>
+												${entityColumn.name}
+											</#if>
 
-												<#if entityColumn_has_next>
-													,
-												</#if>
-											</#list>
-										};
-									}
-
-									_log.warn("${entity.name}PersistenceImpl.fetchBy${entityFinder.name}(<#list entityColumns as entityColumn>${entityColumn.type}, </#list>boolean) with parameters (" + StringUtil.merge(finderArgs) + ") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
+											<#if entityColumn_has_next>
+												,
+											</#if>
+										</#list>
+									};
 								}
+
+								_log.warn("${entity.name}PersistenceImpl.fetchBy${entityFinder.name}(<#list entityColumns as entityColumn>${entityColumn.type}, </#list>boolean) with parameters (" + StringUtil.merge(finderArgs) + ") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
 							}
-						</#if>
-
-						${entity.name} ${entity.variableName} = list.get(0);
-
-						result = ${entity.variableName};
-
-						cacheResult(${entity.variableName});
-					}
-				}
-				catch (Exception exception) {
-					<#if serviceBuilder.isVersionLTE_7_2_0()>
-						if (useFinderCache) {
-							${finderCache}.removeResult(_finderPathFetchBy${entityFinder.name}, finderArgs);
 						}
 					</#if>
 
-					throw processException(exception);
-				}
-				finally {
-					closeSession(session);
-				}
-			}
+					${entity.name} ${entity.variableName} = list.get(0);
 
-			if (result instanceof List<?>) {
-				return null;
-			}
-			else {
-				return (${entity.name})result;
-			}
+					result = ${entity.variableName};
 
-			<#if entity.isChangeTrackingEnabled()>
+					cacheResult(${entity.variableName});
 				}
-			</#if>
+			}
+			catch (Exception exception) {
+				<#if serviceBuilder.isVersionLTE_7_2_0()>
+					if (useFinderCache) {
+						${finderCache}.removeResult(_finderPathFetchBy${entityFinder.name}, finderArgs);
+					}
+				</#if>
+
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (${entity.name})result;
+		}
+
+		<#if entity.isChangeTrackingEnabled()>
+			}
 		</#if>
 	}
 </#if>

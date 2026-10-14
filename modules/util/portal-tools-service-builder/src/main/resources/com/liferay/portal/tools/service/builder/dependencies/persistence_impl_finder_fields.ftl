@@ -9,9 +9,7 @@
 <#list entityColumns as entityColumn>
 	<#assign entityColumnName = entityColumn.name finderFieldSuffix = "" />
 
-	<#if !entityFinder.finderDelegationEnabled || (entity.isPermissionCheckEnabled(entityFinder) && !entity.isPermissionedModel() && (entityColumn.name == entityColumn.DBName) && !entityFinderDBWhere)>
-		<#include "persistence_impl_finder_field.ftl">
-	</#if>
+	<#include "persistence_impl_finder_field.ftl">
 
 	<#if entity.isPermissionCheckEnabled(entityFinder) && !entity.isPermissionedModel() && ((entityColumn.name != entityColumn.DBName) || entityFinderDBWhere)>
 		<#assign entityColumnName = entityColumn.DBName finderFieldSuffix = finderFieldSQLSuffix />
