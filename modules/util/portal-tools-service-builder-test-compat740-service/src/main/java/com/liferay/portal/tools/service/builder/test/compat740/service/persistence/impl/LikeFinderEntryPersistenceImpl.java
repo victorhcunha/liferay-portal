@@ -11,6 +11,7 @@ import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
@@ -18,14 +19,12 @@ import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.service.persistence.impl.CollectionPersistenceFinder;
-import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
-import com.liferay.portal.kernel.service.persistence.impl.UniquePersistenceFinder;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.tools.service.builder.test.compat740.exception.NoSuchLikeFinderEntryException;
 import com.liferay.portal.tools.service.builder.test.compat740.model.LikeFinderEntry;
 import com.liferay.portal.tools.service.builder.test.compat740.model.LikeFinderEntryTable;
@@ -41,6 +40,7 @@ import java.lang.reflect.InvocationHandler;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -83,8 +83,6 @@ public class LikeFinderEntryPersistenceImpl
 	private FinderPath _finderPathWithoutPaginationFindAll;
 	private FinderPath _finderPathCountAll;
 	private FinderPath _finderPathFetchByO_O_P;
-	private UniquePersistenceFinder<LikeFinderEntry>
-		_uniquePersistenceFinderByO_O_P;
 
 	/**
 	 * Returns the like finder entry where ownerId = &#63; and ownerType = &#63; and portletId = &#63; or throws a <code>NoSuchLikeFinderEntryException</code> if it could not be found.
@@ -157,9 +155,101 @@ public class LikeFinderEntryPersistenceImpl
 	public LikeFinderEntry fetchByO_O_P(
 		long ownerId, int ownerType, String portletId, boolean useFinderCache) {
 
-		return _uniquePersistenceFinderByO_O_P.fetch(
-			finderCache, new Object[] {ownerId, ownerType, portletId},
-			useFinderCache);
+		portletId = Objects.toString(portletId, "");
+
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {ownerId, ownerType, portletId};
+		}
+
+		Object result = null;
+
+		if (useFinderCache) {
+			result = finderCache.getResult(
+				_finderPathFetchByO_O_P, finderArgs, this);
+		}
+
+		if (result instanceof LikeFinderEntry) {
+			LikeFinderEntry likeFinderEntry = (LikeFinderEntry)result;
+
+			if ((ownerId != likeFinderEntry.getOwnerId()) ||
+				(ownerType != likeFinderEntry.getOwnerType()) ||
+				!Objects.equals(portletId, likeFinderEntry.getPortletId())) {
+
+				result = null;
+			}
+		}
+
+		if (result == null) {
+			StringBundler sb = new StringBundler(5);
+
+			sb.append(_SQL_SELECT_LIKEFINDERENTRY_WHERE);
+
+			sb.append(_FINDER_COLUMN_O_O_P_OWNERID_2);
+
+			sb.append(_FINDER_COLUMN_O_O_P_OWNERTYPE_2);
+
+			boolean bindPortletId = false;
+
+			if (portletId.isEmpty()) {
+				sb.append(_FINDER_COLUMN_O_O_P_PORTLETID_3);
+			}
+			else {
+				bindPortletId = true;
+
+				sb.append(_FINDER_COLUMN_O_O_P_PORTLETID_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(ownerId);
+
+				queryPos.add(ownerType);
+
+				if (bindPortletId) {
+					queryPos.add(portletId);
+				}
+
+				List<LikeFinderEntry> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						finderCache.putResult(
+							_finderPathFetchByO_O_P, finderArgs, list);
+					}
+				}
+				else {
+					LikeFinderEntry likeFinderEntry = list.get(0);
+
+					result = likeFinderEntry;
+
+					cacheResult(likeFinderEntry);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (LikeFinderEntry)result;
+		}
 	}
 
 	/**
@@ -191,14 +281,30 @@ public class LikeFinderEntryPersistenceImpl
 	 */
 	@Override
 	public int countByO_O_P(long ownerId, int ownerType, String portletId) {
-		return _uniquePersistenceFinderByO_O_P.count(
-			finderCache, new Object[] {ownerId, ownerType, portletId});
+		LikeFinderEntry likeFinderEntry = fetchByO_O_P(
+			ownerId, ownerType, portletId);
+
+		if (likeFinderEntry == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_O_O_P_OWNERID_2 =
+		"likeFinderEntry.ownerId = ? AND ";
+
+	private static final String _FINDER_COLUMN_O_O_P_OWNERTYPE_2 =
+		"likeFinderEntry.ownerType = ? AND ";
+
+	private static final String _FINDER_COLUMN_O_O_P_PORTLETID_2 =
+		"likeFinderEntry.portletId = ?";
+
+	private static final String _FINDER_COLUMN_O_O_P_PORTLETID_3 =
+		"(likeFinderEntry.portletId IS NULL OR likeFinderEntry.portletId = '')";
 
 	private FinderPath _finderPathWithPaginationFindByC_O_O_LikeP;
 	private FinderPath _finderPathWithPaginationCountByC_O_O_LikeP;
-	private CollectionPersistenceFinder<LikeFinderEntry>
-		_collectionPersistenceFinderByC_O_O_LikeP;
 
 	/**
 	 * Returns all the like finder entries where companyId = &#63; and ownerId = &#63; and ownerType = &#63; and portletId LIKE &#63;.
@@ -293,10 +399,117 @@ public class LikeFinderEntryPersistenceImpl
 		OrderByComparator<LikeFinderEntry> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByC_O_O_LikeP.find(
-			finderCache,
-			new Object[] {companyId, ownerId, ownerType, portletId}, start, end,
-			orderByComparator, useFinderCache);
+		portletId = Objects.toString(portletId, "");
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		finderPath = _finderPathWithPaginationFindByC_O_O_LikeP;
+		finderArgs = new Object[] {
+			companyId, ownerId, ownerType, portletId, start, end,
+			orderByComparator
+		};
+
+		List<LikeFinderEntry> list = null;
+
+		if (useFinderCache) {
+			list = (List<LikeFinderEntry>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (LikeFinderEntry likeFinderEntry : list) {
+					if ((companyId != likeFinderEntry.getCompanyId()) ||
+						(ownerId != likeFinderEntry.getOwnerId()) ||
+						(ownerType != likeFinderEntry.getOwnerType()) ||
+						!StringUtil.wildcardMatches(
+							likeFinderEntry.getPortletId(), portletId, '_', '%',
+							'\\', true)) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					6 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(6);
+			}
+
+			sb.append(_SQL_SELECT_LIKEFINDERENTRY_WHERE);
+
+			sb.append(_FINDER_COLUMN_C_O_O_LIKEP_COMPANYID_2);
+
+			sb.append(_FINDER_COLUMN_C_O_O_LIKEP_OWNERID_2);
+
+			sb.append(_FINDER_COLUMN_C_O_O_LIKEP_OWNERTYPE_2);
+
+			boolean bindPortletId = false;
+
+			if (portletId.isEmpty()) {
+				sb.append(_FINDER_COLUMN_C_O_O_LIKEP_PORTLETID_3);
+			}
+			else {
+				bindPortletId = true;
+
+				sb.append(_FINDER_COLUMN_C_O_O_LIKEP_PORTLETID_2);
+			}
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(LikeFinderEntryModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(companyId);
+
+				queryPos.add(ownerId);
+
+				queryPos.add(ownerType);
+
+				if (bindPortletId) {
+					queryPos.add(portletId);
+				}
+
+				list = (List<LikeFinderEntry>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -403,10 +616,88 @@ public class LikeFinderEntryPersistenceImpl
 	public int countByC_O_O_LikeP(
 		long companyId, long ownerId, int ownerType, String portletId) {
 
-		return _collectionPersistenceFinderByC_O_O_LikeP.count(
-			finderCache,
-			new Object[] {companyId, ownerId, ownerType, portletId});
+		portletId = Objects.toString(portletId, "");
+
+		FinderPath finderPath = _finderPathWithPaginationCountByC_O_O_LikeP;
+
+		Object[] finderArgs = new Object[] {
+			companyId, ownerId, ownerType, portletId
+		};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(5);
+
+			sb.append(_SQL_COUNT_LIKEFINDERENTRY_WHERE);
+
+			sb.append(_FINDER_COLUMN_C_O_O_LIKEP_COMPANYID_2);
+
+			sb.append(_FINDER_COLUMN_C_O_O_LIKEP_OWNERID_2);
+
+			sb.append(_FINDER_COLUMN_C_O_O_LIKEP_OWNERTYPE_2);
+
+			boolean bindPortletId = false;
+
+			if (portletId.isEmpty()) {
+				sb.append(_FINDER_COLUMN_C_O_O_LIKEP_PORTLETID_3);
+			}
+			else {
+				bindPortletId = true;
+
+				sb.append(_FINDER_COLUMN_C_O_O_LIKEP_PORTLETID_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(companyId);
+
+				queryPos.add(ownerId);
+
+				queryPos.add(ownerType);
+
+				if (bindPortletId) {
+					queryPos.add(portletId);
+				}
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
+
+	private static final String _FINDER_COLUMN_C_O_O_LIKEP_COMPANYID_2 =
+		"likeFinderEntry.companyId = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_O_O_LIKEP_OWNERID_2 =
+		"likeFinderEntry.ownerId = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_O_O_LIKEP_OWNERTYPE_2 =
+		"likeFinderEntry.ownerType = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_O_O_LIKEP_PORTLETID_2 =
+		"likeFinderEntry.portletId LIKE ?";
+
+	private static final String _FINDER_COLUMN_C_O_O_LIKEP_PORTLETID_3 =
+		"(likeFinderEntry.portletId IS NULL OR likeFinderEntry.portletId LIKE '')";
 
 	public LikeFinderEntryPersistenceImpl() {
 		setModelClass(LikeFinderEntry.class);
@@ -961,18 +1252,6 @@ public class LikeFinderEntryPersistenceImpl
 			},
 			new String[] {"ownerId", "ownerType", "portletId"}, true);
 
-		_uniquePersistenceFinderByO_O_P = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByO_O_P, _SQL_SELECT_LIKEFINDERENTRY_WHERE,
-			new FinderColumn<>(
-				"likeFinderEntry.", "ownerId", FinderColumn.Type.LONG, "=",
-				true, false, LikeFinderEntry::getOwnerId),
-			new FinderColumn<>(
-				"likeFinderEntry.", "ownerType", FinderColumn.Type.INTEGER, "=",
-				true, false, LikeFinderEntry::getOwnerType),
-			new FinderColumn<>(
-				"likeFinderEntry.", "portletId", FinderColumn.Type.STRING, "=",
-				true, true, LikeFinderEntry::getPortletId));
-
 		_finderPathWithPaginationFindByC_O_O_LikeP = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_O_O_LikeP",
 			new String[] {
@@ -992,26 +1271,6 @@ public class LikeFinderEntryPersistenceImpl
 			},
 			new String[] {"companyId", "ownerId", "ownerType", "portletId"},
 			false);
-
-		_collectionPersistenceFinderByC_O_O_LikeP =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByC_O_O_LikeP, null,
-				_finderPathWithPaginationCountByC_O_O_LikeP,
-				_SQL_SELECT_LIKEFINDERENTRY_WHERE,
-				_SQL_COUNT_LIKEFINDERENTRY_WHERE,
-				LikeFinderEntryModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"likeFinderEntry.", "companyId", FinderColumn.Type.LONG,
-					"=", true, false, LikeFinderEntry::getCompanyId),
-				new FinderColumn<>(
-					"likeFinderEntry.", "ownerId", FinderColumn.Type.LONG, "=",
-					true, false, LikeFinderEntry::getOwnerId),
-				new FinderColumn<>(
-					"likeFinderEntry.", "ownerType", FinderColumn.Type.INTEGER,
-					"=", true, false, LikeFinderEntry::getOwnerType),
-				new FinderColumn<>(
-					"likeFinderEntry.", "portletId", FinderColumn.Type.STRING,
-					"LIKE", true, true, LikeFinderEntry::getPortletId));
 
 		LikeFinderEntryUtil.setPersistence(this);
 	}
@@ -1084,4 +1343,4 @@ public class LikeFinderEntryPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1585417470
+// LIFERAY-SERVICE-BUILDER-HASH:-397206032
