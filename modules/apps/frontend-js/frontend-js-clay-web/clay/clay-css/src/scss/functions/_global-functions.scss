@@ -25,14 +25,12 @@
 	$toggle-switch-padding,
 	$label-spacer-x: 8px
 ) {
-	@if not(is-css-var($toggle-switch-padding)) {
-		@if ($toggle-switch-padding < 0) {
-			$toggle-switch-width: $toggle-switch-width +
-				abs($toggle-switch-padding);
-		}
+	@if ($toggle-switch-padding < 0) {
+		$toggle-switch-width: $toggle-switch-width +
+			abs($toggle-switch-padding);
 	}
 
-	@return calc(#{$toggle-switch-width} + #{$label-spacer-x});
+	@return $toggle-switch-width + $label-spacer-x;
 }
 
 /// A function that combines two maps. It adds new key value pairs to the end of the map.
