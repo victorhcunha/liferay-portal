@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
@@ -28,8 +29,6 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
-import com.liferay.portal.kernel.service.persistence.impl.UniquePersistenceFinder;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -85,8 +84,6 @@ public class PatcherTicketHintPersistenceImpl
 	private FinderPath _finderPathWithoutPaginationFindAll;
 	private FinderPath _finderPathCountAll;
 	private FinderPath _finderPathFetchByPatcherProductVersionId;
-	private UniquePersistenceFinder<PatcherTicketHint>
-		_uniquePersistenceFinderByPatcherProductVersionId;
 
 	/**
 	 * Returns the patcher ticket hint where patcherProductVersionId = &#63; or throws a <code>NoSuchPatcherTicketHintException</code> if it could not be found.
@@ -147,9 +144,81 @@ public class PatcherTicketHintPersistenceImpl
 	public PatcherTicketHint fetchByPatcherProductVersionId(
 		long patcherProductVersionId, boolean useFinderCache) {
 
-		return _uniquePersistenceFinderByPatcherProductVersionId.fetch(
-			finderCache, new Object[] {patcherProductVersionId},
-			useFinderCache);
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {patcherProductVersionId};
+		}
+
+		Object result = null;
+
+		if (useFinderCache) {
+			result = finderCache.getResult(
+				_finderPathFetchByPatcherProductVersionId, finderArgs, this);
+		}
+
+		if (result instanceof PatcherTicketHint) {
+			PatcherTicketHint patcherTicketHint = (PatcherTicketHint)result;
+
+			if (patcherProductVersionId !=
+					patcherTicketHint.getPatcherProductVersionId()) {
+
+				result = null;
+			}
+		}
+
+		if (result == null) {
+			StringBundler sb = new StringBundler(3);
+
+			sb.append(_SQL_SELECT_PATCHERTICKETHINT_WHERE);
+
+			sb.append(
+				_FINDER_COLUMN_PATCHERPRODUCTVERSIONID_PATCHERPRODUCTVERSIONID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(patcherProductVersionId);
+
+				List<PatcherTicketHint> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						finderCache.putResult(
+							_finderPathFetchByPatcherProductVersionId,
+							finderArgs, list);
+					}
+				}
+				else {
+					PatcherTicketHint patcherTicketHint = list.get(0);
+
+					result = patcherTicketHint;
+
+					cacheResult(patcherTicketHint);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (PatcherTicketHint)result;
+		}
 	}
 
 	/**
@@ -177,9 +246,19 @@ public class PatcherTicketHintPersistenceImpl
 	 */
 	@Override
 	public int countByPatcherProductVersionId(long patcherProductVersionId) {
-		return _uniquePersistenceFinderByPatcherProductVersionId.count(
-			finderCache, new Object[] {patcherProductVersionId});
+		PatcherTicketHint patcherTicketHint = fetchByPatcherProductVersionId(
+			patcherProductVersionId);
+
+		if (patcherTicketHint == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String
+		_FINDER_COLUMN_PATCHERPRODUCTVERSIONID_PATCHERPRODUCTVERSIONID_2 =
+			"patcherTicketHint.patcherProductVersionId = ?";
 
 	public PatcherTicketHintPersistenceImpl() {
 		setModelClass(PatcherTicketHint.class);
@@ -757,15 +836,6 @@ public class PatcherTicketHintPersistenceImpl
 			new String[] {Long.class.getName()},
 			new String[] {"patcherProductVersionId"}, true);
 
-		_uniquePersistenceFinderByPatcherProductVersionId =
-			new UniquePersistenceFinder<>(
-				this, _finderPathFetchByPatcherProductVersionId,
-				_SQL_SELECT_PATCHERTICKETHINT_WHERE,
-				new FinderColumn<>(
-					"patcherTicketHint.", "patcherProductVersionId",
-					FinderColumn.Type.LONG, "=", true, true,
-					PatcherTicketHint::getPatcherProductVersionId));
-
 		PatcherTicketHintUtil.setPersistence(this);
 	}
 
@@ -817,6 +887,9 @@ public class PatcherTicketHintPersistenceImpl
 	private static final String _SQL_COUNT_PATCHERTICKETHINT =
 		"SELECT COUNT(patcherTicketHint) FROM PatcherTicketHint patcherTicketHint";
 
+	private static final String _SQL_COUNT_PATCHERTICKETHINT_WHERE =
+		"SELECT COUNT(patcherTicketHint) FROM PatcherTicketHint patcherTicketHint WHERE ";
+
 	private static final String _ORDER_BY_ENTITY_ALIAS = "patcherTicketHint.";
 
 	private static final String _NO_SUCH_ENTITY_WITH_PRIMARY_KEY =
@@ -834,4 +907,4 @@ public class PatcherTicketHintPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:706521074
+// LIFERAY-SERVICE-BUILDER-HASH:1957456338

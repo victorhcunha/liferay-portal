@@ -23,6 +23,7 @@ import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
@@ -38,9 +39,6 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.service.persistence.impl.CollectionPersistenceFinder;
-import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
-import com.liferay.portal.kernel.service.persistence.impl.UniquePersistenceFinder;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -109,8 +107,6 @@ public class ClientExtensionEntryRelPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByUuid;
 	private FinderPath _finderPathWithoutPaginationFindByUuid;
 	private FinderPath _finderPathCountByUuid;
-	private CollectionPersistenceFinder<ClientExtensionEntryRel>
-		_collectionPersistenceFinderByUuid;
 
 	/**
 	 * Returns all the client extension entry rels where uuid = &#63;.
@@ -187,9 +183,108 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _collectionPersistenceFinderByUuid.find(
-				finderCache, new Object[] {uuid}, start, end, orderByComparator,
-				useFinderCache);
+			uuid = Objects.toString(uuid, "");
+
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByUuid;
+					finderArgs = new Object[] {uuid};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByUuid;
+				finderArgs = new Object[] {uuid, start, end, orderByComparator};
+			}
+
+			List<ClientExtensionEntryRel> list = null;
+
+			if (useFinderCache) {
+				list = (List<ClientExtensionEntryRel>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (ClientExtensionEntryRel clientExtensionEntryRel :
+							list) {
+
+						if (!uuid.equals(clientExtensionEntryRel.getUuid())) {
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						3 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(3);
+				}
+
+				sb.append(_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_UUID_2);
+				}
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(ClientExtensionEntryRelModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					list = (List<ClientExtensionEntryRel>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -274,14 +369,69 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _collectionPersistenceFinderByUuid.count(
-				finderCache, new Object[] {uuid});
+			uuid = Objects.toString(uuid, "");
+
+			FinderPath finderPath = _finderPathCountByUuid;
+
+			Object[] finderArgs = new Object[] {uuid};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(2);
+
+				sb.append(_SQL_COUNT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_UUID_2);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
 
+	private static final String _FINDER_COLUMN_UUID_UUID_2 =
+		"clientExtensionEntryRel.uuid = ?";
+
+	private static final String _FINDER_COLUMN_UUID_UUID_3 =
+		"(clientExtensionEntryRel.uuid IS NULL OR clientExtensionEntryRel.uuid = '')";
+
 	private FinderPath _finderPathFetchByUUID_G;
-	private UniquePersistenceFinder<ClientExtensionEntryRel>
-		_uniquePersistenceFinderByUUID_G;
 
 	/**
 	 * Returns the client extension entry rel where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchClientExtensionEntryRelException</code> if it could not be found.
@@ -349,8 +499,98 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _uniquePersistenceFinderByUUID_G.fetch(
-				finderCache, new Object[] {uuid, groupId}, useFinderCache);
+			uuid = Objects.toString(uuid, "");
+
+			Object[] finderArgs = null;
+
+			if (useFinderCache) {
+				finderArgs = new Object[] {uuid, groupId};
+			}
+
+			Object result = null;
+
+			if (useFinderCache) {
+				result = finderCache.getResult(
+					_finderPathFetchByUUID_G, finderArgs, this);
+			}
+
+			if (result instanceof ClientExtensionEntryRel) {
+				ClientExtensionEntryRel clientExtensionEntryRel =
+					(ClientExtensionEntryRel)result;
+
+				if (!Objects.equals(uuid, clientExtensionEntryRel.getUuid()) ||
+					(groupId != clientExtensionEntryRel.getGroupId())) {
+
+					result = null;
+				}
+			}
+
+			if (result == null) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append(_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_G_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_G_UUID_2);
+				}
+
+				sb.append(_FINDER_COLUMN_UUID_G_GROUPID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					queryPos.add(groupId);
+
+					List<ClientExtensionEntryRel> list = query.list();
+
+					if (list.isEmpty()) {
+						if (useFinderCache) {
+							finderCache.putResult(
+								_finderPathFetchByUUID_G, finderArgs, list);
+						}
+					}
+					else {
+						ClientExtensionEntryRel clientExtensionEntryRel =
+							list.get(0);
+
+						result = clientExtensionEntryRel;
+
+						cacheResult(clientExtensionEntryRel);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			if (result instanceof List<?>) {
+				return null;
+			}
+			else {
+				return (ClientExtensionEntryRel)result;
+			}
 		}
 	}
 
@@ -380,15 +620,28 @@ public class ClientExtensionEntryRelPersistenceImpl
 	 */
 	@Override
 	public int countByUUID_G(String uuid, long groupId) {
-		return _uniquePersistenceFinderByUUID_G.count(
-			finderCache, new Object[] {uuid, groupId});
+		ClientExtensionEntryRel clientExtensionEntryRel = fetchByUUID_G(
+			uuid, groupId);
+
+		if (clientExtensionEntryRel == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_UUID_G_UUID_2 =
+		"clientExtensionEntryRel.uuid = ? AND ";
+
+	private static final String _FINDER_COLUMN_UUID_G_UUID_3 =
+		"(clientExtensionEntryRel.uuid IS NULL OR clientExtensionEntryRel.uuid = '') AND ";
+
+	private static final String _FINDER_COLUMN_UUID_G_GROUPID_2 =
+		"clientExtensionEntryRel.groupId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByUuid_C;
 	private FinderPath _finderPathWithoutPaginationFindByUuid_C;
 	private FinderPath _finderPathCountByUuid_C;
-	private CollectionPersistenceFinder<ClientExtensionEntryRel>
-		_collectionPersistenceFinderByUuid_C;
 
 	/**
 	 * Returns all the client extension entry rels where uuid = &#63; and companyId = &#63;.
@@ -473,9 +726,117 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _collectionPersistenceFinderByUuid_C.find(
-				finderCache, new Object[] {uuid, companyId}, start, end,
-				orderByComparator, useFinderCache);
+			uuid = Objects.toString(uuid, "");
+
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByUuid_C;
+					finderArgs = new Object[] {uuid, companyId};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByUuid_C;
+				finderArgs = new Object[] {
+					uuid, companyId, start, end, orderByComparator
+				};
+			}
+
+			List<ClientExtensionEntryRel> list = null;
+
+			if (useFinderCache) {
+				list = (List<ClientExtensionEntryRel>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (ClientExtensionEntryRel clientExtensionEntryRel :
+							list) {
+
+						if (!uuid.equals(clientExtensionEntryRel.getUuid()) ||
+							(companyId !=
+								clientExtensionEntryRel.getCompanyId())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						4 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(4);
+				}
+
+				sb.append(_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_C_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_C_UUID_2);
+				}
+
+				sb.append(_FINDER_COLUMN_UUID_C_COMPANYID_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(ClientExtensionEntryRelModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					queryPos.add(companyId);
+
+					list = (List<ClientExtensionEntryRel>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -569,16 +930,78 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _collectionPersistenceFinderByUuid_C.count(
-				finderCache, new Object[] {uuid, companyId});
+			uuid = Objects.toString(uuid, "");
+
+			FinderPath finderPath = _finderPathCountByUuid_C;
+
+			Object[] finderArgs = new Object[] {uuid, companyId};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(_SQL_COUNT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_C_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_C_UUID_2);
+				}
+
+				sb.append(_FINDER_COLUMN_UUID_C_COMPANYID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					queryPos.add(companyId);
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_UUID_C_UUID_2 =
+		"clientExtensionEntryRel.uuid = ? AND ";
+
+	private static final String _FINDER_COLUMN_UUID_C_UUID_3 =
+		"(clientExtensionEntryRel.uuid IS NULL OR clientExtensionEntryRel.uuid = '') AND ";
+
+	private static final String _FINDER_COLUMN_UUID_C_COMPANYID_2 =
+		"clientExtensionEntryRel.companyId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByType;
 	private FinderPath _finderPathWithoutPaginationFindByType;
 	private FinderPath _finderPathCountByType;
-	private CollectionPersistenceFinder<ClientExtensionEntryRel>
-		_collectionPersistenceFinderByType;
 
 	/**
 	 * Returns all the client extension entry rels where type = &#63;.
@@ -655,9 +1078,108 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _collectionPersistenceFinderByType.find(
-				finderCache, new Object[] {type}, start, end, orderByComparator,
-				useFinderCache);
+			type = Objects.toString(type, "");
+
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByType;
+					finderArgs = new Object[] {type};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByType;
+				finderArgs = new Object[] {type, start, end, orderByComparator};
+			}
+
+			List<ClientExtensionEntryRel> list = null;
+
+			if (useFinderCache) {
+				list = (List<ClientExtensionEntryRel>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (ClientExtensionEntryRel clientExtensionEntryRel :
+							list) {
+
+						if (!type.equals(clientExtensionEntryRel.getType())) {
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						3 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(3);
+				}
+
+				sb.append(_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				boolean bindType = false;
+
+				if (type.isEmpty()) {
+					sb.append(_FINDER_COLUMN_TYPE_TYPE_3);
+				}
+				else {
+					bindType = true;
+
+					sb.append(_FINDER_COLUMN_TYPE_TYPE_2);
+				}
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(ClientExtensionEntryRelModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindType) {
+						queryPos.add(type);
+					}
+
+					list = (List<ClientExtensionEntryRel>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -742,16 +1264,71 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _collectionPersistenceFinderByType.count(
-				finderCache, new Object[] {type});
+			type = Objects.toString(type, "");
+
+			FinderPath finderPath = _finderPathCountByType;
+
+			Object[] finderArgs = new Object[] {type};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(2);
+
+				sb.append(_SQL_COUNT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				boolean bindType = false;
+
+				if (type.isEmpty()) {
+					sb.append(_FINDER_COLUMN_TYPE_TYPE_3);
+				}
+				else {
+					bindType = true;
+
+					sb.append(_FINDER_COLUMN_TYPE_TYPE_2);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindType) {
+						queryPos.add(type);
+					}
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_TYPE_TYPE_2 =
+		"clientExtensionEntryRel.type = ?";
+
+	private static final String _FINDER_COLUMN_TYPE_TYPE_3 =
+		"(clientExtensionEntryRel.type IS NULL OR clientExtensionEntryRel.type = '')";
 
 	private FinderPath _finderPathWithPaginationFindByC_CETERC;
 	private FinderPath _finderPathWithoutPaginationFindByC_CETERC;
 	private FinderPath _finderPathCountByC_CETERC;
-	private CollectionPersistenceFinder<ClientExtensionEntryRel>
-		_collectionPersistenceFinderByC_CETERC;
 
 	/**
 	 * Returns all the client extension entry rels where companyId = &#63; and cetExternalReferenceCode = &#63;.
@@ -839,9 +1416,125 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _collectionPersistenceFinderByC_CETERC.find(
-				finderCache, new Object[] {companyId, cetExternalReferenceCode},
-				start, end, orderByComparator, useFinderCache);
+			cetExternalReferenceCode = Objects.toString(
+				cetExternalReferenceCode, "");
+
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByC_CETERC;
+					finderArgs = new Object[] {
+						companyId, cetExternalReferenceCode
+					};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByC_CETERC;
+				finderArgs = new Object[] {
+					companyId, cetExternalReferenceCode, start, end,
+					orderByComparator
+				};
+			}
+
+			List<ClientExtensionEntryRel> list = null;
+
+			if (useFinderCache) {
+				list = (List<ClientExtensionEntryRel>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (ClientExtensionEntryRel clientExtensionEntryRel :
+							list) {
+
+						if ((companyId !=
+								clientExtensionEntryRel.getCompanyId()) ||
+							!cetExternalReferenceCode.equals(
+								clientExtensionEntryRel.
+									getCETExternalReferenceCode())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						4 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(4);
+				}
+
+				sb.append(_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_CETERC_COMPANYID_2);
+
+				boolean bindCETExternalReferenceCode = false;
+
+				if (cetExternalReferenceCode.isEmpty()) {
+					sb.append(
+						_FINDER_COLUMN_C_CETERC_CETEXTERNALREFERENCECODE_3);
+				}
+				else {
+					bindCETExternalReferenceCode = true;
+
+					sb.append(
+						_FINDER_COLUMN_C_CETERC_CETEXTERNALREFERENCECODE_2);
+				}
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(ClientExtensionEntryRelModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(companyId);
+
+					if (bindCETExternalReferenceCode) {
+						queryPos.add(cetExternalReferenceCode);
+					}
+
+					list = (List<ClientExtensionEntryRel>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -939,17 +1632,85 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _collectionPersistenceFinderByC_CETERC.count(
-				finderCache,
-				new Object[] {companyId, cetExternalReferenceCode});
+			cetExternalReferenceCode = Objects.toString(
+				cetExternalReferenceCode, "");
+
+			FinderPath finderPath = _finderPathCountByC_CETERC;
+
+			Object[] finderArgs = new Object[] {
+				companyId, cetExternalReferenceCode
+			};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(_SQL_COUNT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_CETERC_COMPANYID_2);
+
+				boolean bindCETExternalReferenceCode = false;
+
+				if (cetExternalReferenceCode.isEmpty()) {
+					sb.append(
+						_FINDER_COLUMN_C_CETERC_CETEXTERNALREFERENCECODE_3);
+				}
+				else {
+					bindCETExternalReferenceCode = true;
+
+					sb.append(
+						_FINDER_COLUMN_C_CETERC_CETEXTERNALREFERENCECODE_2);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(companyId);
+
+					if (bindCETExternalReferenceCode) {
+						queryPos.add(cetExternalReferenceCode);
+					}
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_C_CETERC_COMPANYID_2 =
+		"clientExtensionEntryRel.companyId = ? AND ";
+
+	private static final String
+		_FINDER_COLUMN_C_CETERC_CETEXTERNALREFERENCECODE_2 =
+			"clientExtensionEntryRel.cetExternalReferenceCode = ?";
+
+	private static final String
+		_FINDER_COLUMN_C_CETERC_CETEXTERNALREFERENCECODE_3 =
+			"(clientExtensionEntryRel.cetExternalReferenceCode IS NULL OR clientExtensionEntryRel.cetExternalReferenceCode = '')";
 
 	private FinderPath _finderPathWithPaginationFindByC_C;
 	private FinderPath _finderPathWithoutPaginationFindByC_C;
 	private FinderPath _finderPathCountByC_C;
-	private CollectionPersistenceFinder<ClientExtensionEntryRel>
-		_collectionPersistenceFinderByC_C;
 
 	/**
 	 * Returns all the client extension entry rels where classNameId = &#63; and classPK = &#63;.
@@ -1034,9 +1795,104 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _collectionPersistenceFinderByC_C.find(
-				finderCache, new Object[] {classNameId, classPK}, start, end,
-				orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByC_C;
+					finderArgs = new Object[] {classNameId, classPK};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByC_C;
+				finderArgs = new Object[] {
+					classNameId, classPK, start, end, orderByComparator
+				};
+			}
+
+			List<ClientExtensionEntryRel> list = null;
+
+			if (useFinderCache) {
+				list = (List<ClientExtensionEntryRel>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (ClientExtensionEntryRel clientExtensionEntryRel :
+							list) {
+
+						if ((classNameId !=
+								clientExtensionEntryRel.getClassNameId()) ||
+							(classPK != clientExtensionEntryRel.getClassPK())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						4 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(4);
+				}
+
+				sb.append(_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_C_CLASSNAMEID_2);
+
+				sb.append(_FINDER_COLUMN_C_C_CLASSPK_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(ClientExtensionEntryRelModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(classNameId);
+
+					queryPos.add(classPK);
+
+					list = (List<ClientExtensionEntryRel>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -1130,16 +1986,62 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _collectionPersistenceFinderByC_C.count(
-				finderCache, new Object[] {classNameId, classPK});
+			FinderPath finderPath = _finderPathCountByC_C;
+
+			Object[] finderArgs = new Object[] {classNameId, classPK};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(_SQL_COUNT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_C_CLASSNAMEID_2);
+
+				sb.append(_FINDER_COLUMN_C_C_CLASSPK_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(classNameId);
+
+					queryPos.add(classPK);
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_C_C_CLASSNAMEID_2 =
+		"clientExtensionEntryRel.classNameId = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_C_CLASSPK_2 =
+		"clientExtensionEntryRel.classPK = ?";
 
 	private FinderPath _finderPathWithPaginationFindByC_C_T;
 	private FinderPath _finderPathWithoutPaginationFindByC_C_T;
 	private FinderPath _finderPathCountByC_C_T;
-	private CollectionPersistenceFinder<ClientExtensionEntryRel>
-		_collectionPersistenceFinderByC_C_T;
 
 	/**
 	 * Returns all the client extension entry rels where classNameId = &#63; and classPK = &#63; and type = &#63;.
@@ -1229,9 +2131,122 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _collectionPersistenceFinderByC_C_T.find(
-				finderCache, new Object[] {classNameId, classPK, type}, start,
-				end, orderByComparator, useFinderCache);
+			type = Objects.toString(type, "");
+
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByC_C_T;
+					finderArgs = new Object[] {classNameId, classPK, type};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByC_C_T;
+				finderArgs = new Object[] {
+					classNameId, classPK, type, start, end, orderByComparator
+				};
+			}
+
+			List<ClientExtensionEntryRel> list = null;
+
+			if (useFinderCache) {
+				list = (List<ClientExtensionEntryRel>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (ClientExtensionEntryRel clientExtensionEntryRel :
+							list) {
+
+						if ((classNameId !=
+								clientExtensionEntryRel.getClassNameId()) ||
+							(classPK != clientExtensionEntryRel.getClassPK()) ||
+							!type.equals(clientExtensionEntryRel.getType())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						5 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(5);
+				}
+
+				sb.append(_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_C_T_CLASSNAMEID_2);
+
+				sb.append(_FINDER_COLUMN_C_C_T_CLASSPK_2);
+
+				boolean bindType = false;
+
+				if (type.isEmpty()) {
+					sb.append(_FINDER_COLUMN_C_C_T_TYPE_3);
+				}
+				else {
+					bindType = true;
+
+					sb.append(_FINDER_COLUMN_C_C_T_TYPE_2);
+				}
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(ClientExtensionEntryRelModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(classNameId);
+
+					queryPos.add(classPK);
+
+					if (bindType) {
+						queryPos.add(type);
+					}
+
+					list = (List<ClientExtensionEntryRel>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -1332,14 +2347,83 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _collectionPersistenceFinderByC_C_T.count(
-				finderCache, new Object[] {classNameId, classPK, type});
+			type = Objects.toString(type, "");
+
+			FinderPath finderPath = _finderPathCountByC_C_T;
+
+			Object[] finderArgs = new Object[] {classNameId, classPK, type};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append(_SQL_COUNT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_C_T_CLASSNAMEID_2);
+
+				sb.append(_FINDER_COLUMN_C_C_T_CLASSPK_2);
+
+				boolean bindType = false;
+
+				if (type.isEmpty()) {
+					sb.append(_FINDER_COLUMN_C_C_T_TYPE_3);
+				}
+				else {
+					bindType = true;
+
+					sb.append(_FINDER_COLUMN_C_C_T_TYPE_2);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(classNameId);
+
+					queryPos.add(classPK);
+
+					if (bindType) {
+						queryPos.add(type);
+					}
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
 
+	private static final String _FINDER_COLUMN_C_C_T_CLASSNAMEID_2 =
+		"clientExtensionEntryRel.classNameId = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_C_T_CLASSPK_2 =
+		"clientExtensionEntryRel.classPK = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_C_T_TYPE_2 =
+		"clientExtensionEntryRel.type = ?";
+
+	private static final String _FINDER_COLUMN_C_C_T_TYPE_3 =
+		"(clientExtensionEntryRel.type IS NULL OR clientExtensionEntryRel.type = '')";
+
 	private FinderPath _finderPathFetchByERC_G;
-	private UniquePersistenceFinder<ClientExtensionEntryRel>
-		_uniquePersistenceFinderByERC_G;
 
 	/**
 	 * Returns the client extension entry rel where externalReferenceCode = &#63; and groupId = &#63; or throws a <code>NoSuchClientExtensionEntryRelException</code> if it could not be found.
@@ -1410,9 +2494,100 @@ public class ClientExtensionEntryRelPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					ClientExtensionEntryRel.class)) {
 
-			return _uniquePersistenceFinderByERC_G.fetch(
-				finderCache, new Object[] {externalReferenceCode, groupId},
-				useFinderCache);
+			externalReferenceCode = Objects.toString(externalReferenceCode, "");
+
+			Object[] finderArgs = null;
+
+			if (useFinderCache) {
+				finderArgs = new Object[] {externalReferenceCode, groupId};
+			}
+
+			Object result = null;
+
+			if (useFinderCache) {
+				result = finderCache.getResult(
+					_finderPathFetchByERC_G, finderArgs, this);
+			}
+
+			if (result instanceof ClientExtensionEntryRel) {
+				ClientExtensionEntryRel clientExtensionEntryRel =
+					(ClientExtensionEntryRel)result;
+
+				if (!Objects.equals(
+						externalReferenceCode,
+						clientExtensionEntryRel.getExternalReferenceCode()) ||
+					(groupId != clientExtensionEntryRel.getGroupId())) {
+
+					result = null;
+				}
+			}
+
+			if (result == null) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append(_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE);
+
+				boolean bindExternalReferenceCode = false;
+
+				if (externalReferenceCode.isEmpty()) {
+					sb.append(_FINDER_COLUMN_ERC_G_EXTERNALREFERENCECODE_3);
+				}
+				else {
+					bindExternalReferenceCode = true;
+
+					sb.append(_FINDER_COLUMN_ERC_G_EXTERNALREFERENCECODE_2);
+				}
+
+				sb.append(_FINDER_COLUMN_ERC_G_GROUPID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindExternalReferenceCode) {
+						queryPos.add(externalReferenceCode);
+					}
+
+					queryPos.add(groupId);
+
+					List<ClientExtensionEntryRel> list = query.list();
+
+					if (list.isEmpty()) {
+						if (useFinderCache) {
+							finderCache.putResult(
+								_finderPathFetchByERC_G, finderArgs, list);
+						}
+					}
+					else {
+						ClientExtensionEntryRel clientExtensionEntryRel =
+							list.get(0);
+
+						result = clientExtensionEntryRel;
+
+						cacheResult(clientExtensionEntryRel);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			if (result instanceof List<?>) {
+				return null;
+			}
+			else {
+				return (ClientExtensionEntryRel)result;
+			}
 		}
 	}
 
@@ -1443,9 +2618,24 @@ public class ClientExtensionEntryRelPersistenceImpl
 	 */
 	@Override
 	public int countByERC_G(String externalReferenceCode, long groupId) {
-		return _uniquePersistenceFinderByERC_G.count(
-			finderCache, new Object[] {externalReferenceCode, groupId});
+		ClientExtensionEntryRel clientExtensionEntryRel = fetchByERC_G(
+			externalReferenceCode, groupId);
+
+		if (clientExtensionEntryRel == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_ERC_G_EXTERNALREFERENCECODE_2 =
+		"clientExtensionEntryRel.externalReferenceCode = ? AND ";
+
+	private static final String _FINDER_COLUMN_ERC_G_EXTERNALREFERENCECODE_3 =
+		"(clientExtensionEntryRel.externalReferenceCode IS NULL OR clientExtensionEntryRel.externalReferenceCode = '') AND ";
+
+	private static final String _FINDER_COLUMN_ERC_G_GROUPID_2 =
+		"clientExtensionEntryRel.groupId = ?";
 
 	public ClientExtensionEntryRelPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
@@ -2456,31 +3646,10 @@ public class ClientExtensionEntryRelPersistenceImpl
 			new String[] {String.class.getName()}, new String[] {"uuid_"},
 			false);
 
-		_collectionPersistenceFinderByUuid = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByUuid,
-			_finderPathWithoutPaginationFindByUuid, _finderPathCountByUuid,
-			_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE,
-			_SQL_COUNT_CLIENTEXTENSIONENTRYREL_WHERE,
-			ClientExtensionEntryRelModelImpl.ORDER_BY_JPQL,
-			_ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"clientExtensionEntryRel.", "uuid", FinderColumn.Type.STRING,
-				"=", true, true, ClientExtensionEntryRel::getUuid));
-
 		_finderPathFetchByUUID_G = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByUUID_G",
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"uuid_", "groupId"}, true);
-
-		_uniquePersistenceFinderByUUID_G = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByUUID_G,
-			_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE,
-			new FinderColumn<>(
-				"clientExtensionEntryRel.", "uuid", FinderColumn.Type.STRING,
-				"=", true, false, ClientExtensionEntryRel::getUuid),
-			new FinderColumn<>(
-				"clientExtensionEntryRel.", "groupId", FinderColumn.Type.LONG,
-				"=", true, true, ClientExtensionEntryRel::getGroupId));
 
 		_finderPathWithPaginationFindByUuid_C = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid_C",
@@ -2501,24 +3670,6 @@ public class ClientExtensionEntryRelPersistenceImpl
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"uuid_", "companyId"}, false);
 
-		_collectionPersistenceFinderByUuid_C =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByUuid_C,
-				_finderPathWithoutPaginationFindByUuid_C,
-				_finderPathCountByUuid_C,
-				_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE,
-				_SQL_COUNT_CLIENTEXTENSIONENTRYREL_WHERE,
-				ClientExtensionEntryRelModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"clientExtensionEntryRel.", "uuid",
-					FinderColumn.Type.STRING, "=", true, false,
-					ClientExtensionEntryRel::getUuid),
-				new FinderColumn<>(
-					"clientExtensionEntryRel.", "companyId",
-					FinderColumn.Type.LONG, "=", true, true,
-					ClientExtensionEntryRel::getCompanyId));
-
 		_finderPathWithPaginationFindByType = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByType",
 			new String[] {
@@ -2536,17 +3687,6 @@ public class ClientExtensionEntryRelPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByType",
 			new String[] {String.class.getName()}, new String[] {"type_"},
 			false);
-
-		_collectionPersistenceFinderByType = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByType,
-			_finderPathWithoutPaginationFindByType, _finderPathCountByType,
-			_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE,
-			_SQL_COUNT_CLIENTEXTENSIONENTRYREL_WHERE,
-			ClientExtensionEntryRelModelImpl.ORDER_BY_JPQL,
-			_ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"clientExtensionEntryRel.", "type", FinderColumn.Type.STRING,
-				"=", true, true, ClientExtensionEntryRel::getType));
 
 		_finderPathWithPaginationFindByC_CETERC = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_CETERC",
@@ -2567,24 +3707,6 @@ public class ClientExtensionEntryRelPersistenceImpl
 			new String[] {Long.class.getName(), String.class.getName()},
 			new String[] {"companyId", "cetExternalReferenceCode"}, false);
 
-		_collectionPersistenceFinderByC_CETERC =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByC_CETERC,
-				_finderPathWithoutPaginationFindByC_CETERC,
-				_finderPathCountByC_CETERC,
-				_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE,
-				_SQL_COUNT_CLIENTEXTENSIONENTRYREL_WHERE,
-				ClientExtensionEntryRelModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"clientExtensionEntryRel.", "companyId",
-					FinderColumn.Type.LONG, "=", true, false,
-					ClientExtensionEntryRel::getCompanyId),
-				new FinderColumn<>(
-					"clientExtensionEntryRel.", "cetExternalReferenceCode",
-					FinderColumn.Type.STRING, "=", true, true,
-					ClientExtensionEntryRel::getCETExternalReferenceCode));
-
 		_finderPathWithPaginationFindByC_C = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_C",
 			new String[] {
@@ -2603,21 +3725,6 @@ public class ClientExtensionEntryRelPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_C",
 			new String[] {Long.class.getName(), Long.class.getName()},
 			new String[] {"classNameId", "classPK"}, false);
-
-		_collectionPersistenceFinderByC_C = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByC_C,
-			_finderPathWithoutPaginationFindByC_C, _finderPathCountByC_C,
-			_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE,
-			_SQL_COUNT_CLIENTEXTENSIONENTRYREL_WHERE,
-			ClientExtensionEntryRelModelImpl.ORDER_BY_JPQL,
-			_ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"clientExtensionEntryRel.", "classNameId",
-				FinderColumn.Type.LONG, "=", true, false,
-				ClientExtensionEntryRel::getClassNameId),
-			new FinderColumn<>(
-				"clientExtensionEntryRel.", "classPK", FinderColumn.Type.LONG,
-				"=", true, true, ClientExtensionEntryRel::getClassPK));
 
 		_finderPathWithPaginationFindByC_C_T = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_C_T",
@@ -2644,39 +3751,10 @@ public class ClientExtensionEntryRelPersistenceImpl
 			},
 			new String[] {"classNameId", "classPK", "type_"}, false);
 
-		_collectionPersistenceFinderByC_C_T = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByC_C_T,
-			_finderPathWithoutPaginationFindByC_C_T, _finderPathCountByC_C_T,
-			_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE,
-			_SQL_COUNT_CLIENTEXTENSIONENTRYREL_WHERE,
-			ClientExtensionEntryRelModelImpl.ORDER_BY_JPQL,
-			_ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"clientExtensionEntryRel.", "classNameId",
-				FinderColumn.Type.LONG, "=", true, false,
-				ClientExtensionEntryRel::getClassNameId),
-			new FinderColumn<>(
-				"clientExtensionEntryRel.", "classPK", FinderColumn.Type.LONG,
-				"=", true, false, ClientExtensionEntryRel::getClassPK),
-			new FinderColumn<>(
-				"clientExtensionEntryRel.", "type", FinderColumn.Type.STRING,
-				"=", true, true, ClientExtensionEntryRel::getType));
-
 		_finderPathFetchByERC_G = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByERC_G",
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"externalReferenceCode", "groupId"}, true);
-
-		_uniquePersistenceFinderByERC_G = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByERC_G,
-			_SQL_SELECT_CLIENTEXTENSIONENTRYREL_WHERE,
-			new FinderColumn<>(
-				"clientExtensionEntryRel.", "externalReferenceCode",
-				FinderColumn.Type.STRING, "=", true, false,
-				ClientExtensionEntryRel::getExternalReferenceCode),
-			new FinderColumn<>(
-				"clientExtensionEntryRel.", "groupId", FinderColumn.Type.LONG,
-				"=", true, true, ClientExtensionEntryRel::getGroupId));
 
 		ClientExtensionEntryRelUtil.setPersistence(this);
 	}
@@ -2756,4 +3834,4 @@ public class ClientExtensionEntryRelPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:1093657785
+// LIFERAY-SERVICE-BUILDER-HASH:1998888094

@@ -12,6 +12,7 @@ import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.exception.NoSuchServiceComponentException;
@@ -22,9 +23,6 @@ import com.liferay.portal.kernel.model.ServiceComponentTable;
 import com.liferay.portal.kernel.service.persistence.ServiceComponentPersistence;
 import com.liferay.portal.kernel.service.persistence.ServiceComponentUtil;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.service.persistence.impl.CollectionPersistenceFinder;
-import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
-import com.liferay.portal.kernel.service.persistence.impl.UniquePersistenceFinder;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -41,6 +39,7 @@ import java.lang.reflect.InvocationHandler;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -77,8 +76,6 @@ public class ServiceComponentPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByBuildNamespace;
 	private FinderPath _finderPathWithoutPaginationFindByBuildNamespace;
 	private FinderPath _finderPathCountByBuildNamespace;
-	private CollectionPersistenceFinder<ServiceComponent>
-		_collectionPersistenceFinderByBuildNamespace;
 
 	/**
 	 * Returns all the service components where buildNamespace = &#63;.
@@ -153,9 +150,110 @@ public class ServiceComponentPersistenceImpl
 		OrderByComparator<ServiceComponent> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByBuildNamespace.find(
-			FinderCacheUtil.getFinderCache(), new Object[] {buildNamespace},
-			start, end, orderByComparator, useFinderCache);
+		buildNamespace = Objects.toString(buildNamespace, "");
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByBuildNamespace;
+				finderArgs = new Object[] {buildNamespace};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByBuildNamespace;
+			finderArgs = new Object[] {
+				buildNamespace, start, end, orderByComparator
+			};
+		}
+
+		List<ServiceComponent> list = null;
+
+		if (useFinderCache) {
+			list = (List<ServiceComponent>)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (ServiceComponent serviceComponent : list) {
+					if (!buildNamespace.equals(
+							serviceComponent.getBuildNamespace())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_SERVICECOMPONENT_WHERE);
+
+			boolean bindBuildNamespace = false;
+
+			if (buildNamespace.isEmpty()) {
+				sb.append(_FINDER_COLUMN_BUILDNAMESPACE_BUILDNAMESPACE_3);
+			}
+			else {
+				bindBuildNamespace = true;
+
+				sb.append(_FINDER_COLUMN_BUILDNAMESPACE_BUILDNAMESPACE_2);
+			}
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(ServiceComponentModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindBuildNamespace) {
+					queryPos.add(buildNamespace);
+				}
+
+				list = (List<ServiceComponent>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -237,13 +335,68 @@ public class ServiceComponentPersistenceImpl
 	 */
 	@Override
 	public int countByBuildNamespace(String buildNamespace) {
-		return _collectionPersistenceFinderByBuildNamespace.count(
-			FinderCacheUtil.getFinderCache(), new Object[] {buildNamespace});
+		buildNamespace = Objects.toString(buildNamespace, "");
+
+		FinderPath finderPath = _finderPathCountByBuildNamespace;
+
+		Object[] finderArgs = new Object[] {buildNamespace};
+
+		Long count = (Long)FinderCacheUtil.getResult(
+			finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_SERVICECOMPONENT_WHERE);
+
+			boolean bindBuildNamespace = false;
+
+			if (buildNamespace.isEmpty()) {
+				sb.append(_FINDER_COLUMN_BUILDNAMESPACE_BUILDNAMESPACE_3);
+			}
+			else {
+				bindBuildNamespace = true;
+
+				sb.append(_FINDER_COLUMN_BUILDNAMESPACE_BUILDNAMESPACE_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindBuildNamespace) {
+					queryPos.add(buildNamespace);
+				}
+
+				count = (Long)query.uniqueResult();
+
+				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
 
+	private static final String _FINDER_COLUMN_BUILDNAMESPACE_BUILDNAMESPACE_2 =
+		"serviceComponent.buildNamespace = ?";
+
+	private static final String _FINDER_COLUMN_BUILDNAMESPACE_BUILDNAMESPACE_3 =
+		"(serviceComponent.buildNamespace IS NULL OR serviceComponent.buildNamespace = '')";
+
 	private FinderPath _finderPathFetchByBNS_BNU;
-	private UniquePersistenceFinder<ServiceComponent>
-		_uniquePersistenceFinderByBNS_BNU;
 
 	/**
 	 * Returns the service component where buildNamespace = &#63; and buildNumber = &#63; or throws a <code>NoSuchServiceComponentException</code> if it could not be found.
@@ -310,9 +463,97 @@ public class ServiceComponentPersistenceImpl
 	public ServiceComponent fetchByBNS_BNU(
 		String buildNamespace, long buildNumber, boolean useFinderCache) {
 
-		return _uniquePersistenceFinderByBNS_BNU.fetch(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {buildNamespace, buildNumber}, useFinderCache);
+		buildNamespace = Objects.toString(buildNamespace, "");
+
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {buildNamespace, buildNumber};
+		}
+
+		Object result = null;
+
+		if (useFinderCache) {
+			result = FinderCacheUtil.getResult(
+				_finderPathFetchByBNS_BNU, finderArgs, this);
+		}
+
+		if (result instanceof ServiceComponent) {
+			ServiceComponent serviceComponent = (ServiceComponent)result;
+
+			if (!Objects.equals(
+					buildNamespace, serviceComponent.getBuildNamespace()) ||
+				(buildNumber != serviceComponent.getBuildNumber())) {
+
+				result = null;
+			}
+		}
+
+		if (result == null) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append(_SQL_SELECT_SERVICECOMPONENT_WHERE);
+
+			boolean bindBuildNamespace = false;
+
+			if (buildNamespace.isEmpty()) {
+				sb.append(_FINDER_COLUMN_BNS_BNU_BUILDNAMESPACE_3);
+			}
+			else {
+				bindBuildNamespace = true;
+
+				sb.append(_FINDER_COLUMN_BNS_BNU_BUILDNAMESPACE_2);
+			}
+
+			sb.append(_FINDER_COLUMN_BNS_BNU_BUILDNUMBER_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindBuildNamespace) {
+					queryPos.add(buildNamespace);
+				}
+
+				queryPos.add(buildNumber);
+
+				List<ServiceComponent> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						FinderCacheUtil.putResult(
+							_finderPathFetchByBNS_BNU, finderArgs, list);
+					}
+				}
+				else {
+					ServiceComponent serviceComponent = list.get(0);
+
+					result = serviceComponent;
+
+					cacheResult(serviceComponent);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (ServiceComponent)result;
+		}
 	}
 
 	/**
@@ -342,10 +583,24 @@ public class ServiceComponentPersistenceImpl
 	 */
 	@Override
 	public int countByBNS_BNU(String buildNamespace, long buildNumber) {
-		return _uniquePersistenceFinderByBNS_BNU.count(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {buildNamespace, buildNumber});
+		ServiceComponent serviceComponent = fetchByBNS_BNU(
+			buildNamespace, buildNumber);
+
+		if (serviceComponent == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_BNS_BNU_BUILDNAMESPACE_2 =
+		"serviceComponent.buildNamespace = ? AND ";
+
+	private static final String _FINDER_COLUMN_BNS_BNU_BUILDNAMESPACE_3 =
+		"(serviceComponent.buildNamespace IS NULL OR serviceComponent.buildNamespace = '') AND ";
+
+	private static final String _FINDER_COLUMN_BNS_BNU_BUILDNUMBER_2 =
+		"serviceComponent.buildNumber = ?";
 
 	public ServiceComponentPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
@@ -919,32 +1174,10 @@ public class ServiceComponentPersistenceImpl
 			new String[] {String.class.getName()},
 			new String[] {"buildNamespace"}, false);
 
-		_collectionPersistenceFinderByBuildNamespace =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByBuildNamespace,
-				_finderPathWithoutPaginationFindByBuildNamespace,
-				_finderPathCountByBuildNamespace,
-				_SQL_SELECT_SERVICECOMPONENT_WHERE,
-				_SQL_COUNT_SERVICECOMPONENT_WHERE,
-				ServiceComponentModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"serviceComponent.", "buildNamespace",
-					FinderColumn.Type.STRING, "=", true, true,
-					ServiceComponent::getBuildNamespace));
-
 		_finderPathFetchByBNS_BNU = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByBNS_BNU",
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"buildNamespace", "buildNumber"}, true);
-
-		_uniquePersistenceFinderByBNS_BNU = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByBNS_BNU, _SQL_SELECT_SERVICECOMPONENT_WHERE,
-			new FinderColumn<>(
-				"serviceComponent.", "buildNamespace", FinderColumn.Type.STRING,
-				"=", true, false, ServiceComponent::getBuildNamespace),
-			new FinderColumn<>(
-				"serviceComponent.", "buildNumber", FinderColumn.Type.LONG, "=",
-				true, true, ServiceComponent::getBuildNumber));
 
 		ServiceComponentUtil.setPersistence(this);
 	}
@@ -987,4 +1220,4 @@ public class ServiceComponentPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1255726361
+// LIFERAY-SERVICE-BUILDER-HASH:1054502861

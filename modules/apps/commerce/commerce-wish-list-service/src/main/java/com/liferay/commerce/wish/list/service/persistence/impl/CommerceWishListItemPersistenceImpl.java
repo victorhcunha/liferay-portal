@@ -19,6 +19,7 @@ import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
@@ -28,9 +29,6 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.service.persistence.impl.CollectionPersistenceFinder;
-import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
-import com.liferay.portal.kernel.service.persistence.impl.UniquePersistenceFinder;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -44,6 +42,7 @@ import java.lang.reflect.InvocationHandler;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -88,8 +87,6 @@ public class CommerceWishListItemPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByCommerceWishListId;
 	private FinderPath _finderPathWithoutPaginationFindByCommerceWishListId;
 	private FinderPath _finderPathCountByCommerceWishListId;
-	private CollectionPersistenceFinder<CommerceWishListItem>
-		_collectionPersistenceFinderByCommerceWishListId;
 
 	/**
 	 * Returns all the commerce wish list items where commerceWishListId = &#63;.
@@ -166,9 +163,98 @@ public class CommerceWishListItemPersistenceImpl
 		OrderByComparator<CommerceWishListItem> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByCommerceWishListId.find(
-			finderCache, new Object[] {commerceWishListId}, start, end,
-			orderByComparator, useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath =
+					_finderPathWithoutPaginationFindByCommerceWishListId;
+				finderArgs = new Object[] {commerceWishListId};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByCommerceWishListId;
+			finderArgs = new Object[] {
+				commerceWishListId, start, end, orderByComparator
+			};
+		}
+
+		List<CommerceWishListItem> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceWishListItem>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceWishListItem commerceWishListItem : list) {
+					if (commerceWishListId !=
+							commerceWishListItem.getCommerceWishListId()) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEWISHLISTITEM_WHERE);
+
+			sb.append(_FINDER_COLUMN_COMMERCEWISHLISTID_COMMERCEWISHLISTID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceWishListItemModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(commerceWishListId);
+
+				list = (List<CommerceWishListItem>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -251,15 +337,54 @@ public class CommerceWishListItemPersistenceImpl
 	 */
 	@Override
 	public int countByCommerceWishListId(long commerceWishListId) {
-		return _collectionPersistenceFinderByCommerceWishListId.count(
-			finderCache, new Object[] {commerceWishListId});
+		FinderPath finderPath = _finderPathCountByCommerceWishListId;
+
+		Object[] finderArgs = new Object[] {commerceWishListId};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_COMMERCEWISHLISTITEM_WHERE);
+
+			sb.append(_FINDER_COLUMN_COMMERCEWISHLISTID_COMMERCEWISHLISTID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(commerceWishListId);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
+
+	private static final String
+		_FINDER_COLUMN_COMMERCEWISHLISTID_COMMERCEWISHLISTID_2 =
+			"commerceWishListItem.commerceWishListId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByCPInstanceUuid;
 	private FinderPath _finderPathWithoutPaginationFindByCPInstanceUuid;
 	private FinderPath _finderPathCountByCPInstanceUuid;
-	private CollectionPersistenceFinder<CommerceWishListItem>
-		_collectionPersistenceFinderByCPInstanceUuid;
 
 	/**
 	 * Returns all the commerce wish list items where CPInstanceUuid = &#63;.
@@ -336,9 +461,110 @@ public class CommerceWishListItemPersistenceImpl
 		OrderByComparator<CommerceWishListItem> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByCPInstanceUuid.find(
-			finderCache, new Object[] {CPInstanceUuid}, start, end,
-			orderByComparator, useFinderCache);
+		CPInstanceUuid = Objects.toString(CPInstanceUuid, "");
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByCPInstanceUuid;
+				finderArgs = new Object[] {CPInstanceUuid};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByCPInstanceUuid;
+			finderArgs = new Object[] {
+				CPInstanceUuid, start, end, orderByComparator
+			};
+		}
+
+		List<CommerceWishListItem> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceWishListItem>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceWishListItem commerceWishListItem : list) {
+					if (!CPInstanceUuid.equals(
+							commerceWishListItem.getCPInstanceUuid())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEWISHLISTITEM_WHERE);
+
+			boolean bindCPInstanceUuid = false;
+
+			if (CPInstanceUuid.isEmpty()) {
+				sb.append(_FINDER_COLUMN_CPINSTANCEUUID_CPINSTANCEUUID_3);
+			}
+			else {
+				bindCPInstanceUuid = true;
+
+				sb.append(_FINDER_COLUMN_CPINSTANCEUUID_CPINSTANCEUUID_2);
+			}
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceWishListItemModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindCPInstanceUuid) {
+					queryPos.add(CPInstanceUuid);
+				}
+
+				list = (List<CommerceWishListItem>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -420,15 +646,69 @@ public class CommerceWishListItemPersistenceImpl
 	 */
 	@Override
 	public int countByCPInstanceUuid(String CPInstanceUuid) {
-		return _collectionPersistenceFinderByCPInstanceUuid.count(
-			finderCache, new Object[] {CPInstanceUuid});
+		CPInstanceUuid = Objects.toString(CPInstanceUuid, "");
+
+		FinderPath finderPath = _finderPathCountByCPInstanceUuid;
+
+		Object[] finderArgs = new Object[] {CPInstanceUuid};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_COMMERCEWISHLISTITEM_WHERE);
+
+			boolean bindCPInstanceUuid = false;
+
+			if (CPInstanceUuid.isEmpty()) {
+				sb.append(_FINDER_COLUMN_CPINSTANCEUUID_CPINSTANCEUUID_3);
+			}
+			else {
+				bindCPInstanceUuid = true;
+
+				sb.append(_FINDER_COLUMN_CPINSTANCEUUID_CPINSTANCEUUID_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindCPInstanceUuid) {
+					queryPos.add(CPInstanceUuid);
+				}
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
+
+	private static final String _FINDER_COLUMN_CPINSTANCEUUID_CPINSTANCEUUID_2 =
+		"commerceWishListItem.CPInstanceUuid = ?";
+
+	private static final String _FINDER_COLUMN_CPINSTANCEUUID_CPINSTANCEUUID_3 =
+		"(commerceWishListItem.CPInstanceUuid IS NULL OR commerceWishListItem.CPInstanceUuid = '')";
 
 	private FinderPath _finderPathWithPaginationFindByCProductId;
 	private FinderPath _finderPathWithoutPaginationFindByCProductId;
 	private FinderPath _finderPathCountByCProductId;
-	private CollectionPersistenceFinder<CommerceWishListItem>
-		_collectionPersistenceFinderByCProductId;
 
 	/**
 	 * Returns all the commerce wish list items where CProductId = &#63;.
@@ -503,9 +783,95 @@ public class CommerceWishListItemPersistenceImpl
 		OrderByComparator<CommerceWishListItem> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByCProductId.find(
-			finderCache, new Object[] {CProductId}, start, end,
-			orderByComparator, useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByCProductId;
+				finderArgs = new Object[] {CProductId};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByCProductId;
+			finderArgs = new Object[] {
+				CProductId, start, end, orderByComparator
+			};
+		}
+
+		List<CommerceWishListItem> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceWishListItem>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceWishListItem commerceWishListItem : list) {
+					if (CProductId != commerceWishListItem.getCProductId()) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEWISHLISTITEM_WHERE);
+
+			sb.append(_FINDER_COLUMN_CPRODUCTID_CPRODUCTID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceWishListItemModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(CProductId);
+
+				list = (List<CommerceWishListItem>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -586,15 +952,53 @@ public class CommerceWishListItemPersistenceImpl
 	 */
 	@Override
 	public int countByCProductId(long CProductId) {
-		return _collectionPersistenceFinderByCProductId.count(
-			finderCache, new Object[] {CProductId});
+		FinderPath finderPath = _finderPathCountByCProductId;
+
+		Object[] finderArgs = new Object[] {CProductId};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_COMMERCEWISHLISTITEM_WHERE);
+
+			sb.append(_FINDER_COLUMN_CPRODUCTID_CPRODUCTID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(CProductId);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
+
+	private static final String _FINDER_COLUMN_CPRODUCTID_CPRODUCTID_2 =
+		"commerceWishListItem.CProductId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByCW_CPI;
 	private FinderPath _finderPathWithoutPaginationFindByCW_CPI;
 	private FinderPath _finderPathCountByCW_CPI;
-	private CollectionPersistenceFinder<CommerceWishListItem>
-		_collectionPersistenceFinderByCW_CPI;
 
 	/**
 	 * Returns all the commerce wish list items where commerceWishListId = &#63; and CPInstanceUuid = &#63;.
@@ -678,9 +1082,117 @@ public class CommerceWishListItemPersistenceImpl
 		OrderByComparator<CommerceWishListItem> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByCW_CPI.find(
-			finderCache, new Object[] {commerceWishListId, CPInstanceUuid},
-			start, end, orderByComparator, useFinderCache);
+		CPInstanceUuid = Objects.toString(CPInstanceUuid, "");
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByCW_CPI;
+				finderArgs = new Object[] {commerceWishListId, CPInstanceUuid};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByCW_CPI;
+			finderArgs = new Object[] {
+				commerceWishListId, CPInstanceUuid, start, end,
+				orderByComparator
+			};
+		}
+
+		List<CommerceWishListItem> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceWishListItem>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceWishListItem commerceWishListItem : list) {
+					if ((commerceWishListId !=
+							commerceWishListItem.getCommerceWishListId()) ||
+						!CPInstanceUuid.equals(
+							commerceWishListItem.getCPInstanceUuid())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					4 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(4);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEWISHLISTITEM_WHERE);
+
+			sb.append(_FINDER_COLUMN_CW_CPI_COMMERCEWISHLISTID_2);
+
+			boolean bindCPInstanceUuid = false;
+
+			if (CPInstanceUuid.isEmpty()) {
+				sb.append(_FINDER_COLUMN_CW_CPI_CPINSTANCEUUID_3);
+			}
+			else {
+				bindCPInstanceUuid = true;
+
+				sb.append(_FINDER_COLUMN_CW_CPI_CPINSTANCEUUID_2);
+			}
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceWishListItemModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(commerceWishListId);
+
+				if (bindCPInstanceUuid) {
+					queryPos.add(CPInstanceUuid);
+				}
+
+				list = (List<CommerceWishListItem>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -769,15 +1281,76 @@ public class CommerceWishListItemPersistenceImpl
 	 */
 	@Override
 	public int countByCW_CPI(long commerceWishListId, String CPInstanceUuid) {
-		return _collectionPersistenceFinderByCW_CPI.count(
-			finderCache, new Object[] {commerceWishListId, CPInstanceUuid});
+		CPInstanceUuid = Objects.toString(CPInstanceUuid, "");
+
+		FinderPath finderPath = _finderPathCountByCW_CPI;
+
+		Object[] finderArgs = new Object[] {commerceWishListId, CPInstanceUuid};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(3);
+
+			sb.append(_SQL_COUNT_COMMERCEWISHLISTITEM_WHERE);
+
+			sb.append(_FINDER_COLUMN_CW_CPI_COMMERCEWISHLISTID_2);
+
+			boolean bindCPInstanceUuid = false;
+
+			if (CPInstanceUuid.isEmpty()) {
+				sb.append(_FINDER_COLUMN_CW_CPI_CPINSTANCEUUID_3);
+			}
+			else {
+				bindCPInstanceUuid = true;
+
+				sb.append(_FINDER_COLUMN_CW_CPI_CPINSTANCEUUID_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(commerceWishListId);
+
+				if (bindCPInstanceUuid) {
+					queryPos.add(CPInstanceUuid);
+				}
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
+
+	private static final String _FINDER_COLUMN_CW_CPI_COMMERCEWISHLISTID_2 =
+		"commerceWishListItem.commerceWishListId = ? AND ";
+
+	private static final String _FINDER_COLUMN_CW_CPI_CPINSTANCEUUID_2 =
+		"commerceWishListItem.CPInstanceUuid = ?";
+
+	private static final String _FINDER_COLUMN_CW_CPI_CPINSTANCEUUID_3 =
+		"(commerceWishListItem.CPInstanceUuid IS NULL OR commerceWishListItem.CPInstanceUuid = '')";
 
 	private FinderPath _finderPathWithPaginationFindByCW_CP;
 	private FinderPath _finderPathWithoutPaginationFindByCW_CP;
 	private FinderPath _finderPathCountByCW_CP;
-	private CollectionPersistenceFinder<CommerceWishListItem>
-		_collectionPersistenceFinderByCW_CP;
 
 	/**
 	 * Returns all the commerce wish list items where commerceWishListId = &#63; and CProductId = &#63;.
@@ -860,9 +1433,102 @@ public class CommerceWishListItemPersistenceImpl
 		OrderByComparator<CommerceWishListItem> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByCW_CP.find(
-			finderCache, new Object[] {commerceWishListId, CProductId}, start,
-			end, orderByComparator, useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByCW_CP;
+				finderArgs = new Object[] {commerceWishListId, CProductId};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByCW_CP;
+			finderArgs = new Object[] {
+				commerceWishListId, CProductId, start, end, orderByComparator
+			};
+		}
+
+		List<CommerceWishListItem> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceWishListItem>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceWishListItem commerceWishListItem : list) {
+					if ((commerceWishListId !=
+							commerceWishListItem.getCommerceWishListId()) ||
+						(CProductId != commerceWishListItem.getCProductId())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					4 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(4);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEWISHLISTITEM_WHERE);
+
+			sb.append(_FINDER_COLUMN_CW_CP_COMMERCEWISHLISTID_2);
+
+			sb.append(_FINDER_COLUMN_CW_CP_CPRODUCTID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceWishListItemModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(commerceWishListId);
+
+				queryPos.add(CProductId);
+
+				list = (List<CommerceWishListItem>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -951,13 +1617,58 @@ public class CommerceWishListItemPersistenceImpl
 	 */
 	@Override
 	public int countByCW_CP(long commerceWishListId, long CProductId) {
-		return _collectionPersistenceFinderByCW_CP.count(
-			finderCache, new Object[] {commerceWishListId, CProductId});
+		FinderPath finderPath = _finderPathCountByCW_CP;
+
+		Object[] finderArgs = new Object[] {commerceWishListId, CProductId};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(3);
+
+			sb.append(_SQL_COUNT_COMMERCEWISHLISTITEM_WHERE);
+
+			sb.append(_FINDER_COLUMN_CW_CP_COMMERCEWISHLISTID_2);
+
+			sb.append(_FINDER_COLUMN_CW_CP_CPRODUCTID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(commerceWishListId);
+
+				queryPos.add(CProductId);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
 
+	private static final String _FINDER_COLUMN_CW_CP_COMMERCEWISHLISTID_2 =
+		"commerceWishListItem.commerceWishListId = ? AND ";
+
+	private static final String _FINDER_COLUMN_CW_CP_CPRODUCTID_2 =
+		"commerceWishListItem.CProductId = ?";
+
 	private FinderPath _finderPathFetchByCW_CPI_CP;
-	private UniquePersistenceFinder<CommerceWishListItem>
-		_uniquePersistenceFinderByCW_CPI_CP;
 
 	/**
 	 * Returns the commerce wish list item where commerceWishListId = &#63; and CPInstanceUuid = &#63; and CProductId = &#63; or throws a <code>NoSuchWishListItemException</code> if it could not be found.
@@ -1032,10 +1743,106 @@ public class CommerceWishListItemPersistenceImpl
 		long commerceWishListId, String CPInstanceUuid, long CProductId,
 		boolean useFinderCache) {
 
-		return _uniquePersistenceFinderByCW_CPI_CP.fetch(
-			finderCache,
-			new Object[] {commerceWishListId, CPInstanceUuid, CProductId},
-			useFinderCache);
+		CPInstanceUuid = Objects.toString(CPInstanceUuid, "");
+
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {
+				commerceWishListId, CPInstanceUuid, CProductId
+			};
+		}
+
+		Object result = null;
+
+		if (useFinderCache) {
+			result = finderCache.getResult(
+				_finderPathFetchByCW_CPI_CP, finderArgs, this);
+		}
+
+		if (result instanceof CommerceWishListItem) {
+			CommerceWishListItem commerceWishListItem =
+				(CommerceWishListItem)result;
+
+			if ((commerceWishListId !=
+					commerceWishListItem.getCommerceWishListId()) ||
+				!Objects.equals(
+					CPInstanceUuid, commerceWishListItem.getCPInstanceUuid()) ||
+				(CProductId != commerceWishListItem.getCProductId())) {
+
+				result = null;
+			}
+		}
+
+		if (result == null) {
+			StringBundler sb = new StringBundler(5);
+
+			sb.append(_SQL_SELECT_COMMERCEWISHLISTITEM_WHERE);
+
+			sb.append(_FINDER_COLUMN_CW_CPI_CP_COMMERCEWISHLISTID_2);
+
+			boolean bindCPInstanceUuid = false;
+
+			if (CPInstanceUuid.isEmpty()) {
+				sb.append(_FINDER_COLUMN_CW_CPI_CP_CPINSTANCEUUID_3);
+			}
+			else {
+				bindCPInstanceUuid = true;
+
+				sb.append(_FINDER_COLUMN_CW_CPI_CP_CPINSTANCEUUID_2);
+			}
+
+			sb.append(_FINDER_COLUMN_CW_CPI_CP_CPRODUCTID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(commerceWishListId);
+
+				if (bindCPInstanceUuid) {
+					queryPos.add(CPInstanceUuid);
+				}
+
+				queryPos.add(CProductId);
+
+				List<CommerceWishListItem> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						finderCache.putResult(
+							_finderPathFetchByCW_CPI_CP, finderArgs, list);
+					}
+				}
+				else {
+					CommerceWishListItem commerceWishListItem = list.get(0);
+
+					result = commerceWishListItem;
+
+					cacheResult(commerceWishListItem);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (CommerceWishListItem)result;
+		}
 	}
 
 	/**
@@ -1069,10 +1876,27 @@ public class CommerceWishListItemPersistenceImpl
 	public int countByCW_CPI_CP(
 		long commerceWishListId, String CPInstanceUuid, long CProductId) {
 
-		return _uniquePersistenceFinderByCW_CPI_CP.count(
-			finderCache,
-			new Object[] {commerceWishListId, CPInstanceUuid, CProductId});
+		CommerceWishListItem commerceWishListItem = fetchByCW_CPI_CP(
+			commerceWishListId, CPInstanceUuid, CProductId);
+
+		if (commerceWishListItem == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_CW_CPI_CP_COMMERCEWISHLISTID_2 =
+		"commerceWishListItem.commerceWishListId = ? AND ";
+
+	private static final String _FINDER_COLUMN_CW_CPI_CP_CPINSTANCEUUID_2 =
+		"commerceWishListItem.CPInstanceUuid = ? AND ";
+
+	private static final String _FINDER_COLUMN_CW_CPI_CP_CPINSTANCEUUID_3 =
+		"(commerceWishListItem.CPInstanceUuid IS NULL OR commerceWishListItem.CPInstanceUuid = '') AND ";
+
+	private static final String _FINDER_COLUMN_CW_CPI_CP_CPRODUCTID_2 =
+		"commerceWishListItem.CProductId = ?";
 
 	public CommerceWishListItemPersistenceImpl() {
 		setModelClass(CommerceWishListItem.class);
@@ -1678,20 +2502,6 @@ public class CommerceWishListItemPersistenceImpl
 			"countByCommerceWishListId", new String[] {Long.class.getName()},
 			new String[] {"commerceWishListId"}, false);
 
-		_collectionPersistenceFinderByCommerceWishListId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByCommerceWishListId,
-				_finderPathWithoutPaginationFindByCommerceWishListId,
-				_finderPathCountByCommerceWishListId,
-				_SQL_SELECT_COMMERCEWISHLISTITEM_WHERE,
-				_SQL_COUNT_COMMERCEWISHLISTITEM_WHERE,
-				CommerceWishListItemModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"commerceWishListItem.", "commerceWishListId",
-					FinderColumn.Type.LONG, "=", true, true,
-					CommerceWishListItem::getCommerceWishListId));
-
 		_finderPathWithPaginationFindByCPInstanceUuid = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCPInstanceUuid",
 			new String[] {
@@ -1710,20 +2520,6 @@ public class CommerceWishListItemPersistenceImpl
 			new String[] {String.class.getName()},
 			new String[] {"CPInstanceUuid"}, false);
 
-		_collectionPersistenceFinderByCPInstanceUuid =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByCPInstanceUuid,
-				_finderPathWithoutPaginationFindByCPInstanceUuid,
-				_finderPathCountByCPInstanceUuid,
-				_SQL_SELECT_COMMERCEWISHLISTITEM_WHERE,
-				_SQL_COUNT_COMMERCEWISHLISTITEM_WHERE,
-				CommerceWishListItemModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"commerceWishListItem.", "CPInstanceUuid",
-					FinderColumn.Type.STRING, "=", true, true,
-					CommerceWishListItem::getCPInstanceUuid));
-
 		_finderPathWithPaginationFindByCProductId = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCProductId",
 			new String[] {
@@ -1741,20 +2537,6 @@ public class CommerceWishListItemPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByCProductId",
 			new String[] {Long.class.getName()}, new String[] {"CProductId"},
 			false);
-
-		_collectionPersistenceFinderByCProductId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByCProductId,
-				_finderPathWithoutPaginationFindByCProductId,
-				_finderPathCountByCProductId,
-				_SQL_SELECT_COMMERCEWISHLISTITEM_WHERE,
-				_SQL_COUNT_COMMERCEWISHLISTITEM_WHERE,
-				CommerceWishListItemModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"commerceWishListItem.", "CProductId",
-					FinderColumn.Type.LONG, "=", true, true,
-					CommerceWishListItem::getCProductId));
 
 		_finderPathWithPaginationFindByCW_CPI = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCW_CPI",
@@ -1775,24 +2557,6 @@ public class CommerceWishListItemPersistenceImpl
 			new String[] {Long.class.getName(), String.class.getName()},
 			new String[] {"commerceWishListId", "CPInstanceUuid"}, false);
 
-		_collectionPersistenceFinderByCW_CPI =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByCW_CPI,
-				_finderPathWithoutPaginationFindByCW_CPI,
-				_finderPathCountByCW_CPI,
-				_SQL_SELECT_COMMERCEWISHLISTITEM_WHERE,
-				_SQL_COUNT_COMMERCEWISHLISTITEM_WHERE,
-				CommerceWishListItemModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"commerceWishListItem.", "commerceWishListId",
-					FinderColumn.Type.LONG, "=", true, false,
-					CommerceWishListItem::getCommerceWishListId),
-				new FinderColumn<>(
-					"commerceWishListItem.", "CPInstanceUuid",
-					FinderColumn.Type.STRING, "=", true, true,
-					CommerceWishListItem::getCPInstanceUuid));
-
 		_finderPathWithPaginationFindByCW_CP = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCW_CP",
 			new String[] {
@@ -1812,20 +2576,6 @@ public class CommerceWishListItemPersistenceImpl
 			new String[] {Long.class.getName(), Long.class.getName()},
 			new String[] {"commerceWishListId", "CProductId"}, false);
 
-		_collectionPersistenceFinderByCW_CP = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByCW_CP,
-			_finderPathWithoutPaginationFindByCW_CP, _finderPathCountByCW_CP,
-			_SQL_SELECT_COMMERCEWISHLISTITEM_WHERE,
-			_SQL_COUNT_COMMERCEWISHLISTITEM_WHERE,
-			CommerceWishListItemModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"commerceWishListItem.", "commerceWishListId",
-				FinderColumn.Type.LONG, "=", true, false,
-				CommerceWishListItem::getCommerceWishListId),
-			new FinderColumn<>(
-				"commerceWishListItem.", "CProductId", FinderColumn.Type.LONG,
-				"=", true, true, CommerceWishListItem::getCProductId));
-
 		_finderPathFetchByCW_CPI_CP = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByCW_CPI_CP",
 			new String[] {
@@ -1834,21 +2584,6 @@ public class CommerceWishListItemPersistenceImpl
 			},
 			new String[] {"commerceWishListId", "CPInstanceUuid", "CProductId"},
 			true);
-
-		_uniquePersistenceFinderByCW_CPI_CP = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByCW_CPI_CP,
-			_SQL_SELECT_COMMERCEWISHLISTITEM_WHERE,
-			new FinderColumn<>(
-				"commerceWishListItem.", "commerceWishListId",
-				FinderColumn.Type.LONG, "=", true, false,
-				CommerceWishListItem::getCommerceWishListId),
-			new FinderColumn<>(
-				"commerceWishListItem.", "CPInstanceUuid",
-				FinderColumn.Type.STRING, "=", true, false,
-				CommerceWishListItem::getCPInstanceUuid),
-			new FinderColumn<>(
-				"commerceWishListItem.", "CProductId", FinderColumn.Type.LONG,
-				"=", true, true, CommerceWishListItem::getCProductId));
 
 		CommerceWishListItemUtil.setPersistence(this);
 	}
@@ -1922,4 +2657,4 @@ public class CommerceWishListItemPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:390172959
+// LIFERAY-SERVICE-BUILDER-HASH:-1400750896

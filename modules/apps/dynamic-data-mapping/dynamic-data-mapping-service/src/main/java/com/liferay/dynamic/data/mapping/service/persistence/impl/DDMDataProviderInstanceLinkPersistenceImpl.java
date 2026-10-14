@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
@@ -30,9 +31,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.service.persistence.impl.CollectionPersistenceFinder;
-import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
-import com.liferay.portal.kernel.service.persistence.impl.UniquePersistenceFinder;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -95,8 +93,6 @@ public class DDMDataProviderInstanceLinkPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByDataProviderInstanceId;
 	private FinderPath _finderPathWithoutPaginationFindByDataProviderInstanceId;
 	private FinderPath _finderPathCountByDataProviderInstanceId;
-	private CollectionPersistenceFinder<DDMDataProviderInstanceLink>
-		_collectionPersistenceFinderByDataProviderInstanceId;
 
 	/**
 	 * Returns all the ddm data provider instance links where dataProviderInstanceId = &#63;.
@@ -178,9 +174,104 @@ public class DDMDataProviderInstanceLinkPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					DDMDataProviderInstanceLink.class)) {
 
-			return _collectionPersistenceFinderByDataProviderInstanceId.find(
-				finderCache, new Object[] {dataProviderInstanceId}, start, end,
-				orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath =
+						_finderPathWithoutPaginationFindByDataProviderInstanceId;
+					finderArgs = new Object[] {dataProviderInstanceId};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath =
+					_finderPathWithPaginationFindByDataProviderInstanceId;
+				finderArgs = new Object[] {
+					dataProviderInstanceId, start, end, orderByComparator
+				};
+			}
+
+			List<DDMDataProviderInstanceLink> list = null;
+
+			if (useFinderCache) {
+				list = (List<DDMDataProviderInstanceLink>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (DDMDataProviderInstanceLink
+							ddmDataProviderInstanceLink : list) {
+
+						if (dataProviderInstanceId !=
+								ddmDataProviderInstanceLink.
+									getDataProviderInstanceId()) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						3 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(3);
+				}
+
+				sb.append(_SQL_SELECT_DDMDATAPROVIDERINSTANCELINK_WHERE);
+
+				sb.append(
+					_FINDER_COLUMN_DATAPROVIDERINSTANCEID_DATAPROVIDERINSTANCEID_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(
+						DDMDataProviderInstanceLinkModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(dataProviderInstanceId);
+
+					list = (List<DDMDataProviderInstanceLink>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -268,16 +359,57 @@ public class DDMDataProviderInstanceLinkPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					DDMDataProviderInstanceLink.class)) {
 
-			return _collectionPersistenceFinderByDataProviderInstanceId.count(
-				finderCache, new Object[] {dataProviderInstanceId});
+			FinderPath finderPath = _finderPathCountByDataProviderInstanceId;
+
+			Object[] finderArgs = new Object[] {dataProviderInstanceId};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(2);
+
+				sb.append(_SQL_COUNT_DDMDATAPROVIDERINSTANCELINK_WHERE);
+
+				sb.append(
+					_FINDER_COLUMN_DATAPROVIDERINSTANCEID_DATAPROVIDERINSTANCEID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(dataProviderInstanceId);
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String
+		_FINDER_COLUMN_DATAPROVIDERINSTANCEID_DATAPROVIDERINSTANCEID_2 =
+			"ddmDataProviderInstanceLink.dataProviderInstanceId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByStructureId;
 	private FinderPath _finderPathWithoutPaginationFindByStructureId;
 	private FinderPath _finderPathCountByStructureId;
-	private CollectionPersistenceFinder<DDMDataProviderInstanceLink>
-		_collectionPersistenceFinderByStructureId;
 
 	/**
 	 * Returns all the ddm data provider instance links where structureId = &#63;.
@@ -358,9 +490,100 @@ public class DDMDataProviderInstanceLinkPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					DDMDataProviderInstanceLink.class)) {
 
-			return _collectionPersistenceFinderByStructureId.find(
-				finderCache, new Object[] {structureId}, start, end,
-				orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByStructureId;
+					finderArgs = new Object[] {structureId};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByStructureId;
+				finderArgs = new Object[] {
+					structureId, start, end, orderByComparator
+				};
+			}
+
+			List<DDMDataProviderInstanceLink> list = null;
+
+			if (useFinderCache) {
+				list = (List<DDMDataProviderInstanceLink>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (DDMDataProviderInstanceLink
+							ddmDataProviderInstanceLink : list) {
+
+						if (structureId !=
+								ddmDataProviderInstanceLink.getStructureId()) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						3 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(3);
+				}
+
+				sb.append(_SQL_SELECT_DDMDATAPROVIDERINSTANCELINK_WHERE);
+
+				sb.append(_FINDER_COLUMN_STRUCTUREID_STRUCTUREID_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(
+						DDMDataProviderInstanceLinkModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(structureId);
+
+					list = (List<DDMDataProviderInstanceLink>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -446,14 +669,53 @@ public class DDMDataProviderInstanceLinkPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					DDMDataProviderInstanceLink.class)) {
 
-			return _collectionPersistenceFinderByStructureId.count(
-				finderCache, new Object[] {structureId});
+			FinderPath finderPath = _finderPathCountByStructureId;
+
+			Object[] finderArgs = new Object[] {structureId};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(2);
+
+				sb.append(_SQL_COUNT_DDMDATAPROVIDERINSTANCELINK_WHERE);
+
+				sb.append(_FINDER_COLUMN_STRUCTUREID_STRUCTUREID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(structureId);
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
 
+	private static final String _FINDER_COLUMN_STRUCTUREID_STRUCTUREID_2 =
+		"ddmDataProviderInstanceLink.structureId = ?";
+
 	private FinderPath _finderPathFetchByD_S;
-	private UniquePersistenceFinder<DDMDataProviderInstanceLink>
-		_uniquePersistenceFinderByD_S;
 
 	/**
 	 * Returns the ddm data provider instance link where dataProviderInstanceId = &#63; and structureId = &#63; or throws a <code>NoSuchDataProviderInstanceLinkException</code> if it could not be found.
@@ -524,9 +786,88 @@ public class DDMDataProviderInstanceLinkPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					DDMDataProviderInstanceLink.class)) {
 
-			return _uniquePersistenceFinderByD_S.fetch(
-				finderCache, new Object[] {dataProviderInstanceId, structureId},
-				useFinderCache);
+			Object[] finderArgs = null;
+
+			if (useFinderCache) {
+				finderArgs = new Object[] {dataProviderInstanceId, structureId};
+			}
+
+			Object result = null;
+
+			if (useFinderCache) {
+				result = finderCache.getResult(
+					_finderPathFetchByD_S, finderArgs, this);
+			}
+
+			if (result instanceof DDMDataProviderInstanceLink) {
+				DDMDataProviderInstanceLink ddmDataProviderInstanceLink =
+					(DDMDataProviderInstanceLink)result;
+
+				if ((dataProviderInstanceId !=
+						ddmDataProviderInstanceLink.
+							getDataProviderInstanceId()) ||
+					(structureId !=
+						ddmDataProviderInstanceLink.getStructureId())) {
+
+					result = null;
+				}
+			}
+
+			if (result == null) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append(_SQL_SELECT_DDMDATAPROVIDERINSTANCELINK_WHERE);
+
+				sb.append(_FINDER_COLUMN_D_S_DATAPROVIDERINSTANCEID_2);
+
+				sb.append(_FINDER_COLUMN_D_S_STRUCTUREID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(dataProviderInstanceId);
+
+					queryPos.add(structureId);
+
+					List<DDMDataProviderInstanceLink> list = query.list();
+
+					if (list.isEmpty()) {
+						if (useFinderCache) {
+							finderCache.putResult(
+								_finderPathFetchByD_S, finderArgs, list);
+						}
+					}
+					else {
+						DDMDataProviderInstanceLink
+							ddmDataProviderInstanceLink = list.get(0);
+
+						result = ddmDataProviderInstanceLink;
+
+						cacheResult(ddmDataProviderInstanceLink);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			if (result instanceof List<?>) {
+				return null;
+			}
+			else {
+				return (DDMDataProviderInstanceLink)result;
+			}
 		}
 	}
 
@@ -557,9 +898,21 @@ public class DDMDataProviderInstanceLinkPersistenceImpl
 	 */
 	@Override
 	public int countByD_S(long dataProviderInstanceId, long structureId) {
-		return _uniquePersistenceFinderByD_S.count(
-			finderCache, new Object[] {dataProviderInstanceId, structureId});
+		DDMDataProviderInstanceLink ddmDataProviderInstanceLink = fetchByD_S(
+			dataProviderInstanceId, structureId);
+
+		if (ddmDataProviderInstanceLink == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_D_S_DATAPROVIDERINSTANCEID_2 =
+		"ddmDataProviderInstanceLink.dataProviderInstanceId = ? AND ";
+
+	private static final String _FINDER_COLUMN_D_S_STRUCTUREID_2 =
+		"ddmDataProviderInstanceLink.structureId = ?";
 
 	public DDMDataProviderInstanceLinkPersistenceImpl() {
 		setModelClass(DDMDataProviderInstanceLink.class);
@@ -1441,20 +1794,6 @@ public class DDMDataProviderInstanceLinkPersistenceImpl
 			new String[] {Long.class.getName()},
 			new String[] {"dataProviderInstanceId"}, false);
 
-		_collectionPersistenceFinderByDataProviderInstanceId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByDataProviderInstanceId,
-				_finderPathWithoutPaginationFindByDataProviderInstanceId,
-				_finderPathCountByDataProviderInstanceId,
-				_SQL_SELECT_DDMDATAPROVIDERINSTANCELINK_WHERE,
-				_SQL_COUNT_DDMDATAPROVIDERINSTANCELINK_WHERE,
-				DDMDataProviderInstanceLinkModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"ddmDataProviderInstanceLink.", "dataProviderInstanceId",
-					FinderColumn.Type.LONG, "=", true, true,
-					DDMDataProviderInstanceLink::getDataProviderInstanceId));
-
 		_finderPathWithPaginationFindByStructureId = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByStructureId",
 			new String[] {
@@ -1473,36 +1812,10 @@ public class DDMDataProviderInstanceLinkPersistenceImpl
 			new String[] {Long.class.getName()}, new String[] {"structureId"},
 			false);
 
-		_collectionPersistenceFinderByStructureId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByStructureId,
-				_finderPathWithoutPaginationFindByStructureId,
-				_finderPathCountByStructureId,
-				_SQL_SELECT_DDMDATAPROVIDERINSTANCELINK_WHERE,
-				_SQL_COUNT_DDMDATAPROVIDERINSTANCELINK_WHERE,
-				DDMDataProviderInstanceLinkModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"ddmDataProviderInstanceLink.", "structureId",
-					FinderColumn.Type.LONG, "=", true, true,
-					DDMDataProviderInstanceLink::getStructureId));
-
 		_finderPathFetchByD_S = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByD_S",
 			new String[] {Long.class.getName(), Long.class.getName()},
 			new String[] {"dataProviderInstanceId", "structureId"}, true);
-
-		_uniquePersistenceFinderByD_S = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByD_S,
-			_SQL_SELECT_DDMDATAPROVIDERINSTANCELINK_WHERE,
-			new FinderColumn<>(
-				"ddmDataProviderInstanceLink.", "dataProviderInstanceId",
-				FinderColumn.Type.LONG, "=", true, false,
-				DDMDataProviderInstanceLink::getDataProviderInstanceId),
-			new FinderColumn<>(
-				"ddmDataProviderInstanceLink.", "structureId",
-				FinderColumn.Type.LONG, "=", true, true,
-				DDMDataProviderInstanceLink::getStructureId));
 
 		DDMDataProviderInstanceLinkUtil.setPersistence(this);
 	}
@@ -1580,4 +1893,4 @@ public class DDMDataProviderInstanceLinkPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:2080674723
+// LIFERAY-SERVICE-BUILDER-HASH:-15933858

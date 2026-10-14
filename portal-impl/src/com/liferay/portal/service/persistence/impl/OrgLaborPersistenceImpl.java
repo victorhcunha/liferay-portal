@@ -12,6 +12,7 @@ import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.exception.NoSuchOrgLaborException;
@@ -23,8 +24,6 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.persistence.OrgLaborPersistence;
 import com.liferay.portal.kernel.service.persistence.OrgLaborUtil;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.service.persistence.impl.CollectionPersistenceFinder;
-import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -74,8 +73,6 @@ public class OrgLaborPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByOrganizationId;
 	private FinderPath _finderPathWithoutPaginationFindByOrganizationId;
 	private FinderPath _finderPathCountByOrganizationId;
-	private CollectionPersistenceFinder<OrgLabor>
-		_collectionPersistenceFinderByOrganizationId;
 
 	/**
 	 * Returns all the org labors where organizationId = &#63;.
@@ -149,9 +146,95 @@ public class OrgLaborPersistenceImpl
 		long organizationId, int start, int end,
 		OrderByComparator<OrgLabor> orderByComparator, boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByOrganizationId.find(
-			FinderCacheUtil.getFinderCache(), new Object[] {organizationId},
-			start, end, orderByComparator, useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByOrganizationId;
+				finderArgs = new Object[] {organizationId};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByOrganizationId;
+			finderArgs = new Object[] {
+				organizationId, start, end, orderByComparator
+			};
+		}
+
+		List<OrgLabor> list = null;
+
+		if (useFinderCache) {
+			list = (List<OrgLabor>)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (OrgLabor orgLabor : list) {
+					if (organizationId != orgLabor.getOrganizationId()) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_ORGLABOR_WHERE);
+
+			sb.append(_FINDER_COLUMN_ORGANIZATIONID_ORGANIZATIONID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(OrgLaborModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(organizationId);
+
+				list = (List<OrgLabor>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					FinderCacheUtil.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -231,9 +314,50 @@ public class OrgLaborPersistenceImpl
 	 */
 	@Override
 	public int countByOrganizationId(long organizationId) {
-		return _collectionPersistenceFinderByOrganizationId.count(
-			FinderCacheUtil.getFinderCache(), new Object[] {organizationId});
+		FinderPath finderPath = _finderPathCountByOrganizationId;
+
+		Object[] finderArgs = new Object[] {organizationId};
+
+		Long count = (Long)FinderCacheUtil.getResult(
+			finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_ORGLABOR_WHERE);
+
+			sb.append(_FINDER_COLUMN_ORGANIZATIONID_ORGANIZATIONID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(organizationId);
+
+				count = (Long)query.uniqueResult();
+
+				FinderCacheUtil.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
+
+	private static final String _FINDER_COLUMN_ORGANIZATIONID_ORGANIZATIONID_2 =
+		"orgLabor.organizationId = ?";
 
 	public OrgLaborPersistenceImpl() {
 		setModelClass(OrgLabor.class);
@@ -762,17 +886,6 @@ public class OrgLaborPersistenceImpl
 			new String[] {Long.class.getName()},
 			new String[] {"organizationId"}, false);
 
-		_collectionPersistenceFinderByOrganizationId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByOrganizationId,
-				_finderPathWithoutPaginationFindByOrganizationId,
-				_finderPathCountByOrganizationId, _SQL_SELECT_ORGLABOR_WHERE,
-				_SQL_COUNT_ORGLABOR_WHERE, OrgLaborModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"orgLabor.", "organizationId", FinderColumn.Type.LONG, "=",
-					true, true, OrgLabor::getOrganizationId));
-
 		OrgLaborUtil.setPersistence(this);
 	}
 
@@ -811,4 +924,4 @@ public class OrgLaborPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:776298130
+// LIFERAY-SERVICE-BUILDER-HASH:679408770

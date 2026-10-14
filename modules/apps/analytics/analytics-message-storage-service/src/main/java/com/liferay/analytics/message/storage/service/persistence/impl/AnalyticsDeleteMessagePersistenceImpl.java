@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
@@ -32,8 +33,6 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.service.persistence.impl.CollectionPersistenceFinder;
-import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -43,6 +42,8 @@ import com.liferay.portal.kernel.util.ProxyUtil;
 import java.io.Serializable;
 
 import java.lang.reflect.InvocationHandler;
+
+import java.sql.Timestamp;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,8 +98,6 @@ public class AnalyticsDeleteMessagePersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByCompanyId;
 	private FinderPath _finderPathWithoutPaginationFindByCompanyId;
 	private FinderPath _finderPathCountByCompanyId;
-	private CollectionPersistenceFinder<AnalyticsDeleteMessage>
-		_collectionPersistenceFinderByCompanyId;
 
 	/**
 	 * Returns all the analytics delete messages where companyId = &#63;.
@@ -176,9 +175,97 @@ public class AnalyticsDeleteMessagePersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					AnalyticsDeleteMessage.class)) {
 
-			return _collectionPersistenceFinderByCompanyId.find(
-				finderCache, new Object[] {companyId}, start, end,
-				orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByCompanyId;
+					finderArgs = new Object[] {companyId};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByCompanyId;
+				finderArgs = new Object[] {
+					companyId, start, end, orderByComparator
+				};
+			}
+
+			List<AnalyticsDeleteMessage> list = null;
+
+			if (useFinderCache) {
+				list = (List<AnalyticsDeleteMessage>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (AnalyticsDeleteMessage analyticsDeleteMessage : list) {
+						if (companyId !=
+								analyticsDeleteMessage.getCompanyId()) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						3 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(3);
+				}
+
+				sb.append(_SQL_SELECT_ANALYTICSDELETEMESSAGE_WHERE);
+
+				sb.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(AnalyticsDeleteMessageModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(companyId);
+
+					list = (List<AnalyticsDeleteMessage>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -264,15 +351,54 @@ public class AnalyticsDeleteMessagePersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					AnalyticsDeleteMessage.class)) {
 
-			return _collectionPersistenceFinderByCompanyId.count(
-				finderCache, new Object[] {companyId});
+			FinderPath finderPath = _finderPathCountByCompanyId;
+
+			Object[] finderArgs = new Object[] {companyId};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(2);
+
+				sb.append(_SQL_COUNT_ANALYTICSDELETEMESSAGE_WHERE);
+
+				sb.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(companyId);
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
 
+	private static final String _FINDER_COLUMN_COMPANYID_COMPANYID_2 =
+		"analyticsDeleteMessage.companyId = ?";
+
 	private FinderPath _finderPathWithPaginationFindByC_GtM;
 	private FinderPath _finderPathWithPaginationCountByC_GtM;
-	private CollectionPersistenceFinder<AnalyticsDeleteMessage>
-		_collectionPersistenceFinderByC_GtM;
 
 	/**
 	 * Returns all the analytics delete messages where companyId = &#63; and modifiedDate &gt; &#63;.
@@ -358,9 +484,105 @@ public class AnalyticsDeleteMessagePersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					AnalyticsDeleteMessage.class)) {
 
-			return _collectionPersistenceFinderByC_GtM.find(
-				finderCache, new Object[] {companyId, modifiedDate}, start, end,
-				orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			finderPath = _finderPathWithPaginationFindByC_GtM;
+			finderArgs = new Object[] {
+				companyId, _getTime(modifiedDate), start, end, orderByComparator
+			};
+
+			List<AnalyticsDeleteMessage> list = null;
+
+			if (useFinderCache) {
+				list = (List<AnalyticsDeleteMessage>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (AnalyticsDeleteMessage analyticsDeleteMessage : list) {
+						if ((companyId !=
+								analyticsDeleteMessage.getCompanyId()) ||
+							(modifiedDate.getTime() >=
+								analyticsDeleteMessage.getModifiedDate(
+								).getTime())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						4 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(4);
+				}
+
+				sb.append(_SQL_SELECT_ANALYTICSDELETEMESSAGE_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_GTM_COMPANYID_2);
+
+				boolean bindModifiedDate = false;
+
+				if (modifiedDate == null) {
+					sb.append(_FINDER_COLUMN_C_GTM_MODIFIEDDATE_1);
+				}
+				else {
+					bindModifiedDate = true;
+
+					sb.append(_FINDER_COLUMN_C_GTM_MODIFIEDDATE_2);
+				}
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(AnalyticsDeleteMessageModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(companyId);
+
+					if (bindModifiedDate) {
+						queryPos.add(new Timestamp(modifiedDate.getTime()));
+					}
+
+					list = (List<AnalyticsDeleteMessage>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -454,15 +676,77 @@ public class AnalyticsDeleteMessagePersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					AnalyticsDeleteMessage.class)) {
 
-			return _collectionPersistenceFinderByC_GtM.count(
-				finderCache, new Object[] {companyId, modifiedDate});
+			FinderPath finderPath = _finderPathWithPaginationCountByC_GtM;
+
+			Object[] finderArgs = new Object[] {
+				companyId, _getTime(modifiedDate)
+			};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(_SQL_COUNT_ANALYTICSDELETEMESSAGE_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_GTM_COMPANYID_2);
+
+				boolean bindModifiedDate = false;
+
+				if (modifiedDate == null) {
+					sb.append(_FINDER_COLUMN_C_GTM_MODIFIEDDATE_1);
+				}
+				else {
+					bindModifiedDate = true;
+
+					sb.append(_FINDER_COLUMN_C_GTM_MODIFIEDDATE_2);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(companyId);
+
+					if (bindModifiedDate) {
+						queryPos.add(new Timestamp(modifiedDate.getTime()));
+					}
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
 
+	private static final String _FINDER_COLUMN_C_GTM_COMPANYID_2 =
+		"analyticsDeleteMessage.companyId = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_GTM_MODIFIEDDATE_1 =
+		"analyticsDeleteMessage.modifiedDate IS NULL";
+
+	private static final String _FINDER_COLUMN_C_GTM_MODIFIEDDATE_2 =
+		"analyticsDeleteMessage.modifiedDate > ?";
+
 	private FinderPath _finderPathWithPaginationFindByC_LtM;
 	private FinderPath _finderPathWithPaginationCountByC_LtM;
-	private CollectionPersistenceFinder<AnalyticsDeleteMessage>
-		_collectionPersistenceFinderByC_LtM;
 
 	/**
 	 * Returns all the analytics delete messages where companyId = &#63; and modifiedDate &lt; &#63;.
@@ -548,9 +832,105 @@ public class AnalyticsDeleteMessagePersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					AnalyticsDeleteMessage.class)) {
 
-			return _collectionPersistenceFinderByC_LtM.find(
-				finderCache, new Object[] {companyId, modifiedDate}, start, end,
-				orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			finderPath = _finderPathWithPaginationFindByC_LtM;
+			finderArgs = new Object[] {
+				companyId, _getTime(modifiedDate), start, end, orderByComparator
+			};
+
+			List<AnalyticsDeleteMessage> list = null;
+
+			if (useFinderCache) {
+				list = (List<AnalyticsDeleteMessage>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (AnalyticsDeleteMessage analyticsDeleteMessage : list) {
+						if ((companyId !=
+								analyticsDeleteMessage.getCompanyId()) ||
+							(modifiedDate.getTime() <=
+								analyticsDeleteMessage.getModifiedDate(
+								).getTime())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						4 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(4);
+				}
+
+				sb.append(_SQL_SELECT_ANALYTICSDELETEMESSAGE_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_LTM_COMPANYID_2);
+
+				boolean bindModifiedDate = false;
+
+				if (modifiedDate == null) {
+					sb.append(_FINDER_COLUMN_C_LTM_MODIFIEDDATE_1);
+				}
+				else {
+					bindModifiedDate = true;
+
+					sb.append(_FINDER_COLUMN_C_LTM_MODIFIEDDATE_2);
+				}
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(AnalyticsDeleteMessageModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(companyId);
+
+					if (bindModifiedDate) {
+						queryPos.add(new Timestamp(modifiedDate.getTime()));
+					}
+
+					list = (List<AnalyticsDeleteMessage>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -644,10 +1024,74 @@ public class AnalyticsDeleteMessagePersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					AnalyticsDeleteMessage.class)) {
 
-			return _collectionPersistenceFinderByC_LtM.count(
-				finderCache, new Object[] {companyId, modifiedDate});
+			FinderPath finderPath = _finderPathWithPaginationCountByC_LtM;
+
+			Object[] finderArgs = new Object[] {
+				companyId, _getTime(modifiedDate)
+			};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(_SQL_COUNT_ANALYTICSDELETEMESSAGE_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_LTM_COMPANYID_2);
+
+				boolean bindModifiedDate = false;
+
+				if (modifiedDate == null) {
+					sb.append(_FINDER_COLUMN_C_LTM_MODIFIEDDATE_1);
+				}
+				else {
+					bindModifiedDate = true;
+
+					sb.append(_FINDER_COLUMN_C_LTM_MODIFIEDDATE_2);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(companyId);
+
+					if (bindModifiedDate) {
+						queryPos.add(new Timestamp(modifiedDate.getTime()));
+					}
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_C_LTM_COMPANYID_2 =
+		"analyticsDeleteMessage.companyId = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_LTM_MODIFIEDDATE_1 =
+		"analyticsDeleteMessage.modifiedDate IS NULL";
+
+	private static final String _FINDER_COLUMN_C_LTM_MODIFIEDDATE_2 =
+		"analyticsDeleteMessage.modifiedDate < ?";
 
 	public AnalyticsDeleteMessagePersistenceImpl() {
 		setModelClass(AnalyticsDeleteMessage.class);
@@ -1505,20 +1949,6 @@ public class AnalyticsDeleteMessagePersistenceImpl
 			new String[] {Long.class.getName()}, new String[] {"companyId"},
 			false);
 
-		_collectionPersistenceFinderByCompanyId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByCompanyId,
-				_finderPathWithoutPaginationFindByCompanyId,
-				_finderPathCountByCompanyId,
-				_SQL_SELECT_ANALYTICSDELETEMESSAGE_WHERE,
-				_SQL_COUNT_ANALYTICSDELETEMESSAGE_WHERE,
-				AnalyticsDeleteMessageModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"analyticsDeleteMessage.", "companyId",
-					FinderColumn.Type.LONG, "=", true, true,
-					AnalyticsDeleteMessage::getCompanyId));
-
 		_finderPathWithPaginationFindByC_GtM = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_GtM",
 			new String[] {
@@ -1533,21 +1963,6 @@ public class AnalyticsDeleteMessagePersistenceImpl
 			new String[] {Long.class.getName(), Date.class.getName()},
 			new String[] {"companyId", "modifiedDate"}, false);
 
-		_collectionPersistenceFinderByC_GtM = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByC_GtM, null,
-			_finderPathWithPaginationCountByC_GtM,
-			_SQL_SELECT_ANALYTICSDELETEMESSAGE_WHERE,
-			_SQL_COUNT_ANALYTICSDELETEMESSAGE_WHERE,
-			AnalyticsDeleteMessageModelImpl.ORDER_BY_JPQL,
-			_ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"analyticsDeleteMessage.", "companyId", FinderColumn.Type.LONG,
-				"=", true, false, AnalyticsDeleteMessage::getCompanyId),
-			new FinderColumn<>(
-				"analyticsDeleteMessage.", "modifiedDate",
-				FinderColumn.Type.DATE, ">", true, true,
-				AnalyticsDeleteMessage::getModifiedDate));
-
 		_finderPathWithPaginationFindByC_LtM = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_LtM",
 			new String[] {
@@ -1561,21 +1976,6 @@ public class AnalyticsDeleteMessagePersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "countByC_LtM",
 			new String[] {Long.class.getName(), Date.class.getName()},
 			new String[] {"companyId", "modifiedDate"}, false);
-
-		_collectionPersistenceFinderByC_LtM = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByC_LtM, null,
-			_finderPathWithPaginationCountByC_LtM,
-			_SQL_SELECT_ANALYTICSDELETEMESSAGE_WHERE,
-			_SQL_COUNT_ANALYTICSDELETEMESSAGE_WHERE,
-			AnalyticsDeleteMessageModelImpl.ORDER_BY_JPQL,
-			_ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"analyticsDeleteMessage.", "companyId", FinderColumn.Type.LONG,
-				"=", true, false, AnalyticsDeleteMessage::getCompanyId),
-			new FinderColumn<>(
-				"analyticsDeleteMessage.", "modifiedDate",
-				FinderColumn.Type.DATE, "<", true, true,
-				AnalyticsDeleteMessage::getModifiedDate));
 
 		AnalyticsDeleteMessageUtil.setPersistence(this);
 	}
@@ -1622,6 +2022,14 @@ public class AnalyticsDeleteMessagePersistenceImpl
 	@Reference
 	protected FinderCache finderCache;
 
+	private static Long _getTime(Date date) {
+		if (date == null) {
+			return null;
+		}
+
+		return date.getTime();
+	}
+
 	private static final String _SQL_SELECT_ANALYTICSDELETEMESSAGE =
 		"SELECT analyticsDeleteMessage FROM AnalyticsDeleteMessage analyticsDeleteMessage";
 
@@ -1652,4 +2060,4 @@ public class AnalyticsDeleteMessagePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:322044200
+// LIFERAY-SERVICE-BUILDER-HASH:216326748

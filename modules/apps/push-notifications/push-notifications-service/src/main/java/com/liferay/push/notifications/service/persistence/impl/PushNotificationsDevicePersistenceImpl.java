@@ -21,8 +21,6 @@ import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
-import com.liferay.portal.kernel.service.persistence.impl.UniquePersistenceFinder;
 import com.liferay.portal.kernel.util.ArrayUtil;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -89,8 +87,6 @@ public class PushNotificationsDevicePersistenceImpl
 	private FinderPath _finderPathWithoutPaginationFindAll;
 	private FinderPath _finderPathCountAll;
 	private FinderPath _finderPathFetchByToken;
-	private UniquePersistenceFinder<PushNotificationsDevice>
-		_uniquePersistenceFinderByToken;
 
 	/**
 	 * Returns the push notifications device where token = &#63; or throws a <code>NoSuchDeviceException</code> if it could not be found.
@@ -147,8 +143,92 @@ public class PushNotificationsDevicePersistenceImpl
 	public PushNotificationsDevice fetchByToken(
 		String token, boolean useFinderCache) {
 
-		return _uniquePersistenceFinderByToken.fetch(
-			finderCache, new Object[] {token}, useFinderCache);
+		token = Objects.toString(token, "");
+
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {token};
+		}
+
+		Object result = null;
+
+		if (useFinderCache) {
+			result = finderCache.getResult(
+				_finderPathFetchByToken, finderArgs, this);
+		}
+
+		if (result instanceof PushNotificationsDevice) {
+			PushNotificationsDevice pushNotificationsDevice =
+				(PushNotificationsDevice)result;
+
+			if (!Objects.equals(token, pushNotificationsDevice.getToken())) {
+				result = null;
+			}
+		}
+
+		if (result == null) {
+			StringBundler sb = new StringBundler(3);
+
+			sb.append(_SQL_SELECT_PUSHNOTIFICATIONSDEVICE_WHERE);
+
+			boolean bindToken = false;
+
+			if (token.isEmpty()) {
+				sb.append(_FINDER_COLUMN_TOKEN_TOKEN_3);
+			}
+			else {
+				bindToken = true;
+
+				sb.append(_FINDER_COLUMN_TOKEN_TOKEN_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindToken) {
+					queryPos.add(token);
+				}
+
+				List<PushNotificationsDevice> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						finderCache.putResult(
+							_finderPathFetchByToken, finderArgs, list);
+					}
+				}
+				else {
+					PushNotificationsDevice pushNotificationsDevice = list.get(
+						0);
+
+					result = pushNotificationsDevice;
+
+					cacheResult(pushNotificationsDevice);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (PushNotificationsDevice)result;
+		}
 	}
 
 	/**
@@ -174,9 +254,20 @@ public class PushNotificationsDevicePersistenceImpl
 	 */
 	@Override
 	public int countByToken(String token) {
-		return _uniquePersistenceFinderByToken.count(
-			finderCache, new Object[] {token});
+		PushNotificationsDevice pushNotificationsDevice = fetchByToken(token);
+
+		if (pushNotificationsDevice == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_TOKEN_TOKEN_2 =
+		"pushNotificationsDevice.token = ?";
+
+	private static final String _FINDER_COLUMN_TOKEN_TOKEN_3 =
+		"(pushNotificationsDevice.token IS NULL OR pushNotificationsDevice.token = '')";
 
 	private FinderPath _finderPathWithPaginationFindByU_P;
 	private FinderPath _finderPathWithoutPaginationFindByU_P;
@@ -1414,13 +1505,6 @@ public class PushNotificationsDevicePersistenceImpl
 			new String[] {String.class.getName()}, new String[] {"token"},
 			true);
 
-		_uniquePersistenceFinderByToken = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByToken,
-			_SQL_SELECT_PUSHNOTIFICATIONSDEVICE_WHERE,
-			new FinderColumn<>(
-				"pushNotificationsDevice.", "token", FinderColumn.Type.STRING,
-				"=", true, true, PushNotificationsDevice::getToken));
-
 		_finderPathWithPaginationFindByU_P = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByU_P",
 			new String[] {
@@ -1517,4 +1601,4 @@ public class PushNotificationsDevicePersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-528756788
+// LIFERAY-SERVICE-BUILDER-HASH:-667427602

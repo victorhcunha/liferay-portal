@@ -37,9 +37,6 @@ import com.liferay.portal.kernel.security.permission.InlineSQLHelperUtil;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.service.persistence.impl.CollectionPersistenceFinder;
-import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
-import com.liferay.portal.kernel.service.persistence.impl.UniquePersistenceFinder;
 import com.liferay.portal.kernel.util.ContentTypes;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
@@ -53,6 +50,8 @@ import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 import java.io.Serializable;
 
 import java.lang.reflect.InvocationHandler;
+
+import java.sql.Timestamp;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -103,8 +102,6 @@ public class CommerceOrderPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByUuid;
 	private FinderPath _finderPathWithoutPaginationFindByUuid;
 	private FinderPath _finderPathCountByUuid;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByUuid;
 
 	/**
 	 * Returns all the commerce orders where uuid = &#63;.
@@ -175,9 +172,106 @@ public class CommerceOrderPersistenceImpl
 		OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByUuid.find(
-			finderCache, new Object[] {uuid}, start, end, orderByComparator,
-			useFinderCache);
+		uuid = Objects.toString(uuid, "");
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByUuid;
+				finderArgs = new Object[] {uuid};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByUuid;
+			finderArgs = new Object[] {uuid, start, end, orderByComparator};
+		}
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if (!uuid.equals(commerceOrder.getUuid())) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			boolean bindUuid = false;
+
+			if (uuid.isEmpty()) {
+				sb.append(_FINDER_COLUMN_UUID_UUID_3);
+			}
+			else {
+				bindUuid = true;
+
+				sb.append(_FINDER_COLUMN_UUID_UUID_2);
+			}
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindUuid) {
+					queryPos.add(uuid);
+				}
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -254,13 +348,67 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByUuid(String uuid) {
-		return _collectionPersistenceFinderByUuid.count(
-			finderCache, new Object[] {uuid});
+		uuid = Objects.toString(uuid, "");
+
+		FinderPath finderPath = _finderPathCountByUuid;
+
+		Object[] finderArgs = new Object[] {uuid};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			boolean bindUuid = false;
+
+			if (uuid.isEmpty()) {
+				sb.append(_FINDER_COLUMN_UUID_UUID_3);
+			}
+			else {
+				bindUuid = true;
+
+				sb.append(_FINDER_COLUMN_UUID_UUID_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindUuid) {
+					queryPos.add(uuid);
+				}
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
 
+	private static final String _FINDER_COLUMN_UUID_UUID_2 =
+		"commerceOrder.uuid = ?";
+
+	private static final String _FINDER_COLUMN_UUID_UUID_3 =
+		"(commerceOrder.uuid IS NULL OR commerceOrder.uuid = '')";
+
 	private FinderPath _finderPathFetchByUUID_G;
-	private UniquePersistenceFinder<CommerceOrder>
-		_uniquePersistenceFinderByUUID_G;
 
 	/**
 	 * Returns the commerce order where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchOrderException</code> if it could not be found.
@@ -323,8 +471,96 @@ public class CommerceOrderPersistenceImpl
 	public CommerceOrder fetchByUUID_G(
 		String uuid, long groupId, boolean useFinderCache) {
 
-		return _uniquePersistenceFinderByUUID_G.fetch(
-			finderCache, new Object[] {uuid, groupId}, useFinderCache);
+		uuid = Objects.toString(uuid, "");
+
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {uuid, groupId};
+		}
+
+		Object result = null;
+
+		if (useFinderCache) {
+			result = finderCache.getResult(
+				_finderPathFetchByUUID_G, finderArgs, this);
+		}
+
+		if (result instanceof CommerceOrder) {
+			CommerceOrder commerceOrder = (CommerceOrder)result;
+
+			if (!Objects.equals(uuid, commerceOrder.getUuid()) ||
+				(groupId != commerceOrder.getGroupId())) {
+
+				result = null;
+			}
+		}
+
+		if (result == null) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			boolean bindUuid = false;
+
+			if (uuid.isEmpty()) {
+				sb.append(_FINDER_COLUMN_UUID_G_UUID_3);
+			}
+			else {
+				bindUuid = true;
+
+				sb.append(_FINDER_COLUMN_UUID_G_UUID_2);
+			}
+
+			sb.append(_FINDER_COLUMN_UUID_G_GROUPID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindUuid) {
+					queryPos.add(uuid);
+				}
+
+				queryPos.add(groupId);
+
+				List<CommerceOrder> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						finderCache.putResult(
+							_finderPathFetchByUUID_G, finderArgs, list);
+					}
+				}
+				else {
+					CommerceOrder commerceOrder = list.get(0);
+
+					result = commerceOrder;
+
+					cacheResult(commerceOrder);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (CommerceOrder)result;
+		}
 	}
 
 	/**
@@ -352,15 +588,27 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByUUID_G(String uuid, long groupId) {
-		return _uniquePersistenceFinderByUUID_G.count(
-			finderCache, new Object[] {uuid, groupId});
+		CommerceOrder commerceOrder = fetchByUUID_G(uuid, groupId);
+
+		if (commerceOrder == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_UUID_G_UUID_2 =
+		"commerceOrder.uuid = ? AND ";
+
+	private static final String _FINDER_COLUMN_UUID_G_UUID_3 =
+		"(commerceOrder.uuid IS NULL OR commerceOrder.uuid = '') AND ";
+
+	private static final String _FINDER_COLUMN_UUID_G_GROUPID_2 =
+		"commerceOrder.groupId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByUuid_C;
 	private FinderPath _finderPathWithoutPaginationFindByUuid_C;
 	private FinderPath _finderPathCountByUuid_C;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByUuid_C;
 
 	/**
 	 * Returns all the commerce orders where uuid = &#63; and companyId = &#63;.
@@ -439,9 +687,114 @@ public class CommerceOrderPersistenceImpl
 		OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByUuid_C.find(
-			finderCache, new Object[] {uuid, companyId}, start, end,
-			orderByComparator, useFinderCache);
+		uuid = Objects.toString(uuid, "");
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByUuid_C;
+				finderArgs = new Object[] {uuid, companyId};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByUuid_C;
+			finderArgs = new Object[] {
+				uuid, companyId, start, end, orderByComparator
+			};
+		}
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if (!uuid.equals(commerceOrder.getUuid()) ||
+						(companyId != commerceOrder.getCompanyId())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					4 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(4);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			boolean bindUuid = false;
+
+			if (uuid.isEmpty()) {
+				sb.append(_FINDER_COLUMN_UUID_C_UUID_3);
+			}
+			else {
+				bindUuid = true;
+
+				sb.append(_FINDER_COLUMN_UUID_C_UUID_2);
+			}
+
+			sb.append(_FINDER_COLUMN_UUID_C_COMPANYID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindUuid) {
+					queryPos.add(uuid);
+				}
+
+				queryPos.add(companyId);
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -530,15 +883,76 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByUuid_C(String uuid, long companyId) {
-		return _collectionPersistenceFinderByUuid_C.count(
-			finderCache, new Object[] {uuid, companyId});
+		uuid = Objects.toString(uuid, "");
+
+		FinderPath finderPath = _finderPathCountByUuid_C;
+
+		Object[] finderArgs = new Object[] {uuid, companyId};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(3);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			boolean bindUuid = false;
+
+			if (uuid.isEmpty()) {
+				sb.append(_FINDER_COLUMN_UUID_C_UUID_3);
+			}
+			else {
+				bindUuid = true;
+
+				sb.append(_FINDER_COLUMN_UUID_C_UUID_2);
+			}
+
+			sb.append(_FINDER_COLUMN_UUID_C_COMPANYID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindUuid) {
+					queryPos.add(uuid);
+				}
+
+				queryPos.add(companyId);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
+
+	private static final String _FINDER_COLUMN_UUID_C_UUID_2 =
+		"commerceOrder.uuid = ? AND ";
+
+	private static final String _FINDER_COLUMN_UUID_C_UUID_3 =
+		"(commerceOrder.uuid IS NULL OR commerceOrder.uuid = '') AND ";
+
+	private static final String _FINDER_COLUMN_UUID_C_COMPANYID_2 =
+		"commerceOrder.companyId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByGroupId;
 	private FinderPath _finderPathWithoutPaginationFindByGroupId;
 	private FinderPath _finderPathCountByGroupId;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByGroupId;
 
 	/**
 	 * Returns all the commerce orders where groupId = &#63;.
@@ -610,9 +1024,93 @@ public class CommerceOrderPersistenceImpl
 		OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByGroupId.find(
-			finderCache, new Object[] {groupId}, start, end, orderByComparator,
-			useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByGroupId;
+				finderArgs = new Object[] {groupId};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByGroupId;
+			finderArgs = new Object[] {groupId, start, end, orderByComparator};
+		}
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if (groupId != commerceOrder.getGroupId()) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_GROUPID_GROUPID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(groupId);
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -833,8 +1331,45 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByGroupId(long groupId) {
-		return _collectionPersistenceFinderByGroupId.count(
-			finderCache, new Object[] {groupId});
+		FinderPath finderPath = _finderPathCountByGroupId;
+
+		Object[] finderArgs = new Object[] {groupId};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_GROUPID_GROUPID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(groupId);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
 
 	/**
@@ -900,8 +1435,6 @@ public class CommerceOrderPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByUserId;
 	private FinderPath _finderPathWithoutPaginationFindByUserId;
 	private FinderPath _finderPathCountByUserId;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByUserId;
 
 	/**
 	 * Returns all the commerce orders where userId = &#63;.
@@ -972,9 +1505,93 @@ public class CommerceOrderPersistenceImpl
 		OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByUserId.find(
-			finderCache, new Object[] {userId}, start, end, orderByComparator,
-			useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByUserId;
+				finderArgs = new Object[] {userId};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByUserId;
+			finderArgs = new Object[] {userId, start, end, orderByComparator};
+		}
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if (userId != commerceOrder.getUserId()) {
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_USERID_USERID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(userId);
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -1053,15 +1670,53 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByUserId(long userId) {
-		return _collectionPersistenceFinderByUserId.count(
-			finderCache, new Object[] {userId});
+		FinderPath finderPath = _finderPathCountByUserId;
+
+		Object[] finderArgs = new Object[] {userId};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_USERID_USERID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(userId);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
+
+	private static final String _FINDER_COLUMN_USERID_USERID_2 =
+		"commerceOrder.userId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByBillingAddressId;
 	private FinderPath _finderPathWithoutPaginationFindByBillingAddressId;
 	private FinderPath _finderPathCountByBillingAddressId;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByBillingAddressId;
 
 	/**
 	 * Returns all the commerce orders where billingAddressId = &#63;.
@@ -1136,9 +1791,97 @@ public class CommerceOrderPersistenceImpl
 		OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByBillingAddressId.find(
-			finderCache, new Object[] {billingAddressId}, start, end,
-			orderByComparator, useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByBillingAddressId;
+				finderArgs = new Object[] {billingAddressId};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByBillingAddressId;
+			finderArgs = new Object[] {
+				billingAddressId, start, end, orderByComparator
+			};
+		}
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if (billingAddressId !=
+							commerceOrder.getBillingAddressId()) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_BILLINGADDRESSID_BILLINGADDRESSID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(billingAddressId);
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -1220,15 +1963,54 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByBillingAddressId(long billingAddressId) {
-		return _collectionPersistenceFinderByBillingAddressId.count(
-			finderCache, new Object[] {billingAddressId});
+		FinderPath finderPath = _finderPathCountByBillingAddressId;
+
+		Object[] finderArgs = new Object[] {billingAddressId};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_BILLINGADDRESSID_BILLINGADDRESSID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(billingAddressId);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
+
+	private static final String
+		_FINDER_COLUMN_BILLINGADDRESSID_BILLINGADDRESSID_2 =
+			"commerceOrder.billingAddressId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByCommerceAccountId;
 	private FinderPath _finderPathWithoutPaginationFindByCommerceAccountId;
 	private FinderPath _finderPathCountByCommerceAccountId;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByCommerceAccountId;
 
 	/**
 	 * Returns all the commerce orders where commerceAccountId = &#63;.
@@ -1303,9 +2085,98 @@ public class CommerceOrderPersistenceImpl
 		OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByCommerceAccountId.find(
-			finderCache, new Object[] {commerceAccountId}, start, end,
-			orderByComparator, useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath =
+					_finderPathWithoutPaginationFindByCommerceAccountId;
+				finderArgs = new Object[] {commerceAccountId};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByCommerceAccountId;
+			finderArgs = new Object[] {
+				commerceAccountId, start, end, orderByComparator
+			};
+		}
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if (commerceAccountId !=
+							commerceOrder.getCommerceAccountId()) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_COMMERCEACCOUNTID_COMMERCEACCOUNTID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(commerceAccountId);
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -1387,15 +2258,54 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByCommerceAccountId(long commerceAccountId) {
-		return _collectionPersistenceFinderByCommerceAccountId.count(
-			finderCache, new Object[] {commerceAccountId});
+		FinderPath finderPath = _finderPathCountByCommerceAccountId;
+
+		Object[] finderArgs = new Object[] {commerceAccountId};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_COMMERCEACCOUNTID_COMMERCEACCOUNTID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(commerceAccountId);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
+
+	private static final String
+		_FINDER_COLUMN_COMMERCEACCOUNTID_COMMERCEACCOUNTID_2 =
+			"commerceOrder.commerceAccountId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByShippingAddressId;
 	private FinderPath _finderPathWithoutPaginationFindByShippingAddressId;
 	private FinderPath _finderPathCountByShippingAddressId;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByShippingAddressId;
 
 	/**
 	 * Returns all the commerce orders where shippingAddressId = &#63;.
@@ -1470,9 +2380,98 @@ public class CommerceOrderPersistenceImpl
 		OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByShippingAddressId.find(
-			finderCache, new Object[] {shippingAddressId}, start, end,
-			orderByComparator, useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath =
+					_finderPathWithoutPaginationFindByShippingAddressId;
+				finderArgs = new Object[] {shippingAddressId};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByShippingAddressId;
+			finderArgs = new Object[] {
+				shippingAddressId, start, end, orderByComparator
+			};
+		}
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if (shippingAddressId !=
+							commerceOrder.getShippingAddressId()) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					3 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(3);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_SHIPPINGADDRESSID_SHIPPINGADDRESSID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(shippingAddressId);
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -1554,15 +2553,54 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByShippingAddressId(long shippingAddressId) {
-		return _collectionPersistenceFinderByShippingAddressId.count(
-			finderCache, new Object[] {shippingAddressId});
+		FinderPath finderPath = _finderPathCountByShippingAddressId;
+
+		Object[] finderArgs = new Object[] {shippingAddressId};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(2);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_SHIPPINGADDRESSID_SHIPPINGADDRESSID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(shippingAddressId);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
+
+	private static final String
+		_FINDER_COLUMN_SHIPPINGADDRESSID_SHIPPINGADDRESSID_2 =
+			"commerceOrder.shippingAddressId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByG_C;
 	private FinderPath _finderPathWithoutPaginationFindByG_C;
 	private FinderPath _finderPathCountByG_C;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByG_C;
 
 	/**
 	 * Returns all the commerce orders where groupId = &#63; and commerceAccountId = &#63;.
@@ -1642,9 +2680,102 @@ public class CommerceOrderPersistenceImpl
 		OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByG_C.find(
-			finderCache, new Object[] {groupId, commerceAccountId}, start, end,
-			orderByComparator, useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByG_C;
+				finderArgs = new Object[] {groupId, commerceAccountId};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByG_C;
+			finderArgs = new Object[] {
+				groupId, commerceAccountId, start, end, orderByComparator
+			};
+		}
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if ((groupId != commerceOrder.getGroupId()) ||
+						(commerceAccountId !=
+							commerceOrder.getCommerceAccountId())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					4 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(4);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_G_C_GROUPID_2);
+
+			sb.append(_FINDER_COLUMN_G_C_COMMERCEACCOUNTID_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(groupId);
+
+				queryPos.add(commerceAccountId);
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -1886,8 +3017,49 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByG_C(long groupId, long commerceAccountId) {
-		return _collectionPersistenceFinderByG_C.count(
-			finderCache, new Object[] {groupId, commerceAccountId});
+		FinderPath finderPath = _finderPathCountByG_C;
+
+		Object[] finderArgs = new Object[] {groupId, commerceAccountId};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(3);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_G_C_GROUPID_2);
+
+			sb.append(_FINDER_COLUMN_G_C_COMMERCEACCOUNTID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(groupId);
+
+				queryPos.add(commerceAccountId);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
 
 	/**
@@ -1962,8 +3134,6 @@ public class CommerceOrderPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByG_CP;
 	private FinderPath _finderPathWithoutPaginationFindByG_CP;
 	private FinderPath _finderPathCountByG_CP;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByG_CP;
 
 	/**
 	 * Returns all the commerce orders where groupId = &#63; and commercePaymentMethodKey = &#63;.
@@ -2046,9 +3216,116 @@ public class CommerceOrderPersistenceImpl
 		OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByG_CP.find(
-			finderCache, new Object[] {groupId, commercePaymentMethodKey},
-			start, end, orderByComparator, useFinderCache);
+		commercePaymentMethodKey = Objects.toString(
+			commercePaymentMethodKey, "");
+
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByG_CP;
+				finderArgs = new Object[] {groupId, commercePaymentMethodKey};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByG_CP;
+			finderArgs = new Object[] {
+				groupId, commercePaymentMethodKey, start, end, orderByComparator
+			};
+		}
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if ((groupId != commerceOrder.getGroupId()) ||
+						!commercePaymentMethodKey.equals(
+							commerceOrder.getCommercePaymentMethodKey())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					4 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(4);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_G_CP_GROUPID_2);
+
+			boolean bindCommercePaymentMethodKey = false;
+
+			if (commercePaymentMethodKey.isEmpty()) {
+				sb.append(_FINDER_COLUMN_G_CP_COMMERCEPAYMENTMETHODKEY_3);
+			}
+			else {
+				bindCommercePaymentMethodKey = true;
+
+				sb.append(_FINDER_COLUMN_G_CP_COMMERCEPAYMENTMETHODKEY_2);
+			}
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(groupId);
+
+				if (bindCommercePaymentMethodKey) {
+					queryPos.add(commercePaymentMethodKey);
+				}
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -2306,8 +3583,63 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByG_CP(long groupId, String commercePaymentMethodKey) {
-		return _collectionPersistenceFinderByG_CP.count(
-			finderCache, new Object[] {groupId, commercePaymentMethodKey});
+		commercePaymentMethodKey = Objects.toString(
+			commercePaymentMethodKey, "");
+
+		FinderPath finderPath = _finderPathCountByG_CP;
+
+		Object[] finderArgs = new Object[] {groupId, commercePaymentMethodKey};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(3);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_G_CP_GROUPID_2);
+
+			boolean bindCommercePaymentMethodKey = false;
+
+			if (commercePaymentMethodKey.isEmpty()) {
+				sb.append(_FINDER_COLUMN_G_CP_COMMERCEPAYMENTMETHODKEY_3);
+			}
+			else {
+				bindCommercePaymentMethodKey = true;
+
+				sb.append(_FINDER_COLUMN_G_CP_COMMERCEPAYMENTMETHODKEY_2);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(groupId);
+
+				if (bindCommercePaymentMethodKey) {
+					queryPos.add(commercePaymentMethodKey);
+				}
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
 
 	/**
@@ -2401,8 +3733,6 @@ public class CommerceOrderPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByG_U_O;
 	private FinderPath _finderPathWithoutPaginationFindByG_U_O;
 	private FinderPath _finderPathCountByG_U_O;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByG_U_O;
 
 	/**
 	 * Returns all the commerce orders where groupId = &#63; and userId = &#63; and orderStatus = &#63;.
@@ -2488,9 +3818,106 @@ public class CommerceOrderPersistenceImpl
 		OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByG_U_O.find(
-			finderCache, new Object[] {groupId, userId, orderStatus}, start,
-			end, orderByComparator, useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByG_U_O;
+				finderArgs = new Object[] {groupId, userId, orderStatus};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByG_U_O;
+			finderArgs = new Object[] {
+				groupId, userId, orderStatus, start, end, orderByComparator
+			};
+		}
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if ((groupId != commerceOrder.getGroupId()) ||
+						(userId != commerceOrder.getUserId()) ||
+						(orderStatus != commerceOrder.getOrderStatus())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					5 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(5);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_G_U_O_GROUPID_2);
+
+			sb.append(_FINDER_COLUMN_G_U_O_USERID_2);
+
+			sb.append(_FINDER_COLUMN_G_U_O_ORDERSTATUS_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(groupId);
+
+				queryPos.add(userId);
+
+				queryPos.add(orderStatus);
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -2747,8 +4174,53 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByG_U_O(long groupId, long userId, int orderStatus) {
-		return _collectionPersistenceFinderByG_U_O.count(
-			finderCache, new Object[] {groupId, userId, orderStatus});
+		FinderPath finderPath = _finderPathCountByG_U_O;
+
+		Object[] finderArgs = new Object[] {groupId, userId, orderStatus};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_G_U_O_GROUPID_2);
+
+			sb.append(_FINDER_COLUMN_G_U_O_USERID_2);
+
+			sb.append(_FINDER_COLUMN_G_U_O_ORDERSTATUS_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(groupId);
+
+				queryPos.add(userId);
+
+				queryPos.add(orderStatus);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
 
 	/**
@@ -2831,8 +4303,6 @@ public class CommerceOrderPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByG_C_O;
 	private FinderPath _finderPathWithoutPaginationFindByG_C_O;
 	private FinderPath _finderPathCountByG_C_O;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByG_C_O;
 
 	/**
 	 * Returns all the commerce orders where groupId = &#63; and commerceAccountId = &#63; and orderStatus = &#63;.
@@ -2921,9 +4391,110 @@ public class CommerceOrderPersistenceImpl
 		int end, OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByG_C_O.find(
-			finderCache, new Object[] {groupId, commerceAccountId, orderStatus},
-			start, end, orderByComparator, useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+			(orderByComparator == null)) {
+
+			if (useFinderCache) {
+				finderPath = _finderPathWithoutPaginationFindByG_C_O;
+				finderArgs = new Object[] {
+					groupId, commerceAccountId, orderStatus
+				};
+			}
+		}
+		else if (useFinderCache) {
+			finderPath = _finderPathWithPaginationFindByG_C_O;
+			finderArgs = new Object[] {
+				groupId, commerceAccountId, orderStatus, start, end,
+				orderByComparator
+			};
+		}
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if ((groupId != commerceOrder.getGroupId()) ||
+						(commerceAccountId !=
+							commerceOrder.getCommerceAccountId()) ||
+						(orderStatus != commerceOrder.getOrderStatus())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					5 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(5);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_G_C_O_GROUPID_2);
+
+			sb.append(_FINDER_COLUMN_G_C_O_COMMERCEACCOUNTID_2);
+
+			sb.append(_FINDER_COLUMN_G_C_O_ORDERSTATUS_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(groupId);
+
+				queryPos.add(commerceAccountId);
+
+				queryPos.add(orderStatus);
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -3186,9 +4757,55 @@ public class CommerceOrderPersistenceImpl
 	public int countByG_C_O(
 		long groupId, long commerceAccountId, int orderStatus) {
 
-		return _collectionPersistenceFinderByG_C_O.count(
-			finderCache,
-			new Object[] {groupId, commerceAccountId, orderStatus});
+		FinderPath finderPath = _finderPathCountByG_C_O;
+
+		Object[] finderArgs = new Object[] {
+			groupId, commerceAccountId, orderStatus
+		};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_G_C_O_GROUPID_2);
+
+			sb.append(_FINDER_COLUMN_G_C_O_COMMERCEACCOUNTID_2);
+
+			sb.append(_FINDER_COLUMN_G_C_O_ORDERSTATUS_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(groupId);
+
+				queryPos.add(commerceAccountId);
+
+				queryPos.add(orderStatus);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
 
 	/**
@@ -3272,8 +4889,6 @@ public class CommerceOrderPersistenceImpl
 
 	private FinderPath _finderPathWithPaginationFindByU_LtC_O;
 	private FinderPath _finderPathWithPaginationCountByU_LtC_O;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByU_LtC_O;
 
 	/**
 	 * Returns all the commerce orders where userId = &#63; and createDate &lt; &#63; and orderStatus = &#63;.
@@ -3360,9 +4975,109 @@ public class CommerceOrderPersistenceImpl
 		OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByU_LtC_O.find(
-			finderCache, new Object[] {userId, createDate, orderStatus}, start,
-			end, orderByComparator, useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		finderPath = _finderPathWithPaginationFindByU_LtC_O;
+		finderArgs = new Object[] {
+			userId, _getTime(createDate), orderStatus, start, end,
+			orderByComparator
+		};
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if ((userId != commerceOrder.getUserId()) ||
+						(createDate.getTime() <= commerceOrder.getCreateDate(
+						).getTime()) ||
+						(orderStatus != commerceOrder.getOrderStatus())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					5 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(5);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_U_LTC_O_USERID_2);
+
+			boolean bindCreateDate = false;
+
+			if (createDate == null) {
+				sb.append(_FINDER_COLUMN_U_LTC_O_CREATEDATE_1);
+			}
+			else {
+				bindCreateDate = true;
+
+				sb.append(_FINDER_COLUMN_U_LTC_O_CREATEDATE_2);
+			}
+
+			sb.append(_FINDER_COLUMN_U_LTC_O_ORDERSTATUS_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(userId);
+
+				if (bindCreateDate) {
+					queryPos.add(new Timestamp(createDate.getTime()));
+				}
+
+				queryPos.add(orderStatus);
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -3458,14 +5173,82 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByU_LtC_O(long userId, Date createDate, int orderStatus) {
-		return _collectionPersistenceFinderByU_LtC_O.count(
-			finderCache, new Object[] {userId, createDate, orderStatus});
+		FinderPath finderPath = _finderPathWithPaginationCountByU_LtC_O;
+
+		Object[] finderArgs = new Object[] {
+			userId, _getTime(createDate), orderStatus
+		};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			sb.append(_FINDER_COLUMN_U_LTC_O_USERID_2);
+
+			boolean bindCreateDate = false;
+
+			if (createDate == null) {
+				sb.append(_FINDER_COLUMN_U_LTC_O_CREATEDATE_1);
+			}
+			else {
+				bindCreateDate = true;
+
+				sb.append(_FINDER_COLUMN_U_LTC_O_CREATEDATE_2);
+			}
+
+			sb.append(_FINDER_COLUMN_U_LTC_O_ORDERSTATUS_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				queryPos.add(userId);
+
+				if (bindCreateDate) {
+					queryPos.add(new Timestamp(createDate.getTime()));
+				}
+
+				queryPos.add(orderStatus);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
+
+	private static final String _FINDER_COLUMN_U_LTC_O_USERID_2 =
+		"commerceOrder.userId = ? AND ";
+
+	private static final String _FINDER_COLUMN_U_LTC_O_CREATEDATE_1 =
+		"commerceOrder.createDate IS NULL AND ";
+
+	private static final String _FINDER_COLUMN_U_LTC_O_CREATEDATE_2 =
+		"commerceOrder.createDate < ? AND ";
+
+	private static final String _FINDER_COLUMN_U_LTC_O_ORDERSTATUS_2 =
+		"commerceOrder.orderStatus = ?";
 
 	private FinderPath _finderPathWithPaginationFindByC_LtC_O;
 	private FinderPath _finderPathWithPaginationCountByC_LtC_O;
-	private CollectionPersistenceFinder<CommerceOrder>
-		_collectionPersistenceFinderByC_LtC_O;
 
 	/**
 	 * Returns all the commerce orders where createDate &lt; &#63; and commerceAccountId = &#63; and orderStatus = &#63;.
@@ -3554,10 +5337,110 @@ public class CommerceOrderPersistenceImpl
 		int end, OrderByComparator<CommerceOrder> orderByComparator,
 		boolean useFinderCache) {
 
-		return _collectionPersistenceFinderByC_LtC_O.find(
-			finderCache,
-			new Object[] {createDate, commerceAccountId, orderStatus}, start,
-			end, orderByComparator, useFinderCache);
+		FinderPath finderPath = null;
+		Object[] finderArgs = null;
+
+		finderPath = _finderPathWithPaginationFindByC_LtC_O;
+		finderArgs = new Object[] {
+			_getTime(createDate), commerceAccountId, orderStatus, start, end,
+			orderByComparator
+		};
+
+		List<CommerceOrder> list = null;
+
+		if (useFinderCache) {
+			list = (List<CommerceOrder>)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if ((list != null) && !list.isEmpty()) {
+				for (CommerceOrder commerceOrder : list) {
+					if ((createDate.getTime() <= commerceOrder.getCreateDate(
+						).getTime()) ||
+						(commerceAccountId !=
+							commerceOrder.getCommerceAccountId()) ||
+						(orderStatus != commerceOrder.getOrderStatus())) {
+
+						list = null;
+
+						break;
+					}
+				}
+			}
+		}
+
+		if (list == null) {
+			StringBundler sb = null;
+
+			if (orderByComparator != null) {
+				sb = new StringBundler(
+					5 + (orderByComparator.getOrderByFields().length * 2));
+			}
+			else {
+				sb = new StringBundler(5);
+			}
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			boolean bindCreateDate = false;
+
+			if (createDate == null) {
+				sb.append(_FINDER_COLUMN_C_LTC_O_CREATEDATE_1);
+			}
+			else {
+				bindCreateDate = true;
+
+				sb.append(_FINDER_COLUMN_C_LTC_O_CREATEDATE_2);
+			}
+
+			sb.append(_FINDER_COLUMN_C_LTC_O_COMMERCEACCOUNTID_2);
+
+			sb.append(_FINDER_COLUMN_C_LTC_O_ORDERSTATUS_2);
+
+			if (orderByComparator != null) {
+				appendOrderByComparator(
+					sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+			}
+			else {
+				sb.append(CommerceOrderModelImpl.ORDER_BY_JPQL);
+			}
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindCreateDate) {
+					queryPos.add(new Timestamp(createDate.getTime()));
+				}
+
+				queryPos.add(commerceAccountId);
+
+				queryPos.add(orderStatus);
+
+				list = (List<CommerceOrder>)QueryUtil.list(
+					query, getDialect(), start, end);
+
+				cacheResult(list);
+
+				if (useFinderCache) {
+					finderCache.putResult(finderPath, finderArgs, list);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return list;
 	}
 
 	/**
@@ -3658,14 +5541,81 @@ public class CommerceOrderPersistenceImpl
 	public int countByC_LtC_O(
 		Date createDate, long commerceAccountId, int orderStatus) {
 
-		return _collectionPersistenceFinderByC_LtC_O.count(
-			finderCache,
-			new Object[] {createDate, commerceAccountId, orderStatus});
+		FinderPath finderPath = _finderPathWithPaginationCountByC_LtC_O;
+
+		Object[] finderArgs = new Object[] {
+			_getTime(createDate), commerceAccountId, orderStatus
+		};
+
+		Long count = (Long)finderCache.getResult(finderPath, finderArgs, this);
+
+		if (count == null) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append(_SQL_COUNT_COMMERCEORDER_WHERE);
+
+			boolean bindCreateDate = false;
+
+			if (createDate == null) {
+				sb.append(_FINDER_COLUMN_C_LTC_O_CREATEDATE_1);
+			}
+			else {
+				bindCreateDate = true;
+
+				sb.append(_FINDER_COLUMN_C_LTC_O_CREATEDATE_2);
+			}
+
+			sb.append(_FINDER_COLUMN_C_LTC_O_COMMERCEACCOUNTID_2);
+
+			sb.append(_FINDER_COLUMN_C_LTC_O_ORDERSTATUS_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindCreateDate) {
+					queryPos.add(new Timestamp(createDate.getTime()));
+				}
+
+				queryPos.add(commerceAccountId);
+
+				queryPos.add(orderStatus);
+
+				count = (Long)query.uniqueResult();
+
+				finderCache.putResult(finderPath, finderArgs, count);
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		return count.intValue();
 	}
 
+	private static final String _FINDER_COLUMN_C_LTC_O_CREATEDATE_1 =
+		"commerceOrder.createDate IS NULL AND ";
+
+	private static final String _FINDER_COLUMN_C_LTC_O_CREATEDATE_2 =
+		"commerceOrder.createDate < ? AND ";
+
+	private static final String _FINDER_COLUMN_C_LTC_O_COMMERCEACCOUNTID_2 =
+		"commerceOrder.commerceAccountId = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_LTC_O_ORDERSTATUS_2 =
+		"commerceOrder.orderStatus = ?";
+
 	private FinderPath _finderPathFetchByERC_C;
-	private UniquePersistenceFinder<CommerceOrder>
-		_uniquePersistenceFinderByERC_C;
 
 	/**
 	 * Returns the commerce order where externalReferenceCode = &#63; and companyId = &#63; or throws a <code>NoSuchOrderException</code> if it could not be found.
@@ -3732,9 +5682,98 @@ public class CommerceOrderPersistenceImpl
 	public CommerceOrder fetchByERC_C(
 		String externalReferenceCode, long companyId, boolean useFinderCache) {
 
-		return _uniquePersistenceFinderByERC_C.fetch(
-			finderCache, new Object[] {externalReferenceCode, companyId},
-			useFinderCache);
+		externalReferenceCode = Objects.toString(externalReferenceCode, "");
+
+		Object[] finderArgs = null;
+
+		if (useFinderCache) {
+			finderArgs = new Object[] {externalReferenceCode, companyId};
+		}
+
+		Object result = null;
+
+		if (useFinderCache) {
+			result = finderCache.getResult(
+				_finderPathFetchByERC_C, finderArgs, this);
+		}
+
+		if (result instanceof CommerceOrder) {
+			CommerceOrder commerceOrder = (CommerceOrder)result;
+
+			if (!Objects.equals(
+					externalReferenceCode,
+					commerceOrder.getExternalReferenceCode()) ||
+				(companyId != commerceOrder.getCompanyId())) {
+
+				result = null;
+			}
+		}
+
+		if (result == null) {
+			StringBundler sb = new StringBundler(4);
+
+			sb.append(_SQL_SELECT_COMMERCEORDER_WHERE);
+
+			boolean bindExternalReferenceCode = false;
+
+			if (externalReferenceCode.isEmpty()) {
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3);
+			}
+			else {
+				bindExternalReferenceCode = true;
+
+				sb.append(_FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2);
+			}
+
+			sb.append(_FINDER_COLUMN_ERC_C_COMPANYID_2);
+
+			String sql = sb.toString();
+
+			Session session = null;
+
+			try {
+				session = openSession();
+
+				Query query = session.createQuery(sql);
+
+				QueryPos queryPos = QueryPos.getInstance(query);
+
+				if (bindExternalReferenceCode) {
+					queryPos.add(externalReferenceCode);
+				}
+
+				queryPos.add(companyId);
+
+				List<CommerceOrder> list = query.list();
+
+				if (list.isEmpty()) {
+					if (useFinderCache) {
+						finderCache.putResult(
+							_finderPathFetchByERC_C, finderArgs, list);
+					}
+				}
+				else {
+					CommerceOrder commerceOrder = list.get(0);
+
+					result = commerceOrder;
+
+					cacheResult(commerceOrder);
+				}
+			}
+			catch (Exception exception) {
+				throw processException(exception);
+			}
+			finally {
+				closeSession(session);
+			}
+		}
+
+		if (result instanceof List<?>) {
+			return null;
+		}
+		else {
+			return (CommerceOrder)result;
+		}
 	}
 
 	/**
@@ -3764,9 +5803,24 @@ public class CommerceOrderPersistenceImpl
 	 */
 	@Override
 	public int countByERC_C(String externalReferenceCode, long companyId) {
-		return _uniquePersistenceFinderByERC_C.count(
-			finderCache, new Object[] {externalReferenceCode, companyId});
+		CommerceOrder commerceOrder = fetchByERC_C(
+			externalReferenceCode, companyId);
+
+		if (commerceOrder == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_2 =
+		"commerceOrder.externalReferenceCode = ? AND ";
+
+	private static final String _FINDER_COLUMN_ERC_C_EXTERNALREFERENCECODE_3 =
+		"(commerceOrder.externalReferenceCode IS NULL OR commerceOrder.externalReferenceCode = '') AND ";
+
+	private static final String _FINDER_COLUMN_ERC_C_COMPANYID_2 =
+		"commerceOrder.companyId = ?";
 
 	public CommerceOrderPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
@@ -4547,28 +6601,10 @@ public class CommerceOrderPersistenceImpl
 			new String[] {String.class.getName()}, new String[] {"uuid_"},
 			false);
 
-		_collectionPersistenceFinderByUuid = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByUuid,
-			_finderPathWithoutPaginationFindByUuid, _finderPathCountByUuid,
-			_SQL_SELECT_COMMERCEORDER_WHERE, _SQL_COUNT_COMMERCEORDER_WHERE,
-			CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"commerceOrder.", "uuid", FinderColumn.Type.STRING, "=", true,
-				true, CommerceOrder::getUuid));
-
 		_finderPathFetchByUUID_G = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByUUID_G",
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"uuid_", "groupId"}, true);
-
-		_uniquePersistenceFinderByUUID_G = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByUUID_G, _SQL_SELECT_COMMERCEORDER_WHERE,
-			new FinderColumn<>(
-				"commerceOrder.", "uuid", FinderColumn.Type.STRING, "=", true,
-				false, CommerceOrder::getUuid),
-			new FinderColumn<>(
-				"commerceOrder.", "groupId", FinderColumn.Type.LONG, "=", true,
-				true, CommerceOrder::getGroupId));
 
 		_finderPathWithPaginationFindByUuid_C = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid_C",
@@ -4589,20 +6625,6 @@ public class CommerceOrderPersistenceImpl
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"uuid_", "companyId"}, false);
 
-		_collectionPersistenceFinderByUuid_C =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByUuid_C,
-				_finderPathWithoutPaginationFindByUuid_C,
-				_finderPathCountByUuid_C, _SQL_SELECT_COMMERCEORDER_WHERE,
-				_SQL_COUNT_COMMERCEORDER_WHERE,
-				CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"commerceOrder.", "uuid", FinderColumn.Type.STRING, "=",
-					true, false, CommerceOrder::getUuid),
-				new FinderColumn<>(
-					"commerceOrder.", "companyId", FinderColumn.Type.LONG, "=",
-					true, true, CommerceOrder::getCompanyId));
-
 		_finderPathWithPaginationFindByGroupId = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByGroupId",
 			new String[] {
@@ -4621,17 +6643,6 @@ public class CommerceOrderPersistenceImpl
 			new String[] {Long.class.getName()}, new String[] {"groupId"},
 			false);
 
-		_collectionPersistenceFinderByGroupId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByGroupId,
-				_finderPathWithoutPaginationFindByGroupId,
-				_finderPathCountByGroupId, _SQL_SELECT_COMMERCEORDER_WHERE,
-				_SQL_COUNT_COMMERCEORDER_WHERE,
-				CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"commerceOrder.", "groupId", FinderColumn.Type.LONG, "=",
-					true, true, CommerceOrder::getGroupId));
-
 		_finderPathWithPaginationFindByUserId = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUserId",
 			new String[] {
@@ -4648,17 +6659,6 @@ public class CommerceOrderPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUserId",
 			new String[] {Long.class.getName()}, new String[] {"userId"},
 			false);
-
-		_collectionPersistenceFinderByUserId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByUserId,
-				_finderPathWithoutPaginationFindByUserId,
-				_finderPathCountByUserId, _SQL_SELECT_COMMERCEORDER_WHERE,
-				_SQL_COUNT_COMMERCEORDER_WHERE,
-				CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"commerceOrder.", "userId", FinderColumn.Type.LONG, "=",
-					true, true, CommerceOrder::getUserId));
 
 		_finderPathWithPaginationFindByBillingAddressId = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByBillingAddressId",
@@ -4678,18 +6678,6 @@ public class CommerceOrderPersistenceImpl
 			"countByBillingAddressId", new String[] {Long.class.getName()},
 			new String[] {"billingAddressId"}, false);
 
-		_collectionPersistenceFinderByBillingAddressId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByBillingAddressId,
-				_finderPathWithoutPaginationFindByBillingAddressId,
-				_finderPathCountByBillingAddressId,
-				_SQL_SELECT_COMMERCEORDER_WHERE, _SQL_COUNT_COMMERCEORDER_WHERE,
-				CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"commerceOrder.", "billingAddressId",
-					FinderColumn.Type.LONG, "=", true, true,
-					CommerceOrder::getBillingAddressId));
-
 		_finderPathWithPaginationFindByCommerceAccountId = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCommerceAccountId",
 			new String[] {
@@ -4708,18 +6696,6 @@ public class CommerceOrderPersistenceImpl
 			"countByCommerceAccountId", new String[] {Long.class.getName()},
 			new String[] {"commerceAccountId"}, false);
 
-		_collectionPersistenceFinderByCommerceAccountId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByCommerceAccountId,
-				_finderPathWithoutPaginationFindByCommerceAccountId,
-				_finderPathCountByCommerceAccountId,
-				_SQL_SELECT_COMMERCEORDER_WHERE, _SQL_COUNT_COMMERCEORDER_WHERE,
-				CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"commerceOrder.", "commerceAccountId",
-					FinderColumn.Type.LONG, "=", true, true,
-					CommerceOrder::getCommerceAccountId));
-
 		_finderPathWithPaginationFindByShippingAddressId = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByShippingAddressId",
 			new String[] {
@@ -4737,18 +6713,6 @@ public class CommerceOrderPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION,
 			"countByShippingAddressId", new String[] {Long.class.getName()},
 			new String[] {"shippingAddressId"}, false);
-
-		_collectionPersistenceFinderByShippingAddressId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByShippingAddressId,
-				_finderPathWithoutPaginationFindByShippingAddressId,
-				_finderPathCountByShippingAddressId,
-				_SQL_SELECT_COMMERCEORDER_WHERE, _SQL_COUNT_COMMERCEORDER_WHERE,
-				CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"commerceOrder.", "shippingAddressId",
-					FinderColumn.Type.LONG, "=", true, true,
-					CommerceOrder::getShippingAddressId));
 
 		_finderPathWithPaginationFindByG_C = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_C",
@@ -4769,18 +6733,6 @@ public class CommerceOrderPersistenceImpl
 			new String[] {Long.class.getName(), Long.class.getName()},
 			new String[] {"groupId", "commerceAccountId"}, false);
 
-		_collectionPersistenceFinderByG_C = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByG_C,
-			_finderPathWithoutPaginationFindByG_C, _finderPathCountByG_C,
-			_SQL_SELECT_COMMERCEORDER_WHERE, _SQL_COUNT_COMMERCEORDER_WHERE,
-			CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"commerceOrder.", "groupId", FinderColumn.Type.LONG, "=", true,
-				false, CommerceOrder::getGroupId),
-			new FinderColumn<>(
-				"commerceOrder.", "commerceAccountId", FinderColumn.Type.LONG,
-				"=", true, true, CommerceOrder::getCommerceAccountId));
-
 		_finderPathWithPaginationFindByG_CP = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_CP",
 			new String[] {
@@ -4799,19 +6751,6 @@ public class CommerceOrderPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByG_CP",
 			new String[] {Long.class.getName(), String.class.getName()},
 			new String[] {"groupId", "commercePaymentMethodKey"}, false);
-
-		_collectionPersistenceFinderByG_CP = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByG_CP,
-			_finderPathWithoutPaginationFindByG_CP, _finderPathCountByG_CP,
-			_SQL_SELECT_COMMERCEORDER_WHERE, _SQL_COUNT_COMMERCEORDER_WHERE,
-			CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"commerceOrder.", "groupId", FinderColumn.Type.LONG, "=", true,
-				false, CommerceOrder::getGroupId),
-			new FinderColumn<>(
-				"commerceOrder.", "commercePaymentMethodKey",
-				FinderColumn.Type.STRING, "=", true, true,
-				CommerceOrder::getCommercePaymentMethodKey));
 
 		_finderPathWithPaginationFindByG_U_O = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_U_O",
@@ -4837,21 +6776,6 @@ public class CommerceOrderPersistenceImpl
 				Integer.class.getName()
 			},
 			new String[] {"groupId", "userId", "orderStatus"}, false);
-
-		_collectionPersistenceFinderByG_U_O = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByG_U_O,
-			_finderPathWithoutPaginationFindByG_U_O, _finderPathCountByG_U_O,
-			_SQL_SELECT_COMMERCEORDER_WHERE, _SQL_COUNT_COMMERCEORDER_WHERE,
-			CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"commerceOrder.", "groupId", FinderColumn.Type.LONG, "=", true,
-				false, CommerceOrder::getGroupId),
-			new FinderColumn<>(
-				"commerceOrder.", "userId", FinderColumn.Type.LONG, "=", true,
-				false, CommerceOrder::getUserId),
-			new FinderColumn<>(
-				"commerceOrder.", "orderStatus", FinderColumn.Type.INTEGER, "=",
-				true, true, CommerceOrder::getOrderStatus));
 
 		_finderPathWithPaginationFindByG_C_O = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByG_C_O",
@@ -4879,21 +6803,6 @@ public class CommerceOrderPersistenceImpl
 			new String[] {"groupId", "commerceAccountId", "orderStatus"},
 			false);
 
-		_collectionPersistenceFinderByG_C_O = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByG_C_O,
-			_finderPathWithoutPaginationFindByG_C_O, _finderPathCountByG_C_O,
-			_SQL_SELECT_COMMERCEORDER_WHERE, _SQL_COUNT_COMMERCEORDER_WHERE,
-			CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"commerceOrder.", "groupId", FinderColumn.Type.LONG, "=", true,
-				false, CommerceOrder::getGroupId),
-			new FinderColumn<>(
-				"commerceOrder.", "commerceAccountId", FinderColumn.Type.LONG,
-				"=", true, false, CommerceOrder::getCommerceAccountId),
-			new FinderColumn<>(
-				"commerceOrder.", "orderStatus", FinderColumn.Type.INTEGER, "=",
-				true, true, CommerceOrder::getOrderStatus));
-
 		_finderPathWithPaginationFindByU_LtC_O = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByU_LtC_O",
 			new String[] {
@@ -4910,22 +6819,6 @@ public class CommerceOrderPersistenceImpl
 				Integer.class.getName()
 			},
 			new String[] {"userId", "createDate", "orderStatus"}, false);
-
-		_collectionPersistenceFinderByU_LtC_O =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByU_LtC_O, null,
-				_finderPathWithPaginationCountByU_LtC_O,
-				_SQL_SELECT_COMMERCEORDER_WHERE, _SQL_COUNT_COMMERCEORDER_WHERE,
-				CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"commerceOrder.", "userId", FinderColumn.Type.LONG, "=",
-					true, false, CommerceOrder::getUserId),
-				new FinderColumn<>(
-					"commerceOrder.", "createDate", FinderColumn.Type.DATE, "<",
-					true, false, CommerceOrder::getCreateDate),
-				new FinderColumn<>(
-					"commerceOrder.", "orderStatus", FinderColumn.Type.INTEGER,
-					"=", true, true, CommerceOrder::getOrderStatus));
 
 		_finderPathWithPaginationFindByC_LtC_O = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_LtC_O",
@@ -4946,37 +6839,10 @@ public class CommerceOrderPersistenceImpl
 			new String[] {"createDate", "commerceAccountId", "orderStatus"},
 			false);
 
-		_collectionPersistenceFinderByC_LtC_O =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByC_LtC_O, null,
-				_finderPathWithPaginationCountByC_LtC_O,
-				_SQL_SELECT_COMMERCEORDER_WHERE, _SQL_COUNT_COMMERCEORDER_WHERE,
-				CommerceOrderModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"commerceOrder.", "createDate", FinderColumn.Type.DATE, "<",
-					true, false, CommerceOrder::getCreateDate),
-				new FinderColumn<>(
-					"commerceOrder.", "commerceAccountId",
-					FinderColumn.Type.LONG, "=", true, false,
-					CommerceOrder::getCommerceAccountId),
-				new FinderColumn<>(
-					"commerceOrder.", "orderStatus", FinderColumn.Type.INTEGER,
-					"=", true, true, CommerceOrder::getOrderStatus));
-
 		_finderPathFetchByERC_C = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByERC_C",
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"externalReferenceCode", "companyId"}, true);
-
-		_uniquePersistenceFinderByERC_C = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByERC_C, _SQL_SELECT_COMMERCEORDER_WHERE,
-			new FinderColumn<>(
-				"commerceOrder.", "externalReferenceCode",
-				FinderColumn.Type.STRING, "=", true, false,
-				CommerceOrder::getExternalReferenceCode),
-			new FinderColumn<>(
-				"commerceOrder.", "companyId", FinderColumn.Type.LONG, "=",
-				true, true, CommerceOrder::getCompanyId));
 
 		CommerceOrderUtil.setPersistence(this);
 	}
@@ -5019,6 +6885,14 @@ public class CommerceOrderPersistenceImpl
 
 	@Reference
 	protected FinderCache finderCache;
+
+	private static Long _getTime(Date date) {
+		if (date == null) {
+			return null;
+		}
+
+		return date.getTime();
+	}
 
 	private static final String _SQL_SELECT_COMMERCEORDER =
 		"SELECT commerceOrder FROM CommerceOrder commerceOrder";
@@ -5098,4 +6972,4 @@ public class CommerceOrderPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1008896949
+// LIFERAY-SERVICE-BUILDER-HASH:-2023841771

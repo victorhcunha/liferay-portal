@@ -22,6 +22,7 @@ import com.liferay.portal.kernel.dao.orm.EntityCache;
 import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.dao.orm.SessionFactory;
@@ -32,15 +33,13 @@ import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.ServiceContextThreadLocal;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelper;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.service.persistence.impl.CollectionPersistenceFinder;
-import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
-import com.liferay.portal.kernel.service.persistence.impl.UniquePersistenceFinder;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.PropsUtil;
 import com.liferay.portal.kernel.util.ProxyUtil;
 import com.liferay.portal.kernel.util.SetUtil;
+import com.liferay.portal.kernel.util.StringUtil;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
 
@@ -57,6 +56,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.sql.DataSource;
@@ -101,8 +101,6 @@ public class MBSuspiciousActivityPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByUuid;
 	private FinderPath _finderPathWithoutPaginationFindByUuid;
 	private FinderPath _finderPathCountByUuid;
-	private CollectionPersistenceFinder<MBSuspiciousActivity>
-		_collectionPersistenceFinderByUuid;
 
 	/**
 	 * Returns all the message boards suspicious activities where uuid = &#63;.
@@ -179,9 +177,106 @@ public class MBSuspiciousActivityPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					MBSuspiciousActivity.class)) {
 
-			return _collectionPersistenceFinderByUuid.find(
-				finderCache, new Object[] {uuid}, start, end, orderByComparator,
-				useFinderCache);
+			uuid = Objects.toString(uuid, "");
+
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByUuid;
+					finderArgs = new Object[] {uuid};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByUuid;
+				finderArgs = new Object[] {uuid, start, end, orderByComparator};
+			}
+
+			List<MBSuspiciousActivity> list = null;
+
+			if (useFinderCache) {
+				list = (List<MBSuspiciousActivity>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (MBSuspiciousActivity mbSuspiciousActivity : list) {
+						if (!uuid.equals(mbSuspiciousActivity.getUuid())) {
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						3 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(3);
+				}
+
+				sb.append(_SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_UUID_2);
+				}
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(MBSuspiciousActivityModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					list = (List<MBSuspiciousActivity>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -266,14 +361,69 @@ public class MBSuspiciousActivityPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					MBSuspiciousActivity.class)) {
 
-			return _collectionPersistenceFinderByUuid.count(
-				finderCache, new Object[] {uuid});
+			uuid = Objects.toString(uuid, "");
+
+			FinderPath finderPath = _finderPathCountByUuid;
+
+			Object[] finderArgs = new Object[] {uuid};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(2);
+
+				sb.append(_SQL_COUNT_MBSUSPICIOUSACTIVITY_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_UUID_2);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
 
+	private static final String _FINDER_COLUMN_UUID_UUID_2 =
+		"mbSuspiciousActivity.uuid = ?";
+
+	private static final String _FINDER_COLUMN_UUID_UUID_3 =
+		"(mbSuspiciousActivity.uuid IS NULL OR mbSuspiciousActivity.uuid = '')";
+
 	private FinderPath _finderPathFetchByUUID_G;
-	private UniquePersistenceFinder<MBSuspiciousActivity>
-		_uniquePersistenceFinderByUUID_G;
 
 	/**
 	 * Returns the message boards suspicious activity where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchSuspiciousActivityException</code> if it could not be found.
@@ -341,8 +491,97 @@ public class MBSuspiciousActivityPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					MBSuspiciousActivity.class)) {
 
-			return _uniquePersistenceFinderByUUID_G.fetch(
-				finderCache, new Object[] {uuid, groupId}, useFinderCache);
+			uuid = Objects.toString(uuid, "");
+
+			Object[] finderArgs = null;
+
+			if (useFinderCache) {
+				finderArgs = new Object[] {uuid, groupId};
+			}
+
+			Object result = null;
+
+			if (useFinderCache) {
+				result = finderCache.getResult(
+					_finderPathFetchByUUID_G, finderArgs, this);
+			}
+
+			if (result instanceof MBSuspiciousActivity) {
+				MBSuspiciousActivity mbSuspiciousActivity =
+					(MBSuspiciousActivity)result;
+
+				if (!Objects.equals(uuid, mbSuspiciousActivity.getUuid()) ||
+					(groupId != mbSuspiciousActivity.getGroupId())) {
+
+					result = null;
+				}
+			}
+
+			if (result == null) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append(_SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_G_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_G_UUID_2);
+				}
+
+				sb.append(_FINDER_COLUMN_UUID_G_GROUPID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					queryPos.add(groupId);
+
+					List<MBSuspiciousActivity> list = query.list();
+
+					if (list.isEmpty()) {
+						if (useFinderCache) {
+							finderCache.putResult(
+								_finderPathFetchByUUID_G, finderArgs, list);
+						}
+					}
+					else {
+						MBSuspiciousActivity mbSuspiciousActivity = list.get(0);
+
+						result = mbSuspiciousActivity;
+
+						cacheResult(mbSuspiciousActivity);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			if (result instanceof List<?>) {
+				return null;
+			}
+			else {
+				return (MBSuspiciousActivity)result;
+			}
 		}
 	}
 
@@ -371,15 +610,28 @@ public class MBSuspiciousActivityPersistenceImpl
 	 */
 	@Override
 	public int countByUUID_G(String uuid, long groupId) {
-		return _uniquePersistenceFinderByUUID_G.count(
-			finderCache, new Object[] {uuid, groupId});
+		MBSuspiciousActivity mbSuspiciousActivity = fetchByUUID_G(
+			uuid, groupId);
+
+		if (mbSuspiciousActivity == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_UUID_G_UUID_2 =
+		"mbSuspiciousActivity.uuid = ? AND ";
+
+	private static final String _FINDER_COLUMN_UUID_G_UUID_3 =
+		"(mbSuspiciousActivity.uuid IS NULL OR mbSuspiciousActivity.uuid = '') AND ";
+
+	private static final String _FINDER_COLUMN_UUID_G_GROUPID_2 =
+		"mbSuspiciousActivity.groupId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByUuid_C;
 	private FinderPath _finderPathWithoutPaginationFindByUuid_C;
 	private FinderPath _finderPathCountByUuid_C;
-	private CollectionPersistenceFinder<MBSuspiciousActivity>
-		_collectionPersistenceFinderByUuid_C;
 
 	/**
 	 * Returns all the message boards suspicious activities where uuid = &#63; and companyId = &#63;.
@@ -464,9 +716,115 @@ public class MBSuspiciousActivityPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					MBSuspiciousActivity.class)) {
 
-			return _collectionPersistenceFinderByUuid_C.find(
-				finderCache, new Object[] {uuid, companyId}, start, end,
-				orderByComparator, useFinderCache);
+			uuid = Objects.toString(uuid, "");
+
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByUuid_C;
+					finderArgs = new Object[] {uuid, companyId};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByUuid_C;
+				finderArgs = new Object[] {
+					uuid, companyId, start, end, orderByComparator
+				};
+			}
+
+			List<MBSuspiciousActivity> list = null;
+
+			if (useFinderCache) {
+				list = (List<MBSuspiciousActivity>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (MBSuspiciousActivity mbSuspiciousActivity : list) {
+						if (!uuid.equals(mbSuspiciousActivity.getUuid()) ||
+							(companyId !=
+								mbSuspiciousActivity.getCompanyId())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						4 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(4);
+				}
+
+				sb.append(_SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_C_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_C_UUID_2);
+				}
+
+				sb.append(_FINDER_COLUMN_UUID_C_COMPANYID_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(MBSuspiciousActivityModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					queryPos.add(companyId);
+
+					list = (List<MBSuspiciousActivity>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -560,16 +918,78 @@ public class MBSuspiciousActivityPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					MBSuspiciousActivity.class)) {
 
-			return _collectionPersistenceFinderByUuid_C.count(
-				finderCache, new Object[] {uuid, companyId});
+			uuid = Objects.toString(uuid, "");
+
+			FinderPath finderPath = _finderPathCountByUuid_C;
+
+			Object[] finderArgs = new Object[] {uuid, companyId};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(_SQL_COUNT_MBSUSPICIOUSACTIVITY_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_C_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_C_UUID_2);
+				}
+
+				sb.append(_FINDER_COLUMN_UUID_C_COMPANYID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					queryPos.add(companyId);
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_UUID_C_UUID_2 =
+		"mbSuspiciousActivity.uuid = ? AND ";
+
+	private static final String _FINDER_COLUMN_UUID_C_UUID_3 =
+		"(mbSuspiciousActivity.uuid IS NULL OR mbSuspiciousActivity.uuid = '') AND ";
+
+	private static final String _FINDER_COLUMN_UUID_C_COMPANYID_2 =
+		"mbSuspiciousActivity.companyId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByMessageId;
 	private FinderPath _finderPathWithoutPaginationFindByMessageId;
 	private FinderPath _finderPathCountByMessageId;
-	private CollectionPersistenceFinder<MBSuspiciousActivity>
-		_collectionPersistenceFinderByMessageId;
 
 	/**
 	 * Returns all the message boards suspicious activities where messageId = &#63;.
@@ -647,9 +1067,95 @@ public class MBSuspiciousActivityPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					MBSuspiciousActivity.class)) {
 
-			return _collectionPersistenceFinderByMessageId.find(
-				finderCache, new Object[] {messageId}, start, end,
-				orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByMessageId;
+					finderArgs = new Object[] {messageId};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByMessageId;
+				finderArgs = new Object[] {
+					messageId, start, end, orderByComparator
+				};
+			}
+
+			List<MBSuspiciousActivity> list = null;
+
+			if (useFinderCache) {
+				list = (List<MBSuspiciousActivity>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (MBSuspiciousActivity mbSuspiciousActivity : list) {
+						if (messageId != mbSuspiciousActivity.getMessageId()) {
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						3 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(3);
+				}
+
+				sb.append(_SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE);
+
+				sb.append(_FINDER_COLUMN_MESSAGEID_MESSAGEID_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(MBSuspiciousActivityModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(messageId);
+
+					list = (List<MBSuspiciousActivity>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -735,16 +1241,55 @@ public class MBSuspiciousActivityPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					MBSuspiciousActivity.class)) {
 
-			return _collectionPersistenceFinderByMessageId.count(
-				finderCache, new Object[] {messageId});
+			FinderPath finderPath = _finderPathCountByMessageId;
+
+			Object[] finderArgs = new Object[] {messageId};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(2);
+
+				sb.append(_SQL_COUNT_MBSUSPICIOUSACTIVITY_WHERE);
+
+				sb.append(_FINDER_COLUMN_MESSAGEID_MESSAGEID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(messageId);
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_MESSAGEID_MESSAGEID_2 =
+		"mbSuspiciousActivity.messageId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByThreadId;
 	private FinderPath _finderPathWithoutPaginationFindByThreadId;
 	private FinderPath _finderPathCountByThreadId;
-	private CollectionPersistenceFinder<MBSuspiciousActivity>
-		_collectionPersistenceFinderByThreadId;
 
 	/**
 	 * Returns all the message boards suspicious activities where threadId = &#63;.
@@ -822,9 +1367,95 @@ public class MBSuspiciousActivityPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					MBSuspiciousActivity.class)) {
 
-			return _collectionPersistenceFinderByThreadId.find(
-				finderCache, new Object[] {threadId}, start, end,
-				orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByThreadId;
+					finderArgs = new Object[] {threadId};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByThreadId;
+				finderArgs = new Object[] {
+					threadId, start, end, orderByComparator
+				};
+			}
+
+			List<MBSuspiciousActivity> list = null;
+
+			if (useFinderCache) {
+				list = (List<MBSuspiciousActivity>)finderCache.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (MBSuspiciousActivity mbSuspiciousActivity : list) {
+						if (threadId != mbSuspiciousActivity.getThreadId()) {
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						3 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(3);
+				}
+
+				sb.append(_SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE);
+
+				sb.append(_FINDER_COLUMN_THREADID_THREADID_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(MBSuspiciousActivityModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(threadId);
+
+					list = (List<MBSuspiciousActivity>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						finderCache.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -910,14 +1541,53 @@ public class MBSuspiciousActivityPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					MBSuspiciousActivity.class)) {
 
-			return _collectionPersistenceFinderByThreadId.count(
-				finderCache, new Object[] {threadId});
+			FinderPath finderPath = _finderPathCountByThreadId;
+
+			Object[] finderArgs = new Object[] {threadId};
+
+			Long count = (Long)finderCache.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(2);
+
+				sb.append(_SQL_COUNT_MBSUSPICIOUSACTIVITY_WHERE);
+
+				sb.append(_FINDER_COLUMN_THREADID_THREADID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(threadId);
+
+					count = (Long)query.uniqueResult();
+
+					finderCache.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
 
+	private static final String _FINDER_COLUMN_THREADID_THREADID_2 =
+		"mbSuspiciousActivity.threadId = ?";
+
 	private FinderPath _finderPathFetchByU_M;
-	private UniquePersistenceFinder<MBSuspiciousActivity>
-		_uniquePersistenceFinderByU_M;
 
 	/**
 	 * Returns the message boards suspicious activity where userId = &#63; and messageId = &#63; or throws a <code>NoSuchSuspiciousActivityException</code> if it could not be found.
@@ -985,8 +1655,101 @@ public class MBSuspiciousActivityPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					MBSuspiciousActivity.class)) {
 
-			return _uniquePersistenceFinderByU_M.fetch(
-				finderCache, new Object[] {userId, messageId}, useFinderCache);
+			Object[] finderArgs = null;
+
+			if (useFinderCache) {
+				finderArgs = new Object[] {userId, messageId};
+			}
+
+			Object result = null;
+
+			if (useFinderCache) {
+				result = finderCache.getResult(
+					_finderPathFetchByU_M, finderArgs, this);
+			}
+
+			if (result instanceof MBSuspiciousActivity) {
+				MBSuspiciousActivity mbSuspiciousActivity =
+					(MBSuspiciousActivity)result;
+
+				if ((userId != mbSuspiciousActivity.getUserId()) ||
+					(messageId != mbSuspiciousActivity.getMessageId())) {
+
+					result = null;
+				}
+			}
+
+			if (result == null) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append(_SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE);
+
+				sb.append(_FINDER_COLUMN_U_M_USERID_2);
+
+				sb.append(_FINDER_COLUMN_U_M_MESSAGEID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(userId);
+
+					queryPos.add(messageId);
+
+					List<MBSuspiciousActivity> list = query.list();
+
+					if (list.isEmpty()) {
+						if (useFinderCache) {
+							finderCache.putResult(
+								_finderPathFetchByU_M, finderArgs, list);
+						}
+					}
+					else {
+						if (list.size() > 1) {
+							Collections.sort(list, Collections.reverseOrder());
+
+							if (_log.isWarnEnabled()) {
+								if (!useFinderCache) {
+									finderArgs = new Object[] {
+										userId, messageId
+									};
+								}
+
+								_log.warn(
+									"MBSuspiciousActivityPersistenceImpl.fetchByU_M(long, long, boolean) with parameters (" +
+										StringUtil.merge(finderArgs) +
+											") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
+							}
+						}
+
+						MBSuspiciousActivity mbSuspiciousActivity = list.get(0);
+
+						result = mbSuspiciousActivity;
+
+						cacheResult(mbSuspiciousActivity);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			if (result instanceof List<?>) {
+				return null;
+			}
+			else {
+				return (MBSuspiciousActivity)result;
+			}
 		}
 	}
 
@@ -1016,13 +1779,23 @@ public class MBSuspiciousActivityPersistenceImpl
 	 */
 	@Override
 	public int countByU_M(long userId, long messageId) {
-		return _uniquePersistenceFinderByU_M.count(
-			finderCache, new Object[] {userId, messageId});
+		MBSuspiciousActivity mbSuspiciousActivity = fetchByU_M(
+			userId, messageId);
+
+		if (mbSuspiciousActivity == null) {
+			return 0;
+		}
+
+		return 1;
 	}
 
+	private static final String _FINDER_COLUMN_U_M_USERID_2 =
+		"mbSuspiciousActivity.userId = ? AND ";
+
+	private static final String _FINDER_COLUMN_U_M_MESSAGEID_2 =
+		"mbSuspiciousActivity.messageId = ?";
+
 	private FinderPath _finderPathFetchByU_T;
-	private UniquePersistenceFinder<MBSuspiciousActivity>
-		_uniquePersistenceFinderByU_T;
 
 	/**
 	 * Returns the message boards suspicious activity where userId = &#63; and threadId = &#63; or throws a <code>NoSuchSuspiciousActivityException</code> if it could not be found.
@@ -1090,8 +1863,101 @@ public class MBSuspiciousActivityPersistenceImpl
 				ctPersistenceHelper.setCTCollectionIdWithSafeCloseable(
 					MBSuspiciousActivity.class)) {
 
-			return _uniquePersistenceFinderByU_T.fetch(
-				finderCache, new Object[] {userId, threadId}, useFinderCache);
+			Object[] finderArgs = null;
+
+			if (useFinderCache) {
+				finderArgs = new Object[] {userId, threadId};
+			}
+
+			Object result = null;
+
+			if (useFinderCache) {
+				result = finderCache.getResult(
+					_finderPathFetchByU_T, finderArgs, this);
+			}
+
+			if (result instanceof MBSuspiciousActivity) {
+				MBSuspiciousActivity mbSuspiciousActivity =
+					(MBSuspiciousActivity)result;
+
+				if ((userId != mbSuspiciousActivity.getUserId()) ||
+					(threadId != mbSuspiciousActivity.getThreadId())) {
+
+					result = null;
+				}
+			}
+
+			if (result == null) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append(_SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE);
+
+				sb.append(_FINDER_COLUMN_U_T_USERID_2);
+
+				sb.append(_FINDER_COLUMN_U_T_THREADID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(userId);
+
+					queryPos.add(threadId);
+
+					List<MBSuspiciousActivity> list = query.list();
+
+					if (list.isEmpty()) {
+						if (useFinderCache) {
+							finderCache.putResult(
+								_finderPathFetchByU_T, finderArgs, list);
+						}
+					}
+					else {
+						if (list.size() > 1) {
+							Collections.sort(list, Collections.reverseOrder());
+
+							if (_log.isWarnEnabled()) {
+								if (!useFinderCache) {
+									finderArgs = new Object[] {
+										userId, threadId
+									};
+								}
+
+								_log.warn(
+									"MBSuspiciousActivityPersistenceImpl.fetchByU_T(long, long, boolean) with parameters (" +
+										StringUtil.merge(finderArgs) +
+											") yields a result set with more than 1 result. This violates the logical unique restriction. There is no order guarantee on which result is returned by this finder.");
+							}
+						}
+
+						MBSuspiciousActivity mbSuspiciousActivity = list.get(0);
+
+						result = mbSuspiciousActivity;
+
+						cacheResult(mbSuspiciousActivity);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			if (result instanceof List<?>) {
+				return null;
+			}
+			else {
+				return (MBSuspiciousActivity)result;
+			}
 		}
 	}
 
@@ -1120,9 +1986,21 @@ public class MBSuspiciousActivityPersistenceImpl
 	 */
 	@Override
 	public int countByU_T(long userId, long threadId) {
-		return _uniquePersistenceFinderByU_T.count(
-			finderCache, new Object[] {userId, threadId});
+		MBSuspiciousActivity mbSuspiciousActivity = fetchByU_T(
+			userId, threadId);
+
+		if (mbSuspiciousActivity == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_U_T_USERID_2 =
+		"mbSuspiciousActivity.userId = ? AND ";
+
+	private static final String _FINDER_COLUMN_U_T_THREADID_2 =
+		"mbSuspiciousActivity.threadId = ?";
 
 	public MBSuspiciousActivityPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
@@ -2056,30 +2934,10 @@ public class MBSuspiciousActivityPersistenceImpl
 			new String[] {String.class.getName()}, new String[] {"uuid_"},
 			false);
 
-		_collectionPersistenceFinderByUuid = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByUuid,
-			_finderPathWithoutPaginationFindByUuid, _finderPathCountByUuid,
-			_SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE,
-			_SQL_COUNT_MBSUSPICIOUSACTIVITY_WHERE,
-			MBSuspiciousActivityModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"mbSuspiciousActivity.", "uuid", FinderColumn.Type.STRING, "=",
-				true, true, MBSuspiciousActivity::getUuid));
-
 		_finderPathFetchByUUID_G = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByUUID_G",
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"uuid_", "groupId"}, true);
-
-		_uniquePersistenceFinderByUUID_G = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByUUID_G,
-			_SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE,
-			new FinderColumn<>(
-				"mbSuspiciousActivity.", "uuid", FinderColumn.Type.STRING, "=",
-				true, false, MBSuspiciousActivity::getUuid),
-			new FinderColumn<>(
-				"mbSuspiciousActivity.", "groupId", FinderColumn.Type.LONG, "=",
-				true, true, MBSuspiciousActivity::getGroupId));
 
 		_finderPathWithPaginationFindByUuid_C = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid_C",
@@ -2100,23 +2958,6 @@ public class MBSuspiciousActivityPersistenceImpl
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"uuid_", "companyId"}, false);
 
-		_collectionPersistenceFinderByUuid_C =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByUuid_C,
-				_finderPathWithoutPaginationFindByUuid_C,
-				_finderPathCountByUuid_C,
-				_SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE,
-				_SQL_COUNT_MBSUSPICIOUSACTIVITY_WHERE,
-				MBSuspiciousActivityModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"mbSuspiciousActivity.", "uuid", FinderColumn.Type.STRING,
-					"=", true, false, MBSuspiciousActivity::getUuid),
-				new FinderColumn<>(
-					"mbSuspiciousActivity.", "companyId",
-					FinderColumn.Type.LONG, "=", true, true,
-					MBSuspiciousActivity::getCompanyId));
-
 		_finderPathWithPaginationFindByMessageId = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByMessageId",
 			new String[] {
@@ -2134,20 +2975,6 @@ public class MBSuspiciousActivityPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByMessageId",
 			new String[] {Long.class.getName()}, new String[] {"messageId"},
 			false);
-
-		_collectionPersistenceFinderByMessageId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByMessageId,
-				_finderPathWithoutPaginationFindByMessageId,
-				_finderPathCountByMessageId,
-				_SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE,
-				_SQL_COUNT_MBSUSPICIOUSACTIVITY_WHERE,
-				MBSuspiciousActivityModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"mbSuspiciousActivity.", "messageId",
-					FinderColumn.Type.LONG, "=", true, true,
-					MBSuspiciousActivity::getMessageId));
 
 		_finderPathWithPaginationFindByThreadId = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByThreadId",
@@ -2167,46 +2994,15 @@ public class MBSuspiciousActivityPersistenceImpl
 			new String[] {Long.class.getName()}, new String[] {"threadId"},
 			false);
 
-		_collectionPersistenceFinderByThreadId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByThreadId,
-				_finderPathWithoutPaginationFindByThreadId,
-				_finderPathCountByThreadId,
-				_SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE,
-				_SQL_COUNT_MBSUSPICIOUSACTIVITY_WHERE,
-				MBSuspiciousActivityModelImpl.ORDER_BY_JPQL,
-				_ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"mbSuspiciousActivity.", "threadId", FinderColumn.Type.LONG,
-					"=", true, true, MBSuspiciousActivity::getThreadId));
-
 		_finderPathFetchByU_M = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByU_M",
 			new String[] {Long.class.getName(), Long.class.getName()},
 			new String[] {"userId", "messageId"}, true);
 
-		_uniquePersistenceFinderByU_M = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByU_M, _SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE,
-			new FinderColumn<>(
-				"mbSuspiciousActivity.", "userId", FinderColumn.Type.LONG, "=",
-				true, false, MBSuspiciousActivity::getUserId),
-			new FinderColumn<>(
-				"mbSuspiciousActivity.", "messageId", FinderColumn.Type.LONG,
-				"=", true, true, MBSuspiciousActivity::getMessageId));
-
 		_finderPathFetchByU_T = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByU_T",
 			new String[] {Long.class.getName(), Long.class.getName()},
 			new String[] {"userId", "threadId"}, true);
-
-		_uniquePersistenceFinderByU_T = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByU_T, _SQL_SELECT_MBSUSPICIOUSACTIVITY_WHERE,
-			new FinderColumn<>(
-				"mbSuspiciousActivity.", "userId", FinderColumn.Type.LONG, "=",
-				true, false, MBSuspiciousActivity::getUserId),
-			new FinderColumn<>(
-				"mbSuspiciousActivity.", "threadId", FinderColumn.Type.LONG,
-				"=", true, true, MBSuspiciousActivity::getThreadId));
 
 		MBSuspiciousActivityUtil.setPersistence(this);
 	}
@@ -2286,4 +3082,4 @@ public class MBSuspiciousActivityPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-1409214323
+// LIFERAY-SERVICE-BUILDER-HASH:1714530892

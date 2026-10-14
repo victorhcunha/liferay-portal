@@ -15,6 +15,7 @@ import com.liferay.portal.kernel.dao.orm.FinderCache;
 import com.liferay.portal.kernel.dao.orm.FinderCacheUtil;
 import com.liferay.portal.kernel.dao.orm.FinderPath;
 import com.liferay.portal.kernel.dao.orm.Query;
+import com.liferay.portal.kernel.dao.orm.QueryPos;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.orm.Session;
 import com.liferay.portal.kernel.log.Log;
@@ -22,9 +23,6 @@ import com.liferay.portal.kernel.log.LogFactoryUtil;
 import com.liferay.portal.kernel.security.auth.CompanyThreadLocal;
 import com.liferay.portal.kernel.service.persistence.change.tracking.helper.CTPersistenceHelperUtil;
 import com.liferay.portal.kernel.service.persistence.impl.BasePersistenceImpl;
-import com.liferay.portal.kernel.service.persistence.impl.CollectionPersistenceFinder;
-import com.liferay.portal.kernel.service.persistence.impl.FinderColumn;
-import com.liferay.portal.kernel.service.persistence.impl.UniquePersistenceFinder;
 import com.liferay.portal.kernel.util.GetterUtil;
 import com.liferay.portal.kernel.util.OrderByComparator;
 import com.liferay.portal.kernel.util.PropsKeys;
@@ -53,6 +51,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -89,8 +88,6 @@ public class SocialRequestPersistenceImpl
 	private FinderPath _finderPathWithPaginationFindByUuid;
 	private FinderPath _finderPathWithoutPaginationFindByUuid;
 	private FinderPath _finderPathCountByUuid;
-	private CollectionPersistenceFinder<SocialRequest>
-		_collectionPersistenceFinderByUuid;
 
 	/**
 	 * Returns all the social requests where uuid = &#63;.
@@ -165,9 +162,106 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByUuid.find(
-				FinderCacheUtil.getFinderCache(), new Object[] {uuid}, start,
-				end, orderByComparator, useFinderCache);
+			uuid = Objects.toString(uuid, "");
+
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByUuid;
+					finderArgs = new Object[] {uuid};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByUuid;
+				finderArgs = new Object[] {uuid, start, end, orderByComparator};
+			}
+
+			List<SocialRequest> list = null;
+
+			if (useFinderCache) {
+				list = (List<SocialRequest>)FinderCacheUtil.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (SocialRequest socialRequest : list) {
+						if (!uuid.equals(socialRequest.getUuid())) {
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						3 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(3);
+				}
+
+				sb.append(_SQL_SELECT_SOCIALREQUEST_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_UUID_2);
+				}
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(SocialRequestModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					list = (List<SocialRequest>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						FinderCacheUtil.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -249,14 +343,69 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByUuid.count(
-				FinderCacheUtil.getFinderCache(), new Object[] {uuid});
+			uuid = Objects.toString(uuid, "");
+
+			FinderPath finderPath = _finderPathCountByUuid;
+
+			Object[] finderArgs = new Object[] {uuid};
+
+			Long count = (Long)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(2);
+
+				sb.append(_SQL_COUNT_SOCIALREQUEST_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_UUID_2);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					count = (Long)query.uniqueResult();
+
+					FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
 
+	private static final String _FINDER_COLUMN_UUID_UUID_2 =
+		"socialRequest.uuid = ?";
+
+	private static final String _FINDER_COLUMN_UUID_UUID_3 =
+		"(socialRequest.uuid IS NULL OR socialRequest.uuid = '')";
+
 	private FinderPath _finderPathFetchByUUID_G;
-	private UniquePersistenceFinder<SocialRequest>
-		_uniquePersistenceFinderByUUID_G;
 
 	/**
 	 * Returns the social request where uuid = &#63; and groupId = &#63; or throws a <code>NoSuchRequestException</code> if it could not be found.
@@ -323,9 +472,96 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _uniquePersistenceFinderByUUID_G.fetch(
-				FinderCacheUtil.getFinderCache(), new Object[] {uuid, groupId},
-				useFinderCache);
+			uuid = Objects.toString(uuid, "");
+
+			Object[] finderArgs = null;
+
+			if (useFinderCache) {
+				finderArgs = new Object[] {uuid, groupId};
+			}
+
+			Object result = null;
+
+			if (useFinderCache) {
+				result = FinderCacheUtil.getResult(
+					_finderPathFetchByUUID_G, finderArgs, this);
+			}
+
+			if (result instanceof SocialRequest) {
+				SocialRequest socialRequest = (SocialRequest)result;
+
+				if (!Objects.equals(uuid, socialRequest.getUuid()) ||
+					(groupId != socialRequest.getGroupId())) {
+
+					result = null;
+				}
+			}
+
+			if (result == null) {
+				StringBundler sb = new StringBundler(4);
+
+				sb.append(_SQL_SELECT_SOCIALREQUEST_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_G_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_G_UUID_2);
+				}
+
+				sb.append(_FINDER_COLUMN_UUID_G_GROUPID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					queryPos.add(groupId);
+
+					List<SocialRequest> list = query.list();
+
+					if (list.isEmpty()) {
+						if (useFinderCache) {
+							FinderCacheUtil.putResult(
+								_finderPathFetchByUUID_G, finderArgs, list);
+						}
+					}
+					else {
+						SocialRequest socialRequest = list.get(0);
+
+						result = socialRequest;
+
+						cacheResult(socialRequest);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			if (result instanceof List<?>) {
+				return null;
+			}
+			else {
+				return (SocialRequest)result;
+			}
 		}
 	}
 
@@ -354,15 +590,27 @@ public class SocialRequestPersistenceImpl
 	 */
 	@Override
 	public int countByUUID_G(String uuid, long groupId) {
-		return _uniquePersistenceFinderByUUID_G.count(
-			FinderCacheUtil.getFinderCache(), new Object[] {uuid, groupId});
+		SocialRequest socialRequest = fetchByUUID_G(uuid, groupId);
+
+		if (socialRequest == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_UUID_G_UUID_2 =
+		"socialRequest.uuid = ? AND ";
+
+	private static final String _FINDER_COLUMN_UUID_G_UUID_3 =
+		"(socialRequest.uuid IS NULL OR socialRequest.uuid = '') AND ";
+
+	private static final String _FINDER_COLUMN_UUID_G_GROUPID_2 =
+		"socialRequest.groupId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByUuid_C;
 	private FinderPath _finderPathWithoutPaginationFindByUuid_C;
 	private FinderPath _finderPathCountByUuid_C;
-	private CollectionPersistenceFinder<SocialRequest>
-		_collectionPersistenceFinderByUuid_C;
 
 	/**
 	 * Returns all the social requests where uuid = &#63; and companyId = &#63;.
@@ -445,10 +693,114 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByUuid_C.find(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {uuid, companyId}, start, end, orderByComparator,
-				useFinderCache);
+			uuid = Objects.toString(uuid, "");
+
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByUuid_C;
+					finderArgs = new Object[] {uuid, companyId};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByUuid_C;
+				finderArgs = new Object[] {
+					uuid, companyId, start, end, orderByComparator
+				};
+			}
+
+			List<SocialRequest> list = null;
+
+			if (useFinderCache) {
+				list = (List<SocialRequest>)FinderCacheUtil.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (SocialRequest socialRequest : list) {
+						if (!uuid.equals(socialRequest.getUuid()) ||
+							(companyId != socialRequest.getCompanyId())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						4 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(4);
+				}
+
+				sb.append(_SQL_SELECT_SOCIALREQUEST_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_C_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_C_UUID_2);
+				}
+
+				sb.append(_FINDER_COLUMN_UUID_C_COMPANYID_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(SocialRequestModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					queryPos.add(companyId);
+
+					list = (List<SocialRequest>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						FinderCacheUtil.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -542,17 +894,78 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByUuid_C.count(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {uuid, companyId});
+			uuid = Objects.toString(uuid, "");
+
+			FinderPath finderPath = _finderPathCountByUuid_C;
+
+			Object[] finderArgs = new Object[] {uuid, companyId};
+
+			Long count = (Long)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(_SQL_COUNT_SOCIALREQUEST_WHERE);
+
+				boolean bindUuid = false;
+
+				if (uuid.isEmpty()) {
+					sb.append(_FINDER_COLUMN_UUID_C_UUID_3);
+				}
+				else {
+					bindUuid = true;
+
+					sb.append(_FINDER_COLUMN_UUID_C_UUID_2);
+				}
+
+				sb.append(_FINDER_COLUMN_UUID_C_COMPANYID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					if (bindUuid) {
+						queryPos.add(uuid);
+					}
+
+					queryPos.add(companyId);
+
+					count = (Long)query.uniqueResult();
+
+					FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_UUID_C_UUID_2 =
+		"socialRequest.uuid = ? AND ";
+
+	private static final String _FINDER_COLUMN_UUID_C_UUID_3 =
+		"(socialRequest.uuid IS NULL OR socialRequest.uuid = '') AND ";
+
+	private static final String _FINDER_COLUMN_UUID_C_COMPANYID_2 =
+		"socialRequest.companyId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByCompanyId;
 	private FinderPath _finderPathWithoutPaginationFindByCompanyId;
 	private FinderPath _finderPathCountByCompanyId;
-	private CollectionPersistenceFinder<SocialRequest>
-		_collectionPersistenceFinderByCompanyId;
 
 	/**
 	 * Returns all the social requests where companyId = &#63;.
@@ -630,9 +1043,95 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByCompanyId.find(
-				FinderCacheUtil.getFinderCache(), new Object[] {companyId},
-				start, end, orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByCompanyId;
+					finderArgs = new Object[] {companyId};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByCompanyId;
+				finderArgs = new Object[] {
+					companyId, start, end, orderByComparator
+				};
+			}
+
+			List<SocialRequest> list = null;
+
+			if (useFinderCache) {
+				list = (List<SocialRequest>)FinderCacheUtil.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (SocialRequest socialRequest : list) {
+						if (companyId != socialRequest.getCompanyId()) {
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						3 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(3);
+				}
+
+				sb.append(_SQL_SELECT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(SocialRequestModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(companyId);
+
+					list = (List<SocialRequest>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						FinderCacheUtil.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -716,16 +1215,55 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByCompanyId.count(
-				FinderCacheUtil.getFinderCache(), new Object[] {companyId});
+			FinderPath finderPath = _finderPathCountByCompanyId;
+
+			Object[] finderArgs = new Object[] {companyId};
+
+			Long count = (Long)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(2);
+
+				sb.append(_SQL_COUNT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_COMPANYID_COMPANYID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(companyId);
+
+					count = (Long)query.uniqueResult();
+
+					FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_COMPANYID_COMPANYID_2 =
+		"socialRequest.companyId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByUserId;
 	private FinderPath _finderPathWithoutPaginationFindByUserId;
 	private FinderPath _finderPathCountByUserId;
-	private CollectionPersistenceFinder<SocialRequest>
-		_collectionPersistenceFinderByUserId;
 
 	/**
 	 * Returns all the social requests where userId = &#63;.
@@ -800,9 +1338,95 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByUserId.find(
-				FinderCacheUtil.getFinderCache(), new Object[] {userId}, start,
-				end, orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByUserId;
+					finderArgs = new Object[] {userId};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByUserId;
+				finderArgs = new Object[] {
+					userId, start, end, orderByComparator
+				};
+			}
+
+			List<SocialRequest> list = null;
+
+			if (useFinderCache) {
+				list = (List<SocialRequest>)FinderCacheUtil.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (SocialRequest socialRequest : list) {
+						if (userId != socialRequest.getUserId()) {
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						3 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(3);
+				}
+
+				sb.append(_SQL_SELECT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_USERID_USERID_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(SocialRequestModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(userId);
+
+					list = (List<SocialRequest>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						FinderCacheUtil.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -886,16 +1510,55 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByUserId.count(
-				FinderCacheUtil.getFinderCache(), new Object[] {userId});
+			FinderPath finderPath = _finderPathCountByUserId;
+
+			Object[] finderArgs = new Object[] {userId};
+
+			Long count = (Long)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(2);
+
+				sb.append(_SQL_COUNT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_USERID_USERID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(userId);
+
+					count = (Long)query.uniqueResult();
+
+					FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_USERID_USERID_2 =
+		"socialRequest.userId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByReceiverUserId;
 	private FinderPath _finderPathWithoutPaginationFindByReceiverUserId;
 	private FinderPath _finderPathCountByReceiverUserId;
-	private CollectionPersistenceFinder<SocialRequest>
-		_collectionPersistenceFinderByReceiverUserId;
 
 	/**
 	 * Returns all the social requests where receiverUserId = &#63;.
@@ -974,9 +1637,98 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByReceiverUserId.find(
-				FinderCacheUtil.getFinderCache(), new Object[] {receiverUserId},
-				start, end, orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath =
+						_finderPathWithoutPaginationFindByReceiverUserId;
+					finderArgs = new Object[] {receiverUserId};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByReceiverUserId;
+				finderArgs = new Object[] {
+					receiverUserId, start, end, orderByComparator
+				};
+			}
+
+			List<SocialRequest> list = null;
+
+			if (useFinderCache) {
+				list = (List<SocialRequest>)FinderCacheUtil.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (SocialRequest socialRequest : list) {
+						if (receiverUserId !=
+								socialRequest.getReceiverUserId()) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						3 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(3);
+				}
+
+				sb.append(_SQL_SELECT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_RECEIVERUSERID_RECEIVERUSERID_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(SocialRequestModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(receiverUserId);
+
+					list = (List<SocialRequest>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						FinderCacheUtil.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -1063,17 +1815,55 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByReceiverUserId.count(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {receiverUserId});
+			FinderPath finderPath = _finderPathCountByReceiverUserId;
+
+			Object[] finderArgs = new Object[] {receiverUserId};
+
+			Long count = (Long)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(2);
+
+				sb.append(_SQL_COUNT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_RECEIVERUSERID_RECEIVERUSERID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(receiverUserId);
+
+					count = (Long)query.uniqueResult();
+
+					FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_RECEIVERUSERID_RECEIVERUSERID_2 =
+		"socialRequest.receiverUserId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByU_S;
 	private FinderPath _finderPathWithoutPaginationFindByU_S;
 	private FinderPath _finderPathCountByU_S;
-	private CollectionPersistenceFinder<SocialRequest>
-		_collectionPersistenceFinderByU_S;
 
 	/**
 	 * Returns all the social requests where userId = &#63; and status = &#63;.
@@ -1155,9 +1945,101 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByU_S.find(
-				FinderCacheUtil.getFinderCache(), new Object[] {userId, status},
-				start, end, orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByU_S;
+					finderArgs = new Object[] {userId, status};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByU_S;
+				finderArgs = new Object[] {
+					userId, status, start, end, orderByComparator
+				};
+			}
+
+			List<SocialRequest> list = null;
+
+			if (useFinderCache) {
+				list = (List<SocialRequest>)FinderCacheUtil.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (SocialRequest socialRequest : list) {
+						if ((userId != socialRequest.getUserId()) ||
+							(status != socialRequest.getStatus())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						4 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(4);
+				}
+
+				sb.append(_SQL_SELECT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_U_S_USERID_2);
+
+				sb.append(_FINDER_COLUMN_U_S_STATUS_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(SocialRequestModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(userId);
+
+					queryPos.add(status);
+
+					list = (List<SocialRequest>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						FinderCacheUtil.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -1251,17 +2133,62 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByU_S.count(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {userId, status});
+			FinderPath finderPath = _finderPathCountByU_S;
+
+			Object[] finderArgs = new Object[] {userId, status};
+
+			Long count = (Long)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(_SQL_COUNT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_U_S_USERID_2);
+
+				sb.append(_FINDER_COLUMN_U_S_STATUS_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(userId);
+
+					queryPos.add(status);
+
+					count = (Long)query.uniqueResult();
+
+					FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_U_S_USERID_2 =
+		"socialRequest.userId = ? AND ";
+
+	private static final String _FINDER_COLUMN_U_S_STATUS_2 =
+		"socialRequest.status = ?";
 
 	private FinderPath _finderPathWithPaginationFindByC_C;
 	private FinderPath _finderPathWithoutPaginationFindByC_C;
 	private FinderPath _finderPathCountByC_C;
-	private CollectionPersistenceFinder<SocialRequest>
-		_collectionPersistenceFinderByC_C;
 
 	/**
 	 * Returns all the social requests where classNameId = &#63; and classPK = &#63;.
@@ -1344,10 +2271,101 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByC_C.find(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {classNameId, classPK}, start, end,
-				orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByC_C;
+					finderArgs = new Object[] {classNameId, classPK};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByC_C;
+				finderArgs = new Object[] {
+					classNameId, classPK, start, end, orderByComparator
+				};
+			}
+
+			List<SocialRequest> list = null;
+
+			if (useFinderCache) {
+				list = (List<SocialRequest>)FinderCacheUtil.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (SocialRequest socialRequest : list) {
+						if ((classNameId != socialRequest.getClassNameId()) ||
+							(classPK != socialRequest.getClassPK())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						4 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(4);
+				}
+
+				sb.append(_SQL_SELECT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_C_CLASSNAMEID_2);
+
+				sb.append(_FINDER_COLUMN_C_C_CLASSPK_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(SocialRequestModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(classNameId);
+
+					queryPos.add(classPK);
+
+					list = (List<SocialRequest>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						FinderCacheUtil.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -1441,17 +2459,62 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByC_C.count(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {classNameId, classPK});
+			FinderPath finderPath = _finderPathCountByC_C;
+
+			Object[] finderArgs = new Object[] {classNameId, classPK};
+
+			Long count = (Long)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(_SQL_COUNT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_C_CLASSNAMEID_2);
+
+				sb.append(_FINDER_COLUMN_C_C_CLASSPK_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(classNameId);
+
+					queryPos.add(classPK);
+
+					count = (Long)query.uniqueResult();
+
+					FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_C_C_CLASSNAMEID_2 =
+		"socialRequest.classNameId = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_C_CLASSPK_2 =
+		"socialRequest.classPK = ?";
 
 	private FinderPath _finderPathWithPaginationFindByR_S;
 	private FinderPath _finderPathWithoutPaginationFindByR_S;
 	private FinderPath _finderPathCountByR_S;
-	private CollectionPersistenceFinder<SocialRequest>
-		_collectionPersistenceFinderByR_S;
 
 	/**
 	 * Returns all the social requests where receiverUserId = &#63; and status = &#63;.
@@ -1534,10 +2597,102 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByR_S.find(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {receiverUserId, status}, start, end,
-				orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByR_S;
+					finderArgs = new Object[] {receiverUserId, status};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByR_S;
+				finderArgs = new Object[] {
+					receiverUserId, status, start, end, orderByComparator
+				};
+			}
+
+			List<SocialRequest> list = null;
+
+			if (useFinderCache) {
+				list = (List<SocialRequest>)FinderCacheUtil.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (SocialRequest socialRequest : list) {
+						if ((receiverUserId !=
+								socialRequest.getReceiverUserId()) ||
+							(status != socialRequest.getStatus())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						4 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(4);
+				}
+
+				sb.append(_SQL_SELECT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_R_S_RECEIVERUSERID_2);
+
+				sb.append(_FINDER_COLUMN_R_S_STATUS_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(SocialRequestModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(receiverUserId);
+
+					queryPos.add(status);
+
+					list = (List<SocialRequest>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						FinderCacheUtil.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -1631,15 +2786,60 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByR_S.count(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {receiverUserId, status});
+			FinderPath finderPath = _finderPathCountByR_S;
+
+			Object[] finderArgs = new Object[] {receiverUserId, status};
+
+			Long count = (Long)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(3);
+
+				sb.append(_SQL_COUNT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_R_S_RECEIVERUSERID_2);
+
+				sb.append(_FINDER_COLUMN_R_S_STATUS_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(receiverUserId);
+
+					queryPos.add(status);
+
+					count = (Long)query.uniqueResult();
+
+					FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
 
+	private static final String _FINDER_COLUMN_R_S_RECEIVERUSERID_2 =
+		"socialRequest.receiverUserId = ? AND ";
+
+	private static final String _FINDER_COLUMN_R_S_STATUS_2 =
+		"socialRequest.status = ?";
+
 	private FinderPath _finderPathFetchByU_C_C_T_R;
-	private UniquePersistenceFinder<SocialRequest>
-		_uniquePersistenceFinderByU_C_C_T_R;
 
 	/**
 	 * Returns the social request where userId = &#63; and classNameId = &#63; and classPK = &#63; and type = &#63; and receiverUserId = &#63; or throws a <code>NoSuchRequestException</code> if it could not be found.
@@ -1732,12 +2932,100 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _uniquePersistenceFinderByU_C_C_T_R.fetch(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {
+			Object[] finderArgs = null;
+
+			if (useFinderCache) {
+				finderArgs = new Object[] {
 					userId, classNameId, classPK, type, receiverUserId
-				},
-				useFinderCache);
+				};
+			}
+
+			Object result = null;
+
+			if (useFinderCache) {
+				result = FinderCacheUtil.getResult(
+					_finderPathFetchByU_C_C_T_R, finderArgs, this);
+			}
+
+			if (result instanceof SocialRequest) {
+				SocialRequest socialRequest = (SocialRequest)result;
+
+				if ((userId != socialRequest.getUserId()) ||
+					(classNameId != socialRequest.getClassNameId()) ||
+					(classPK != socialRequest.getClassPK()) ||
+					(type != socialRequest.getType()) ||
+					(receiverUserId != socialRequest.getReceiverUserId())) {
+
+					result = null;
+				}
+			}
+
+			if (result == null) {
+				StringBundler sb = new StringBundler(7);
+
+				sb.append(_SQL_SELECT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_R_USERID_2);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_R_CLASSNAMEID_2);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_R_CLASSPK_2);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_R_TYPE_2);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_R_RECEIVERUSERID_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(userId);
+
+					queryPos.add(classNameId);
+
+					queryPos.add(classPK);
+
+					queryPos.add(type);
+
+					queryPos.add(receiverUserId);
+
+					List<SocialRequest> list = query.list();
+
+					if (list.isEmpty()) {
+						if (useFinderCache) {
+							FinderCacheUtil.putResult(
+								_finderPathFetchByU_C_C_T_R, finderArgs, list);
+						}
+					}
+					else {
+						SocialRequest socialRequest = list.get(0);
+
+						result = socialRequest;
+
+						cacheResult(socialRequest);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			if (result instanceof List<?>) {
+				return null;
+			}
+			else {
+				return (SocialRequest)result;
+			}
 		}
 	}
 
@@ -1778,16 +3066,34 @@ public class SocialRequestPersistenceImpl
 		long userId, long classNameId, long classPK, int type,
 		long receiverUserId) {
 
-		return _uniquePersistenceFinderByU_C_C_T_R.count(
-			FinderCacheUtil.getFinderCache(),
-			new Object[] {userId, classNameId, classPK, type, receiverUserId});
+		SocialRequest socialRequest = fetchByU_C_C_T_R(
+			userId, classNameId, classPK, type, receiverUserId);
+
+		if (socialRequest == null) {
+			return 0;
+		}
+
+		return 1;
 	}
+
+	private static final String _FINDER_COLUMN_U_C_C_T_R_USERID_2 =
+		"socialRequest.userId = ? AND ";
+
+	private static final String _FINDER_COLUMN_U_C_C_T_R_CLASSNAMEID_2 =
+		"socialRequest.classNameId = ? AND ";
+
+	private static final String _FINDER_COLUMN_U_C_C_T_R_CLASSPK_2 =
+		"socialRequest.classPK = ? AND ";
+
+	private static final String _FINDER_COLUMN_U_C_C_T_R_TYPE_2 =
+		"socialRequest.type = ? AND ";
+
+	private static final String _FINDER_COLUMN_U_C_C_T_R_RECEIVERUSERID_2 =
+		"socialRequest.receiverUserId = ?";
 
 	private FinderPath _finderPathWithPaginationFindByU_C_C_T_S;
 	private FinderPath _finderPathWithoutPaginationFindByU_C_C_T_S;
 	private FinderPath _finderPathCountByU_C_C_T_S;
-	private CollectionPersistenceFinder<SocialRequest>
-		_collectionPersistenceFinderByU_C_C_T_S;
 
 	/**
 	 * Returns all the social requests where userId = &#63; and classNameId = &#63; and classPK = &#63; and type = &#63; and status = &#63;.
@@ -1889,10 +3195,119 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByU_C_C_T_S.find(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {userId, classNameId, classPK, type, status},
-				start, end, orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByU_C_C_T_S;
+					finderArgs = new Object[] {
+						userId, classNameId, classPK, type, status
+					};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByU_C_C_T_S;
+				finderArgs = new Object[] {
+					userId, classNameId, classPK, type, status, start, end,
+					orderByComparator
+				};
+			}
+
+			List<SocialRequest> list = null;
+
+			if (useFinderCache) {
+				list = (List<SocialRequest>)FinderCacheUtil.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (SocialRequest socialRequest : list) {
+						if ((userId != socialRequest.getUserId()) ||
+							(classNameId != socialRequest.getClassNameId()) ||
+							(classPK != socialRequest.getClassPK()) ||
+							(type != socialRequest.getType()) ||
+							(status != socialRequest.getStatus())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						7 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(7);
+				}
+
+				sb.append(_SQL_SELECT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_S_USERID_2);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_S_CLASSNAMEID_2);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_S_CLASSPK_2);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_S_TYPE_2);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_S_STATUS_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(SocialRequestModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(userId);
+
+					queryPos.add(classNameId);
+
+					queryPos.add(classPK);
+
+					queryPos.add(type);
+
+					queryPos.add(status);
+
+					list = (List<SocialRequest>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						FinderCacheUtil.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -2012,17 +3427,85 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByU_C_C_T_S.count(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {userId, classNameId, classPK, type, status});
+			FinderPath finderPath = _finderPathCountByU_C_C_T_S;
+
+			Object[] finderArgs = new Object[] {
+				userId, classNameId, classPK, type, status
+			};
+
+			Long count = (Long)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(6);
+
+				sb.append(_SQL_COUNT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_S_USERID_2);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_S_CLASSNAMEID_2);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_S_CLASSPK_2);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_S_TYPE_2);
+
+				sb.append(_FINDER_COLUMN_U_C_C_T_S_STATUS_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(userId);
+
+					queryPos.add(classNameId);
+
+					queryPos.add(classPK);
+
+					queryPos.add(type);
+
+					queryPos.add(status);
+
+					count = (Long)query.uniqueResult();
+
+					FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_U_C_C_T_S_USERID_2 =
+		"socialRequest.userId = ? AND ";
+
+	private static final String _FINDER_COLUMN_U_C_C_T_S_CLASSNAMEID_2 =
+		"socialRequest.classNameId = ? AND ";
+
+	private static final String _FINDER_COLUMN_U_C_C_T_S_CLASSPK_2 =
+		"socialRequest.classPK = ? AND ";
+
+	private static final String _FINDER_COLUMN_U_C_C_T_S_TYPE_2 =
+		"socialRequest.type = ? AND ";
+
+	private static final String _FINDER_COLUMN_U_C_C_T_S_STATUS_2 =
+		"socialRequest.status = ?";
 
 	private FinderPath _finderPathWithPaginationFindByC_C_T_R_S;
 	private FinderPath _finderPathWithoutPaginationFindByC_C_T_R_S;
 	private FinderPath _finderPathCountByC_C_T_R_S;
-	private CollectionPersistenceFinder<SocialRequest>
-		_collectionPersistenceFinderByC_C_T_R_S;
 
 	/**
 	 * Returns all the social requests where classNameId = &#63; and classPK = &#63; and type = &#63; and receiverUserId = &#63; and status = &#63;.
@@ -2127,12 +3610,120 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByC_C_T_R_S.find(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {
-					classNameId, classPK, type, receiverUserId, status
-				},
-				start, end, orderByComparator, useFinderCache);
+			FinderPath finderPath = null;
+			Object[] finderArgs = null;
+
+			if ((start == QueryUtil.ALL_POS) && (end == QueryUtil.ALL_POS) &&
+				(orderByComparator == null)) {
+
+				if (useFinderCache) {
+					finderPath = _finderPathWithoutPaginationFindByC_C_T_R_S;
+					finderArgs = new Object[] {
+						classNameId, classPK, type, receiverUserId, status
+					};
+				}
+			}
+			else if (useFinderCache) {
+				finderPath = _finderPathWithPaginationFindByC_C_T_R_S;
+				finderArgs = new Object[] {
+					classNameId, classPK, type, receiverUserId, status, start,
+					end, orderByComparator
+				};
+			}
+
+			List<SocialRequest> list = null;
+
+			if (useFinderCache) {
+				list = (List<SocialRequest>)FinderCacheUtil.getResult(
+					finderPath, finderArgs, this);
+
+				if ((list != null) && !list.isEmpty()) {
+					for (SocialRequest socialRequest : list) {
+						if ((classNameId != socialRequest.getClassNameId()) ||
+							(classPK != socialRequest.getClassPK()) ||
+							(type != socialRequest.getType()) ||
+							(receiverUserId !=
+								socialRequest.getReceiverUserId()) ||
+							(status != socialRequest.getStatus())) {
+
+							list = null;
+
+							break;
+						}
+					}
+				}
+			}
+
+			if (list == null) {
+				StringBundler sb = null;
+
+				if (orderByComparator != null) {
+					sb = new StringBundler(
+						7 + (orderByComparator.getOrderByFields().length * 2));
+				}
+				else {
+					sb = new StringBundler(7);
+				}
+
+				sb.append(_SQL_SELECT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_C_T_R_S_CLASSNAMEID_2);
+
+				sb.append(_FINDER_COLUMN_C_C_T_R_S_CLASSPK_2);
+
+				sb.append(_FINDER_COLUMN_C_C_T_R_S_TYPE_2);
+
+				sb.append(_FINDER_COLUMN_C_C_T_R_S_RECEIVERUSERID_2);
+
+				sb.append(_FINDER_COLUMN_C_C_T_R_S_STATUS_2);
+
+				if (orderByComparator != null) {
+					appendOrderByComparator(
+						sb, _ORDER_BY_ENTITY_ALIAS, orderByComparator);
+				}
+				else {
+					sb.append(SocialRequestModelImpl.ORDER_BY_JPQL);
+				}
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(classNameId);
+
+					queryPos.add(classPK);
+
+					queryPos.add(type);
+
+					queryPos.add(receiverUserId);
+
+					queryPos.add(status);
+
+					list = (List<SocialRequest>)QueryUtil.list(
+						query, getDialect(), start, end);
+
+					cacheResult(list);
+
+					if (useFinderCache) {
+						FinderCacheUtil.putResult(finderPath, finderArgs, list);
+					}
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return list;
 		}
 	}
 
@@ -2255,13 +3846,81 @@ public class SocialRequestPersistenceImpl
 				CTPersistenceHelperUtil.setCTCollectionIdWithSafeCloseable(
 					SocialRequest.class)) {
 
-			return _collectionPersistenceFinderByC_C_T_R_S.count(
-				FinderCacheUtil.getFinderCache(),
-				new Object[] {
-					classNameId, classPK, type, receiverUserId, status
-				});
+			FinderPath finderPath = _finderPathCountByC_C_T_R_S;
+
+			Object[] finderArgs = new Object[] {
+				classNameId, classPK, type, receiverUserId, status
+			};
+
+			Long count = (Long)FinderCacheUtil.getResult(
+				finderPath, finderArgs, this);
+
+			if (count == null) {
+				StringBundler sb = new StringBundler(6);
+
+				sb.append(_SQL_COUNT_SOCIALREQUEST_WHERE);
+
+				sb.append(_FINDER_COLUMN_C_C_T_R_S_CLASSNAMEID_2);
+
+				sb.append(_FINDER_COLUMN_C_C_T_R_S_CLASSPK_2);
+
+				sb.append(_FINDER_COLUMN_C_C_T_R_S_TYPE_2);
+
+				sb.append(_FINDER_COLUMN_C_C_T_R_S_RECEIVERUSERID_2);
+
+				sb.append(_FINDER_COLUMN_C_C_T_R_S_STATUS_2);
+
+				String sql = sb.toString();
+
+				Session session = null;
+
+				try {
+					session = openSession();
+
+					Query query = session.createQuery(sql);
+
+					QueryPos queryPos = QueryPos.getInstance(query);
+
+					queryPos.add(classNameId);
+
+					queryPos.add(classPK);
+
+					queryPos.add(type);
+
+					queryPos.add(receiverUserId);
+
+					queryPos.add(status);
+
+					count = (Long)query.uniqueResult();
+
+					FinderCacheUtil.putResult(finderPath, finderArgs, count);
+				}
+				catch (Exception exception) {
+					throw processException(exception);
+				}
+				finally {
+					closeSession(session);
+				}
+			}
+
+			return count.intValue();
 		}
 	}
+
+	private static final String _FINDER_COLUMN_C_C_T_R_S_CLASSNAMEID_2 =
+		"socialRequest.classNameId = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_C_T_R_S_CLASSPK_2 =
+		"socialRequest.classPK = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_C_T_R_S_TYPE_2 =
+		"socialRequest.type = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_C_T_R_S_RECEIVERUSERID_2 =
+		"socialRequest.receiverUserId = ? AND ";
+
+	private static final String _FINDER_COLUMN_C_C_T_R_S_STATUS_2 =
+		"socialRequest.status = ?";
 
 	public SocialRequestPersistenceImpl() {
 		Map<String, String> dbColumnNames = new HashMap<String, String>();
@@ -3133,28 +4792,10 @@ public class SocialRequestPersistenceImpl
 			new String[] {String.class.getName()}, new String[] {"uuid_"},
 			false);
 
-		_collectionPersistenceFinderByUuid = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByUuid,
-			_finderPathWithoutPaginationFindByUuid, _finderPathCountByUuid,
-			_SQL_SELECT_SOCIALREQUEST_WHERE, _SQL_COUNT_SOCIALREQUEST_WHERE,
-			SocialRequestModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"socialRequest.", "uuid", FinderColumn.Type.STRING, "=", true,
-				true, SocialRequest::getUuid));
-
 		_finderPathFetchByUUID_G = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByUUID_G",
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"uuid_", "groupId"}, true);
-
-		_uniquePersistenceFinderByUUID_G = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByUUID_G, _SQL_SELECT_SOCIALREQUEST_WHERE,
-			new FinderColumn<>(
-				"socialRequest.", "uuid", FinderColumn.Type.STRING, "=", true,
-				false, SocialRequest::getUuid),
-			new FinderColumn<>(
-				"socialRequest.", "groupId", FinderColumn.Type.LONG, "=", true,
-				true, SocialRequest::getGroupId));
 
 		_finderPathWithPaginationFindByUuid_C = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUuid_C",
@@ -3175,20 +4816,6 @@ public class SocialRequestPersistenceImpl
 			new String[] {String.class.getName(), Long.class.getName()},
 			new String[] {"uuid_", "companyId"}, false);
 
-		_collectionPersistenceFinderByUuid_C =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByUuid_C,
-				_finderPathWithoutPaginationFindByUuid_C,
-				_finderPathCountByUuid_C, _SQL_SELECT_SOCIALREQUEST_WHERE,
-				_SQL_COUNT_SOCIALREQUEST_WHERE,
-				SocialRequestModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"socialRequest.", "uuid", FinderColumn.Type.STRING, "=",
-					true, false, SocialRequest::getUuid),
-				new FinderColumn<>(
-					"socialRequest.", "companyId", FinderColumn.Type.LONG, "=",
-					true, true, SocialRequest::getCompanyId));
-
 		_finderPathWithPaginationFindByCompanyId = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByCompanyId",
 			new String[] {
@@ -3207,17 +4834,6 @@ public class SocialRequestPersistenceImpl
 			new String[] {Long.class.getName()}, new String[] {"companyId"},
 			false);
 
-		_collectionPersistenceFinderByCompanyId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByCompanyId,
-				_finderPathWithoutPaginationFindByCompanyId,
-				_finderPathCountByCompanyId, _SQL_SELECT_SOCIALREQUEST_WHERE,
-				_SQL_COUNT_SOCIALREQUEST_WHERE,
-				SocialRequestModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"socialRequest.", "companyId", FinderColumn.Type.LONG, "=",
-					true, true, SocialRequest::getCompanyId));
-
 		_finderPathWithPaginationFindByUserId = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByUserId",
 			new String[] {
@@ -3234,17 +4850,6 @@ public class SocialRequestPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByUserId",
 			new String[] {Long.class.getName()}, new String[] {"userId"},
 			false);
-
-		_collectionPersistenceFinderByUserId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByUserId,
-				_finderPathWithoutPaginationFindByUserId,
-				_finderPathCountByUserId, _SQL_SELECT_SOCIALREQUEST_WHERE,
-				_SQL_COUNT_SOCIALREQUEST_WHERE,
-				SocialRequestModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"socialRequest.", "userId", FinderColumn.Type.LONG, "=",
-					true, true, SocialRequest::getUserId));
 
 		_finderPathWithPaginationFindByReceiverUserId = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByReceiverUserId",
@@ -3263,17 +4868,6 @@ public class SocialRequestPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByReceiverUserId",
 			new String[] {Long.class.getName()},
 			new String[] {"receiverUserId"}, false);
-
-		_collectionPersistenceFinderByReceiverUserId =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByReceiverUserId,
-				_finderPathWithoutPaginationFindByReceiverUserId,
-				_finderPathCountByReceiverUserId,
-				_SQL_SELECT_SOCIALREQUEST_WHERE, _SQL_COUNT_SOCIALREQUEST_WHERE,
-				SocialRequestModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"socialRequest.", "receiverUserId", FinderColumn.Type.LONG,
-					"=", true, true, SocialRequest::getReceiverUserId));
 
 		_finderPathWithPaginationFindByU_S = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByU_S",
@@ -3294,18 +4888,6 @@ public class SocialRequestPersistenceImpl
 			new String[] {Long.class.getName(), Integer.class.getName()},
 			new String[] {"userId", "status"}, false);
 
-		_collectionPersistenceFinderByU_S = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByU_S,
-			_finderPathWithoutPaginationFindByU_S, _finderPathCountByU_S,
-			_SQL_SELECT_SOCIALREQUEST_WHERE, _SQL_COUNT_SOCIALREQUEST_WHERE,
-			SocialRequestModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"socialRequest.", "userId", FinderColumn.Type.LONG, "=", true,
-				false, SocialRequest::getUserId),
-			new FinderColumn<>(
-				"socialRequest.", "status", FinderColumn.Type.INTEGER, "=",
-				true, true, SocialRequest::getStatus));
-
 		_finderPathWithPaginationFindByC_C = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_C",
 			new String[] {
@@ -3324,18 +4906,6 @@ public class SocialRequestPersistenceImpl
 			FINDER_CLASS_NAME_LIST_WITHOUT_PAGINATION, "countByC_C",
 			new String[] {Long.class.getName(), Long.class.getName()},
 			new String[] {"classNameId", "classPK"}, false);
-
-		_collectionPersistenceFinderByC_C = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByC_C,
-			_finderPathWithoutPaginationFindByC_C, _finderPathCountByC_C,
-			_SQL_SELECT_SOCIALREQUEST_WHERE, _SQL_COUNT_SOCIALREQUEST_WHERE,
-			SocialRequestModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"socialRequest.", "classNameId", FinderColumn.Type.LONG, "=",
-				true, false, SocialRequest::getClassNameId),
-			new FinderColumn<>(
-				"socialRequest.", "classPK", FinderColumn.Type.LONG, "=", true,
-				true, SocialRequest::getClassPK));
 
 		_finderPathWithPaginationFindByR_S = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByR_S",
@@ -3356,18 +4926,6 @@ public class SocialRequestPersistenceImpl
 			new String[] {Long.class.getName(), Integer.class.getName()},
 			new String[] {"receiverUserId", "status"}, false);
 
-		_collectionPersistenceFinderByR_S = new CollectionPersistenceFinder<>(
-			this, _finderPathWithPaginationFindByR_S,
-			_finderPathWithoutPaginationFindByR_S, _finderPathCountByR_S,
-			_SQL_SELECT_SOCIALREQUEST_WHERE, _SQL_COUNT_SOCIALREQUEST_WHERE,
-			SocialRequestModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-			new FinderColumn<>(
-				"socialRequest.", "receiverUserId", FinderColumn.Type.LONG, "=",
-				true, false, SocialRequest::getReceiverUserId),
-			new FinderColumn<>(
-				"socialRequest.", "status", FinderColumn.Type.INTEGER, "=",
-				true, true, SocialRequest::getStatus));
-
 		_finderPathFetchByU_C_C_T_R = new FinderPath(
 			FINDER_CLASS_NAME_ENTITY, "fetchByU_C_C_T_R",
 			new String[] {
@@ -3379,24 +4937,6 @@ public class SocialRequestPersistenceImpl
 				"userId", "classNameId", "classPK", "type_", "receiverUserId"
 			},
 			true);
-
-		_uniquePersistenceFinderByU_C_C_T_R = new UniquePersistenceFinder<>(
-			this, _finderPathFetchByU_C_C_T_R, _SQL_SELECT_SOCIALREQUEST_WHERE,
-			new FinderColumn<>(
-				"socialRequest.", "userId", FinderColumn.Type.LONG, "=", true,
-				false, SocialRequest::getUserId),
-			new FinderColumn<>(
-				"socialRequest.", "classNameId", FinderColumn.Type.LONG, "=",
-				true, false, SocialRequest::getClassNameId),
-			new FinderColumn<>(
-				"socialRequest.", "classPK", FinderColumn.Type.LONG, "=", true,
-				false, SocialRequest::getClassPK),
-			new FinderColumn<>(
-				"socialRequest.", "type", FinderColumn.Type.INTEGER, "=", true,
-				false, SocialRequest::getType),
-			new FinderColumn<>(
-				"socialRequest.", "receiverUserId", FinderColumn.Type.LONG, "=",
-				true, true, SocialRequest::getReceiverUserId));
 
 		_finderPathWithPaginationFindByU_C_C_T_S = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByU_C_C_T_S",
@@ -3435,29 +4975,6 @@ public class SocialRequestPersistenceImpl
 			},
 			false);
 
-		_collectionPersistenceFinderByU_C_C_T_S =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByU_C_C_T_S,
-				_finderPathWithoutPaginationFindByU_C_C_T_S,
-				_finderPathCountByU_C_C_T_S, _SQL_SELECT_SOCIALREQUEST_WHERE,
-				_SQL_COUNT_SOCIALREQUEST_WHERE,
-				SocialRequestModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"socialRequest.", "userId", FinderColumn.Type.LONG, "=",
-					true, false, SocialRequest::getUserId),
-				new FinderColumn<>(
-					"socialRequest.", "classNameId", FinderColumn.Type.LONG,
-					"=", true, false, SocialRequest::getClassNameId),
-				new FinderColumn<>(
-					"socialRequest.", "classPK", FinderColumn.Type.LONG, "=",
-					true, false, SocialRequest::getClassPK),
-				new FinderColumn<>(
-					"socialRequest.", "type", FinderColumn.Type.INTEGER, "=",
-					true, false, SocialRequest::getType),
-				new FinderColumn<>(
-					"socialRequest.", "status", FinderColumn.Type.INTEGER, "=",
-					true, true, SocialRequest::getStatus));
-
 		_finderPathWithPaginationFindByC_C_T_R_S = new FinderPath(
 			FINDER_CLASS_NAME_LIST_WITH_PAGINATION, "findByC_C_T_R_S",
 			new String[] {
@@ -3494,29 +5011,6 @@ public class SocialRequestPersistenceImpl
 				"classNameId", "classPK", "type_", "receiverUserId", "status"
 			},
 			false);
-
-		_collectionPersistenceFinderByC_C_T_R_S =
-			new CollectionPersistenceFinder<>(
-				this, _finderPathWithPaginationFindByC_C_T_R_S,
-				_finderPathWithoutPaginationFindByC_C_T_R_S,
-				_finderPathCountByC_C_T_R_S, _SQL_SELECT_SOCIALREQUEST_WHERE,
-				_SQL_COUNT_SOCIALREQUEST_WHERE,
-				SocialRequestModelImpl.ORDER_BY_JPQL, _ORDER_BY_ENTITY_ALIAS,
-				new FinderColumn<>(
-					"socialRequest.", "classNameId", FinderColumn.Type.LONG,
-					"=", true, false, SocialRequest::getClassNameId),
-				new FinderColumn<>(
-					"socialRequest.", "classPK", FinderColumn.Type.LONG, "=",
-					true, false, SocialRequest::getClassPK),
-				new FinderColumn<>(
-					"socialRequest.", "type", FinderColumn.Type.INTEGER, "=",
-					true, false, SocialRequest::getType),
-				new FinderColumn<>(
-					"socialRequest.", "receiverUserId", FinderColumn.Type.LONG,
-					"=", true, false, SocialRequest::getReceiverUserId),
-				new FinderColumn<>(
-					"socialRequest.", "status", FinderColumn.Type.INTEGER, "=",
-					true, true, SocialRequest::getStatus));
 
 		SocialRequestUtil.setPersistence(this);
 	}
@@ -3559,4 +5053,4 @@ public class SocialRequestPersistenceImpl
 	}
 
 }
-// LIFERAY-SERVICE-BUILDER-HASH:-363494645
+// LIFERAY-SERVICE-BUILDER-HASH:721883941
