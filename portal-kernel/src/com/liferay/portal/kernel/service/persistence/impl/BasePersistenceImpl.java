@@ -120,10 +120,6 @@ public class BasePersistenceImpl<T extends BaseModel<T>>
 
 	public static final String COUNT_COLUMN_NAME = "COUNT_VALUE";
 
-	public void cacheResult(List<T> models) {
-		throw new UnsupportedOperationException();
-	}
-
 	public void cacheResult(T model) {
 		throw new UnsupportedOperationException();
 	}
