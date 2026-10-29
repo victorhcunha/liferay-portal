@@ -318,7 +318,6 @@ import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.ScopeUtil;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -9140,191 +9139,36 @@ public class DataFactory {
 
 			sb.append(" values (");
 
+			Method getColumnValueMethod = clazz.getMethod(
+				"getColumnValue", String.class);
+
 			Field tableColumnsField = clazz.getField("TABLE_COLUMNS");
 
 			for (Object[] tableColumn :
 					(Object[][])tableColumnsField.get(null)) {
 
-				String name = TextFormatter.format(
-					(String)tableColumn[0], TextFormatter.G);
-
-				if (name.endsWith(StringPool.UNDERLINE)) {
-					name = name.substring(0, name.length() - 1);
-				}
-				else if (name.equals("AccountERObjectFieldId")) {
-					name = "AccountEntryRestrictedObjectFieldId";
-				}
-				else if (name.equals("AlEntrySegmentsEntryRelId")) {
-					name = "AssetListEntrySegmentsEntryRelId";
-				}
-				else if (name.equals("CdnEnabled")) {
-					name = "CDNEnabled";
-				}
-				else if (name.equals("CdnURL")) {
-					name = "CDNURL";
-				}
-				else if (name.equals("CIBookedQuantityId")) {
-					name = "CommerceInventoryBookedQuantityId";
-				}
-				else if (name.equals("CIWarehouseId")) {
-					name = "CommerceInventoryWarehouseId";
-				}
-				else if (name.equals("CIWarehouseItemId")) {
-					name = "CommerceInventoryWarehouseItemId";
-				}
-				else if (name.equals("CPDSpecificationOptionValueId")) {
-					name = "CPDefinitionSpecificationOptionValueId";
-				}
-				else if (name.equals("DbColumnName")) {
-					name = "DBColumnName";
-				}
-				else if (name.equals("DbTableName")) {
-					name = "DBTableName";
-				}
-				else if (name.equals("DbType")) {
-					name = "DBType";
-				}
-				else if (name.equals("DeliveryCTermEntryDescription")) {
-					name = "DeliveryCommerceTermEntryDescription";
-				}
-				else if (name.equals("DeliverySubTypeSettings")) {
-					name = "DeliverySubscriptionTypeSettings";
-				}
-				else if (name.equals("DiscountPctLevel1WithTaxAmount")) {
-					name = "DiscountPercentageLevel1WithTaxAmount";
-				}
-				else if (name.equals("DiscountPctLevel2WithTaxAmount")) {
-					name = "DiscountPercentageLevel2WithTaxAmount";
-				}
-				else if (name.equals("DiscountPctLevel3WithTaxAmount")) {
-					name = "DiscountPercentageLevel3WithTaxAmount";
-				}
-				else if (name.equals("DiscountPctLevel4WithTaxAmount")) {
-					name = "DiscountPercentageLevel4WithTaxAmount";
-				}
-				else if (name.equals("LPageTemplateStructureRelId")) {
-					name = "LayoutPageTemplateStructureRelId";
-				}
-				else if (name.equals("MasterLPTEERC")) {
-					name = "MasterLayoutPageTemplateEntryERC";
-				}
-				else if (name.equals("MasterLPTESERC")) {
-					name = "MasterLayoutPageTemplateEntryScopeERC";
-				}
-				else if (name.equals("PaymentCTermEntryDescription")) {
-					name = "PaymentCommerceTermEntryDescription";
-				}
-				else if (name.equals("PkObjectFieldDBColumnName")) {
-					name = "PKObjectFieldDBColumnName";
-				}
-				else if (name.equals("PkObjectFieldName")) {
-					name = "PKObjectFieldName";
-				}
-				else if (name.equals("PortletLPTEERC")) {
-					name = "PortletLayoutPageTemplateEntryERC";
-				}
-				else if (name.equals("PortletLPTELE")) {
-					name = "PortletLayoutPageTemplateEntryLinkEnabled";
-				}
-				else if (name.equals("PortletLPTESERC")) {
-					name = "PortletLayoutPageTemplateEntryScopeERC";
-				}
-				else if (name.equals("ShippingDiscountPctLev1WithTax")) {
-					name = "ShippingDiscountPercentageLevel1WithTaxAmount";
-				}
-				else if (name.equals("ShippingDiscountPctLev2WithTax")) {
-					name = "ShippingDiscountPercentageLevel2WithTaxAmount";
-				}
-				else if (name.equals("ShippingDiscountPctLev3WithTax")) {
-					name = "ShippingDiscountPercentageLevel3WithTaxAmount";
-				}
-				else if (name.equals("ShippingDiscountPctLev4WithTax")) {
-					name = "ShippingDiscountPercentageLevel4WithTaxAmount";
-				}
-				else if (name.equals("ShippingDiscountPercentLevel1")) {
-					name = "ShippingDiscountPercentageLevel1";
-				}
-				else if (name.equals("ShippingDiscountPercentLevel2")) {
-					name = "ShippingDiscountPercentageLevel2";
-				}
-				else if (name.equals("ShippingDiscountPercentLevel3")) {
-					name = "ShippingDiscountPercentageLevel3";
-				}
-				else if (name.equals("ShippingDiscountPercentLevel4")) {
-					name = "ShippingDiscountPercentageLevel4";
-				}
-				else if (name.equals("SubtotalDiscountPctLev1WithTax")) {
-					name = "SubtotalDiscountPercentageLevel1WithTaxAmount";
-				}
-				else if (name.equals("SubtotalDiscountPctLev2WithTax")) {
-					name = "SubtotalDiscountPercentageLevel2WithTaxAmount";
-				}
-				else if (name.equals("SubtotalDiscountPctLev3WithTax")) {
-					name = "SubtotalDiscountPercentageLevel3WithTaxAmount";
-				}
-				else if (name.equals("SubtotalDiscountPctLev4WithTax")) {
-					name = "SubtotalDiscountPercentageLevel4WithTaxAmount";
-				}
-				else if (name.equals("SubtotalDiscountPercentLevel1")) {
-					name = "SubtotalDiscountPercentageLevel1";
-				}
-				else if (name.equals("SubtotalDiscountPercentLevel2")) {
-					name = "SubtotalDiscountPercentageLevel2";
-				}
-				else if (name.equals("SubtotalDiscountPercentLevel3")) {
-					name = "SubtotalDiscountPercentageLevel3";
-				}
-				else if (name.equals("SubtotalDiscountPercentLevel4")) {
-					name = "SubtotalDiscountPercentageLevel4";
-				}
-				else if (name.equals("TotalDiscountPctLev1WithTax")) {
-					name = "TotalDiscountPercentageLevel1WithTaxAmount";
-				}
-				else if (name.equals("TotalDiscountPctLev2WithTax")) {
-					name = "TotalDiscountPercentageLevel2WithTaxAmount";
-				}
-				else if (name.equals("TotalDiscountPctLev3WithTax")) {
-					name = "TotalDiscountPercentageLevel3WithTaxAmount";
-				}
-				else if (name.equals("TotalDiscountPctLev4WithTax")) {
-					name = "TotalDiscountPercentageLevel4WithTaxAmount";
-				}
-				else if (name.equals("UOMIncrementalOrderQuantity")) {
-					name = "UnitOfMeasureIncrementalOrderQuantity";
-				}
+				Object value = getColumnValueMethod.invoke(
+					baseModel, tableColumn[0]);
 
 				int type = (int)tableColumn[1];
 
 				if (type == Types.TIMESTAMP) {
-					Method method = clazz.getMethod("get".concat(name));
-
-					Date date = (Date)method.invoke(baseModel);
-
-					if (date == null) {
+					if (value == null) {
 						sb.append("null");
 					}
 					else {
 						sb.append("'");
-						sb.append(_simpleDateFormat.format(date));
+						sb.append(_simpleDateFormat.format((Date)value));
 						sb.append("'");
 					}
 				}
 				else if ((type == Types.VARCHAR) || (type == Types.CLOB)) {
-					Method method = clazz.getMethod("get".concat(name));
-
 					sb.append("'");
-					sb.append(method.invoke(baseModel));
+					sb.append(value);
 					sb.append("'");
-				}
-				else if (type == Types.BOOLEAN) {
-					Method method = clazz.getMethod("is".concat(name));
-
-					sb.append(method.invoke(baseModel));
 				}
 				else {
-					Method method = clazz.getMethod("get".concat(name));
-
-					sb.append(method.invoke(baseModel));
+					sb.append(value);
 				}
 
 				sb.append(", ");
