@@ -19,7 +19,6 @@ import com.liferay.osb.faro.engine.client.model.AcquisitionParameter;
 import com.liferay.osb.faro.engine.client.model.Activity;
 import com.liferay.osb.faro.engine.client.model.ActivityAggregation;
 import com.liferay.osb.faro.engine.client.model.ActivityAsset;
-import com.liferay.osb.faro.engine.client.model.ActivityGroup;
 import com.liferay.osb.faro.engine.client.model.ApiUsageMetric;
 import com.liferay.osb.faro.engine.client.model.Asset;
 import com.liferay.osb.faro.engine.client.model.AssetSummary;
@@ -37,11 +36,7 @@ import com.liferay.osb.faro.engine.client.model.CatalogField;
 import com.liferay.osb.faro.engine.client.model.Channel;
 import com.liferay.osb.faro.engine.client.model.ChannelDataSource;
 import com.liferay.osb.faro.engine.client.model.Credentials;
-import com.liferay.osb.faro.engine.client.model.DXPGroup;
-import com.liferay.osb.faro.engine.client.model.DXPOrganization;
-import com.liferay.osb.faro.engine.client.model.DXPUserGroup;
 import com.liferay.osb.faro.engine.client.model.DataSource;
-import com.liferay.osb.faro.engine.client.model.DataSourceField;
 import com.liferay.osb.faro.engine.client.model.DataSourceFieldCatalogEntry;
 import com.liferay.osb.faro.engine.client.model.DataSourceProgress;
 import com.liferay.osb.faro.engine.client.model.DataSourceUsageMetric;
@@ -57,6 +52,7 @@ import com.liferay.osb.faro.engine.client.model.IndividualSegmentMembershipChang
 import com.liferay.osb.faro.engine.client.model.IndividualSegmentMembershipChangeAggregation;
 import com.liferay.osb.faro.engine.client.model.IndividualTransformation;
 import com.liferay.osb.faro.engine.client.model.Interest;
+import com.liferay.osb.faro.engine.client.model.LifecycleTriggerResult;
 import com.liferay.osb.faro.engine.client.model.Metric;
 import com.liferay.osb.faro.engine.client.model.PageExperience;
 import com.liferay.osb.faro.engine.client.model.PageVisited;
@@ -65,7 +61,6 @@ import com.liferay.osb.faro.engine.client.model.ProjectUsageMetric;
 import com.liferay.osb.faro.engine.client.model.Provider;
 import com.liferay.osb.faro.engine.client.model.Results;
 import com.liferay.osb.faro.engine.client.model.SegmentActivation;
-import com.liferay.osb.faro.engine.client.model.provider.LiferayProvider;
 import com.liferay.osb.faro.engine.client.util.FilterBuilder;
 import com.liferay.osb.faro.engine.client.util.OrderByField;
 import com.liferay.osb.faro.model.FaroProject;
@@ -85,7 +80,7 @@ public interface ContactsEngineClient {
 
 	public AccountLifecycle addAccountLifecycle(
 		FaroProject faroProject, AccountLifecycle accountLifecycle,
-		String channelId);
+		String channelId, long userId);
 
 	public Results<BlockedKeyword> addBlockedKeywords(
 		FaroProject faroProject, List<String> keywords);
@@ -185,6 +180,10 @@ public interface ContactsEngineClient {
 		discoverDataSourceFieldCatalogEntries(
 			FaroProject faroProject, DataSource dataSource);
 
+	public long fetchSegmentNewMembersCount(
+			FaroProject faroProject, String id, int rangeKey)
+		throws Exception;
+
 	public <T> T get(
 			FaroProject faroProject, Map<String, String> headers, String path,
 			Map<String, List<String>> queryParameters, Class<T> returnType)
@@ -201,11 +200,6 @@ public interface ContactsEngineClient {
 	public Results<Object> getAccountFieldValues(
 		FaroProject faroProject, Long channelId, String fieldMappingFieldName,
 		String query, int cur, int delta);
-
-	public Results<IndividualSegment> getAccountIndividualSegments(
-		FaroProject faroProject, String accountId, String channelId,
-		String query, String status, int cur, int delta,
-		List<OrderByField> orderByFields);
 
 	public Results<Individual> getAccountIndividuals(
 		FaroProject faroProject, String accountId, String channelId,
@@ -243,7 +237,10 @@ public interface ContactsEngineClient {
 			FaroProject faroProject, String accountLifecycleId, String id)
 		throws FaroEngineClientException;
 
-	public List<AccountLifecycle> getAccountLifecycles(FaroProject faroProject)
+	public Results<AccountLifecycle> getAccountLifecycles(
+			FaroProject faroProject, Long channelId,
+			Boolean defaultAccountLifecycle, String query, int cur, int delta,
+			String sortString)
 		throws FaroEngineClientException;
 
 	public List<AccountMetric> getAccountMetrics(
@@ -259,19 +256,14 @@ public interface ContactsEngineClient {
 		throws FaroEngineClientException;
 
 	public Results<Account> getAccounts(
-		FaroProject faroProject, String channelId, String filterString,
-		boolean includeAnonymousUsers, String query, String rangeEnd,
-		Integer rangeKey, String rangeStart, String segmentId, int cur,
-		int delta, String sortString);
+		FaroProject faroProject, String accountLifecycleId, String channelId,
+		String filterString, boolean includeAnonymousUsers, String query,
+		String rangeEnd, Integer rangeKey, String rangeStart, String segmentId,
+		int cur, int delta, String sortString);
 
 	public Results<Account> getAccounts(
 		FaroProject faroProject, String channelId, String filterString,
 		String query, int cur, int delta, String sortString);
-
-	public Results<Distribution> getAccountsDistribution(
-		FaroProject faroProject, String channelId, String fieldMappingFieldName,
-		String filterString, String individualSegmentId, int count,
-		int numberOfBins, List<OrderByField> orderByFields);
 
 	public List<AcquisitionParameter> getAcquisitionParameters(
 		FaroProject faroProject, String channelId);
@@ -296,11 +288,6 @@ public interface ContactsEngineClient {
 	public Results<ActivityAsset> getActivityAssets(
 		FaroProject faroProject, String query, String applicationId,
 		String channelId, String eventId, String objectDefinitionName, int cur,
-		int delta, List<OrderByField> orderByFields);
-
-	public Results<ActivityGroup> getActivityGroups(
-		FaroProject faroProject, String channelId, String ownerId,
-		String ownerType, String query, Date startDate, Date endDate, int cur,
 		int delta, List<OrderByField> orderByFields);
 
 	public Results<ApiUsageMetric> getApiUsageMetrics(
@@ -366,16 +353,25 @@ public interface ContactsEngineClient {
 
 	public Results<Account> getCampaignAccounts(
 			FaroProject faroProject, long channelId, String filterString,
-			String id, String query, String sortString, int cur, int delta)
+			String id, String query, String rangeEnd, Integer rangeKey,
+			String rangeStart, String sortString, int cur, int delta)
+		throws FaroEngineClientException;
+
+	public Results<Individual> getCampaignIndividuals(
+			FaroProject faroProject, long channelId, String id, String query,
+			String rangeEnd, Integer rangeKey, String rangeStart,
+			String sortString, int cur, int delta)
 		throws FaroEngineClientException;
 
 	public List<CampaignMetric> getCampaignMetrics(
-			FaroProject faroProject, long channelId)
+			FaroProject faroProject, long channelId, String rangeEnd,
+			Integer rangeKey, String rangeStart)
 		throws FaroEngineClientException;
 
 	public Results<Campaign> getCampaigns(
 		FaroProject faroProject, long channelId, String filterString,
-		String query, String sortString, int cur, int delta);
+		String query, String rangeEnd, Integer rangeKey, String rangeStart,
+		String sortString, int cur, int delta);
 
 	public Results<CatalogField> getCatalogFields(
 			FaroProject faroProject, String capability, String query,
@@ -393,41 +389,10 @@ public interface ContactsEngineClient {
 		FaroProject faroProject, int cur, int delta, List<String> ids,
 		List<OrderByField> orderByFields);
 
-	public Results<Individual> getCoworkerIndividuals(
-		FaroProject faroProject, String individualId, String query,
-		List<String> fields, int cur, int delta,
-		List<OrderByField> orderByFields);
-
 	public long getDXPUsersCount(FaroProject faroProject, String id);
 
 	public DataSource getDataSource(FaroProject faroProject, String id)
 		throws FaroEngineClientException;
-
-	public List<DXPGroup> getDataSourceDXPGroups(
-		FaroProject faroProject, String id, List<Long> groupIds);
-
-	public Results<DXPGroup> getDataSourceDXPGroups(
-		FaroProject faroProject, String id, long parentGroupId, boolean site,
-		String name, int cur, int delta);
-
-	public List<DXPOrganization> getDataSourceDXPOrganizations(
-		FaroProject faroProject, String id, List<Long> organizationIds);
-
-	public Results<DXPOrganization> getDataSourceDXPOrganizations(
-		FaroProject faroProject, String id, long parentOrganizationId,
-		String name, int cur, int delta);
-
-	public long getDataSourceDXPTotal(FaroProject faroProject, String id);
-
-	public long getDataSourceDXPTotal(
-		FaroProject faroProject, String id,
-		LiferayProvider.ContactsConfiguration contactsConfiguration);
-
-	public List<DXPUserGroup> getDataSourceDXPUserGroups(
-		FaroProject faroProject, String id, List<Long> userGroupIds);
-
-	public Results<DXPUserGroup> getDataSourceDXPUserGroups(
-		FaroProject faroProject, String id, String name, int cur, int delta);
 
 	public Map<String, List<DataSourceFieldCatalogEntry>>
 		getDataSourceFieldCatalogEntries(
@@ -439,10 +404,10 @@ public interface ContactsEngineClient {
 				String id, String search, int cur, int delta, String sortString)
 		throws FaroEngineClientException;
 
-	public List<DataSourceField> getDataSourceFields(
-		FaroProject faroProject, String id, String context, int count);
-
 	public long getDataSourceMetricsAccountsCount(
+		FaroProject faroProject, String dataSourceId);
+
+	public long getDataSourceMetricsCampaignsCount(
 		FaroProject faroProject, String dataSourceId);
 
 	public long getDataSourceMetricsEventsCount(
@@ -620,6 +585,10 @@ public interface ContactsEngineClient {
 
 	public Date getLastSeenDate(FaroProject faroProject);
 
+	public LifecycleTriggerResult getNewAccountsLifecycleTriggerResult(
+			FaroProject faroProject, String id, int rangeKey)
+		throws Exception;
+
 	public List<PageExperience> getPageExperiences(
 			FaroProject faroProject, String canonicalUrl, String channelId,
 			String pageTitle)
@@ -647,10 +616,9 @@ public interface ContactsEngineClient {
 		FaroProject faroProject, String channelId, String fieldName,
 		String filterString, String query, int cur, int delta);
 
-	public Results<Individual> getSimilarIndividuals(
-		FaroProject faroProject, String individualId, String query,
-		List<String> fields, int cur, int delta,
-		List<OrderByField> orderByFields);
+	public LifecycleTriggerResult getStalledAccountsLifecycleTriggerResult(
+			FaroProject faroProject, String id, int rangeKey)
+		throws Exception;
 
 	public long getSyncedIndividualsCount(FaroProject faroProject);
 
@@ -666,6 +634,9 @@ public interface ContactsEngineClient {
 
 	public void insertBQProjects(List<FaroProject> faroProjects)
 		throws Exception;
+
+	public AccountLifecycle patchAccountLifecycle(
+		FaroProject faroProject, String id, Boolean defaultAccountLifecycle);
 
 	public Channel patchChannel(
 		FaroProject faroProject, String id, String name);
@@ -698,12 +669,11 @@ public interface ContactsEngineClient {
 		Event event, String name, Provider provider, String status, String url,
 		long userId);
 
-	public List<Map<String, Object>> refreshLiferay(FaroProject faroProject);
-
 	public void setEngineURL(String engineURL);
 
 	public AccountLifecycle updateAccountLifecycle(
-		FaroProject faroProject, AccountLifecycle accountLifecycle);
+		FaroProject faroProject, AccountLifecycle accountLifecycle,
+		long userId);
 
 	public void updateAccountLifecycleStageRule(
 		FaroProject faroProject, String filterMetadata, String filterString,
@@ -736,5 +706,7 @@ public interface ContactsEngineClient {
 		FaroProject faroProject, String cronExpression, String frequencyType,
 		Date scheduleEndDate, Date scheduleStartDate, String scheduleType,
 		Long segmentId);
+
+	public void validateConnection(FaroProject faroProject) throws Exception;
 
 }

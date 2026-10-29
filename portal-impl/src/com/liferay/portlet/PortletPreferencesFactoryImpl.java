@@ -100,19 +100,23 @@ public class PortletPreferencesFactoryImpl
 			while (xmlEventReader.hasNext()) {
 				XMLEvent xmlEvent = xmlEventReader.nextEvent();
 
-				if (xmlEvent.isStartElement()) {
-					StartElement startElement = xmlEvent.asStartElement();
-
-					QName startElementName = startElement.getName();
-
-					String elementName = startElementName.getLocalPart();
-
-					if (elementName.equals("preference")) {
-						Preference preference = readPreference(xmlEventReader);
-
-						preferencesMap.put(preference.getName(), preference);
-					}
+				if (!xmlEvent.isStartElement()) {
+					continue;
 				}
+
+				StartElement startElement = xmlEvent.asStartElement();
+
+				QName startElementName = startElement.getName();
+
+				String elementName = startElementName.getLocalPart();
+
+				if (!elementName.equals("preference")) {
+					continue;
+				}
+
+				Preference preference = readPreference(xmlEventReader);
+
+				preferencesMap.put(preference.getName(), preference);
 			}
 		}
 		catch (XMLStreamException xmlStreamException) {
@@ -925,19 +929,20 @@ public class PortletPreferencesFactoryImpl
 			if (portlet.isPreferencesUniquePerLayout()) {
 				ownerId = PortletKeys.PREFS_OWNER_ID_DEFAULT;
 
+				plid = layout.getPlid();
+
 				long masterLayoutPlid = layout.getMasterLayoutPlid();
 
-				long portletPreferencesCount =
-					PortletPreferencesLocalServiceUtil.
-						getPortletPreferencesCount(
-							PortletKeys.PREFS_OWNER_TYPE_LAYOUT,
-							masterLayoutPlid, portletId);
+				if (masterLayoutPlid > 0) {
+					long portletPreferencesCount =
+						PortletPreferencesLocalServiceUtil.
+							getPortletPreferencesCount(
+								PortletKeys.PREFS_OWNER_TYPE_LAYOUT,
+								masterLayoutPlid, portletId);
 
-				if ((masterLayoutPlid > 0) && (portletPreferencesCount > 0)) {
-					plid = masterLayoutPlid;
-				}
-				else {
-					plid = layout.getPlid();
+					if (portletPreferencesCount > 0) {
+						plid = masterLayoutPlid;
+					}
 				}
 
 				if (themeDisplay != null) {

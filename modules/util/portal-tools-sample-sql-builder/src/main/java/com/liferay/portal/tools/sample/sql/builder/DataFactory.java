@@ -318,7 +318,6 @@ import com.liferay.portal.kernel.util.PropsValues;
 import com.liferay.portal.kernel.util.ReleaseInfo;
 import com.liferay.portal.kernel.util.ScopeUtil;
 import com.liferay.portal.kernel.util.StringUtil;
-import com.liferay.portal.kernel.util.TextFormatter;
 import com.liferay.portal.kernel.util.Time;
 import com.liferay.portal.kernel.util.Tuple;
 import com.liferay.portal.kernel.util.UnicodeProperties;
@@ -1383,9 +1382,7 @@ public class DataFactory {
 		assetListEntrySegmentsEntryRelModel.setSegmentsEntryId(
 			SegmentsEntryConstants.ID_DEFAULT);
 
-		Map<String, String> map = HashMapBuilder.<String, String>create(
-			11
-		).put(
+		Map<String, String> map = HashMapBuilder.put(
 			"anyAssetType", Boolean.FALSE.toString()
 		).put(
 			"classNameIds",
@@ -1414,12 +1411,7 @@ public class DataFactory {
 			Boolean.FALSE.toString()
 		).build();
 
-		if (index == 1) {
-			map.put("queryAndOperator0", Boolean.TRUE.toString());
-			map.put("queryContains0", Boolean.TRUE.toString());
-			map.put("queryName0", "assetTags");
-		}
-		else {
+		if (index != 1) {
 			String assetPublisherQueryName = "assetCategories";
 
 			if ((index % 2) == 0) {
@@ -1458,19 +1450,16 @@ public class DataFactory {
 
 			String[] assetPublisherQueryValues = (String[])tuple.getObject(0);
 
-			map.put("queryAndOperator0", Boolean.FALSE.toString());
-			map.put("queryAndOperator1", Boolean.FALSE.toString());
-			map.put("queryContains0", Boolean.TRUE.toString());
-			map.put("queryContains1", Boolean.FALSE.toString());
-			map.put("queryName0", assetPublisherQueryName);
-			map.put("queryName1", assetPublisherQueryName);
 			map.put(
-				"queryValues0",
-				StringBundler.concat(
-					assetPublisherQueryValues[0], StringPool.COMMA,
-					assetPublisherQueryValues[1], StringPool.COMMA,
-					assetPublisherQueryValues[2]));
-			map.put("queryValues1", assetPublisherQueryValues[3]);
+				"filters",
+				JSONUtil.putAll(
+					_getFilterJSONObject(
+						"contains", assetPublisherQueryName, "any",
+						ArrayUtil.subset(assetPublisherQueryValues, 0, 3)),
+					_getFilterJSONObject(
+						"not-contains", assetPublisherQueryName, "any",
+						assetPublisherQueryValues[3])
+				).toString());
 		}
 
 		UnicodeProperties unicodeProperties = UnicodePropertiesBuilder.create(
@@ -2673,27 +2662,29 @@ public class DataFactory {
 			JSONArray subLayoutsJSONArray = jsonObject.getJSONArray(
 				"subLayouts");
 
-			if ((subLayoutsJSONArray != null) &&
-				(subLayoutsJSONArray.length() > 0)) {
+			if ((subLayoutsJSONArray == null) ||
+				(subLayoutsJSONArray.length() <= 0)) {
 
-				for (int k = 0; k < subLayoutsJSONArray.length(); k++) {
-					JSONObject sublayoutJSONObject =
-						subLayoutsJSONArray.getJSONObject(k);
+				continue;
+			}
 
-					layoutModels.add(
-						newLayoutModel(
-							groupId,
-							sublayoutJSONObject.getBoolean("privateLayout"),
-							layoutModel.getLayoutId(),
-							StringUtil.replace(
-								StringUtil.toLowerCase(
-									sublayoutJSONObject.getString("name")),
-								CharPool.SPACE, CharPool.DASH),
-							sublayoutJSONObject.getString("layoutTemplateId"),
-							sublayoutJSONObject.getBoolean("hidden"),
-							getPortletNames(
-								sublayoutJSONObject.getJSONArray("portlets"))));
-				}
+			for (int k = 0; k < subLayoutsJSONArray.length(); k++) {
+				JSONObject sublayoutJSONObject =
+					subLayoutsJSONArray.getJSONObject(k);
+
+				layoutModels.add(
+					newLayoutModel(
+						groupId,
+						sublayoutJSONObject.getBoolean("privateLayout"),
+						layoutModel.getLayoutId(),
+						StringUtil.replace(
+							StringUtil.toLowerCase(
+								sublayoutJSONObject.getString("name")),
+							CharPool.SPACE, CharPool.DASH),
+						sublayoutJSONObject.getString("layoutTemplateId"),
+						sublayoutJSONObject.getBoolean("hidden"),
+						getPortletNames(
+							sublayoutJSONObject.getJSONArray("portlets"))));
 			}
 		}
 
@@ -2723,16 +2714,18 @@ public class DataFactory {
 			JSONArray sublayoutsJSONArray = jsonObject.getJSONArray(
 				"subLayouts");
 
-			if (sublayoutsJSONArray != null) {
-				for (int j = 0; j < sublayoutsJSONArray.length(); j++) {
-					JSONObject sublayoutJSONObject =
-						sublayoutsJSONArray.getJSONObject(j);
+			if (sublayoutsJSONArray == null) {
+				continue;
+			}
 
-					portletPreferenceValueModels.addAll(
-						newCommercePortletPreferenceValueModels(
-							portletPreferencesModels,
-							sublayoutJSONObject.getJSONArray("portlets")));
-				}
+			for (int j = 0; j < sublayoutsJSONArray.length(); j++) {
+				JSONObject sublayoutJSONObject =
+					sublayoutsJSONArray.getJSONObject(j);
+
+				portletPreferenceValueModels.addAll(
+					newCommercePortletPreferenceValueModels(
+						portletPreferencesModels,
+						sublayoutJSONObject.getJSONArray("portlets")));
 			}
 		}
 
@@ -2978,16 +2971,18 @@ public class DataFactory {
 			typeSettingsUnicodeProperties.keySet();
 
 		for (String typeSettingPropertiesKey : typeSettingPropertiesKeys) {
-			if (typeSettingPropertiesKey.startsWith("column-")) {
-				String[] portletIds = StringUtil.split(
-					typeSettingsUnicodeProperties.getProperty(
-						typeSettingPropertiesKey));
+			if (!typeSettingPropertiesKey.startsWith("column-")) {
+				continue;
+			}
 
-				for (String portletId : portletIds) {
-					portletPreferencesModels.add(
-						newPortletPreferencesModel(
-							layoutModel.getPlid(), portletId));
-				}
+			String[] portletIds = StringUtil.split(
+				typeSettingsUnicodeProperties.getProperty(
+					typeSettingPropertiesKey));
+
+			for (String portletId : portletIds) {
+				portletPreferencesModels.add(
+					newPortletPreferencesModel(
+						layoutModel.getPlid(), portletId));
 			}
 		}
 
@@ -5207,9 +5202,11 @@ public class DataFactory {
 			new ArrayList<>();
 
 		for (FragmentEntryLinkModel model : fragmentEntryLinkModels) {
-			if (model.getPlid() == layoutModel.getPlid()) {
-				targetFragmentEntryLinkModels.add(model);
+			if (model.getPlid() != layoutModel.getPlid()) {
+				continue;
 			}
+
+			targetFragmentEntryLinkModels.add(model);
 		}
 
 		LayoutPageTemplateStructureRelModel
@@ -5732,14 +5729,16 @@ public class DataFactory {
 		for (FragmentEntryLinkModel fragmentEntryLinkModel :
 				fragmentEntryLinkModels) {
 
-			if (layoutModel.getPlid() == fragmentEntryLinkModel.getPlid()) {
-				correspondingFragmentEntryLinkModel = fragmentEntryLinkModel;
-
-				data = StringUtil.replaceFirst(
-					data, "${fragmentEntryLinkId}",
-					String.valueOf(
-						fragmentEntryLinkModel.getFragmentEntryLinkId()));
+			if (layoutModel.getPlid() != fragmentEntryLinkModel.getPlid()) {
+				continue;
 			}
+
+			correspondingFragmentEntryLinkModel = fragmentEntryLinkModel;
+
+			data = StringUtil.replaceFirst(
+				data, "${fragmentEntryLinkId}",
+				String.valueOf(
+					fragmentEntryLinkModel.getFragmentEntryLinkId()));
 		}
 
 		layoutPageTemplateStructureRelModel.setSegmentsExperienceId(
@@ -6429,15 +6428,17 @@ public class DataFactory {
 
 			String[] parts = StringUtil.split(release, CharPool.COLON);
 
-			if (parts.length > 0) {
-				String servletContextName = parts[0];
-				String schemaVersion = parts[1];
-
-				releases.add(
-					newReleaseModel(
-						_counter.get(), servletContextName, schemaVersion, 0,
-						true, null));
+			if (parts.length <= 0) {
+				continue;
 			}
+
+			String servletContextName = parts[0];
+			String schemaVersion = parts[1];
+
+			releases.add(
+				newReleaseModel(
+					_counter.get(), servletContextName, schemaVersion, 0, true,
+					null));
 		}
 
 		return releases;
@@ -9138,188 +9139,36 @@ public class DataFactory {
 
 			sb.append(" values (");
 
+			Method getColumnValueMethod = clazz.getMethod(
+				"getColumnValue", String.class);
+
 			Field tableColumnsField = clazz.getField("TABLE_COLUMNS");
 
 			for (Object[] tableColumn :
 					(Object[][])tableColumnsField.get(null)) {
 
-				String name = TextFormatter.format(
-					(String)tableColumn[0], TextFormatter.G);
-
-				if (name.endsWith(StringPool.UNDERLINE)) {
-					name = name.substring(0, name.length() - 1);
-				}
-				else if (name.equals("AccountERObjectFieldId")) {
-					name = "AccountEntryRestrictedObjectFieldId";
-				}
-				else if (name.equals("AlEntrySegmentsEntryRelId")) {
-					name = "AssetListEntrySegmentsEntryRelId";
-				}
-				else if (name.equals("CdnEnabled")) {
-					name = "CDNEnabled";
-				}
-				else if (name.equals("CdnURL")) {
-					name = "CDNURL";
-				}
-				else if (name.equals("CIBookedQuantityId")) {
-					name = "CommerceInventoryBookedQuantityId";
-				}
-				else if (name.equals("CIWarehouseId")) {
-					name = "CommerceInventoryWarehouseId";
-				}
-				else if (name.equals("CIWarehouseItemId")) {
-					name = "CommerceInventoryWarehouseItemId";
-				}
-				else if (name.equals("CPDSpecificationOptionValueId")) {
-					name = "CPDefinitionSpecificationOptionValueId";
-				}
-				else if (name.equals("DbColumnName")) {
-					name = "DBColumnName";
-				}
-				else if (name.equals("DbTableName")) {
-					name = "DBTableName";
-				}
-				else if (name.equals("DbType")) {
-					name = "DBType";
-				}
-				else if (name.equals("DeliveryCTermEntryDescription")) {
-					name = "DeliveryCommerceTermEntryDescription";
-				}
-				else if (name.equals("DeliverySubTypeSettings")) {
-					name = "DeliverySubscriptionTypeSettings";
-				}
-				else if (name.equals("DiscountPctLevel1WithTaxAmount")) {
-					name = "DiscountPercentageLevel1WithTaxAmount";
-				}
-				else if (name.equals("DiscountPctLevel2WithTaxAmount")) {
-					name = "DiscountPercentageLevel2WithTaxAmount";
-				}
-				else if (name.equals("DiscountPctLevel3WithTaxAmount")) {
-					name = "DiscountPercentageLevel3WithTaxAmount";
-				}
-				else if (name.equals("DiscountPctLevel4WithTaxAmount")) {
-					name = "DiscountPercentageLevel4WithTaxAmount";
-				}
-				else if (name.equals("LPageTemplateStructureRelId")) {
-					name = "LayoutPageTemplateStructureRelId";
-				}
-				else if (name.equals("MasterLPTEERC")) {
-					name = "MasterLayoutPageTemplateEntryERC";
-				}
-				else if (name.equals("PaymentCTermEntryDescription")) {
-					name = "PaymentCommerceTermEntryDescription";
-				}
-				else if (name.equals("PkObjectFieldDBColumnName")) {
-					name = "PKObjectFieldDBColumnName";
-				}
-				else if (name.equals("PkObjectFieldName")) {
-					name = "PKObjectFieldName";
-				}
-				else if (name.equals("PortletLPTEERC")) {
-					name = "PortletLayoutPageTemplateEntryERC";
-				}
-				else if (name.equals("PortletLPTELE")) {
-					name = "PortletLayoutPageTemplateEntryLinkEnabled";
-				}
-				else if (name.equals("PortletLPTESERC")) {
-					name = "PortletLayoutPageTemplateEntryScopeERC";
-				}
-				else if (name.equals("ShippingDiscountPctLev1WithTax")) {
-					name = "ShippingDiscountPercentageLevel1WithTaxAmount";
-				}
-				else if (name.equals("ShippingDiscountPctLev2WithTax")) {
-					name = "ShippingDiscountPercentageLevel2WithTaxAmount";
-				}
-				else if (name.equals("ShippingDiscountPctLev3WithTax")) {
-					name = "ShippingDiscountPercentageLevel3WithTaxAmount";
-				}
-				else if (name.equals("ShippingDiscountPctLev4WithTax")) {
-					name = "ShippingDiscountPercentageLevel4WithTaxAmount";
-				}
-				else if (name.equals("ShippingDiscountPercentLevel1")) {
-					name = "ShippingDiscountPercentageLevel1";
-				}
-				else if (name.equals("ShippingDiscountPercentLevel2")) {
-					name = "ShippingDiscountPercentageLevel2";
-				}
-				else if (name.equals("ShippingDiscountPercentLevel3")) {
-					name = "ShippingDiscountPercentageLevel3";
-				}
-				else if (name.equals("ShippingDiscountPercentLevel4")) {
-					name = "ShippingDiscountPercentageLevel4";
-				}
-				else if (name.equals("SubtotalDiscountPctLev1WithTax")) {
-					name = "SubtotalDiscountPercentageLevel1WithTaxAmount";
-				}
-				else if (name.equals("SubtotalDiscountPctLev2WithTax")) {
-					name = "SubtotalDiscountPercentageLevel2WithTaxAmount";
-				}
-				else if (name.equals("SubtotalDiscountPctLev3WithTax")) {
-					name = "SubtotalDiscountPercentageLevel3WithTaxAmount";
-				}
-				else if (name.equals("SubtotalDiscountPctLev4WithTax")) {
-					name = "SubtotalDiscountPercentageLevel4WithTaxAmount";
-				}
-				else if (name.equals("SubtotalDiscountPercentLevel1")) {
-					name = "SubtotalDiscountPercentageLevel1";
-				}
-				else if (name.equals("SubtotalDiscountPercentLevel2")) {
-					name = "SubtotalDiscountPercentageLevel2";
-				}
-				else if (name.equals("SubtotalDiscountPercentLevel3")) {
-					name = "SubtotalDiscountPercentageLevel3";
-				}
-				else if (name.equals("SubtotalDiscountPercentLevel4")) {
-					name = "SubtotalDiscountPercentageLevel4";
-				}
-				else if (name.equals("TotalDiscountPctLev1WithTax")) {
-					name = "TotalDiscountPercentageLevel1WithTaxAmount";
-				}
-				else if (name.equals("TotalDiscountPctLev2WithTax")) {
-					name = "TotalDiscountPercentageLevel2WithTaxAmount";
-				}
-				else if (name.equals("TotalDiscountPctLev3WithTax")) {
-					name = "TotalDiscountPercentageLevel3WithTaxAmount";
-				}
-				else if (name.equals("TotalDiscountPctLev4WithTax")) {
-					name = "TotalDiscountPercentageLevel4WithTaxAmount";
-				}
-				else if (name.equals("UOMIncrementalOrderQuantity")) {
-					name = "UnitOfMeasureIncrementalOrderQuantity";
-				}
+				Object value = getColumnValueMethod.invoke(
+					baseModel, tableColumn[0]);
 
 				int type = (int)tableColumn[1];
 
 				if (type == Types.TIMESTAMP) {
-					Method method = clazz.getMethod("get".concat(name));
-
-					Date date = (Date)method.invoke(baseModel);
-
-					if (date == null) {
+					if (value == null) {
 						sb.append("null");
 					}
 					else {
 						sb.append("'");
-						sb.append(_simpleDateFormat.format(date));
+						sb.append(_simpleDateFormat.format((Date)value));
 						sb.append("'");
 					}
 				}
 				else if ((type == Types.VARCHAR) || (type == Types.CLOB)) {
-					Method method = clazz.getMethod("get".concat(name));
-
 					sb.append("'");
-					sb.append(method.invoke(baseModel));
+					sb.append(value);
 					sb.append("'");
-				}
-				else if (type == Types.BOOLEAN) {
-					Method method = clazz.getMethod("is".concat(name));
-
-					sb.append(method.invoke(baseModel));
 				}
 				else {
-					Method method = clazz.getMethod("get".concat(name));
-
-					sb.append(method.invoke(baseModel));
+					sb.append(value);
 				}
 
 				sb.append(", ");
@@ -9478,10 +9327,12 @@ public class DataFactory {
 			).build();
 
 		for (int i = 0; i < columns.length; i++) {
-			if (!columns[i].equals("")) {
-				typeSettingsUnicodeProperties.setProperty(
-					"column-" + (i + 1), columns[i]);
+			if (columns[i].equals("")) {
+				continue;
 			}
+
+			typeSettingsUnicodeProperties.setProperty(
+				"column-" + (i + 1), columns[i]);
 		}
 
 		if (name.equals("search")) {
@@ -9493,6 +9344,23 @@ public class DataFactory {
 		}
 
 		return typeSettingsUnicodeProperties.toString();
+	}
+
+	private JSONObject _getFilterJSONObject(
+		String operatorName, String propertyName, String quantifier,
+		String... values) {
+
+		return JSONUtil.put(
+			"operatorName", operatorName
+		).put(
+			"propertyName", propertyName
+		).put(
+			"quantifier", quantifier
+		).put(
+			"value",
+			JSONUtil.toJSONArray(
+				values, value -> JSONUtil.put("value", value), _log)
+		);
 	}
 
 	private String _getFragmentComponentConfiguration(String renderKey)

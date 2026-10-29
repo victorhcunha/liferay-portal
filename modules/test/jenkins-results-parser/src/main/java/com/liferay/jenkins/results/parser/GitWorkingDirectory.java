@@ -306,9 +306,11 @@ public class GitWorkingDirectory {
 			".*", Pattern.quote(getUpstreamBranchName()), "-temp", ".*");
 
 		for (String localGitBranchName : localGitBranchNames) {
-			if (localGitBranchName.matches(pattern)) {
-				tempBranchNames.add(localGitBranchName);
+			if (!localGitBranchName.matches(pattern)) {
+				continue;
 			}
+
+			tempBranchNames.add(localGitBranchName);
 		}
 
 		if (!tempBranchNames.isEmpty()) {
@@ -569,9 +571,11 @@ public class GitWorkingDirectory {
 				deleted = lockFile.delete();
 			}
 
-			if (!deleted) {
-				System.out.println("Unable to delete " + lockFile.getPath());
+			if (deleted) {
+				continue;
 			}
+
+			System.out.println("Unable to delete " + lockFile.getPath());
 		}
 	}
 
@@ -702,10 +706,6 @@ public class GitWorkingDirectory {
 
 	public void fetch(GitRemote gitRemote, boolean noTags) {
 		fetch(gitRemote.getRemoteURL(), noTags);
-	}
-
-	public LocalGitBranch fetch(LocalGitBranch localGitBranch) {
-		return fetch(null, localGitBranch);
 	}
 
 	public LocalGitBranch fetch(
@@ -862,7 +862,7 @@ public class GitWorkingDirectory {
 			throw new GitWorkingDirectoryRuntimeException(
 				this,
 				JenkinsResultsParserUtil.combine(
-					"Unable to fetch remote url ", remoteURL, "\n",
+					"Unable to fetch remote URL ", remoteURL, "\n",
 					exception.getMessage()));
 		}
 
@@ -979,7 +979,7 @@ public class GitWorkingDirectory {
 
 		if (!GitUtil.isValidRemoteURL(remoteURL)) {
 			throw new GitWorkingDirectoryIllegalArgumentException(
-				this, "Invalid remote url " + remoteURL);
+				this, "Invalid remote URL " + remoteURL);
 		}
 
 		StringBuilder gitBranchesSHAReportStringBuilder = new StringBuilder();
@@ -1031,7 +1031,7 @@ public class GitWorkingDirectory {
 			throw new GitWorkingDirectoryRuntimeException(
 				this,
 				JenkinsResultsParserUtil.combine(
-					"Unable to fetch remote url ", remoteURL, "\n",
+					"Unable to fetch remote URL ", remoteURL, "\n",
 					exception.getMessage()));
 		}
 
@@ -1045,7 +1045,7 @@ public class GitWorkingDirectory {
 			throw new GitWorkingDirectoryRuntimeException(
 				this,
 				JenkinsResultsParserUtil.combine(
-					"Unable to fetch remote url ", remoteURL, " after ",
+					"Unable to fetch remote URL ", remoteURL, " after ",
 					JenkinsResultsParserUtil.toDurationString(duration), "\n",
 					executionResult.getStandardError()));
 		}
@@ -1059,7 +1059,21 @@ public class GitWorkingDirectory {
 		}
 	}
 
-	public LocalGitBranch fetch(
+	public void fetchGitCommitParentFromUpstream(String sha) {
+		GitRemote upstreamGitRemote = getUpstreamGitRemote();
+
+		if (upstreamGitRemote == null) {
+			return;
+		}
+
+		executeBashCommands(
+			3, GitUtil.MILLIS_RETRY_DELAY, 1000 * 60 * 15,
+			JenkinsResultsParserUtil.combine(
+				"git fetch -f --depth=2 ", upstreamGitRemote.getRemoteURL(),
+				" ", sha));
+	}
+
+	public void fetchLocalGitBranch(
 		String branchName, LocalGitBranch localGitBranch) {
 
 		if (localGitBranch == null) {
@@ -1070,7 +1084,7 @@ public class GitWorkingDirectory {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("git fetch -f --no-tags ");
-		sb.append(String.valueOf(localGitBranch.getDirectory()));
+		sb.append(localGitBranch.getDirectory());
 		sb.append(" ");
 		sb.append(localGitBranch.getName());
 
@@ -1097,23 +1111,6 @@ public class GitWorkingDirectory {
 			JenkinsResultsParserUtil.getCurrentTimeMillis() - start);
 
 		System.out.println("Fetch completed in " + durationString);
-
-		return createLocalGitBranch(
-			localGitBranch.getName(), true, localGitBranch.getSHA());
-	}
-
-	public void fetchGitCommitParentFromUpstream(String sha) {
-		GitRemote upstreamGitRemote = getUpstreamGitRemote();
-
-		if (upstreamGitRemote == null) {
-			return;
-		}
-
-		executeBashCommands(
-			3, GitUtil.MILLIS_RETRY_DELAY, 1000 * 60 * 15,
-			JenkinsResultsParserUtil.combine(
-				"git fetch -f --depth=2 ", upstreamGitRemote.getRemoteURL(),
-				" ", sha));
 	}
 
 	public Set<File> findFiles(String fileName, String fileContentSnippet) {
@@ -1691,11 +1688,13 @@ public class GitWorkingDirectory {
 						(_DEEPEN_STEP_SIZE_MILLIS << deepenAttempt));
 
 				for (LocalGitBranch localGitBranch : localGitBranches) {
-					if (deepenLocalGitBranch(
+					if (!deepenLocalGitBranch(
 							localGitBranch, shallowSinceDate)) {
 
-						deepened = true;
+						continue;
 					}
+
+					deepened = true;
 				}
 			}
 
@@ -1932,6 +1931,22 @@ public class GitWorkingDirectory {
 		String senderRemoteURL, String senderSHA, String upstreamBranchName,
 		String upstreamBranchSHA) {
 
+		return getRebasedLocalGitBranch(
+			rebasedLocalGitBranchName, senderBranchName, senderRemoteURL,
+			senderSHA, upstreamBranchName, upstreamBranchSHA, null);
+	}
+
+	public LocalGitBranch getRebasedLocalGitBranch(
+		String rebasedLocalGitBranchName, String senderBranchName,
+		String senderRemoteURL, String senderSHA, String upstreamBranchName,
+		String upstreamBranchSHA, String upstreamRemoteURL) {
+
+		if (JenkinsResultsParserUtil.isNullOrEmpty(upstreamRemoteURL)) {
+			GitRemote gitRemote = getUpstreamGitRemote();
+
+			upstreamRemoteURL = gitRemote.getRemoteURL();
+		}
+
 		String currentBranchName = getCurrentBranchName();
 
 		LocalGitBranch tempLocalGitBranch = null;
@@ -1959,7 +1974,7 @@ public class GitWorkingDirectory {
 			}
 
 			RemoteGitBranch upstreamRemoteGitBranch = getRemoteGitBranch(
-				upstreamBranchName, getUpstreamGitRemote(), true);
+				upstreamBranchName, upstreamRemoteURL, true);
 
 			if (upstreamBranchSHA == null) {
 				upstreamBranchSHA = upstreamRemoteGitBranch.getSHA();
@@ -2101,7 +2116,7 @@ public class GitWorkingDirectory {
 
 		if (!GitUtil.isValidRemoteURL(remoteURL)) {
 			throw new GitWorkingDirectoryIllegalArgumentException(
-				this, "Invalid remote url " + remoteURL);
+				this, "Invalid remote URL " + remoteURL);
 		}
 
 		if (JenkinsResultsParserUtil.isCINode() &&
@@ -2632,7 +2647,7 @@ public class GitWorkingDirectory {
 
 		if (!GitUtil.isValidRemoteURL(remoteURL)) {
 			throw new GitWorkingDirectoryIllegalArgumentException(
-				this, "Invalid remote url " + remoteURL);
+				this, "Invalid remote URL " + remoteURL);
 		}
 
 		StringBuilder sb = new StringBuilder();
@@ -3015,10 +3030,12 @@ public class GitWorkingDirectory {
 		for (String line : inputLines) {
 			Matcher matcher = GitRemote.gitLsRemotePattern.matcher(line);
 
-			if (matcher.find()) {
-				localGitBranchesShaMap.put(
-					matcher.group("name"), matcher.group("sha"));
+			if (!matcher.find()) {
+				continue;
 			}
+
+			localGitBranchesShaMap.put(
+				matcher.group("name"), matcher.group("sha"));
 		}
 
 		return localGitBranchesShaMap;
@@ -3151,9 +3168,11 @@ public class GitWorkingDirectory {
 
 			retries++;
 
-			if (retries >= 24) {
-				file.delete();
+			if (retries < 24) {
+				continue;
 			}
+
+			file.delete();
 		}
 	}
 

@@ -45,7 +45,8 @@ public class GroupExporter {
 
 		if (ExportImportThreadLocal.isStagingInProcess() ||
 			!GroupExportImportParameterUtil.isGroupExportImportEnabled(
-				portletDataContext.getCompanyId()) ||
+				portletDataContext.getCompanyId(),
+				portletDataContext.getGroupId()) ||
 			GroupExportImportParameterUtil.isGroupScoped(portletDataContext)) {
 
 			return;
@@ -91,11 +92,13 @@ public class GroupExporter {
 
 			Group parentGroup = group.getParentGroup();
 
-			if (parentGroup != null) {
-				groupElement.addAttribute(
-					"parent-group-external-reference-code",
-					parentGroup.getExternalReferenceCode());
+			if (parentGroup == null) {
+				continue;
 			}
+
+			groupElement.addAttribute(
+				"parent-group-external-reference-code",
+				parentGroup.getExternalReferenceCode());
 		}
 	}
 
@@ -106,7 +109,8 @@ public class GroupExporter {
 
 		if (ExportImportThreadLocal.isStagingInProcess() ||
 			!GroupExportImportParameterUtil.isGroupExportImportEnabled(
-				portletDataContext.getCompanyId()) ||
+				portletDataContext.getCompanyId(),
+				portletDataContext.getGroupId()) ||
 			GroupExportImportParameterUtil.isGroupScoped(portletDataContext)) {
 
 			return;

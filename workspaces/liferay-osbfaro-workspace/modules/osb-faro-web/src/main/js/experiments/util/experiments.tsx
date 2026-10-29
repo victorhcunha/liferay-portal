@@ -117,7 +117,7 @@ export const getStatusColor: GetStatusColorFn = (status) =>
 	STATUS_COLORS.get(status) ?? '';
 
 export const getStatusName: GetStatusNameFn = (status) =>
-	(STATUS_NAMES.get(status) ?? '').toUpperCase();
+	STATUS_NAMES.get(status) ?? '';
 
 export const mergedVariants: MergedVariantsFn = (variants, variantMetrics) =>
 	variants.map((variant) => {
@@ -332,7 +332,10 @@ export const getShortIntervals: GetShortIntervals = (intervals) =>
 
 export const toThousandsABTesting = (number: number) => {
 	if (number > 1e4) {
-		return toThousandsBase(number, (factor: number) => number * factor);
+		return toThousandsBase(
+			number,
+			(threshold: number) => number / threshold
+		);
 	}
 
 	return toThousands(number);

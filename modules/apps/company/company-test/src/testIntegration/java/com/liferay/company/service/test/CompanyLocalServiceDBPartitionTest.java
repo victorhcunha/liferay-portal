@@ -25,6 +25,7 @@ import com.liferay.portal.dao.orm.common.SQLTransformer;
 import com.liferay.portal.db.partition.db.DBPartitionDB;
 import com.liferay.portal.db.partition.test.util.BaseDBPartitionTestCase;
 import com.liferay.portal.db.partition.util.DBPartitionUtil;
+import com.liferay.portal.instance.lifecycle.PortalInstanceLifecycleListener;
 import com.liferay.portal.kernel.dao.db.DBInspector;
 import com.liferay.portal.kernel.dao.db.DBType;
 import com.liferay.portal.kernel.db.partition.DBPartition;
@@ -32,6 +33,7 @@ import com.liferay.portal.kernel.exception.CompanyVirtualHostException;
 import com.liferay.portal.kernel.exception.CompanyWebIdException;
 import com.liferay.portal.kernel.exception.PortalException;
 import com.liferay.portal.kernel.instance.PortalInstancePool;
+import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.model.ClassName;
 import com.liferay.portal.kernel.model.Company;
 import com.liferay.portal.kernel.model.CompanyConstants;
@@ -64,6 +66,7 @@ import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
 import com.liferay.portal.kernel.test.util.UserTestUtil;
 import com.liferay.portal.kernel.util.ArrayUtil;
+import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.MapUtil;
 import com.liferay.portal.kernel.util.Portal;
@@ -77,11 +80,16 @@ import com.liferay.portal.service.impl.ClassNameLocalServiceImpl;
 import com.liferay.portal.service.impl.CompanyLocalServiceImpl;
 import com.liferay.portal.service.impl.ResourceActionLocalServiceImpl;
 import com.liferay.portal.spring.aop.AopInvocationHandler;
+import com.liferay.portal.test.log.LogCapture;
+import com.liferay.portal.test.log.LogEntry;
+import com.liferay.portal.test.log.LoggerTestUtil;
 import com.liferay.portal.test.rule.Inject;
 import com.liferay.portal.test.rule.LiferayIntegrationTestRule;
 import com.liferay.portal.test.rule.PermissionCheckerMethodTestRule;
 import com.liferay.portal.test.rule.TransactionalTestRule;
 import com.liferay.portal.util.PortalInstances;
+import com.liferay.search.experiences.model.SXPBlueprint;
+import com.liferay.search.experiences.service.SXPBlueprintLocalService;
 
 import jakarta.portlet.Portlet;
 
@@ -97,6 +105,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
 
 import org.apache.felix.cm.PersistenceManager;
 
@@ -111,11 +121,14 @@ import org.junit.runner.RunWith;
 
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.Constants;
 import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.osgi.framework.ServiceRegistration;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
+import org.osgi.service.cm.ManagedService;
+import org.osgi.service.cm.ManagedServiceFactory;
 
 /**
  * @author Mariano Álvaro Sáiz
@@ -359,6 +372,7 @@ public class CompanyLocalServiceDBPartitionTest
 			CompanyLocalServiceTestUtil.createFactoryConfiguration(
 				_configurationAdmin, company.getCompanyId());
 
+		String factoryPid = configuration.getFactoryPid();
 		String pid = configuration.getPid();
 
 		companyLocalService.exportCompany(company.getCompanyId());
@@ -424,8 +438,28 @@ public class CompanyLocalServiceDBPartitionTest
 					exportedWebId);
 			}
 
-			company = companyLocalService.addDBPartitionCompany(
-				company.getCompanyId(), name, virtualHostname, webId);
+			List<String> pids = new CopyOnWriteArrayList<>();
+
+			ServiceRegistration<ManagedServiceFactory> serviceRegistration =
+				_bundleContext.registerService(
+					ManagedServiceFactory.class,
+					new ConfigurationTestUtil.InternalManagerServiceFactory(
+						factoryPid,
+						(servicePid, properties) -> pids.add(servicePid)),
+					MapUtil.singletonDictionary(
+						Constants.SERVICE_PID, factoryPid));
+
+			try {
+				_waitForConfigurationUpdates();
+
+				company = companyLocalService.addDBPartitionCompany(
+					company.getCompanyId(), name, virtualHostname, webId);
+
+				_waitForConfigurationUpdates();
+			}
+			finally {
+				serviceRegistration.unregister();
+			}
 
 			Assert.assertTrue(
 				ArrayUtil.contains(
@@ -443,6 +477,8 @@ public class CompanyLocalServiceDBPartitionTest
 				CompanyLocalServiceTestUtil.assertConfiguration(
 					_configurationAdmin, _persistenceManager, pid, true);
 			}
+
+			Assert.assertTrue(pids.toString(), pids.contains(pid));
 		}
 		finally {
 			db.runSQL(
@@ -462,6 +498,45 @@ public class CompanyLocalServiceDBPartitionTest
 
 			if (exportedValuesCompany != null) {
 				companyLocalService.deleteCompany(exportedValuesCompany);
+			}
+		}
+	}
+
+	@Test
+	public void testAddDBPartitionCompanyWhenCompanyCachedAsMissing()
+		throws Exception {
+
+		Company company = CompanyTestUtil.addCompany();
+
+		companyLocalService.exportCompany(company.getCompanyId());
+
+		try {
+			companyLocalService.deleteCompany(company);
+
+			Assert.assertNull(
+				companyLocalService.fetchCompany(company.getCompanyId()));
+
+			String name = RandomTestUtil.randomString();
+
+			company = companyLocalService.addDBPartitionCompany(
+				company.getCompanyId(), name, null, null);
+
+			Assert.assertEquals(name, company.getName());
+		}
+		finally {
+			db.runSQL(
+				dbPartitionDB.getDropPartitionSQL(
+					DBPartitionUtil.getExportedPartitionName(
+						company.getCompanyId())));
+
+			if (ArrayUtil.contains(
+					CompanyLocalServiceTestUtil.getCompanyIdsBySQL(),
+					company.getCompanyId())) {
+
+				companyLocalService.deleteCompany(company);
+			}
+			else {
+				removeDBPartitions(new long[] {company.getCompanyId()});
 			}
 		}
 	}
@@ -598,16 +673,49 @@ public class CompanyLocalServiceDBPartitionTest
 
 		Company copiedCompany = null;
 
-		try (SafeCloseable safeCloseable1 =
+		try (AutoCloseable autoCloseable =
+				ReflectionTestUtil.setFieldValueWithAutoCloseable(
+					_portalInstanceLifecycleListener,
+					"_classNameColumnNamesMap",
+					HashMapBuilder.putAll(
+						ReflectionTestUtil.<Map<String, String>>getFieldValue(
+							_portalInstanceLifecycleListener,
+							"_classNameColumnNamesMap")
+					).put(
+						RandomTestUtil.randomString(),
+						RandomTestUtil.randomString()
+					).build());
+			LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				"com.liferay.portal.instance.lifecycle.internal." +
+					"PortalInstanceLifecycleListenerManagerImpl",
+				LoggerTestUtil.WARN);
+			SafeCloseable safeCloseable1 =
 				CompanyThreadLocal.setCompanyIdWithSafeCloseable(
 					TestPropsValues.getCompanyId())) {
 
 			ObjectDefinition objectDefinition =
 				ObjectDefinitionTestUtil.publishObjectDefinition();
 
+			SXPBlueprint sxpBlueprint =
+				_sxpBlueprintLocalService.addSXPBlueprint(
+					null, TestPropsValues.getUserId(),
+					JSONUtil.put(
+						"generalConfiguration",
+						JSONUtil.put(
+							"searchableAssetTypes",
+							JSONUtil.put(objectDefinition.getClassName()))
+					).toString(),
+					Collections.emptyMap(), StringPool.BLANK, StringPool.BLANK,
+					RandomTestUtil.randomLocaleStringMap(),
+					ServiceContextTestUtil.getServiceContext());
+
 			copiedCompany = companyLocalService.copyDBPartitionCompany(
 				TestPropsValues.getCompanyId(), null, name, virtualHostname,
 				webId);
+
+			List<LogEntry> logEntries = logCapture.getLogEntries();
+
+			Assert.assertTrue(logEntries.isEmpty());
 
 			_assertCopyDBPartitionCompany(
 				copiedCompany, name, virtualHostname, webId);
@@ -663,6 +771,17 @@ public class CompanyLocalServiceDBPartitionTest
 					ListUtil.isNotEmpty(
 						_resourcePermissionLocalService.getResourcePermissions(
 							copiedObjectDefinition.getPortletId())));
+
+				SXPBlueprint copiedSXPBlueprint =
+					_sxpBlueprintLocalService.getSXPBlueprint(
+						sxpBlueprint.getSXPBlueprintId());
+
+				Assert.assertEquals(
+					StringUtil.replace(
+						sxpBlueprint.getConfigurationJSON(),
+						objectDefinition.getClassName(),
+						copiedObjectDefinition.getClassName()),
+					copiedSXPBlueprint.getConfigurationJSON());
 			}
 
 			companyLocalService.deleteCompany(copiedCompany);
@@ -1485,6 +1604,23 @@ public class CompanyLocalServiceDBPartitionTest
 		return false;
 	}
 
+	private void _waitForConfigurationUpdates() throws Exception {
+		CountDownLatch countDownLatch = new CountDownLatch(1);
+
+		ServiceRegistration<ManagedService> serviceRegistration =
+			_bundleContext.registerService(
+				ManagedService.class, properties -> countDownLatch.countDown(),
+				MapUtil.singletonDictionary(
+					Constants.SERVICE_PID, RandomTestUtil.randomString()));
+
+		try {
+			countDownLatch.await();
+		}
+		finally {
+			serviceRegistration.unregister();
+		}
+	}
+
 	private static final String _CLASS_NAME_1 =
 		CompanyLocalServiceDBPartitionTest.class.getName() + 1;
 
@@ -1530,6 +1666,11 @@ public class CompanyLocalServiceDBPartitionTest
 	@Inject
 	private Portal _portal;
 
+	@Inject(
+		filter = "component.name=com.liferay.object.internal.instance.lifecycle.CompanyObjectDefinitionPortalInstanceLifecycleListener"
+	)
+	private PortalInstanceLifecycleListener _portalInstanceLifecycleListener;
+
 	@Inject
 	private PortletLocalService _portletLocalService;
 
@@ -1551,6 +1692,9 @@ public class CompanyLocalServiceDBPartitionTest
 		filter = "(&(objectClass=com.liferay.document.library.kernel.store.Store)(default=true))"
 	)
 	private Store _store;
+
+	@Inject
+	private SXPBlueprintLocalService _sxpBlueprintLocalService;
 
 	@Inject
 	private VirtualHostLocalService _virtualHostLocalService;

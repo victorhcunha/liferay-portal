@@ -455,10 +455,12 @@ public class LanguageImpl implements Language, Serializable {
 
 			if (ArrayUtil.isNotEmpty(arguments)) {
 				for (int i = 0; i < arguments.length; i++) {
-					if (translateArguments) {
-						arguments[i] = get(
-							httpServletRequest, arguments[i].toString());
+					if (!translateArguments) {
+						continue;
 					}
+
+					arguments[i] = get(
+						httpServletRequest, arguments[i].toString());
 				}
 
 				value = _decorateMessageFormat(
@@ -636,9 +638,11 @@ public class LanguageImpl implements Language, Serializable {
 
 			if (ArrayUtil.isNotEmpty(arguments)) {
 				for (int i = 0; i < arguments.length; i++) {
-					if (translateArguments) {
-						arguments[i] = get(locale, arguments[i].toString());
+					if (!translateArguments) {
+						continue;
 					}
+
+					arguments[i] = get(locale, arguments[i].toString());
 				}
 
 				value = _decorateMessageFormat(locale, pattern, arguments);
@@ -774,10 +778,11 @@ public class LanguageImpl implements Language, Serializable {
 
 			if (ArrayUtil.isNotEmpty(arguments)) {
 				for (int i = 0; i < arguments.length; i++) {
-					if (translateArguments) {
-						arguments[i] = get(
-							resourceBundle, arguments[i].toString());
+					if (!translateArguments) {
+						continue;
 					}
+
+					arguments[i] = get(resourceBundle, arguments[i].toString());
 				}
 
 				value = _decorateMessageFormat(
@@ -1032,9 +1037,9 @@ public class LanguageImpl implements Language, Serializable {
 		}
 
 		try {
-			if (isInheritLocales(groupId)) {
-				Group group = GroupLocalServiceUtil.getGroup(groupId);
+			Group group = GroupLocalServiceUtil.getGroup(groupId);
 
+			if (_isInheritLocales(group)) {
 				CompanyLocalesBag companyLocalesBag = _getCompanyLocalesBag(
 					group.getCompanyId());
 
@@ -1553,9 +1558,9 @@ public class LanguageImpl implements Language, Serializable {
 		}
 
 		try {
-			if (isInheritLocales(groupId)) {
-				Group group = GroupLocalServiceUtil.getGroup(groupId);
+			Group group = GroupLocalServiceUtil.getGroup(groupId);
 
+			if (_isInheritLocales(group)) {
 				CompanyLocalesBag companyLocalesBag = _getCompanyLocalesBag(
 					group.getCompanyId());
 
@@ -1613,20 +1618,7 @@ public class LanguageImpl implements Language, Serializable {
 
 	@Override
 	public boolean isInheritLocales(long groupId) throws PortalException {
-		Group group = GroupLocalServiceUtil.getGroup(groupId);
-
-		if (group.isStagingGroup()) {
-			group = group.getLiveGroup();
-		}
-
-		if ((!group.isSite() && !group.isDepot()) || group.isCompany()) {
-			return true;
-		}
-
-		return GetterUtil.getBoolean(
-			group.getTypeSettingsProperty(
-				GroupConstants.TYPE_SETTINGS_KEY_INHERIT_LOCALES),
-			true);
+		return _isInheritLocales(GroupLocalServiceUtil.getGroup(groupId));
 	}
 
 	@Override
@@ -1851,9 +1843,11 @@ public class LanguageImpl implements Language, Serializable {
 		for (int i = 0; i < formattedArguments.length; i++) {
 			Object formattedArgument = formattedArguments[i];
 
-			if (formattedArgument instanceof Number) {
-				messageFormat.setFormat(i, NumberFormat.getInstance(locale));
+			if (!(formattedArgument instanceof Number)) {
+				continue;
 			}
+
+			messageFormat.setFormat(i, NumberFormat.getInstance(locale));
 		}
 
 		return messageFormat.format(formattedArguments);
@@ -2003,6 +1997,21 @@ public class LanguageImpl implements Language, Serializable {
 		}
 
 		return locale;
+	}
+
+	private boolean _isInheritLocales(Group group) {
+		if (group.isStagingGroup()) {
+			group = group.getLiveGroup();
+		}
+
+		if ((!group.isSite() && !group.isDepot()) || group.isCompany()) {
+			return true;
+		}
+
+		return GetterUtil.getBoolean(
+			group.getTypeSettingsProperty(
+				GroupConstants.TYPE_SETTINGS_KEY_INHERIT_LOCALES),
+			true);
 	}
 
 	private void _resetAvailableGroupLocales(long groupId) {

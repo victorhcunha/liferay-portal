@@ -13,6 +13,7 @@ import React from 'react';
 import DataSelection from '../../components/DataSelection';
 import Footer from '../../components/Footer';
 import {PageTreeModalConfiguration} from '../../components/PageTreeModal';
+import ScopeSection from '../../components/ScopeSection';
 import Setup from '../../components/Setup';
 import {DateFilterValues, Range} from '../../components/date_filter';
 import {ContentSelection} from '../../components/forms/content_selector/ContentSelector';
@@ -22,16 +23,17 @@ import {Preview} from '../../types/exportImportPreview';
 import {
 	getSelectedDeletionCount,
 	getSelectedItemsCount,
+	toPortletDataHandlerSections,
 	toProcessRequestFlags,
 	withSelectedLayoutSetCount,
 } from '../../utils/contentSelection';
 import {getProcessFormErrors} from '../../utils/getProcessFormErrors';
-import {toRequestPortletDataHandlers} from '../../utils/toRequestPortletDataHandlers';
+import {toPortletDataHandlers} from '../../utils/toPortletDataHandlers';
 import SiteSelection from './components/SiteSelection';
 
 type ExportFormValues = {
 	contentSelection: ContentSelection | null | undefined;
-	dateFilter: DateFilterValues;
+	dateFilterValues: DateFilterValues;
 	deletions: boolean;
 	name: string;
 	permissions: boolean;
@@ -45,7 +47,6 @@ export function NewExport({
 	exportPreviewAPIURL,
 	exportPreviewSitesAPIURL,
 	exportProcessAPIURL,
-	lookAndFeelEnabled = false,
 	pageTreeModalConfiguration,
 	siteSelectionEnabled = false,
 	timeZoneId,
@@ -56,7 +57,6 @@ export function NewExport({
 	exportPreviewAPIURL: string;
 	exportPreviewSitesAPIURL?: string;
 	exportProcessAPIURL: string;
-	lookAndFeelEnabled?: boolean;
 	pageTreeModalConfiguration: PageTreeModalConfiguration;
 	siteSelectionEnabled?: boolean;
 	timeZoneId: string;
@@ -68,12 +68,13 @@ export function NewExport({
 		return <ClayAlert displayType="danger">{error}</ClayAlert>;
 	}
 
-	const previewPortletDataHandlerSections =
-		preview?.previewPortletDataHandlerSections ?? [];
+	const portletDataHandlerSections = toPortletDataHandlerSections(
+		preview?.portletDataHandlers ?? []
+	);
 
 	const initialFormValues: ExportFormValues = {
 		contentSelection: undefined,
-		dateFilter: {range: Range.All},
+		dateFilterValues: {range: Range.All},
 		deletions: false,
 		name: '',
 		permissions: false,
@@ -86,18 +87,22 @@ export function NewExport({
 			onSubmit={async (values) => {
 				const result = await postExportProcess({
 					exportProcessRequest: {
-						...appliedDateFilterRef.current,
 						...toProcessRequestFlags(values.contentSelection),
+						dateFilter: appliedDateFilterRef.current,
 						deletions: values.deletions,
 						name: values.name,
 						permissions: values.permissions,
-						requestPortletDataHandlers:
-							toRequestPortletDataHandlers(
-								previewPortletDataHandlerSections,
-								values.contentSelection
+						portletDataHandlers: toPortletDataHandlers(
+							portletDataHandlerSections,
+							values.contentSelection
+						),
+						...(siteSelectionEnabled && {
+							sites: values.siteExternalReferenceCodes.map(
+								(externalReferenceCode) => ({
+									externalReferenceCode,
+								})
 							),
-						siteExternalReferenceCodes:
-							values.siteExternalReferenceCodes,
+						}),
 					},
 					url: exportProcessAPIURL,
 				});
@@ -131,14 +136,25 @@ export function NewExport({
 							placeholder={Liferay.Language.get(
 								'add-an-export-name'
 							)}
-							subtitle={Liferay.Language.get(
-								'provide-a-descriptive-name-for-your-file'
-							)}
 							title={sub(
 								Liferay.Language.get('x-details'),
-								Liferay.Language.get('export')
+								Liferay.Language.get('export[noun]')
 							)}
 						/>
+
+						{siteSelectionEnabled && exportPreviewSitesAPIURL && (
+							<ScopeSection
+								subtitle={Liferay.Language.get(
+									'export-complete-sites,-including-all-their-pages,-content,-and-settings'
+								)}
+							>
+								<SiteSelection
+									exportPreviewSitesAPIURL={
+										exportPreviewSitesAPIURL
+									}
+								/>
+							</ScopeSection>
+						)}
 
 						<DataSelection
 							commentsAndRatingsEnabled={
@@ -146,7 +162,7 @@ export function NewExport({
 							}
 							deletionCount={getSelectedDeletionCount(
 								preview?.deletionCount,
-								previewPortletDataHandlerSections,
+								portletDataHandlerSections,
 								contentSelection
 							)}
 							deletionsDescription={Liferay.Language.get(
@@ -157,35 +173,25 @@ export function NewExport({
 							)}
 							itemsCount={getSelectedItemsCount(
 								preview?.additionCount,
-								previewPortletDataHandlerSections,
+								portletDataHandlerSections,
 								contentSelection
 							)}
 							loading={loading}
-							lookAndFeelEnabled={lookAndFeelEnabled}
 							onApplyFilter={handleApplyFilter}
-							pageTreeModalConfiguration={
-								pageTreeModalConfiguration
-							}
+							pageTreeModalConfiguration={{
+								...pageTreeModalConfiguration,
+								title: Liferay.Language.get('pages-to-export'),
+							}}
 							permissionsDescription={Liferay.Language.get(
 								'export-import-permissions-help'
 							)}
 							permissionsLabel={Liferay.Language.get(
 								'export-permissions'
 							)}
-							previewPortletDataHandlerSections={withSelectedLayoutSetCount(
-								previewPortletDataHandlerSections,
+							portletDataHandlerSections={withSelectedLayoutSetCount(
+								portletDataHandlerSections,
 								contentSelection
 							)}
-							sitesSelection={
-								siteSelectionEnabled &&
-								exportPreviewSitesAPIURL && (
-									<SiteSelection
-										exportPreviewSitesAPIURL={
-											exportPreviewSitesAPIURL
-										}
-									/>
-								)
-							}
 							subtitle={Liferay.Language.get(
 								'select-and-filter-the-data-you-want-to-include-in-your-export'
 							)}

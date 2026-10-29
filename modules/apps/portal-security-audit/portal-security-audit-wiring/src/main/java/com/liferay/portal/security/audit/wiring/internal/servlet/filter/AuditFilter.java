@@ -29,8 +29,6 @@ import com.liferay.portal.kernel.util.PrefsPropsUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
-import com.liferay.portal.kernel.uuid.PortalUUIDUtil;
-import com.liferay.portal.security.audit.configuration.AuditConfigurationUtil;
 import com.liferay.portal.security.audit.wiring.internal.configuration.AuditLogContextConfiguration;
 
 import jakarta.servlet.Filter;
@@ -56,6 +54,7 @@ import org.osgi.service.component.annotations.Reference;
  */
 @Component(
 	configurationPid = "com.liferay.portal.security.audit.wiring.internal.configuration.AuditLogContextConfiguration",
+	enabled = false,
 	property = {
 		"after-filter=Session Max Allowed Filter", "servlet-context-name=",
 		"servlet-filter-name=Audit Filter", "url-pattern=/*",
@@ -127,13 +126,13 @@ public class AuditFilter extends BaseFilter implements TryFilter {
 			HttpHeaders.X_REQUEST_ID);
 
 		if (FeatureFlagManagerUtil.isEnabled(companyId, "LPD-6417")) {
-			if (!_isValidXRequestId(xRequestId)) {
-				xRequestId = PortalUUIDUtil.generate();
-
-				auditRequestContext.setRequestIdGenerated(true);
+			if (_isValidXRequestId(xRequestId)) {
+				auditRequestContext.setRequestId(xRequestId);
+				auditRequestContext.setRequestIdGenerated(false);
 			}
-
-			auditRequestContext.setRequestId(xRequestId);
+			else {
+				xRequestId = auditRequestContext.getRequestId();
+			}
 		}
 
 		if (!_auditLogContextConfiguration.enabled()) {
@@ -144,7 +143,7 @@ public class AuditFilter extends BaseFilter implements TryFilter {
 			(!_auditLogContextConfiguration.useIncomingXRequestId() ||
 			 !_isValidXRequestId(xRequestId))) {
 
-			xRequestId = PortalUUIDUtil.generate();
+			xRequestId = auditRequestContext.getRequestId();
 		}
 
 		httpServletResponse.setHeader(HttpHeaders.X_REQUEST_ID, xRequestId);
@@ -154,24 +153,6 @@ public class AuditFilter extends BaseFilter implements TryFilter {
 			userEmailAddress, userId, userLogin, xRequestId);
 
 		return null;
-	}
-
-	@Override
-	public boolean isFilterEnabled(
-		HttpServletRequest httpServletRequest,
-		HttpServletResponse httpServletResponse) {
-
-		long companyId = CompanyThreadLocal.getCompanyId();
-
-		if (companyId == CompanyConstants.SYSTEM) {
-			if (_log.isDebugEnabled()) {
-				_log.debug("Skip filter for company ID 0");
-			}
-
-			return false;
-		}
-
-		return AuditConfigurationUtil.isEnabled(companyId);
 	}
 
 	@Activate

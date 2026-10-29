@@ -56,9 +56,11 @@ import com.liferay.portal.kernel.util.HashMapBuilder;
 import com.liferay.portal.kernel.util.ListUtil;
 import com.liferay.portal.kernel.util.LocaleUtil;
 import com.liferay.portal.kernel.util.PortalUtil;
+import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.WebKeys;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
 import com.liferay.site.cms.site.initializer.constants.CMSWorkflowConstants;
+import com.liferay.site.cms.site.initializer.contributor.CMSSectionTypeContributor;
 import com.liferay.site.cms.site.initializer.internal.util.ActionUtil;
 import com.liferay.translation.constants.TranslationPortletKeys;
 import com.liferay.translation.exporter.TranslationInfoItemFieldValuesExporter;
@@ -289,6 +291,33 @@ public class SectionDisplayContextUtil {
 			"com.liferay.portal.kernel.model.User,",
 			"com.liferay.portal.kernel.model.UserGroup&nestedFields=",
 			"embedded");
+	}
+
+	public static String getCMSSectionFilterString(
+		List<CMSSectionTypeContributor> cmsSectionTypeContributors) {
+
+		StringBundler sb = new StringBundler();
+
+		sb.append("(cmsSection eq 'contents' or cmsSection eq 'files'");
+
+		for (CMSSectionTypeContributor cmsSectionTypeContributor :
+				cmsSectionTypeContributors) {
+
+			String cmsSectionType =
+				cmsSectionTypeContributor.getCMSSectionType();
+
+			if (Validator.isNull(cmsSectionType)) {
+				continue;
+			}
+
+			sb.append(" or cmsSection eq '");
+			sb.append(cmsSectionType);
+			sb.append("'");
+		}
+
+		sb.append(")");
+
+		return sb.toString();
 	}
 
 	public static Map<String, String> getCollaboratorURLs(
@@ -1013,14 +1042,16 @@ public class SectionDisplayContextUtil {
 							objectEntryFolderExternalReferenceCode,
 							depotEntryGroupId, companyId);
 
-				if (objectEntryFolder != null) {
-					List<Long> objectEntryFolderIds =
-						objectEntryFolderIdsMap.computeIfAbsent(
-							depotEntryGroupId, key -> new ArrayList<>());
-
-					objectEntryFolderIds.add(
-						objectEntryFolder.getObjectEntryFolderId());
+				if (objectEntryFolder == null) {
+					continue;
 				}
+
+				List<Long> objectEntryFolderIds =
+					objectEntryFolderIdsMap.computeIfAbsent(
+						depotEntryGroupId, key -> new ArrayList<>());
+
+				objectEntryFolderIds.add(
+					objectEntryFolder.getObjectEntryFolderId());
 			}
 		}
 
@@ -1361,9 +1392,11 @@ public class SectionDisplayContextUtil {
 		for (Long groupId : groupIds) {
 			JSONObject jsonObject = _getJSONObject(groupId, locale);
 
-			if (jsonObject != null) {
-				jsonArray.put(jsonObject);
+			if (jsonObject == null) {
+				continue;
 			}
+
+			jsonArray.put(jsonObject);
 		}
 
 		return jsonArray;

@@ -978,24 +978,6 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 	}
 
 	@Override
-	public List<BlogsEntry> getOrganizationEntries(
-		long organizationId, Date displayDate,
-		QueryDefinition<BlogsEntry> queryDefinition) {
-
-		return blogsEntryFinder.findByOrganizationId(
-			organizationId, displayDate, queryDefinition);
-	}
-
-	@Override
-	public int getOrganizationEntriesCount(
-		long organizationId, Date displayDate,
-		QueryDefinition<BlogsEntry> queryDefinition) {
-
-		return blogsEntryFinder.countByOrganizationId(
-			organizationId, displayDate, queryDefinition);
-	}
-
-	@Override
 	public String getUniqueUrlTitle(BlogsEntry entry) {
 		return _getUniqueUrlTitle(entry);
 	}
@@ -2227,14 +2209,16 @@ public class BlogsEntryLocalServiceImpl extends BlogsEntryLocalServiceBaseImpl {
 		for (StartTag startTag : startTags) {
 			String targetUri = startTag.getAttributeValue("href");
 
-			if (Validator.isNotNull(targetUri)) {
-				try {
-					LinkbackProducerUtil.sendPingback(sourceUri, targetUri);
-				}
-				catch (Exception exception) {
-					_log.error(
-						"Error while sending pingback " + targetUri, exception);
-				}
+			if (Validator.isNull(targetUri)) {
+				continue;
+			}
+
+			try {
+				LinkbackProducerUtil.sendPingback(sourceUri, targetUri);
+			}
+			catch (Exception exception) {
+				_log.error(
+					"Error while sending pingback " + targetUri, exception);
 			}
 		}
 	}

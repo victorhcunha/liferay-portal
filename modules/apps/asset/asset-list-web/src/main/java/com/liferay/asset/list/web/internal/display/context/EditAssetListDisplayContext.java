@@ -9,7 +9,6 @@ import com.liferay.asset.kernel.AssetRendererFactoryRegistryUtil;
 import com.liferay.asset.kernel.model.AssetCategory;
 import com.liferay.asset.kernel.model.AssetEntry;
 import com.liferay.asset.kernel.model.AssetRendererFactory;
-import com.liferay.asset.kernel.model.AssetTag;
 import com.liferay.asset.kernel.model.AssetVocabulary;
 import com.liferay.asset.kernel.model.ClassType;
 import com.liferay.asset.kernel.model.ClassTypeField;
@@ -38,13 +37,9 @@ import com.liferay.info.search.InfoSearchClassMapperRegistry;
 import com.liferay.item.selector.ItemSelector;
 import com.liferay.item.selector.ItemSelectorCriterion;
 import com.liferay.item.selector.criteria.GroupItemSelectorReturnType;
-import com.liferay.item.selector.criteria.InfoItemItemSelectorReturnType;
 import com.liferay.item.selector.criteria.group.criterion.GroupItemSelectorCriterion;
-import com.liferay.item.selector.criteria.info.item.criterion.InfoItemItemSelectorCriterion;
 import com.liferay.object.service.ObjectDefinitionLocalService;
 import com.liferay.petra.function.transform.TransformUtil;
-import com.liferay.petra.string.CharPool;
-import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.portal.kernel.dao.orm.QueryUtil;
 import com.liferay.portal.kernel.dao.search.SearchContainer;
@@ -62,7 +57,6 @@ import com.liferay.portal.kernel.module.configuration.ConfigurationException;
 import com.liferay.portal.kernel.portlet.LiferayPortletResponse;
 import com.liferay.portal.kernel.portlet.LiferayPortletURL;
 import com.liferay.portal.kernel.portlet.PortletURLFactoryUtil;
-import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactory;
 import com.liferay.portal.kernel.portlet.RequestBackedPortletURLFactoryUtil;
 import com.liferay.portal.kernel.portlet.url.builder.PortletURLBuilder;
 import com.liferay.portal.kernel.search.Field;
@@ -164,6 +158,8 @@ public class EditAssetListDisplayContext {
 			classNameIds = _getDefaultClassNameIds();
 		}
 
+		Map<Long, JSONArray> groupIdsJSONArrays = new HashMap<>();
+
 		return JSONUtil.toJSONArray(
 			ArrayUtil.toArray(classNameIds),
 			classNameId -> {
@@ -191,6 +187,11 @@ public class EditAssetListDisplayContext {
 
 				return JSONUtil.put(
 					"classNameId", classNameId
+				).put(
+					"groupIds",
+					_getGroupIdsJSONArray(
+						_themeDisplay.getScopeGroupId(), groupIdsJSONArrays,
+						assetRendererFactory.getPortletId())
 				).put(
 					"label",
 					assetRendererFactory.getTypeName(_themeDisplay.getLocale())
@@ -253,164 +254,6 @@ public class EditAssetListDisplayContext {
 		_assetListEntryType = assetListEntryType;
 
 		return _assetListEntryType;
-	}
-
-	public JSONArray getAutoFieldRulesJSONArray() {
-		String queryLogicIndexesParam = ParamUtil.getString(
-			_httpServletRequest, "queryLogicIndexes");
-
-		int[] queryLogicIndexes = null;
-
-		if (Validator.isNotNull(queryLogicIndexesParam)) {
-			queryLogicIndexes = StringUtil.split(queryLogicIndexesParam, 0);
-		}
-		else {
-			queryLogicIndexes = new int[0];
-
-			for (int i = 0; true; i++) {
-				String queryValues = PropertiesParamUtil.getString(
-					_unicodeProperties, _httpServletRequest, "queryValues" + i);
-
-				if (Validator.isNull(queryValues)) {
-					break;
-				}
-
-				queryLogicIndexes = ArrayUtil.append(queryLogicIndexes, i);
-			}
-
-			if (queryLogicIndexes.length == 0) {
-				queryLogicIndexes = ArrayUtil.append(queryLogicIndexes, -1);
-			}
-		}
-
-		JSONArray rulesJSONArray = JSONFactoryUtil.createJSONArray();
-
-		for (int queryLogicIndex : queryLogicIndexes) {
-			JSONObject ruleJSONObject = JSONUtil.put(
-				"queryAndOperator",
-				PropertiesParamUtil.getBoolean(
-					_unicodeProperties, _httpServletRequest,
-					"queryAndOperator" + queryLogicIndex)
-			).put(
-				"queryContains",
-				PropertiesParamUtil.getBoolean(
-					_unicodeProperties, _httpServletRequest,
-					"queryContains" + queryLogicIndex, true)
-			);
-
-			String queryValues = _unicodeProperties.getProperty(
-				"queryValues" + queryLogicIndex, StringPool.BLANK);
-
-			String queryName = PropertiesParamUtil.getString(
-				_unicodeProperties, _httpServletRequest,
-				"queryName" + queryLogicIndex, "assetTags");
-
-			if (Objects.equals(queryName, "assetTags")) {
-				queryValues = ParamUtil.getString(
-					_httpServletRequest, "queryTagNames" + queryLogicIndex,
-					queryValues);
-
-				queryValues = _filterAssetTagNames(
-					_themeDisplay.getScopeGroupId(), queryValues);
-
-				String[] tagNames = StringUtil.split(
-					queryValues, StringPool.COMMA);
-
-				if (ArrayUtil.isEmpty(tagNames)) {
-					continue;
-				}
-
-				List<Map<String, String>> selectedItems = new ArrayList<>();
-
-				for (String tagName : tagNames) {
-					selectedItems.add(
-						HashMapBuilder.put(
-							"label", tagName
-						).put(
-							"value", tagName
-						).build());
-				}
-
-				ruleJSONObject.put("selectedItems", selectedItems);
-			}
-			else if (Objects.equals(queryName, "keywords")) {
-				queryValues = ParamUtil.getString(
-					_httpServletRequest, "keywords" + queryLogicIndex,
-					queryValues);
-
-				String[] keywords = StringUtil.split(queryValues, ",");
-
-				if (ArrayUtil.isEmpty(keywords)) {
-					continue;
-				}
-
-				StringBundler sb = new StringBundler(keywords.length * 2);
-
-				for (String keyword : keywords) {
-					if (keyword.contains(" ")) {
-						keyword = StringUtil.quote(keyword, CharPool.QUOTE);
-					}
-
-					sb.append(keyword);
-					sb.append(StringPool.SPACE);
-				}
-
-				sb.setIndex(sb.index() - 1);
-
-				queryValues = sb.toString();
-
-				ruleJSONObject.put("selectedItems", queryValues);
-			}
-			else {
-				queryValues = ParamUtil.getString(
-					_httpServletRequest, "queryCategoryIds" + queryLogicIndex,
-					queryValues);
-
-				List<AssetCategory> assetCategories = _filterAssetCategories(
-					GetterUtil.getLongValues(queryValues.split(",")));
-
-				if (ListUtil.isEmpty(assetCategories)) {
-					continue;
-				}
-
-				List<HashMap<String, Object>> selectedItems = new ArrayList<>();
-
-				for (AssetCategory assetCategory : assetCategories) {
-					selectedItems.add(
-						HashMapBuilder.<String, Object>put(
-							"label",
-							assetCategory.getTitle(_themeDisplay.getLocale())
-						).put(
-							"value", assetCategory.getCategoryId()
-						).build());
-				}
-
-				ruleJSONObject.put("selectedItems", selectedItems);
-			}
-
-			if (Validator.isNull(queryValues)) {
-				continue;
-			}
-
-			ruleJSONObject.put(
-				"queryValues", queryValues
-			).put(
-				"type", queryName
-			);
-
-			rulesJSONArray.put(ruleJSONObject);
-		}
-
-		if (rulesJSONArray.length() == 0) {
-			rulesJSONArray.put(
-				JSONUtil.put(
-					"queryContains", true
-				).put(
-					"type", "assetTags"
-				));
-		}
-
-		return rulesJSONArray;
 	}
 
 	public List<Long> getAvailableClassNameIds() {
@@ -504,27 +347,6 @@ public class EditAssetListDisplayContext {
 		}
 
 		return _backURL;
-	}
-
-	public String getCategorySelectorURL() {
-		RequestBackedPortletURLFactory requestBackedPortletURLFactory =
-			RequestBackedPortletURLFactoryUtil.create(_portletRequest);
-
-		InfoItemItemSelectorCriterion itemSelectorCriterion =
-			new InfoItemItemSelectorCriterion();
-
-		itemSelectorCriterion.setDesiredItemSelectorReturnTypes(
-			new InfoItemItemSelectorReturnType());
-		itemSelectorCriterion.setItemType(AssetCategory.class.getName());
-		itemSelectorCriterion.setMultiSelection(true);
-
-		return PortletURLBuilder.create(
-			_itemSelector.getItemSelectorURL(
-				requestBackedPortletURLFactory, _themeDisplay.getScopeGroup(),
-				_themeDisplay.getScopeGroupId(),
-				_portletResponse.getNamespace() + "selectCategory",
-				itemSelectorCriterion)
-		).buildString();
 	}
 
 	public String getClassName(AssetRendererFactory<?> assetRendererFactory) {
@@ -739,18 +561,18 @@ public class EditAssetListDisplayContext {
 		).build();
 	}
 
-	public List<Map<String, Object>> getFilters() {
-		String filters = _unicodeProperties.getProperty("filters");
+	public List<Map<String, Object>> getFilterMaps() {
+		String filtersJSON = _unicodeProperties.getProperty("filters");
 
-		if (Validator.isNull(filters)) {
+		if (Validator.isNull(filtersJSON)) {
 			return Collections.emptyList();
 		}
 
 		try {
 			JSONArray filtersJSONArray = JSONFactoryUtil.createJSONArray(
-				filters);
+				filtersJSON);
 
-			List<Map<String, Object>> filtersList = new ArrayList<>(
+			List<Map<String, Object>> filterMaps = new ArrayList<>(
 				filtersJSONArray.length());
 
 			for (int i = 0; i < filtersJSONArray.length(); i++) {
@@ -762,10 +584,30 @@ public class EditAssetListDisplayContext {
 					filterMap.put(key, filterJSONObject.get(key));
 				}
 
-				filtersList.add(filterMap);
+				try {
+					List<Map<String, Object>> selectedItems =
+						_fetchSelectedItems(filterJSONObject);
+
+					if (selectedItems != null) {
+						if (selectedItems.isEmpty()) {
+							continue;
+						}
+
+						filterMap.put("value", selectedItems);
+					}
+				}
+				catch (Exception exception) {
+					if (_log.isWarnEnabled()) {
+						_log.warn(
+							"Unable to resolve filter " + filterJSONObject,
+							exception);
+					}
+				}
+
+				filterMaps.add(filterMap);
 			}
 
-			return filtersList;
+			return filterMaps;
 		}
 		catch (Exception exception) {
 			if (_log.isDebugEnabled()) {
@@ -1094,7 +936,6 @@ public class EditAssetListDisplayContext {
 
 	public JSONArray getTypePropertiesJSONArray() {
 		long[] classNameIds = new long[0];
-		long[] classTypeIds = new long[0];
 
 		boolean anyAssetType = GetterUtil.getBoolean(
 			_unicodeProperties.getProperty(
@@ -1104,11 +945,10 @@ public class EditAssetListDisplayContext {
 
 		if (!anyAssetType && !selectionStyle.equals("manual")) {
 			classNameIds = getClassNameIds();
-			classTypeIds = getClassTypeIds();
 		}
 
 		return AssetListTypePropertiesUtil.getTypePropertiesJSONArray(
-			classNameIds, classTypeIds, _themeDisplay.getCompanyId(),
+			classNameIds, _themeDisplay.getCompanyId(),
 			_themeDisplay.getLocale());
 	}
 
@@ -1269,6 +1109,29 @@ public class EditAssetListDisplayContext {
 		return _subtypeFieldsFilterEnabled;
 	}
 
+	private List<Map<String, Object>> _fetchSelectedItems(
+			JSONObject filterJSONObject)
+		throws PortalException {
+
+		if (!_isCommonFieldFilter(filterJSONObject)) {
+			return null;
+		}
+
+		String propertyName = filterJSONObject.getString("propertyName");
+
+		if (Objects.equals(propertyName, "assetCategories")) {
+			return _getAssetCategorySelectedItems(
+				filterJSONObject.getJSONArray("value"));
+		}
+
+		if (Objects.equals(propertyName, "assetTags")) {
+			return _getAssetTagSelectedItems(
+				filterJSONObject.getJSONArray("value"));
+		}
+
+		return null;
+	}
+
 	private List<AssetCategory> _filterAssetCategories(long[] categoryIds) {
 		return TransformUtil.transformToList(
 			categoryIds,
@@ -1285,23 +1148,18 @@ public class EditAssetListDisplayContext {
 			});
 	}
 
-	private String _filterAssetTagNames(long groupId, String assetTagNames) {
-		String[] assetTagNamesArray = StringUtil.split(assetTagNames);
+	private List<Map<String, Object>> _getAssetCategorySelectedItems(
+		JSONArray valueJSONArray) {
 
-		List<String> filteredAssetTagNames = TransformUtil.transformToList(
-			AssetTagLocalServiceUtil.getTagIds(groupId, assetTagNamesArray),
-			assetTagId -> {
-				AssetTag assetTag = AssetTagLocalServiceUtil.fetchAssetTag(
-					assetTagId);
-
-				if (assetTag != null) {
-					return assetTag.getName();
-				}
-
-				return null;
-			});
-
-		return StringUtil.merge(filteredAssetTagNames);
+		return TransformUtil.transform(
+			_filterAssetCategories(
+				GetterUtil.getLongValues(
+					JSONUtil.toStringArray(valueJSONArray, "value"))),
+			assetCategory -> HashMapBuilder.<String, Object>put(
+				"label", assetCategory.getTitle(_themeDisplay.getLocale())
+			).put(
+				"value", String.valueOf(assetCategory.getCategoryId())
+			).build());
 	}
 
 	private JSONArray _getAssetListEntrySegmentsEntryRelJSONArray() {
@@ -1360,6 +1218,30 @@ public class EditAssetListDisplayContext {
 					_themeDisplay.getLocale())
 			),
 			_log);
+	}
+
+	private List<Map<String, Object>> _getAssetTagSelectedItems(
+			JSONArray valueJSONArray)
+		throws PortalException {
+
+		long[] groupIds = getReferencedModelsGroupIds();
+
+		return TransformUtil.transformToList(
+			JSONUtil.toStringArray(valueJSONArray, "value"),
+			assetTagName -> {
+				if (ArrayUtil.isEmpty(
+						AssetTagLocalServiceUtil.getTagIds(
+							groupIds, assetTagName))) {
+
+					return null;
+				}
+
+				return HashMapBuilder.<String, Object>put(
+					"label", assetTagName
+				).put(
+					"value", assetTagName
+				).build();
+			});
 	}
 
 	private Long[] _getClassTypeIds(
@@ -1430,6 +1312,36 @@ public class EditAssetListDisplayContext {
 		).buildString();
 	}
 
+	private JSONArray _getGroupIdsJSONArray(
+			long groupId, Map<Long, JSONArray> groupIdsJSONArrays,
+			String portletId)
+		throws PortalException {
+
+		StagingGroupHelper stagingGroupHelper =
+			StagingGroupHelperUtil.getStagingGroupHelper();
+
+		long stagedPortletGroupId = stagingGroupHelper.getStagedPortletGroupId(
+			groupId, portletId);
+
+		JSONArray groupIdsJSONArray = groupIdsJSONArrays.get(
+			stagedPortletGroupId);
+
+		if (groupIdsJSONArray != null) {
+			return groupIdsJSONArray;
+		}
+
+		long[] groupIds =
+			SiteConnectedGroupGroupProviderUtil.
+				getCurrentAndAncestorSiteAndDepotGroupIds(
+					new long[] {stagedPortletGroupId});
+
+		groupIdsJSONArray = JSONUtil.putAll(ArrayUtil.toArray(groupIds));
+
+		groupIdsJSONArrays.put(stagedPortletGroupId, groupIdsJSONArray);
+
+		return groupIdsJSONArray;
+	}
+
 	private String _getOrderByColumn(String key, String defaultOrderByColumn) {
 		String orderByColumn = GetterUtil.getString(
 			_unicodeProperties.getProperty(key, defaultOrderByColumn));
@@ -1453,6 +1365,16 @@ public class EditAssetListDisplayContext {
 		}
 
 		return typeSettings;
+	}
+
+	private boolean _isCommonFieldFilter(JSONObject filterJSONObject) {
+		if ((filterJSONObject.getLong("classNameId") <= 0) &&
+			(filterJSONObject.getLong("classTypeId") <= 0)) {
+
+			return true;
+		}
+
+		return false;
 	}
 
 	private void _setDDMStructure() throws Exception {

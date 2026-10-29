@@ -3,10 +3,11 @@
  * SPDX-License-Identifier: LGPL-2.1-or-later OR LicenseRef-Liferay-DXP-EULA-2.0.0-2023-06
  */
 
-import {useProvider} from '@clayui/provider';
 import {useCallback, useEffect, useRef} from 'react';
 
-import {useBodyHasClass} from './useBodyHasClass';
+import {usePrefersPersistentAlerts} from './usePrefersPersistentAlerts';
+
+type PauseSource = 'focus' | 'hover';
 
 interface IProps {
 	autoClose?: boolean | number;
@@ -14,19 +15,12 @@ interface IProps {
 }
 
 export function useAutoClose({autoClose, onClose}: IProps) {
-	const {persistentAlerts: providerPersistentAlerts} = useProvider();
-
-	const prefersPersistentAlerts = useBodyHasClass(
-		'c-prefers-persistent-alerts'
-	);
-
-	const persistentAlerts =
-		providerPersistentAlerts || prefersPersistentAlerts;
+	const prefersPersistentAlerts = usePrefersPersistentAlerts();
 
 	const elapsedRef = useRef(0);
 	const expiredRef = useRef(false);
 	const onCloseRef = useRef(onClose);
-	const pauseRequestedRef = useRef(false);
+	const pauseSourcesRef = useRef(new Set<PauseSource>());
 	const startedAtRef = useRef<number>(0);
 	const timerRef = useRef<number | null>(null);
 
@@ -46,9 +40,9 @@ export function useAutoClose({autoClose, onClose}: IProps) {
 	const startTimer = useCallback(() => {
 		if (
 			!autoClose ||
-			persistentAlerts ||
+			prefersPersistentAlerts ||
 			expiredRef.current ||
-			pauseRequestedRef.current ||
+			pauseSourcesRef.current.size ||
 			timerRef.current
 		) {
 			return;
@@ -67,7 +61,7 @@ export function useAutoClose({autoClose, onClose}: IProps) {
 			},
 			Math.max(0, autoCloseDuration - elapsedRef.current)
 		);
-	}, [autoClose, persistentAlerts]);
+	}, [autoClose, prefersPersistentAlerts]);
 
 	useEffect(() => {
 		onCloseRef.current = onClose;
@@ -80,13 +74,13 @@ export function useAutoClose({autoClose, onClose}: IProps) {
 	}, [pauseTimer, startTimer]);
 
 	return {
-		pauseAutoCloseTimer: () => {
-			pauseRequestedRef.current = true;
+		pauseAutoCloseTimer: (source: PauseSource) => {
+			pauseSourcesRef.current.add(source);
 
 			pauseTimer();
 		},
-		startAutoCloseTimer: () => {
-			pauseRequestedRef.current = false;
+		startAutoCloseTimer: (source: PauseSource) => {
+			pauseSourcesRef.current.delete(source);
 
 			startTimer();
 		},

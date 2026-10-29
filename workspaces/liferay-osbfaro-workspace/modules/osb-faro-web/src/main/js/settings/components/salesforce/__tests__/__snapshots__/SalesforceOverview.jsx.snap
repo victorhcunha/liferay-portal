@@ -6,7 +6,7 @@ exports[`SalesforceOverview should render 1`] = `
     class="settings-root"
   >
     <nav
-      class="align-items-center bg-white sticky-top toolbar-root mb-4 tbar component-tbar"
+      class="align-items-center bg-white sticky-top toolbar-root base-edit-page-toolbar mb-4 tbar component-tbar"
     >
       <ul
         class="align-items-center mx-3 tbar-nav"
@@ -46,8 +46,13 @@ exports[`SalesforceOverview should render 1`] = `
           </div>
         </li>
         <li
-          class="tbar-item tbar-item-expand"
-        />
+          class="ml-auto tbar-item"
+        >
+          <ul
+            class="base-edit-page-toolbar-actions tbar-nav"
+            data-testid="toolbar-actions"
+          />
+        </li>
       </ul>
     </nav>
     <div
@@ -291,7 +296,7 @@ exports[`SalesforceOverview should render 1`] = `
               class="mb-5"
             >
               <span
-                class="label mb-2 label-success"
+                class="label mb-2 label-inverse-success"
               >
                 <span
                   class="label-item label-item-expand"
@@ -659,6 +664,69 @@ exports[`SalesforceOverview should render 1`] = `
                             class="list-group-text"
                           >
                             Represents fields from the Contact or Lead object within Salesforce.
+                          </p>
+                          <p
+                            class="list-group-text"
+                          >
+                            10 Items Synced
+                          </p>
+                        </div>
+                      </li>
+                      <li
+                        class="list-group-item list-group-item-flex"
+                      >
+                        <div
+                          class="autofit-col"
+                        >
+                          <div
+                            class="custom-control custom-checkbox"
+                          >
+                            <label>
+                              <input
+                                checked=""
+                                class="custom-control-input"
+                                disabled=""
+                                readonly=""
+                                type="checkbox"
+                              />
+                              <span
+                                class="custom-control-label"
+                              />
+                            </label>
+                          </div>
+                        </div>
+                        <div
+                          class="autofit-col"
+                        >
+                          <span
+                            class="sticker sticker-unstyled"
+                          >
+                            <span
+                              class="sticker-overlay"
+                            >
+                              <svg
+                                class="lexicon-icon lexicon-icon-megaphone text-secondary"
+                                role="presentation"
+                              >
+                                <use
+                                  href="#megaphone"
+                                />
+                              </svg>
+                            </span>
+                          </span>
+                        </div>
+                        <div
+                          class="autofit-col autofit-col-expand"
+                        >
+                          <p
+                            class="list-group-title"
+                          >
+                            Campaigns
+                          </p>
+                          <p
+                            class="list-group-text"
+                          >
+                            Represents fields from the Campaign object within Salesforce.
                           </p>
                           <p
                             class="list-group-text"

@@ -1863,18 +1863,18 @@ public class LayoutsAdminDisplayContext {
 			return _privateLayout;
 		}
 
-		Group selGroup = getSelGroup();
-
-		if (selGroup.isLayoutSetPrototype()) {
-			_privateLayout = true;
-
-			return _privateLayout;
-		}
-
 		if (getSelLayout() != null) {
 			Layout selLayout = getSelLayout();
 
 			_privateLayout = selLayout.isPrivateLayout();
+
+			return _privateLayout;
+		}
+
+		Group selGroup = getSelGroup();
+
+		if (selGroup.isLayoutSetPrototype()) {
+			_privateLayout = true;
 
 			return _privateLayout;
 		}
@@ -1970,18 +1970,20 @@ public class LayoutsAdminDisplayContext {
 			AssetVocabularyServiceUtil.getGroupVocabularies(_getGroupIds());
 
 		for (AssetVocabulary assetVocabulary : assetVocabularies) {
-			if (assetVocabulary.isAssociatedToClassNameId(classNameId) &&
-				assetVocabulary.isRequired(
+			if (!assetVocabulary.isAssociatedToClassNameId(classNameId) ||
+				!assetVocabulary.isRequired(
 					classNameId, 0, themeDisplay.getScopeGroupId())) {
 
-				int assetVocabularyCategoriesCount =
-					AssetCategoryServiceUtil.getVocabularyCategoriesCount(
-						assetVocabulary.getGroupId(),
-						assetVocabulary.getVocabularyId());
+				continue;
+			}
 
-				if (assetVocabularyCategoriesCount > 0) {
-					return true;
-				}
+			int assetVocabularyCategoriesCount =
+				AssetCategoryServiceUtil.getVocabularyCategoriesCount(
+					assetVocabulary.getGroupId(),
+					assetVocabulary.getVocabularyId());
+
+			if (assetVocabularyCategoriesCount > 0) {
+				return true;
 			}
 		}
 

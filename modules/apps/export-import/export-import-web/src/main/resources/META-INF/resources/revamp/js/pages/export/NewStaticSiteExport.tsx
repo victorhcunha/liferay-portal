@@ -108,63 +108,13 @@ export function NewStaticSiteExport({
 				<Form noValidate>
 					<Setup
 						placeholder={Liferay.Language.get('add-an-export-name')}
-						subtitle={Liferay.Language.get(
-							'provide-a-descriptive-name-for-your-file'
-						)}
 						title={sub(
 							Liferay.Language.get('x-details'),
 							Liferay.Language.get('static-site')
 						)}
 					/>
 
-					<SectionHeader
-						className="mt-4"
-						title={Liferay.Language.get('pages')}
-					/>
-
-					<ClayLayout.Sheet>
-						<ClayCheckbox
-							checked={formik.values.exportAllPages}
-							label={Liferay.Language.get('export-all-pages')}
-							onChange={() =>
-								formik.setValues({
-									...formik.values,
-									exportAllPages:
-										!formik.values.exportAllPages,
-									layoutIds: undefined,
-								})
-							}
-						/>
-
-						{!formik.values.exportAllPages && (
-							<div className="align-items-center d-flex justify-content-between mt-3">
-								<span className="small">
-									{formik.values.layoutIds
-										? sub(
-												Liferay.Language.get(
-													'x-selected'
-												),
-												formik.values.layoutIds.length
-											)
-										: Liferay.Language.get('all-pages')}
-								</span>
-
-								<ClayButton
-									className="font-weight-semi-bold"
-									displayType="link"
-									onClick={() => setShowModal(true)}
-									size="sm"
-								>
-									{Liferay.Language.get('select-layouts')}
-								</ClayButton>
-							</div>
-						)}
-					</ClayLayout.Sheet>
-
-					<SectionHeader
-						className="mt-4"
-						title={Liferay.Language.get('languages')}
-					/>
+					<SectionHeader title={Liferay.Language.get('languages')} />
 
 					<ClayLayout.Sheet>
 						<ClayMultiSelect
@@ -209,6 +159,47 @@ export function NewStaticSiteExport({
 								</ClayMultiSelect.Item>
 							)}
 						</ClayMultiSelect>
+					</ClayLayout.Sheet>
+
+					<SectionHeader title={Liferay.Language.get('pages')} />
+
+					<ClayLayout.Sheet>
+						<ClayCheckbox
+							checked={formik.values.exportAllPages}
+							label={Liferay.Language.get('export-all-pages')}
+							onChange={() =>
+								formik.setValues({
+									...formik.values,
+									exportAllPages:
+										!formik.values.exportAllPages,
+									layoutIds: undefined,
+								})
+							}
+						/>
+
+						{!formik.values.exportAllPages && (
+							<div className="align-items-center d-flex justify-content-between mt-3">
+								<span className="small">
+									{formik.values.layoutIds
+										? sub(
+												Liferay.Language.get(
+													'x-selected'
+												),
+												formik.values.layoutIds.length
+											)
+										: Liferay.Language.get('all-pages')}
+								</span>
+
+								<ClayButton
+									className="font-weight-semi-bold"
+									displayType="link"
+									onClick={() => setShowModal(true)}
+									size="sm"
+								>
+									{Liferay.Language.get('select-layouts')}
+								</ClayButton>
+							</div>
+						)}
 					</ClayLayout.Sheet>
 
 					{showModal && (

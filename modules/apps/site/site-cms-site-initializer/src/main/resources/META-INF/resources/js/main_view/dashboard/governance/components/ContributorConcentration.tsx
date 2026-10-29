@@ -4,6 +4,7 @@
  */
 
 import {ClayButtonWithIcon} from '@clayui/button';
+import ClayEmptyState from '@clayui/empty-state';
 import {BarChart, BarDatum, ChartState} from '@liferay/frontend-js-charts-web';
 import classNames from 'classnames';
 import React, {useContext, useEffect, useRef, useState} from 'react';
@@ -117,7 +118,7 @@ export function ContributorConcentration({
 					title={percentagesLabel}
 				/>
 			}
-			className="cms-contributor-concentration custom-empty-state"
+			className="cms-contributor-concentration custom-empty-state h-100"
 			description={Liferay.Language.get(
 				'this-is-the-share-of-content-created-by-each-contributor-across-the-selected-spaces'
 			)}
@@ -125,24 +126,34 @@ export function ContributorConcentration({
 			uppercaseTitle={false}
 		>
 			<div ref={chartContainerRef}>
-				<ChartState
-					empty={!bars.length}
-					error={error}
-					height={chartHeight}
-					loading={!contributors && !error}
-				>
-					<BarChart
-						data={bars}
-						height={chartHeight}
-						legend={showPercentages ? 'list' : 'none'}
-						legendValue="percent"
-						orientation="horizontal"
-						rounded
-						size="inline"
-						title=""
-						width={chartWidth}
+				{contributors && !bars.length ? (
+					<ClayEmptyState
+						description={Liferay.Language.get(
+							'there-is-no-contributor-activity-to-measure-concentration-against'
+						)}
+						imgSrc={`${Liferay.ThemeDisplay.getPathThemeImages()}/states/cms_empty_state.svg`}
+						imgSrcReducedMotion={null}
+						title={Liferay.Language.get('nothing-to-compare-yet')}
 					/>
-				</ChartState>
+				) : (
+					<ChartState
+						error={error}
+						height={chartHeight}
+						loading={!contributors && !error}
+					>
+						<BarChart
+							data={bars}
+							height={chartHeight}
+							legend={showPercentages ? 'list' : 'none'}
+							legendValue="percent"
+							orientation="horizontal"
+							rounded
+							size="inline"
+							title=""
+							width={chartWidth}
+						/>
+					</ChartState>
+				)}
 			</div>
 		</BaseCard>
 	);

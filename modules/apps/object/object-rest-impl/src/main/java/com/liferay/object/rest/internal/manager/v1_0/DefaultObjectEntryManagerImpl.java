@@ -119,11 +119,10 @@ import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.security.permission.InlineSQLHelper;
 import com.liferay.portal.kernel.security.permission.PermissionThreadLocal;
 import com.liferay.portal.kernel.security.permission.resource.ModelResourcePermission;
+import com.liferay.portal.kernel.security.permission.resource.PortletResourcePermission;
 import com.liferay.portal.kernel.service.ClassNameLocalService;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.PersistedModelLocalService;
-import com.liferay.portal.kernel.service.ResourceActionLocalService;
-import com.liferay.portal.kernel.service.ResourcePermissionLocalService;
 import com.liferay.portal.kernel.service.RoleLocalService;
 import com.liferay.portal.kernel.service.RoleService;
 import com.liferay.portal.kernel.service.ServiceContext;
@@ -169,6 +168,7 @@ import com.liferay.portal.vulcan.scope.Scope;
 import com.liferay.portal.vulcan.util.ActionUtil;
 import com.liferay.portal.vulcan.util.ObjectMapperUtil;
 import com.liferay.portal.vulcan.util.SearchUtil;
+import com.liferay.portlet.documentlibrary.constants.DLConstants;
 import com.liferay.roles.admin.role.type.contributor.provider.RoleTypeContributorProvider;
 import com.liferay.sharing.configuration.SharingConfiguration;
 import com.liferay.sharing.configuration.SharingConfigurationFactory;
@@ -1996,9 +1996,11 @@ public class DefaultObjectEntryManagerImpl
 					dtoConverterContext.getUserId());
 			}
 
-			if (properties.containsKey(entry.getKey())) {
-				NestedFieldsSupplier.addNestedField(entry.getKey());
+			if (!properties.containsKey(entry.getKey())) {
+				continue;
 			}
+
+			NestedFieldsSupplier.addNestedField(entry.getKey());
 		}
 
 		return objectEntryLocalService.getObjectEntry(
@@ -2047,6 +2049,21 @@ public class DefaultObjectEntryManagerImpl
 					serviceContext),
 				scopeKey),
 			_objectEntryService.fetchObjectEntry(objectEntryId));
+	}
+
+	private void _checkAddDocumentPermission(
+			long groupId, ObjectDefinition objectDefinition, String scopeKey,
+			ServiceContext serviceContext)
+		throws Exception {
+
+		if (groupId == getGroupId(objectDefinition, scopeKey, true)) {
+			return;
+		}
+
+		_dlPortletResourcePermission.check(
+			permissionCheckerFactory.create(
+				userLocalService.getUser(serviceContext.getUserId())),
+			groupId, ActionKeys.ADD_DOCUMENT);
 	}
 
 	private void _checkAllowStandaloneObjectEntry(
@@ -2157,9 +2174,7 @@ public class DefaultObjectEntryManagerImpl
 		if (objectEntry.getPermissions() != null) {
 			modelPermissions = ModelPermissionsUtil.toModelPermissions(
 				objectDefinition.getCompanyId(), objectEntry.getPermissions(),
-				GetterUtil.getLong(objectEntry.getId()),
-				objectDefinition.getClassName(), _resourceActionLocalService,
-				_resourcePermissionLocalService, _roleLocalService);
+				objectDefinition.getClassName(), _roleLocalService);
 		}
 
 		List<ObjectEntryComment> objectEntryComments = null;
@@ -2872,17 +2887,25 @@ public class DefaultObjectEntryManagerImpl
 		Map<String, ObjectRelationship> objectRelationships =
 			new LinkedHashMap<>();
 
+		ObjectFieldBag objectFieldBag = objectDefinition.getObjectFieldBag();
+
 		Map<String, Object> properties = objectEntry.getProperties();
 
 		for (String key : properties.keySet()) {
+			if (objectFieldBag.getObjectField(key) != null) {
+				continue;
+			}
+
 			ObjectRelationship objectRelationship =
 				_objectRelationshipLocalService.
 					fetchObjectRelationshipByObjectDefinitionId(
 						objectDefinition.getObjectDefinitionId(), key);
 
-			if (objectRelationship != null) {
-				objectRelationships.put(key, objectRelationship);
+			if (objectRelationship == null) {
+				continue;
 			}
+
+			objectRelationships.put(key, objectRelationship);
 		}
 
 		return objectRelationships;
@@ -3375,6 +3398,29 @@ public class DefaultObjectEntryManagerImpl
 			return serviceBuilderFileEntry.getFileEntryId();
 		}
 
+		boolean documentLibraryFileSource = false;
+
+		if (StringUtil.equals(
+				fileSource,
+				ObjectFieldSettingConstants.VALUE_CMS_BASIC_DOCUMENT) ||
+			StringUtil.equals(
+				fileSource, ObjectFieldSettingConstants.VALUE_DOCS_AND_MEDIA)) {
+
+			documentLibraryFileSource = true;
+		}
+
+		String groupExternalReferenceCode = _getGroupExternalReferenceCode(
+			fileEntry);
+		long groupId = 0;
+
+		if (!documentLibraryFileSource) {
+			groupId = _getFileEntryGroupId(
+				groupExternalReferenceCode, objectDefinition, scopeKey);
+
+			_checkAddDocumentPermission(
+				groupId, objectDefinition, scopeKey, serviceContext);
+		}
+
 		byte[] fileContent = {};
 
 		if (fileEntry.getFileBase64() != null) {
@@ -3426,15 +3472,7 @@ public class DefaultObjectEntryManagerImpl
 			throw new IllegalArgumentException("File content is empty");
 		}
 
-		String groupExternalReferenceCode = _getGroupExternalReferenceCode(
-			fileEntry);
-
-		if (StringUtil.equals(
-				fileSource,
-				ObjectFieldSettingConstants.VALUE_CMS_BASIC_DOCUMENT) ||
-			StringUtil.equals(
-				fileSource, ObjectFieldSettingConstants.VALUE_DOCS_AND_MEDIA)) {
-
+		if (documentLibraryFileSource) {
 			Folder folder = fileEntry.getFolder();
 
 			String folderExternalReferenceCode = null;
@@ -3466,10 +3504,8 @@ public class DefaultObjectEntryManagerImpl
 			serviceBuilderFileEntry = _attachmentManager.getOrAddFileEntry(
 				objectField.getCompanyId(),
 				fileEntry.getExternalReferenceCode(), fileContent,
-				fileEntry.getName(),
-				_getFileEntryGroupId(
-					groupExternalReferenceCode, objectDefinition, scopeKey),
-				objectField.getObjectFieldId(), serviceContext);
+				fileEntry.getName(), groupId, objectField.getObjectFieldId(),
+				serviceContext);
 		}
 
 		return serviceBuilderFileEntry.getFileEntryId();
@@ -3495,9 +3531,11 @@ public class DefaultObjectEntryManagerImpl
 						objectDefinition, objectField, entry.getValue(),
 						scopeKey, serviceContext);
 
-					if (fileEntryId > 0) {
-						entry.setValue(fileEntryId);
+					if (fileEntryId <= 0) {
+						continue;
 					}
+
+					entry.setValue(fileEntryId);
 				}
 
 				return;
@@ -3581,12 +3619,14 @@ public class DefaultObjectEntryManagerImpl
 				objectDefinition.getObjectDefinitionId());
 
 		for (ObjectField objectField : objectFields) {
-			if (ObjectFieldUtil.isReadOnly(
+			if (!ObjectFieldUtil.isReadOnly(
 					ddmExpressionFactory, objectField,
 					objectEntry.getProperties())) {
 
-				properties.remove(objectField.getName());
+				continue;
 			}
+
+			properties.remove(objectField.getName());
 		}
 	}
 
@@ -4434,6 +4474,9 @@ public class DefaultObjectEntryManagerImpl
 	@Reference
 	private DLAppService _dlAppService;
 
+	@Reference(target = "(resource.name=" + DLConstants.RESOURCE_NAME + ")")
+	private PortletResourcePermission _dlPortletResourcePermission;
+
 	@Reference
 	private DTOConverterRegistry _dtoConverterRegistry;
 
@@ -4537,12 +4580,6 @@ public class DefaultObjectEntryManagerImpl
 
 	@Reference
 	private Portal _portal;
-
-	@Reference
-	private ResourceActionLocalService _resourceActionLocalService;
-
-	@Reference
-	private ResourcePermissionLocalService _resourcePermissionLocalService;
 
 	@Reference
 	private RoleLocalService _roleLocalService;

@@ -98,6 +98,7 @@ public class LayoutPreviewRendererImpl implements LayoutPreviewRenderer {
 		LayoutStructure originalLayoutStructure =
 			(LayoutStructure)httpServletRequest.getAttribute(
 				LayoutWebKeys.LAYOUT_STRUCTURE);
+		Object originalLocale = httpServletRequest.getAttribute(WebKeys.LOCALE);
 		Object originalOutputData = httpServletRequest.getAttribute(
 			WebKeys.OUTPUT_DATA);
 		boolean originalPortletDecorate = GetterUtil.getBoolean(
@@ -105,6 +106,8 @@ public class LayoutPreviewRendererImpl implements LayoutPreviewRenderer {
 		long[] originalSegmentsExperienceIds = GetterUtil.getLongValues(
 			httpServletRequest.getAttribute(
 				SegmentsWebKeys.SEGMENTS_EXPERIENCE_IDS));
+		Locale originalSiteDefaultLocale =
+			LocaleThreadLocal.getSiteDefaultLocale();
 		Locale originalThemeDisplayLocale =
 			LocaleThreadLocal.getThemeDisplayLocale();
 
@@ -122,6 +125,7 @@ public class LayoutPreviewRendererImpl implements LayoutPreviewRenderer {
 			httpServletRequest.setAttribute(
 				SegmentsWebKeys.SEGMENTS_EXPERIENCE_IDS,
 				new long[] {segmentsExperienceId});
+			httpServletRequest.setAttribute(WebKeys.LOCALE, locale);
 			httpServletRequest.setAttribute(WebKeys.OUTPUT_DATA, null);
 			httpServletRequest.setAttribute(
 				WebKeys.PORTLET_DECORATE, Boolean.FALSE);
@@ -135,6 +139,11 @@ public class LayoutPreviewRendererImpl implements LayoutPreviewRenderer {
 
 			themeDisplay.setShowSignInIcon(true);
 			themeDisplay.setSignedIn(false);
+
+			if (layout.getGroupId() != originalThemeDisplay.getSiteGroupId()) {
+				themeDisplay.setSiteDefaultLocale(
+					_portal.getSiteDefaultLocale(layout.getGroupId()));
+			}
 
 			User guestUser = _userLocalService.getGuestUser(
 				themeDisplay.getCompanyId());
@@ -193,6 +202,7 @@ public class LayoutPreviewRendererImpl implements LayoutPreviewRenderer {
 				SegmentsWebKeys.SEGMENTS_EXPERIENCE_IDS,
 				originalSegmentsExperienceIds);
 			httpServletRequest.setAttribute(WebKeys.LAYOUT, originalLayout);
+			httpServletRequest.setAttribute(WebKeys.LOCALE, originalLocale);
 			httpServletRequest.setAttribute(
 				WebKeys.OUTPUT_DATA, originalOutputData);
 			httpServletRequest.setAttribute(
@@ -202,6 +212,7 @@ public class LayoutPreviewRendererImpl implements LayoutPreviewRenderer {
 
 			layout.setClassNameId(originalClassNameId);
 
+			LocaleThreadLocal.setSiteDefaultLocale(originalSiteDefaultLocale);
 			LocaleThreadLocal.setThemeDisplayLocale(originalThemeDisplayLocale);
 
 			ServiceContextThreadLocal.popServiceContext();

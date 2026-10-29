@@ -169,10 +169,12 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 				kbArticleLocalService.getKBArticles(
 					resourcePrimKeys, WorkflowConstants.STATUS_ANY, null)) {
 
-			if (kbArticle.getGroupId() != groupId) {
-				_kbArticleModelResourcePermission.check(
-					getPermissionChecker(), kbArticle, KBActionKeys.DELETE);
+			if (kbArticle.getGroupId() == groupId) {
+				continue;
 			}
+
+			_kbArticleModelResourcePermission.check(
+				getPermissionChecker(), kbArticle, KBActionKeys.DELETE);
 		}
 
 		kbArticleLocalService.deleteKBArticles(resourcePrimKeys);
@@ -1138,13 +1140,13 @@ public class KBArticleServiceImpl extends KBArticleServiceBaseImpl {
 				QueryUtil.ALL_POS, orderByComparator);
 		}
 		else if (status == WorkflowConstants.STATUS_APPROVED) {
-			curKBArticles = kbArticlePersistence.findByG_P_M_NotS(
+			curKBArticles = kbArticlePersistence.filterFindByG_P_M_NotS(
 				groupId, resourcePrimKey, true,
 				WorkflowConstants.STATUS_IN_TRASH, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, orderByComparator);
 		}
 		else {
-			curKBArticles = kbArticlePersistence.findByG_P_S(
+			curKBArticles = kbArticlePersistence.filterFindByG_P_S(
 				groupId, resourcePrimKey, status, QueryUtil.ALL_POS,
 				QueryUtil.ALL_POS, orderByComparator);
 		}

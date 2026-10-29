@@ -761,11 +761,13 @@ public class CommercePriceListLocalServiceImpl
 					BigDecimal actualPrice = commercePriceModifierType.evaluate(
 						originalPrice, commercePriceModifier);
 
-					if (BigDecimalUtil.lt(actualPrice, lowestPrice)) {
-						commercePriceListId =
-							commercePriceList.getCommercePriceListId();
-						lowestPrice = actualPrice;
+					if (!BigDecimalUtil.lt(actualPrice, lowestPrice)) {
+						continue;
 					}
+
+					commercePriceListId =
+						commercePriceList.getCommercePriceListId();
+					lowestPrice = actualPrice;
 				}
 			}
 		}
@@ -791,14 +793,6 @@ public class CommercePriceListLocalServiceImpl
 		}
 
 		return commercePriceLists.get(0);
-	}
-
-	@Override
-	public List<CommercePriceList> getCommercePriceLists(
-		long companyId, int start, int end) {
-
-		return commercePriceListPersistence.findByCompanyId(
-			companyId, start, end);
 	}
 
 	@Override
@@ -1020,14 +1014,6 @@ public class CommercePriceListLocalServiceImpl
 
 	@Override
 	public int getCommercePriceListsCount(
-		long commercePricingClassId, String name) {
-
-		return commercePriceListFinder.countByCommercePricingClassId(
-			commercePricingClassId, name);
-	}
-
-	@Override
-	public int getCommercePriceListsCount(
 		long[] groupIds, long companyId, int status) {
 
 		if (status == WorkflowConstants.STATUS_ANY) {
@@ -1079,14 +1065,6 @@ public class CommercePriceListLocalServiceImpl
 		catch (Exception exception) {
 			throw new SystemException(exception);
 		}
-	}
-
-	@Override
-	public List<CommercePriceList> searchByCommercePricingClassId(
-		long commercePricingClassId, String name, int start, int end) {
-
-		return commercePriceListFinder.findByCommercePricingClassId(
-			commercePricingClassId, name, start, end);
 	}
 
 	@Override
@@ -1226,26 +1204,6 @@ public class CommercePriceListLocalServiceImpl
 			user.getUserId(), commercePriceList, serviceContext);
 
 		return commercePriceList;
-	}
-
-	@Override
-	public void updateCommercePriceListCurrencies(
-			long companyId, String oldCommerceCurrencyCode,
-			String newCommerceCurrencyCode)
-		throws PortalException {
-
-		List<CommercePriceList> commercePriceLists =
-			commercePriceListPersistence.findByC_C(
-				companyId, oldCommerceCurrencyCode);
-
-		for (CommercePriceList commercePriceList : commercePriceLists) {
-			commercePriceList.setCommerceCurrencyCode(newCommerceCurrencyCode);
-
-			commercePriceList = commercePriceListPersistence.update(
-				commercePriceList);
-
-			_reindex(commercePriceList.getCommercePriceListId());
-		}
 	}
 
 	@Indexable(type = IndexableType.REINDEX)
@@ -1744,13 +1702,6 @@ public class CommercePriceListLocalServiceImpl
 		}
 
 		return joinStep.where(predicate);
-	}
-
-	private void _reindex(long commercePriceListId) throws PortalException {
-		Indexer<CommercePriceList> indexer =
-			IndexerRegistryUtil.nullSafeGetIndexer(CommercePriceList.class);
-
-		indexer.reindex(CommercePriceList.class.getName(), commercePriceListId);
 	}
 
 	private BaseModelSearchResult<CommercePriceList> _searchCommercePriceLists(

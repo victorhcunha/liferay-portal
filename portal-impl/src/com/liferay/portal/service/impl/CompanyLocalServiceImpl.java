@@ -397,12 +397,12 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 					CompanyThreadLocal.setCompanyIdWithSafeCloseable(
 						companyId)) {
 
-				companyPersistence.clearCache();
-				_virtualHostPersistence.clearCache();
-
 				Company dbPartitionCompany = TransactionInvokerUtil.invoke(
 					_transactionConfig,
 					() -> {
+						companyPersistence.clearCache();
+						_virtualHostPersistence.clearCache();
+
 						Company company = companyPersistence.findByPrimaryKey(
 							companyId);
 
@@ -431,6 +431,9 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 						return _addDBPartitionCompany(company);
 					});
+
+				companyPersistence.clearCache();
+				_virtualHostPersistence.clearCache();
 
 				return _registerDBPartitionCompany(dbPartitionCompany);
 			}
@@ -2574,22 +2577,26 @@ public class CompanyLocalServiceImpl extends CompanyLocalServiceBaseImpl {
 
 			if (ListUtil.isNotEmpty(removedLanguageIds)) {
 				for (String removedLanguageId : removedLanguageIds) {
-					if (ArrayUtil.contains(
+					if (!ArrayUtil.contains(
 							groupLanguageIds, removedLanguageId)) {
 
-						groupLanguageIds = ArrayUtil.remove(
-							groupLanguageIds, removedLanguageId);
-
-						updateLocales = true;
+						continue;
 					}
+
+					groupLanguageIds = ArrayUtil.remove(
+						groupLanguageIds, removedLanguageId);
+
+					updateLocales = true;
 				}
 			}
 
-			if (updateLocales) {
-				_updateGroupLocales(
-					group, groupTypeSettingsUnicodeProperties,
-					StringUtil.merge(groupLanguageIds, StringPool.COMMA));
+			if (!updateLocales) {
+				continue;
 			}
+
+			_updateGroupLocales(
+				group, groupTypeSettingsUnicodeProperties,
+				StringUtil.merge(groupLanguageIds, StringPool.COMMA));
 		}
 	}
 

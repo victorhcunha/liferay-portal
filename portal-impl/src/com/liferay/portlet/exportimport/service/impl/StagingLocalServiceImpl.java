@@ -79,6 +79,7 @@ import com.liferay.portal.kernel.util.PortalUtil;
 import com.liferay.portal.kernel.util.PropertiesParamUtil;
 import com.liferay.portal.kernel.util.PropsKeys;
 import com.liferay.portal.kernel.util.UnicodeProperties;
+import com.liferay.portal.kernel.util.UnicodePropertiesBuilder;
 import com.liferay.portal.kernel.util.Validator;
 import com.liferay.portal.kernel.util.comparator.LayoutSetBranchCreateDateComparator;
 import com.liferay.portal.kernel.workflow.WorkflowConstants;
@@ -241,7 +242,11 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 		}
 
 		UnicodeProperties typeSettingsUnicodeProperties =
-			liveGroup.getTypeSettingsProperties();
+			UnicodePropertiesBuilder.create(
+				true
+			).fastLoad(
+				liveGroup.getTypeSettings()
+			).build();
 
 		boolean stagedLocally = GetterUtil.getBoolean(
 			typeSettingsUnicodeProperties.getProperty("staged"));
@@ -279,9 +284,11 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 		Set<String> keys = new HashSet<>();
 
 		for (String key : typeSettingsUnicodeProperties.keySet()) {
-			if (key.startsWith(StagingConstants.STAGED_PORTLET)) {
-				keys.add(key);
+			if (!key.startsWith(StagingConstants.STAGED_PORTLET)) {
+				continue;
 			}
+
+			keys.add(key);
 		}
 
 		for (String key : keys) {
@@ -783,13 +790,15 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 
 				Date statusDate = headLayoutRevision.getStatusDate();
 
-				if (statusDate.after(layoutRevision.getStatusDate()) &&
-					((lastPublishDate == null) ||
-					 lastPublishDate.after(statusDate))) {
+				if (!statusDate.after(layoutRevision.getStatusDate()) ||
+					((lastPublishDate != null) &&
+					 !lastPublishDate.after(statusDate))) {
 
-					layoutRevisions.put(
-						headLayoutRevision.getPlid(), headLayoutRevision);
+					continue;
 				}
+
+				layoutRevisions.put(
+					headLayoutRevision.getPlid(), headLayoutRevision);
 			}
 		}
 
@@ -1213,10 +1222,12 @@ public class StagingLocalServiceImpl extends StagingLocalServiceBaseImpl {
 		Map<String, String> stagedPortletIds = new HashMap<>();
 
 		for (String key : typeSettingsUnicodeProperties.keySet()) {
-			if (key.startsWith(StagingConstants.STAGED_PORTLET)) {
-				stagedPortletIds.put(
-					key, typeSettingsUnicodeProperties.getProperty(key));
+			if (!key.startsWith(StagingConstants.STAGED_PORTLET)) {
+				continue;
 			}
+
+			stagedPortletIds.put(
+				key, typeSettingsUnicodeProperties.getProperty(key));
 		}
 
 		try {

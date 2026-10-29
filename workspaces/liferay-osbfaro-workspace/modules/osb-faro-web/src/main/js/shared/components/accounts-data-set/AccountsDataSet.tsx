@@ -4,6 +4,8 @@ import Loading from 'shared/components/Loading';
 import React from 'react';
 import {
 	columns,
+	EMPTY_STATE_IMAGE,
+	EMPTY_STATE_REDUCED_MOTION_IMAGE,
 	FrontendDataSet,
 	pagination,
 	rangeSelectors,
@@ -28,7 +30,7 @@ interface IAccountsDataSetProps {
 	fieldCatalog?: ICatalogField[];
 	groupId: string;
 	industryFilter?: string;
-	lifecycleStageFilter?: LifecycleStages;
+	lifecycleStageFilter?: string;
 	rangeKeyFilter?: RangeKeyTimeRanges;
 	segmentFilter?: string;
 	segmentName?: string;
@@ -36,8 +38,10 @@ interface IAccountsDataSetProps {
 }
 
 interface ILifecycleStageFieldValue {
+	externalReferenceCode: string;
 	id: string;
-	stageType: LifecycleStages;
+	stageName?: string;
+	stageType?: LifecycleStages;
 }
 
 const buildSelectionPreloadedData = (value?: string, label?: string) =>
@@ -77,19 +81,22 @@ const AccountsDataSet: React.FC<IAccountsDataSetProps> = ({
 	const lifecycleStages: ILifecycleStageFieldValue[] =
 		lifecycleStageFieldValues?.items ?? [];
 
-	const lifecycleStageItems = lifecycleStages.map(({id, stageType}) => ({
-		label: lifecycleStagesLabelMap[stageType].label,
-		value: id,
-	}));
+	const lifecycleStageItems = lifecycleStages.map(
+		({externalReferenceCode, stageName, stageType}) => ({
+			label:
+				stageName ??
+				(stageType && lifecycleStagesLabelMap[stageType]?.label) ??
+				externalReferenceCode,
+			value: externalReferenceCode,
+		})
+	);
 
 	const preloadedRangeSelector = rangeSelectors.find(
 		({value}) => value === rangeKeyFilter
 	);
 
 	const preloadedLifecycleStage = lifecycleStageFilter
-		? lifecycleStages.find(
-				({stageType}) => stageType === lifecycleStageFilter
-			)
+		? lifecycleStages.find(({id}) => id === lifecycleStageFilter)
 		: undefined;
 
 	// The data set reads `filters` only when its reducer is initialized on
@@ -135,8 +142,8 @@ const AccountsDataSet: React.FC<IAccountsDataSetProps> = ({
 							value,
 						}),
 					activitiesCountRenderer: columns.countRenderer,
-					annualRevenueRenderer: ({value}: {value: number}) => (
-						<div>{toThousands(value)}</div>
+					annualRevenueRenderer: ({value}: {value?: number}) => (
+						<div>{value ? toThousands(value) : ''}</div>
 					),
 					dateRenderer: ({value}: {value: string}) =>
 						columns.dateRenderer({itemData: {}, value}),
@@ -145,7 +152,8 @@ const AccountsDataSet: React.FC<IAccountsDataSetProps> = ({
 					description: Liferay.Language.get(
 						'no-accounts-were-synced-from-the-connected-data-sources'
 					),
-					image: '/states/satellite.svg',
+					image: EMPTY_STATE_IMAGE,
+					imageReducedMotion: EMPTY_STATE_REDUCED_MOTION_IMAGE,
 					title: Liferay.Language.get('no-accounts-found'),
 				}}
 				filters={[
@@ -170,12 +178,12 @@ const AccountsDataSet: React.FC<IAccountsDataSetProps> = ({
 									multiple: true,
 									name: 'status',
 									preloadedData: buildSelectionPreloadedData(
-										preloadedLifecycleStage?.id,
-										lifecycleStageFilter
-											? lifecycleStagesLabelMap[
-													lifecycleStageFilter
-												].label
-											: undefined
+										preloadedLifecycleStage?.externalReferenceCode,
+										lifecycleStageItems.find(
+											({value}) =>
+												value ===
+												preloadedLifecycleStage?.externalReferenceCode
+										)?.label
 									),
 									type: 'selection' as const,
 								},

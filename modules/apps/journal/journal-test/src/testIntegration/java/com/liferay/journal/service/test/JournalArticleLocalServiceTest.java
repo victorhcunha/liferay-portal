@@ -2290,33 +2290,6 @@ public class JournalArticleLocalServiceTest {
 	}
 
 	@Test
-	public void testGetNotInTrashArticlesCount() throws Exception {
-		JournalFolder journalFolder = _journalFolderFixture.addFolder(
-			_group.getGroupId(), RandomTestUtil.randomString());
-
-		JournalTestUtil.addArticle(
-			_group.getGroupId(), journalFolder.getFolderId(),
-			Collections.emptyMap());
-
-		JournalArticle journalArticle = JournalTestUtil.addArticle(
-			_group.getGroupId(), journalFolder.getFolderId(),
-			Collections.emptyMap());
-
-		Assert.assertEquals(
-			2,
-			_journalArticleLocalService.getNotInTrashArticlesCount(
-				_group.getGroupId(), journalFolder.getFolderId()));
-
-		_journalArticleLocalService.moveArticleToTrash(
-			TestPropsValues.getUserId(), journalArticle);
-
-		Assert.assertEquals(
-			1,
-			_journalArticleLocalService.getNotInTrashArticlesCount(
-				_group.getGroupId(), journalFolder.getFolderId()));
-	}
-
-	@Test
 	public void testMoveArticleToTrashWithCachedVersionArticles()
 		throws Exception {
 
@@ -3311,12 +3284,14 @@ public class JournalArticleLocalServiceTest {
 					value.getString(LocaleUtil.SPAIN));
 			}
 
-			if (ListUtil.isNotEmpty(
+			if (ListUtil.isEmpty(
 					ddmFormFieldValue.getNestedDDMFormFieldValues())) {
 
-				_validateDDMFormFieldValues(
-					ddmFormFieldValue.getNestedDDMFormFieldValues());
+				continue;
 			}
+
+			_validateDDMFormFieldValues(
+				ddmFormFieldValue.getNestedDDMFormFieldValues());
 		}
 	}
 

@@ -6,6 +6,7 @@
 package com.liferay.exportimport.rest.resource.v1_0.test;
 
 import com.liferay.arquillian.extension.junit.bridge.junit.Arquillian;
+import com.liferay.blogs.constants.BlogsPortletKeys;
 import com.liferay.exportimport.kernel.background.task.BackgroundTaskExecutorNames;
 import com.liferay.exportimport.kernel.configuration.ExportImportConfigurationSettingsMapFactoryUtil;
 import com.liferay.exportimport.kernel.configuration.constants.ExportImportConfigurationConstants;
@@ -17,14 +18,18 @@ import com.liferay.exportimport.kernel.service.ExportImportLocalServiceUtil;
 import com.liferay.exportimport.rest.client.dto.v1_0.ImportPreview;
 import com.liferay.exportimport.rest.client.dto.v1_0.ImportProcess;
 import com.liferay.exportimport.rest.client.dto.v1_0.ImportProcessRequest;
+import com.liferay.exportimport.rest.client.dto.v1_0.InstanceImportProcessRequest;
+import com.liferay.exportimport.rest.client.dto.v1_0.PortletDataHandler;
+import com.liferay.exportimport.rest.client.dto.v1_0.PortletDataHandlerControl;
+import com.liferay.exportimport.rest.client.dto.v1_0.PortletDataHandlerTreeSelection;
 import com.liferay.exportimport.rest.client.dto.v1_0.ProcessProgress;
-import com.liferay.exportimport.rest.client.dto.v1_0.RequestPortletDataHandler;
 import com.liferay.exportimport.rest.client.http.HttpInvoker;
 import com.liferay.exportimport.rest.client.pagination.Page;
 import com.liferay.exportimport.rest.client.pagination.Pagination;
 import com.liferay.exportimport.rest.client.resource.v1_0.ImportPreviewResource;
 import com.liferay.exportimport.rest.client.resource.v1_0.ImportProcessResource;
 import com.liferay.exportimport.test.util.ExportImportTestUtil;
+import com.liferay.layout.admin.constants.LayoutAdminPortletKeys;
 import com.liferay.layout.test.util.LayoutTestUtil;
 import com.liferay.object.constants.ObjectDefinitionConstants;
 import com.liferay.object.constants.ObjectDefinitionSettingConstants;
@@ -48,12 +53,15 @@ import com.liferay.portal.kernel.backgroundtask.constants.BackgroundTaskConstant
 import com.liferay.portal.kernel.model.Group;
 import com.liferay.portal.kernel.model.GroupConstants;
 import com.liferay.portal.kernel.model.Layout;
+import com.liferay.portal.kernel.model.LayoutSetPrototype;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.service.GroupLocalService;
 import com.liferay.portal.kernel.service.LayoutLocalService;
 import com.liferay.portal.kernel.service.ServiceContext;
 import com.liferay.portal.kernel.service.UserLocalService;
 import com.liferay.portal.kernel.test.TestInfo;
+import com.liferay.portal.kernel.test.rule.DeleteAfterTestRun;
+import com.liferay.portal.kernel.test.util.GroupTestUtil;
 import com.liferay.portal.kernel.test.util.RandomTestUtil;
 import com.liferay.portal.kernel.test.util.ServiceContextTestUtil;
 import com.liferay.portal.kernel.test.util.TestPropsValues;
@@ -202,7 +210,7 @@ public class ImportProcessResourceTest
 		assertHttpResponseStatusCode(
 			403,
 			_importProcessResource.postAssetLibraryImportProcessHttpResponse(
-				externalReferenceCode, 0L, null, new ImportProcessRequest()));
+				externalReferenceCode, null, new ImportProcessRequest()));
 
 		ObjectDefinition objectDefinition = _publishObjectDefinition(
 			ObjectDefinitionConstants.SCOPE_DEPOT);
@@ -211,37 +219,30 @@ public class ImportProcessResourceTest
 			() -> _exportLayoutAsFile(testDepotEntryGroup.getGroupId()),
 			objectDefinition, testDepotEntryGroup.getGroupId(),
 			file -> _importPreviewResource.postAssetLibraryImportPreview(
-				externalReferenceCode, 0L, null, null,
+				externalReferenceCode, null, null,
 				HashMapBuilder.put(
 					"file", file
 				).build()),
 			importProcessRequest ->
 				importProcessResource.postAssetLibraryImportProcess(
-					externalReferenceCode, 0L, null, importProcessRequest));
+					externalReferenceCode, null, importProcessRequest));
 
 		String portletId = objectDefinition.getPortletId();
 
-		long plid = _addLayoutWithPortlet(testDepotEntryGroup, portletId);
+		Layout layout = _addLayoutWithPortlet(testDepotEntryGroup, portletId);
 
 		_testPostImportProcessWithObjectDefinition(
 			() -> _exportPortletAsFile(
-				testDepotEntryGroup.getGroupId(), plid, portletId),
+				testDepotEntryGroup.getGroupId(), layout.getPlid(), portletId),
 			objectDefinition, testDepotEntryGroup.getGroupId(),
 			file -> _importPreviewResource.postAssetLibraryImportPreview(
-				externalReferenceCode, plid, portletId, null,
+				externalReferenceCode, portletId, null,
 				HashMapBuilder.put(
 					"file", file
 				).build()),
 			importProcessRequest ->
 				importProcessResource.postAssetLibraryImportProcess(
-					externalReferenceCode, plid, portletId,
-					importProcessRequest));
-
-		_testPostImportProcessWithoutPlid(
-			importProcessRequest ->
-				importProcessResource.postAssetLibraryImportProcessHttpResponse(
-					externalReferenceCode, 0L, portletId,
-					importProcessRequest));
+					externalReferenceCode, portletId, importProcessRequest));
 
 		_objectDefinitionLocalService.deleteObjectDefinition(objectDefinition);
 	}
@@ -252,7 +253,7 @@ public class ImportProcessResourceTest
 		assertHttpResponseStatusCode(
 			403,
 			_importProcessResource.postImportProcessHttpResponse(
-				0L, null, new ImportProcessRequest()));
+				null, new InstanceImportProcessRequest()));
 
 		Group companyGroup = _stagingGroupHelper.fetchCompanyGroup(
 			testCompany.getCompanyId());
@@ -265,33 +266,30 @@ public class ImportProcessResourceTest
 				() -> _exportLayoutAsFile(companyGroup.getGroupId()),
 				objectDefinition, GroupConstants.DEFAULT_PARENT_GROUP_ID,
 				file -> _importPreviewResource.postImportPreview(
-					0L, null, null,
+					null, null,
 					HashMapBuilder.put(
 						"file", file
 					).build()),
 				importProcessRequest -> importProcessResource.postImportProcess(
-					0L, null, importProcessRequest));
+					null,
+					_toInstanceImportProcessRequest(importProcessRequest)));
 
 			String portletId = objectDefinition.getPortletId();
 
-			long plid = _addLayoutWithPortlet(testGroup, portletId);
+			Layout layout = _addLayoutWithPortlet(testGroup, portletId);
 
 			_testPostImportProcessWithObjectDefinition(
 				() -> _exportPortletAsFile(
-					companyGroup.getGroupId(), plid, portletId),
+					companyGroup.getGroupId(), layout.getPlid(), portletId),
 				objectDefinition, GroupConstants.DEFAULT_PARENT_GROUP_ID,
 				file -> _importPreviewResource.postImportPreview(
-					plid, portletId, null,
+					portletId, null,
 					HashMapBuilder.put(
 						"file", file
 					).build()),
 				importProcessRequest -> importProcessResource.postImportProcess(
-					plid, portletId, importProcessRequest));
-
-			_testPostImportProcessWithoutPlid(
-				importProcessRequest ->
-					importProcessResource.postImportProcessHttpResponse(
-						0L, portletId, importProcessRequest));
+					portletId,
+					_toInstanceImportProcessRequest(importProcessRequest)));
 		}
 		finally {
 			_objectDefinitionLocalService.deleteObjectDefinition(
@@ -303,36 +301,38 @@ public class ImportProcessResourceTest
 			_publishObjectDefinition(ObjectDefinitionConstants.SCOPE_COMPANY),
 			GroupConstants.DEFAULT_PARENT_GROUP_ID,
 			file -> _importPreviewResource.postImportPreview(
-				0L, null, null,
+				null, null,
 				HashMapBuilder.put(
 					"file", file
 				).build()),
 			importProcessRequest -> importProcessResource.postImportProcess(
-				0L, null, importProcessRequest));
+				null, _toInstanceImportProcessRequest(importProcessRequest)));
 
 		_testPostImportProcessWithPreviewForOtherGroup(
 			testGroup.getGroupId(),
 			file -> _importPreviewResource.postSiteImportPreview(
-				testGroup.getExternalReferenceCode(), 0L, null, null,
+				testGroup.getExternalReferenceCode(), null, null, null,
 				HashMapBuilder.put(
 					"file", file
 				).build()),
 			importProcessRequest ->
 				importProcessResource.postImportProcessHttpResponse(
-					0L, null, importProcessRequest));
+					null,
+					_toInstanceImportProcessRequest(importProcessRequest)));
 		_testPostImportProcessWithSettings(
 			companyGroup.getGroupId(),
 			file -> _importPreviewResource.postImportPreview(
-				0L, null, null,
+				null, null,
 				HashMapBuilder.put(
 					"file", file
 				).build()),
 			importProcessRequest -> importProcessResource.postImportProcess(
-				0L, null, importProcessRequest));
+				null, _toInstanceImportProcessRequest(importProcessRequest)));
 		_testPostImportProcessWithoutPreview(
 			importProcessRequest ->
 				importProcessResource.postImportProcessHttpResponse(
-					0L, null, importProcessRequest));
+					null,
+					_toInstanceImportProcessRequest(importProcessRequest)));
 	}
 
 	@Override
@@ -343,7 +343,7 @@ public class ImportProcessResourceTest
 		assertHttpResponseStatusCode(
 			403,
 			_importProcessResource.postSiteImportProcessHttpResponse(
-				externalReferenceCode, 0L, null, new ImportProcessRequest()));
+				externalReferenceCode, null, null, new ImportProcessRequest()));
 
 		ObjectDefinition objectDefinition = _publishObjectDefinition(
 			ObjectDefinitionConstants.SCOPE_SITE);
@@ -352,67 +352,82 @@ public class ImportProcessResourceTest
 			() -> _exportLayoutAsFile(testGroup.getGroupId()), objectDefinition,
 			testGroup.getGroupId(),
 			file -> _importPreviewResource.postSiteImportPreview(
-				externalReferenceCode, 0L, null, null,
+				externalReferenceCode, null, null, null,
 				HashMapBuilder.put(
 					"file", file
 				).build()),
 			importProcessRequest -> importProcessResource.postSiteImportProcess(
-				externalReferenceCode, 0L, null, importProcessRequest));
+				externalReferenceCode, null, null, importProcessRequest));
 
 		String portletId = objectDefinition.getPortletId();
 
-		long plid = _addLayoutWithPortlet(testGroup, portletId);
+		Layout layout = _addLayoutWithPortlet(testGroup, portletId);
 
 		_testPostImportProcessWithObjectDefinition(
-			() -> _exportPortletAsFile(testGroup.getGroupId(), plid, portletId),
+			() -> _exportPortletAsFile(
+				testGroup.getGroupId(), layout.getPlid(), portletId),
 			objectDefinition, testGroup.getGroupId(),
 			file -> _importPreviewResource.postSiteImportPreview(
-				externalReferenceCode, plid, portletId, null,
+				externalReferenceCode, portletId,
+				layout.getExternalReferenceCode(), null,
 				HashMapBuilder.put(
 					"file", file
 				).build()),
 			importProcessRequest -> importProcessResource.postSiteImportProcess(
-				externalReferenceCode, plid, portletId, importProcessRequest));
+				externalReferenceCode, portletId,
+				layout.getExternalReferenceCode(), importProcessRequest));
+		_testPostImportProcessWithObjectDefinition(
+			() -> _exportPortletAsFile(
+				testGroup.getGroupId(), layout.getPlid(), portletId),
+			objectDefinition, testGroup.getGroupId(),
+			file -> _importPreviewResource.postSiteImportPreview(
+				externalReferenceCode, portletId, null, null,
+				HashMapBuilder.put(
+					"file", file
+				).build()),
+			importProcessRequest -> importProcessResource.postSiteImportProcess(
+				externalReferenceCode, portletId, null, importProcessRequest));
 
-		_testPostImportProcessWithoutPlid(
-			importProcessRequest ->
-				importProcessResource.postSiteImportProcessHttpResponse(
-					externalReferenceCode, 0L, portletId,
-					importProcessRequest));
+		_testPostSiteImportProcessWithScope(
+			externalReferenceCode, BlogsPortletKeys.BLOGS);
+
+		_testPostSiteImportProcessWithSitePage(
+			externalReferenceCode, portletId);
 
 		_objectDefinitionLocalService.deleteObjectDefinition(objectDefinition);
 
 		_testPostImportProcessWithPreviewForOtherGroup(
 			testDepotEntryGroup.getGroupId(),
 			file -> _importPreviewResource.postAssetLibraryImportPreview(
-				testDepotEntryGroup.getExternalReferenceCode(), 0L, null, null,
+				testDepotEntryGroup.getExternalReferenceCode(), null, null,
 				HashMapBuilder.put(
 					"file", file
 				).build()),
 			importProcessRequest ->
 				importProcessResource.postSiteImportProcessHttpResponse(
-					externalReferenceCode, 0L, null, importProcessRequest));
+					externalReferenceCode, null, null, importProcessRequest));
 		_testPostImportProcessWithSettings(
 			testGroup.getGroupId(),
 			file -> _importPreviewResource.postSiteImportPreview(
-				externalReferenceCode, 0L, null, null,
+				externalReferenceCode, null, null, null,
 				HashMapBuilder.put(
 					"file", file
 				).build()),
 			importProcessRequest -> importProcessResource.postSiteImportProcess(
-				externalReferenceCode, 0L, null, importProcessRequest));
+				externalReferenceCode, null, null, importProcessRequest));
 		_testPostImportProcessWithoutPreview(
 			importProcessRequest ->
 				importProcessResource.postSiteImportProcessHttpResponse(
-					externalReferenceCode, 0L, null, importProcessRequest));
+					externalReferenceCode, null, null, importProcessRequest));
 		_testPostImportProcessWithLayoutSet(
 			file -> _importPreviewResource.postSiteImportPreview(
-				externalReferenceCode, 0L, null, null,
+				externalReferenceCode, null, null, null,
 				HashMapBuilder.put(
 					"file", file
 				).build()),
 			importProcessRequest -> importProcessResource.postSiteImportProcess(
-				externalReferenceCode, 0L, null, importProcessRequest));
+				externalReferenceCode, null, null, importProcessRequest));
+		_testPostSiteImportProcessWithLayoutSetPrototypeGroup();
 	}
 
 	@Override
@@ -477,10 +492,12 @@ public class ImportProcessResourceTest
 			"allModelAdditionCountersTotal", 100L);
 		backgroundTaskStatus.setAttribute(
 			"currentModelAdditionCountersTotal", 50L);
+		backgroundTaskStatus.setAttribute("phaseIndex", 1);
+		backgroundTaskStatus.setAttribute("phasesTotal", 2);
 
 		return new ProcessProgress() {
 			{
-				percentage = 50;
+				percentage = 75;
 			}
 		};
 	}
@@ -553,14 +570,14 @@ public class ImportProcessResourceTest
 		}
 	}
 
-	private long _addLayoutWithPortlet(Group group, String portletId)
+	private Layout _addLayoutWithPortlet(Group group, String portletId)
 		throws Exception {
 
 		Layout layout = LayoutTestUtil.addTypePortletLayout(group);
 
 		LayoutTestUtil.addPortletToLayout(layout, portletId);
 
-		return layout.getPlid();
+		return layout;
 	}
 
 	private void _deleteTempFileEntries(long groupId) throws Exception {
@@ -678,7 +695,32 @@ public class ImportProcessResourceTest
 		postImportPreviewUnsafeFunction.apply(file);
 
 		ImportProcess importProcess = postImportProcessUnsafeFunction.apply(
-			new ImportProcessRequest());
+			new ImportProcessRequest() {
+				{
+					portletDataHandlers = new PortletDataHandler[] {
+						new PortletDataHandler() {
+							{
+								name =
+									"PORTLET_DATA_" +
+										LayoutAdminPortletKeys.
+											LAYOUT_SET_LAYOUTS;
+								portletDataHandlerControls =
+									new PortletDataHandlerControl[] {
+										new PortletDataHandlerTreeSelection() {
+											{
+												name = "_layout_set_pages";
+												selected = true;
+												type =
+													PortletDataHandlerControl.
+														Type.TREE_SELECTION;
+											}
+										}
+									};
+							}
+						}
+					};
+				}
+			});
 
 		assertValid(importProcess);
 
@@ -804,9 +846,9 @@ public class ImportProcessResourceTest
 
 		ImportProcessRequest importProcessRequest = new ImportProcessRequest();
 
-		importProcessRequest.setRequestPortletDataHandlers(
-			new RequestPortletDataHandler[] {
-				new RequestPortletDataHandler() {
+		importProcessRequest.setPortletDataHandlers(
+			new PortletDataHandler[] {
+				new PortletDataHandler() {
 					{
 						name =
 							"PORTLET_DATA_" + objectDefinition.getPortletId();
@@ -952,9 +994,9 @@ public class ImportProcessResourceTest
 
 		ImportProcessRequest importProcessRequest = new ImportProcessRequest();
 
-		importProcessRequest.setRequestPortletDataHandlers(
-			new RequestPortletDataHandler[] {
-				new RequestPortletDataHandler() {
+		importProcessRequest.setPortletDataHandlers(
+			new PortletDataHandler[] {
+				new PortletDataHandler() {
 					{
 						name = "PORTLET_DATA_" + portletId;
 					}
@@ -979,22 +1021,6 @@ public class ImportProcessResourceTest
 			});
 	}
 
-	private void _testPostImportProcessWithoutPlid(
-			UnsafeFunction
-				<ImportProcessRequest, HttpInvoker.HttpResponse, Exception>
-					unsafeFunction)
-		throws Exception {
-
-		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
-				"com.liferay.portal.vulcan.internal.jaxrs.exception.mapper." +
-					"WebApplicationExceptionMapper",
-				LoggerTestUtil.WARN)) {
-
-			assertHttpResponseStatusCode(
-				400, unsafeFunction.apply(new ImportProcessRequest()));
-		}
-	}
-
 	private void _testPostImportProcessWithoutPreview(
 			UnsafeFunction
 				<ImportProcessRequest, HttpInvoker.HttpResponse, Exception>
@@ -1009,6 +1035,166 @@ public class ImportProcessResourceTest
 			assertHttpResponseStatusCode(
 				404, unsafeFunction.apply(new ImportProcessRequest()));
 		}
+	}
+
+	private void _testPostSiteImportProcessWithLayoutSetPrototypeGroup()
+		throws Exception {
+
+		_layoutSetPrototype = LayoutTestUtil.addLayoutSetPrototype(
+			RandomTestUtil.randomString());
+
+		Group group = _layoutSetPrototype.getGroup();
+
+		Layout layout = LayoutTestUtil.addTypeContentLayout(
+			group, false, false);
+
+		File file = _exportLayoutAsFile(
+			group.getGroupId(), false, new long[] {layout.getLayoutId()});
+
+		_layoutLocalService.deleteLayout(
+			layout, ServiceContextTestUtil.getServiceContext());
+
+		String externalReferenceCode = group.getExternalReferenceCode();
+
+		_importPreviewResource.postSiteImportPreview(
+			externalReferenceCode, null, null, null,
+			HashMapBuilder.put(
+				"file", file
+			).build());
+
+		ImportProcess importProcess =
+			importProcessResource.postSiteImportProcess(
+				externalReferenceCode, null, null, new ImportProcessRequest());
+
+		ExportImportTestUtil.retryAssert(
+			1, TimeUnit.SECONDS, 30, TimeUnit.SECONDS,
+			() -> {
+				BackgroundTask backgroundTask =
+					_backgroundTaskLocalService.getBackgroundTask(
+						importProcess.getId());
+
+				Assert.assertEquals(
+					BackgroundTaskConstants.STATUS_SUCCESSFUL,
+					backgroundTask.getStatus());
+			});
+
+		Assert.assertNotNull(
+			_layoutLocalService.fetchLayoutByUuidAndGroupId(
+				layout.getUuid(), group.getGroupId(), true));
+		Assert.assertNull(
+			_layoutLocalService.fetchLayoutByUuidAndGroupId(
+				layout.getUuid(), group.getGroupId(), false));
+	}
+
+	private void _testPostSiteImportProcessWithScope(
+			String externalReferenceCode, String portletId)
+		throws Exception {
+
+		Layout layout = _addLayoutWithPortlet(testGroup, portletId);
+
+		File file = _exportPortletAsFile(
+			testGroup.getGroupId(), layout.getPlid(), portletId);
+
+		layout = LayoutTestUtil.addTypePortletLayout(testGroup);
+
+		Group scopeGroup = GroupTestUtil.addGroup(
+			TestPropsValues.getUserId(), testGroup.getGroupId(), layout);
+
+		LayoutTestUtil.addPortletToLayout(
+			layout, portletId,
+			HashMapBuilder.put(
+				"lfrScopeLayoutUuid", new String[] {layout.getUuid()}
+			).put(
+				"lfrScopeType", new String[] {"layout"}
+			).build());
+
+		_importPreviewResource.postSiteImportPreview(
+			externalReferenceCode, portletId, layout.getExternalReferenceCode(),
+			null,
+			HashMapBuilder.put(
+				"file", file
+			).build());
+
+		ImportProcess importProcess =
+			importProcessResource.postSiteImportProcess(
+				externalReferenceCode, portletId,
+				layout.getExternalReferenceCode(), new ImportProcessRequest());
+
+		ExportImportTestUtil.assertBackgroundTaskSuccessful(
+			importProcess.getId());
+
+		BackgroundTask backgroundTask =
+			_backgroundTaskLocalService.getBackgroundTask(
+				importProcess.getId());
+
+		Assert.assertEquals(
+			scopeGroup.getGroupId(), backgroundTask.getGroupId());
+
+		Page<ImportProcess> page =
+			importProcessResource.getSiteImportProcessesPage(
+				externalReferenceCode, null, portletId, null,
+				layout.getExternalReferenceCode(), null, Pagination.of(1, 10),
+				null);
+
+		assertContains(importProcess, (List<ImportProcess>)page.getItems());
+
+		Layout globalLayout = LayoutTestUtil.addTypePortletLayout(testGroup);
+
+		LayoutTestUtil.addPortletToLayout(
+			globalLayout, portletId,
+			HashMapBuilder.put(
+				"lfrScopeType", new String[] {"company"}
+			).build());
+
+		_importPreviewResource.postSiteImportPreview(
+			externalReferenceCode, portletId,
+			globalLayout.getExternalReferenceCode(), null,
+			HashMapBuilder.put(
+				"file", file
+			).build());
+
+		importProcess = importProcessResource.postSiteImportProcess(
+			externalReferenceCode, portletId,
+			globalLayout.getExternalReferenceCode(),
+			new ImportProcessRequest());
+
+		backgroundTask = _backgroundTaskLocalService.getBackgroundTask(
+			importProcess.getId());
+
+		Group companyGroup = _groupLocalService.getCompanyGroup(
+			testCompany.getCompanyId());
+
+		Assert.assertEquals(
+			companyGroup.getGroupId(), backgroundTask.getGroupId());
+	}
+
+	private void _testPostSiteImportProcessWithSitePage(
+			String externalReferenceCode, String portletId)
+		throws Exception {
+
+		try (LogCapture logCapture = LoggerTestUtil.configureLog4JLogger(
+				"com.liferay.portal.vulcan.internal.jaxrs.exception.mapper." +
+					"WebApplicationExceptionMapper",
+				LoggerTestUtil.WARN)) {
+
+			assertHttpResponseStatusCode(
+				400,
+				importProcessResource.postSiteImportProcessHttpResponse(
+					externalReferenceCode, null, RandomTestUtil.randomString(),
+					new ImportProcessRequest()));
+			assertHttpResponseStatusCode(
+				400,
+				importProcessResource.postSiteImportProcessHttpResponse(
+					externalReferenceCode, portletId,
+					RandomTestUtil.randomString(), new ImportProcessRequest()));
+		}
+	}
+
+	private InstanceImportProcessRequest _toInstanceImportProcessRequest(
+		ImportProcessRequest importProcessRequest) {
+
+		return InstanceImportProcessRequest.toDTO(
+			importProcessRequest.toString());
 	}
 
 	private static final String _STATUS_MESSAGE =
@@ -1029,6 +1215,9 @@ public class ImportProcessResourceTest
 
 	@Inject
 	private LayoutLocalService _layoutLocalService;
+
+	@DeleteAfterTestRun
+	private LayoutSetPrototype _layoutSetPrototype;
 
 	@Inject
 	private ObjectDefinitionLocalService _objectDefinitionLocalService;

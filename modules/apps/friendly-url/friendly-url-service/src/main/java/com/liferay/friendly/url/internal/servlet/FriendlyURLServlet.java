@@ -39,6 +39,7 @@ import com.liferay.portal.kernel.model.LayoutFriendlyURL;
 import com.liferay.portal.kernel.model.ResourceConstants;
 import com.liferay.portal.kernel.model.User;
 import com.liferay.portal.kernel.model.VirtualLayoutConstants;
+import com.liferay.portal.kernel.model.impl.VirtualLayout;
 import com.liferay.portal.kernel.model.role.RoleConstants;
 import com.liferay.portal.kernel.module.service.Snapshot;
 import com.liferay.portal.kernel.portlet.LayoutFriendlyURLSeparatorComposite;
@@ -308,7 +309,8 @@ public class FriendlyURLServlet extends HttpServlet {
 										user.getUserId(), layout.getGroupId()),
 									ActionKeys.VIEW)) {
 
-							if (AuthLoginGroupSettingsUtil.isPromptEnabled(
+							if (user.isGuestUser() &&
+								AuthLoginGroupSettingsUtil.isPromptEnabled(
 									group.getGroupId())) {
 
 								return new Redirect(
@@ -322,8 +324,26 @@ public class FriendlyURLServlet extends HttpServlet {
 					else if (!LayoutPermissionUtil.contains(
 								permissionChecker, layout, ActionKeys.VIEW)) {
 
-						if (AuthLoginGroupSettingsUtil.isPromptEnabled(
+						if (user.isGuestUser() &&
+							AuthLoginGroupSettingsUtil.isPromptEnabled(
 								group.getGroupId())) {
+
+							if (layout.isTypeLinkToLayout() ||
+								layout.isTypeURL()) {
+
+								long groupId = 0;
+
+								if (layout instanceof VirtualLayout) {
+									groupId = layout.getGroupId();
+								}
+
+								return new Redirect(
+									HttpComponentsUtil.addParameter(
+										HttpComponentsUtil.addParameter(
+											Portal.PATH_MAIN + "/portal/layout",
+											"p_l_id", layout.getPlid()),
+										"p_v_l_s_g_id", groupId));
+							}
 
 							return new Redirect(
 								portal.getLayoutActualURL(
@@ -1108,18 +1128,17 @@ public class FriendlyURLServlet extends HttpServlet {
 			if (y != -1) {
 				layoutFriendlyURL = layoutFriendlyURL.substring(0, y);
 			}
+
+			layoutFriendlyURL = HttpComponentsUtil.encodePath(
+				layoutFriendlyURL);
 		}
 		else {
 			layoutFriendlyURL = layout.getFriendlyURL(originalLocale);
 		}
 
-		String encodedLayoutFriendlyURL = HttpComponentsUtil.encodePath(
-			layoutFriendlyURL);
-
-		if (requestURI.contains(encodedLayoutFriendlyURL)) {
+		if (requestURI.contains(layoutFriendlyURL)) {
 			requestURI = StringUtil.replaceFirst(
-				requestURI, encodedLayoutFriendlyURL,
-				HttpComponentsUtil.encodePath(layout.getFriendlyURL(locale)));
+				requestURI, layoutFriendlyURL, layout.getFriendlyURL(locale));
 		}
 
 		boolean appendI18nPath = true;

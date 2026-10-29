@@ -64,6 +64,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.sql.DataSource;
 
@@ -280,12 +282,14 @@ public class DBPartitionUtil {
 			}
 
 			for (long companyId : companyIds) {
-				if (companyId != _defaultCompanyId) {
-					try (SafeCloseable safeCloseable = CompanyThreadLocal.lock(
-							companyId)) {
+				if (companyId == _defaultCompanyId) {
+					continue;
+				}
 
-						unsafeConsumer.accept(companyId);
-					}
+				try (SafeCloseable safeCloseable = CompanyThreadLocal.lock(
+						companyId)) {
+
+					unsafeConsumer.accept(companyId);
 				}
 			}
 		}
@@ -811,17 +815,18 @@ public class DBPartitionUtil {
 								fromCompanyId));
 					}
 
-					if (StringUtil.equalsIgnoreCase(
+					if (!StringUtil.equalsIgnoreCase(
 							fromTableName, "ResourcePermission")) {
 
-						statement.executeUpdate(
-							StringBundler.concat(
-								"update ", partitionTableName, " set primKey ",
-								"= '", toCompanyId, "', primKeyId = ",
-								toCompanyId, " where primKey = '",
-								fromCompanyId, "' and scope = ",
-								ResourceConstants.SCOPE_COMPANY));
+						continue;
 					}
+
+					statement.executeUpdate(
+						StringBundler.concat(
+							"update ", partitionTableName, " set primKey = ",
+							"'", toCompanyId, "', primKeyId = ", toCompanyId,
+							" where primKey = '", fromCompanyId,
+							"' and scope = ", ResourceConstants.SCOPE_COMPANY));
 				}
 			}
 
@@ -1085,17 +1090,18 @@ public class DBPartitionUtil {
 							companyId, connection, tableName, statement,
 							dbInspector, false);
 
-						if (StringUtil.equalsIgnoreCase(
+						if (!StringUtil.equalsIgnoreCase(
 								tableName, "DLFileEntryType")) {
 
-							_moveData(
-								_defaultPartitionName, exportedPartitionName,
-								tableName,
-								_getColumnNames(
-									connection, _defaultPartitionName,
-									tableName),
-								statement, " where companyId = 0", false);
+							continue;
 						}
+
+						_moveData(
+							_defaultPartitionName, exportedPartitionName,
+							tableName,
+							_getColumnNames(
+								connection, _defaultPartitionName, tableName),
+							statement, " where companyId = 0", false);
 					}
 				}
 			}
@@ -1156,11 +1162,13 @@ public class DBPartitionUtil {
 						continue;
 					}
 
-					if (dbInspector.isControlTable(tableName)) {
-						_exportTable(
-							companyId, connection, tableName, statement,
-							dbInspector, false);
+					if (!dbInspector.isControlTable(tableName)) {
+						continue;
 					}
+
+					_exportTable(
+						companyId, connection, tableName, statement,
+						dbInspector, false);
 				}
 			}
 
@@ -1670,6 +1678,13 @@ public class DBPartitionUtil {
 			_defaultPartitionName = _dbPartitionDB.getDefaultPartitionName(
 				connection);
 		}
+
+		_defaultPartitionNamePattern = Pattern.compile(
+			StringBundler.concat(
+				"(?<![\\w$])[`\"]?",
+				Pattern.quote(StringUtil.toLowerCase(_defaultPartitionName)),
+				"[`\"]?", _REGEX_SQL_WHITESPACE, "\\."),
+			Pattern.DOTALL);
 	}
 
 	private static boolean _isCopyableQuartzTable(String tableName) {
@@ -1930,6 +1945,23 @@ public class DBPartitionUtil {
 						throw new UnsupportedOperationException(
 							"Unsupported SQL: " + sql);
 					}
+
+					Matcher quotedStringMatcher = _quotedStringPattern.matcher(
+						lowerCaseSQL);
+
+					String unquotedSQL = quotedStringMatcher.replaceAll("''");
+
+					Matcher defaultPartitionNameMatcher =
+						_defaultPartitionNamePattern.matcher(unquotedSQL);
+					Matcher setPartitionMatcher = _setPartitionPattern.matcher(
+						unquotedSQL);
+
+					if (defaultPartitionNameMatcher.find() ||
+						setPartitionMatcher.lookingAt()) {
+
+						throw new UnsupportedOperationException(
+							"Unsupported SQL: " + sql);
+					}
 				}
 
 				Connection connection = statement.getConnection();
@@ -2012,6 +2044,9 @@ public class DBPartitionUtil {
 	private static final String _CLASS_NAME_PREFIX_CUSTOM_OBJECT_DEFINITION =
 		"com.liferay.object.model.ObjectDefinition#";
 
+	private static final String _REGEX_SQL_WHITESPACE =
+		"(?:\\s++|/\\*.*?\\*/|--[^\\n]*+|#[^\\n]*+)*+";
+
 	private static final String _TABLE_NAME_PREFIX_QUARTZ = GetterUtil.get(
 		PropsUtil.get("persisted.scheduler.org.quartz.jobStore.tablePrefix"),
 		"QUARTZ_");
@@ -2022,5 +2057,14 @@ public class DBPartitionUtil {
 	private static DBPartitionDB _dbPartitionDB;
 	private static volatile long _defaultCompanyId;
 	private static String _defaultPartitionName;
+	private static Pattern _defaultPartitionNamePattern;
+	private static final Pattern _quotedStringPattern = Pattern.compile(
+		"'(?:[^'\\\\]++|\\\\.|'')*+'");
+	private static final Pattern _setPartitionPattern = Pattern.compile(
+		StringBundler.concat(
+			_REGEX_SQL_WHITESPACE, "(?:use\\b|set\\b", _REGEX_SQL_WHITESPACE,
+			"(?:(?:local|session)\\b", _REGEX_SQL_WHITESPACE,
+			")?(?:schema|search_path)\\b)"),
+		Pattern.DOTALL);
 
 }

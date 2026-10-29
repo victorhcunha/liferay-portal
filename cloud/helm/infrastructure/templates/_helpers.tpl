@@ -35,6 +35,9 @@ readOnlyRootFilesystem: false
 
 {{- define "liferay.validateEndpoint" -}}
 {{- $externalSecretKeys := dig "tls" "externalSecretKeys" (list) .endpoint -}}
+{{- if not (has (int .endpoint.port) (list 80 443)) -}}
+{{- fail (printf "The %s endpoint uses port %v, but gateways only listen on ports 80 and 443" .name .endpoint.port) -}}
+{{- end -}}
 {{- if and (eq (int .endpoint.port) 80) (not .endpoint.hostname) (ne .name "http") -}}
 {{- fail (printf "The %s endpoint uses port 80 without a hostname, which collides with the implicit http listener" .name) -}}
 {{- end -}}
@@ -62,8 +65,11 @@ readOnlyRootFilesystem: false
 {{- printf "%s-search-secret-reader" .Release.Name -}}
 {{- end -}}
 
-{{- define "search.validateEngine" -}}
-{{- if not (has .Values.search.engine (list "elasticsearch" "opensearch")) -}}
-{{- fail (printf "Unsupported search engine: %s" .Values.search.engine) -}}
+{{- define "search.engine" -}}
+{{- $supportedEngines := .Values.search.supportedEngines -}}
+{{- $engine := .Values.search.engine | default (has "opensearch" $supportedEngines | ternary "opensearch" (first $supportedEngines)) -}}
+{{- if not (has $engine $supportedEngines) -}}
+{{- fail (printf "Search engine %s is not available on this cloud, which supports: %s" $engine (join ", " $supportedEngines)) -}}
 {{- end -}}
+{{- $engine -}}
 {{- end -}}
