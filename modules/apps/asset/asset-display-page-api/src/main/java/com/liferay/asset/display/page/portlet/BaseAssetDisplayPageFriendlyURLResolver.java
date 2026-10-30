@@ -37,6 +37,7 @@ import com.liferay.layout.page.template.service.LayoutPageTemplateEntryService;
 import com.liferay.layout.page.template.util.LayoutPageTemplateEntryUtil;
 import com.liferay.layout.seo.template.LayoutSEOTemplateProcessor;
 import com.liferay.petra.string.CharPool;
+import com.liferay.petra.string.StringBundler;
 import com.liferay.petra.string.StringPool;
 import com.liferay.petra.string.StringUtil;
 import com.liferay.portal.configuration.module.configuration.ConfigurationProviderUtil;
@@ -399,6 +400,56 @@ public abstract class BaseAssetDisplayPageFriendlyURLResolver
 	@Reference
 	protected Portal portal;
 
+	private boolean _checkViewPermission(
+		Object infoItem,
+		LayoutDisplayPageObjectProvider<?> layoutDisplayPageObjectProvider,
+		Map<String, Object> requestContext) {
+
+		PermissionChecker originalPermissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		try {
+			PermissionChecker permissionChecker = _getPermissionChecker(
+				requestContext);
+
+			PermissionThreadLocal.setPermissionChecker(permissionChecker);
+
+			InfoItemPermissionProvider<Object> infoItemPermissionProvider =
+				infoItemServiceRegistry.getFirstInfoItemService(
+					InfoItemPermissionProvider.class,
+					layoutDisplayPageObjectProvider.getClassName());
+
+			if (infoItemPermissionProvider != null) {
+				return infoItemPermissionProvider.hasPermission(
+					permissionChecker, infoItem, ActionKeys.VIEW);
+			}
+
+			AssetRendererFactory<?> assetRendererFactory =
+				AssetRendererFactoryRegistryUtil.
+					getAssetRendererFactoryByClassName(
+						layoutDisplayPageObjectProvider.getClassName());
+
+			if (assetRendererFactory == null) {
+				return true;
+			}
+
+			return assetRendererFactory.hasPermission(
+				permissionChecker, layoutDisplayPageObjectProvider.getClassPK(),
+				ActionKeys.VIEW);
+		}
+		catch (Exception exception) {
+			if (_log.isDebugEnabled()) {
+				_log.debug(exception);
+			}
+
+			return false;
+		}
+		finally {
+			PermissionThreadLocal.setPermissionChecker(
+				originalPermissionChecker);
+		}
+	}
+
 	private <T> AssetEntry _getAssetEntry(
 		T infoItem,
 		LayoutDisplayPageObjectProvider<?> layoutDisplayPageObjectProvider) {
@@ -643,50 +694,34 @@ public abstract class BaseAssetDisplayPageFriendlyURLResolver
 		LayoutDisplayPageObjectProvider<?> layoutDisplayPageObjectProvider,
 		Map<String, Object> requestContext) {
 
-		PermissionChecker originalPermissionChecker =
-			PermissionThreadLocal.getPermissionChecker();
+		HttpServletRequest httpServletRequest =
+			(HttpServletRequest)requestContext.get("request");
 
-		try {
-			PermissionChecker permissionChecker = _getPermissionChecker(
-				requestContext);
-
-			PermissionThreadLocal.setPermissionChecker(permissionChecker);
-
-			InfoItemPermissionProvider<Object> infoItemPermissionProvider =
-				infoItemServiceRegistry.getFirstInfoItemService(
-					InfoItemPermissionProvider.class,
-					layoutDisplayPageObjectProvider.getClassName());
-
-			if (infoItemPermissionProvider != null) {
-				return infoItemPermissionProvider.hasPermission(
-					permissionChecker, infoItem, ActionKeys.VIEW);
-			}
-
-			AssetRendererFactory<?> assetRendererFactory =
-				AssetRendererFactoryRegistryUtil.
-					getAssetRendererFactoryByClassName(
-						layoutDisplayPageObjectProvider.getClassName());
-
-			if (assetRendererFactory == null) {
-				return true;
-			}
-
-			return assetRendererFactory.hasPermission(
-				permissionChecker, layoutDisplayPageObjectProvider.getClassPK(),
-				ActionKeys.VIEW);
+		if (httpServletRequest == null) {
+			return _checkViewPermission(
+				infoItem, layoutDisplayPageObjectProvider, requestContext);
 		}
-		catch (Exception exception) {
-			if (_log.isDebugEnabled()) {
-				_log.debug(exception);
-			}
 
-			return false;
+		String key = StringBundler.concat(
+			_VIEW_PERMISSION_KEY_PREFIX,
+			layoutDisplayPageObjectProvider.getClassName(), StringPool.POUND,
+			layoutDisplayPageObjectProvider.getClassPK());
+
+		Boolean hasViewPermission = (Boolean)httpServletRequest.getAttribute(
+			key);
+
+		if (hasViewPermission == null) {
+			hasViewPermission = _checkViewPermission(
+				infoItem, layoutDisplayPageObjectProvider, requestContext);
+
+			httpServletRequest.setAttribute(key, hasViewPermission);
 		}
-		finally {
-			PermissionThreadLocal.setPermissionChecker(
-				originalPermissionChecker);
-		}
+
+		return hasViewPermission;
 	}
+
+	private static final String _VIEW_PERMISSION_KEY_PREFIX =
+		BaseAssetDisplayPageFriendlyURLResolver.class.getName() + "#VIEW#";
 
 	private static final Log _log = LogFactoryUtil.getLog(
 		BaseAssetDisplayPageFriendlyURLResolver.class);
