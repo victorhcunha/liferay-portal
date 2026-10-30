@@ -660,6 +660,15 @@ public abstract class BaseAssetDisplayPageFriendlyURLResolver
 				portal.getCompanyId(httpServletRequest));
 		}
 
+		PermissionChecker permissionChecker =
+			PermissionThreadLocal.getPermissionChecker();
+
+		if ((permissionChecker != null) &&
+			(permissionChecker.getUserId() == user.getUserId())) {
+
+			return permissionChecker;
+		}
+
 		return PermissionThreadLocal.getPermissionChecker(user, false);
 	}
 
