@@ -50,6 +50,8 @@ import com.liferay.portal.kernel.json.JSONUtil;
 import com.liferay.portal.kernel.language.Language;
 import com.liferay.portal.kernel.log.Log;
 import com.liferay.portal.kernel.log.LogFactoryUtil;
+import com.liferay.portal.kernel.model.BaseModel;
+import com.liferay.portal.kernel.model.TrashedModel;
 import com.liferay.portal.kernel.repository.model.FileEntry;
 import com.liferay.portal.kernel.security.permission.ActionKeys;
 import com.liferay.portal.kernel.theme.ThemeDisplay;
@@ -142,8 +144,9 @@ public class FragmentEntryProcessorHelperImpl
 			ClassPKInfoItemIdentifier classPKInfoItemIdentifier =
 				(ClassPKInfoItemIdentifier)infoItemIdentifier;
 
-			if (trashHandler.isInTrash(
-					classPKInfoItemIdentifier.getClassPK())) {
+			if (_isInTrash(
+					classPKInfoItemIdentifier, infoItemFieldMapped.getObject(),
+					trashHandler)) {
 
 				return null;
 			}
@@ -1198,6 +1201,24 @@ public class FragmentEntryProcessorHelperImpl
 
 			return false;
 		}
+	}
+
+	private boolean _isInTrash(
+			ClassPKInfoItemIdentifier classPKInfoItemIdentifier, Object object,
+			TrashHandler trashHandler)
+		throws PortalException {
+
+		if (Validator.isNull(classPKInfoItemIdentifier.getVersion()) &&
+			(object instanceof BaseModel<?> baseModel) &&
+			(object instanceof TrashedModel trashedModel) &&
+			Objects.equals(
+				baseModel.getPrimaryKeyObj(),
+				classPKInfoItemIdentifier.getClassPK())) {
+
+			return trashedModel.isInTrash();
+		}
+
+		return trashHandler.isInTrash(classPKInfoItemIdentifier.getClassPK());
 	}
 
 	private static final InfoCollectionTextFormatter<Object>
